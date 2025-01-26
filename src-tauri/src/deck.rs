@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-use ap_core::cards::{CardType, CardsDatabase};
-use ap_core::models::deck::{Deck, Quantities};
+use arenabuddy_core::cards::{CardType, CardsDatabase};
+use arenabuddy_core::models::deck::{Deck, Quantities};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 

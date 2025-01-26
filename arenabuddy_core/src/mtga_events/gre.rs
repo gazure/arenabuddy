@@ -8,13 +8,11 @@ use crate::mtga_events::primitives::{
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-///
-/// GRE refers to the server-side MTGA engine
-///
-/// no clue what it actually stands for, but these are a bunch of events that come from
-/// the server to the game client
-///
-///
+//
+// GRE refers to the server-side MTGA engine
+//
+// no clue what it actually stands for, but these are a bunch of events that come from
+// the server to the game client
 
 macro_rules! wrapper {
     ($wrapperName:ident, $name:ident, $snake:ident) => {

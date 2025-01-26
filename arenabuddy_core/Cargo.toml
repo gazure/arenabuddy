@@ -1,5 +1,5 @@
 [package]
-name = "ap_core"
+name = "arenabuddy_core"
 authors.workspace = true
 categories.workspace = true
 version.workspace = true

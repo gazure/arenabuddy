@@ -5,9 +5,9 @@ use crate::mtga_events::primitives::{SubZoneType, Target, ZoneType};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-///
-/// Client messages to the game server
-///
+//
+// Client messages to the game server
+//
 
 macro_rules! wrapper {
     ($wrapperName:ident, $name:ident, $snake:ident) => {

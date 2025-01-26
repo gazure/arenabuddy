@@ -11,8 +11,8 @@ use std::error::Error;
 use std::fmt::Display;
 use std::sync::{Arc, Mutex};
 
-use ap_core::cards::CardsDatabase;
-use ap_core::match_insights::MatchInsightDB;
+use arenabuddy_core::cards::CardsDatabase;
+use arenabuddy_core::match_insights::MatchInsightDB;
 use log_collector::LogCollector;
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
@@ -120,12 +120,14 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
 
     app.manage(log_collector.clone());
 
-    ingest::start_processing_logs(db_arc.clone(), log_collector, player_log_path);
+    ingest::start(db_arc.clone(), log_collector, player_log_path);
     Ok(())
 }
 
+/// # Errors
+/// Will return an error if the tauri runtime fails
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
-pub fn run() {
+pub fn run() -> tauri::Result<()> {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(setup)
@@ -135,5 +137,4 @@ pub fn run() {
             commands::error_logs::command_error_logs,
         ])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
 }

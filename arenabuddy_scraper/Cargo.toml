@@ -1,6 +1,7 @@
 
 [package]
 name = "arenabuddy_scraper"
+description = "scraping utility for building Magic: the Gathering card databases"
 authors.workspace = true
 categories.workspace = true
 version.workspace = true
@@ -12,7 +13,7 @@ license.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ap_core = { path = "../ap_core" }
+arenabuddy_core = { path = "../arenabuddy_core", version = "0.1.0" }
 anyhow = { workspace = true }
 csv = { workspace = true }
 reqwest = { workspace = true, features = ["json"] }

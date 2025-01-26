@@ -6,10 +6,10 @@ use clap::Parser;
 use crossbeam::channel::{select, unbounded, Receiver};
 use tracing::error;
 
-use ap_core::match_insights::MatchInsightDB;
-use ap_core::processor::{ArenaEventSource, PlayerLogProcessor};
-use ap_core::replay::MatchReplayBuilder;
-use ap_core::storage_backends::{ArenaMatchStorageBackend, DirectoryStorageBackend};
+use arenabuddy_core::match_insights::MatchInsightDB;
+use arenabuddy_core::processor::{ArenaEventSource, PlayerLogProcessor};
+use arenabuddy_core::replay::MatchReplayBuilder;
+use arenabuddy_core::storage_backends::{ArenaMatchStorageBackend, DirectoryStorageBackend};
 
 const PLAYER_LOG_POLLING_INTERVAL: u64 = 1;
 
@@ -53,8 +53,9 @@ fn main() -> Result<()> {
     let mut processor = PlayerLogProcessor::try_new(args.player_log)?;
     let mut match_replay_builder = MatchReplayBuilder::new();
     let mut storage_backends: Vec<Box<dyn ArenaMatchStorageBackend>> = Vec::new();
-    let cards_db =
-        ap_core::cards::CardsDatabase::new(args.cards_db.unwrap_or("data/merged.json".into()))?;
+    let cards_db = arenabuddy_core::cards::CardsDatabase::new(
+        args.cards_db.unwrap_or("data/merged.json".into()),
+    )?;
 
     let ctrl_c_rx = ctrl_c_channel()?;
     if let Some(output_dir) = args.output_dir {
