@@ -1,0 +1,152 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Checks
+    uses: ./.github/workflows/checks.yml
+
+  tests:
+    name: Tests
+    needs: [checks]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: install system deps
+        run: |
+          sudo apt update
+          sudo apt install libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: Install tauri cli
+        run: |
+          cargo binstall tauri-cli --version "^2.0.0" --locked
+
+      - name: Create out directory
+        shell: bash
+        run: mkdir -p ./out
+
+      - name: Run cargo tests
+        working-directory: ./
+        env:
+          RUST_BACKTRACE: 1
+          RUSTFLAGS: -Cinstrument-coverage
+        run: cargo test --all
+
+  build-cli:
+    name: ${{ matrix.platform }}
+    needs: [checks]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - macos-arm64
+          - macos-x64
+          - windows-x64
+
+        include:
+          - platform: macos-arm64
+            os: macos-14
+          - platform: macos-x64
+            os: macos-13
+          - platform: windows-x64
+            os: windows-2022
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Install tauri cli
+        run: |
+          cargo install tauri-cli --version "^2.0.0" --locked
+      - name: Build
+        env:
+          CARGO_TERM_COLOR: always
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          RUST_BACKTRACE: 1
+          RUST_LOG: "info"
+          RUST_LOG_SPAN_EVENTS: full
+          RUSTFLAGS: -Cinstrument-coverage
+          RUSTDOCFLAGS: -Cinstrument-coverage
+        run: |
+          cargo build
+
+  build-tauri-app:
+    name: ${{ matrix.platform }}
+    needs: [checks]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - macos-arm64
+          - macos-x64
+          - windows-x64
+
+        include:
+          - platform: macos-arm64
+            os: macos-14
+          - platform: macos-x64
+            os: macos-13
+          - platform: windows-x64
+            os: windows-2022
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Install tauri cli
+        run: |
+          cargo install tauri-cli --version "^2.0.0" --locked
+
+      - name: Create out directory
+        shell: bash
+        run: mkdir -p ./out
+
+      - name: Build
+        env:
+          CARGO_TERM_COLOR: always
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          RUST_BACKTRACE: 1
+          RUST_LOG: "info"
+          RUST_LOG_SPAN_EVENTS: full
+          RUSTFLAGS: -Cinstrument-coverage
+          RUSTDOCFLAGS: -Cinstrument-coverage
+        run: |
+          cargo tauri build
