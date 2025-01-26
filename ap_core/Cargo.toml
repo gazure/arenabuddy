@@ -1,0 +1,24 @@
+[package]
+name = "ap_core"
+authors.workspace = true
+categories.workspace = true
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { workspace = true }
+include_dir = { workspace = true }
+derive_builder = { workspace = true }
+lazy_static = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+itertools = { workspace = true }
+rusqlite = { workspace = true, features = ["bundled"] }
+tracing = { workspace = true }
+rusqlite_migration = { workspace = true, features = ["from-directory"] }
+chrono = { workspace = true, features = ["serde"] }
