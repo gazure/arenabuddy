@@ -1,9 +1,13 @@
 [package]
 name = "arenabuddy"
-version = "0.1.0"
 description = "A Tauri App"
-authors = ["Grant Azure <azure.grant@gmail.com>"]
-edition = "2021"
+authors.workspace = true
+categories.workspace = true
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -15,22 +19,22 @@ name = "arenabuddy_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build = { workspace = true, features = [] }
 
 [dependencies]
-ap_core = {path = "../ap_core"}
-tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-anyhow = "1.0.89"
-chrono = "0.4.38"
-crossbeam = "0.8.4"
-indoc = "2.0.5"
-itertools = "0.13.0"
-crossbeam-channel = "0.5.13"
-tracing = "0.1.40"
-tracing-subscriber = "0.3.18"
-tracing-appender = "0.2.3"
-notify = "6.1.1"
-rusqlite = { version = "0.31.0", features = ["bundled", "chrono"] }
+arenabuddy_core = { path = "../arenabuddy_core", version = "0.1.0" }
+tauri = { workspace = true, features = [] }
+tauri-plugin-opener = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
+crossbeam = { workspace = true }
+indoc = { workspace = true }
+itertools = { workspace = true }
+crossbeam-channel = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+notify = { workspace = true }
+rusqlite = { workspace = true, features = ["bundled", "chrono"] }

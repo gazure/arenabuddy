@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
-use ap_core::cards::{Card, CardFace};
-use csv;
+use arenabuddy_core::cards::{Card, CardFace};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs::File;
@@ -111,14 +110,9 @@ fn merge(
 
     for card in seventeen_lands_cards {
         if let (Some(card_name), Some(card_id_str)) = (card.get("name"), card.get("id")) {
-            let card_name = if let Some(full_name) = card_names_with_2_faces.get(
-                &card_name
-                    .split("//")
-                    .next()
-                    .unwrap_or("")
-                    .trim()
-                    .to_string(),
-            ) {
+            let card_name = if let Some(full_name) =
+                card_names_with_2_faces.get(card_name.split("//").next().unwrap_or("").trim())
+            {
                 full_name
             } else {
                 card_name
@@ -176,7 +170,7 @@ pub async fn process(scryfall_cards_file: &str, seventeen_lands_file: &str) -> R
     info!("Found {} 17Lands cards", seventeen_lands_cards.len());
 
     let mut cards_by_id_mut = cards_by_id.clone();
-    let merged = merge(
+    merge(
         &seventeen_lands_cards,
         &cards_by_name,
         &mut cards_by_id_mut,
@@ -184,7 +178,7 @@ pub async fn process(scryfall_cards_file: &str, seventeen_lands_file: &str) -> R
     );
 
     // Write merged cards to file
-    let merged_json = serde_json::to_string(&merged).context("Failed to serialize merged cards")?;
+    let merged_json = serde_json::to_string(&()).context("Failed to serialize merged cards")?;
     let mut file = File::create(MERGED_OUT)
         .with_context(|| format!("Failed to create file: {}", MERGED_OUT))?;
     file.write_all(merged_json.as_bytes())

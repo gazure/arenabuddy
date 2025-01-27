@@ -47,7 +47,7 @@ pub enum MatchReplayEventRef<'a> {
     Business(&'a BusinessEventRequest),
 }
 
-impl<'a> Serialize for MatchReplayEventRef<'a> {
+impl Serialize for MatchReplayEventRef<'_> {
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
     where
         S: Serializer,

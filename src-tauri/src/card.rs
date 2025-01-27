@@ -1,4 +1,4 @@
-use ap_core::cards::{Card, CardType};
+use arenabuddy_core::cards::{Card, CardType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

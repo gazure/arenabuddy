@@ -5,17 +5,14 @@ use tracing::info;
 
 const SEVENTEEN_LANDS_OUT: &str = "cards/seventeen_lands.csv";
 const SCRYFALL_OUT: &str = "cards/all_cards.json";
-const SCRYFALL_HOST_DEFAULT: &'static str = "https://api.scryfall.com";
-const SEVENTEEN_LANDS_HOST_DEFAULT: &'static str = "https://17lands-public.s3.amazonaws.com";
+const SCRYFALL_HOST_DEFAULT: &str = "https://api.scryfall.com";
+const SEVENTEEN_LANDS_HOST_DEFAULT: &str = "https://17lands-public.s3.amazonaws.com";
 
 pub async fn scrape_scryfall(base_url: &str) -> Result<Value> {
     let client = Client::builder().user_agent("cardscraper/1.0").build()?;
 
     // Get bulk data endpoint
-    let response = client
-        .get(&format!("{}/bulk-data", base_url))
-        .send()
-        .await?;
+    let response = client.get(format!("{}/bulk-data", base_url)).send().await?;
 
     info!("Response: {}", response.status());
     response.error_for_status_ref()?;

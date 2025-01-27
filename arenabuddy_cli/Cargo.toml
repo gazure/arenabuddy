@@ -19,7 +19,7 @@ serde_json = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 rusqlite = { workspace = true, features = ["bundled"] }
-ap_core = { path = "../ap_core", version = "0.1.0" }
+arenabuddy_core = { path = "../arenabuddy_core", version = "0.1.0" }
 
 [[bin]]
 name = "arenaparser"

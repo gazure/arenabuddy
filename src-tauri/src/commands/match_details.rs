@@ -1,10 +1,10 @@
 use std::sync::{Arc, Mutex};
 
-use ap_core::cards::CardsDatabase;
-use ap_core::match_insights::MatchInsightDB;
-use ap_core::models::deck::Deck;
-use ap_core::models::match_result::MatchResult;
-use ap_core::models::mulligan::MulliganInfo;
+use arenabuddy_core::cards::CardsDatabase;
+use arenabuddy_core::match_insights::MatchInsightDB;
+use arenabuddy_core::models::deck::Deck;
+use arenabuddy_core::models::match_result::MatchResult;
+use arenabuddy_core::models::mulligan::MulliganInfo;
 use chrono::{DateTime, Utc};
 use indoc::indoc;
 use serde::{Deserialize, Serialize};

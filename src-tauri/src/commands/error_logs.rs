@@ -6,6 +6,6 @@ use tauri::State;
 pub(crate) fn command_error_logs(
     log_collector: State<'_, Arc<Mutex<LogCollector>>>,
 ) -> Vec<String> {
-    let lock = log_collector.lock().unwrap();
+    let lock = log_collector.lock().expect("log collector lock poisoned");
     lock.get().clone()
 }

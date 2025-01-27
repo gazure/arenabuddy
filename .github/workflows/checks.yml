@@ -8,7 +8,6 @@ on:
   workflow_call:
 
 jobs:
-
   check:
     runs-on: windows-2022
     steps:
@@ -22,7 +21,7 @@ jobs:
         shell: bash
         run: mkdir -p ./out
       - name: Check the project
-        working-directory: ./src-tauri
+        working-directory: ./
         run: |
           cargo check --workspace --all-targets --all-features
 
@@ -39,9 +38,9 @@ jobs:
         shell: bash
         run: mkdir -p ./out
       - name: Check lints
-        working-directory: ./src-tauri
+        working-directory: ./
         run: |
-          cargo clippy --all-targets --all-features --examples --tests
+          cargo clippy --all --all-targets --all-features --examples --tests
 
   fmt:
     runs-on: windows-2022
@@ -57,5 +56,5 @@ jobs:
         shell: bash
         run: mkdir -p ./out
       - name: Check formatting
-        working-directory: ./src-tauri
+        working-directory: ./
         run: cargo fmt --all --check

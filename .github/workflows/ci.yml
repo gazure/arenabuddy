@@ -45,7 +45,7 @@ jobs:
 
       - name: Install tauri cli
         run: |
-          cargo binstall tauri-cli --version "^2.0.0" --locked
+          cargo install tauri-cli --version "^2.0.0" --locked
 
       - name: Create out directory
         shell: bash
@@ -58,13 +58,16 @@ jobs:
           RUSTFLAGS: -Cinstrument-coverage
         run: cargo test --all
 
-  build-cli:
-    name: ${{ matrix.platform }}
+  build-bins:
+    name: cli-${{ matrix.platform }}
     needs: [checks]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        package:
+          - arenabuddy_cli
+          - arenabuddy_scraper
         platform:
           - macos-arm64
           - macos-x64
@@ -87,9 +90,9 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install tauri cli
-        run: |
-          cargo install tauri-cli --version "^2.0.0" --locked
+      # - name: Install tauri cli
+      #   run: |
+      #     cargo install tauri-cli --version "^2.0.0" --locked
       - name: Build
         env:
           CARGO_TERM_COLOR: always
@@ -100,10 +103,10 @@ jobs:
           RUSTFLAGS: -Cinstrument-coverage
           RUSTDOCFLAGS: -Cinstrument-coverage
         run: |
-          cargo build
+          cargo build --package ${{ matrix.package }}
 
   build-tauri-app:
-    name: ${{ matrix.platform }}
+    name: app-${{ matrix.platform }}
     needs: [checks]
     runs-on: ${{ matrix.os }}
     strategy:
@@ -130,23 +133,31 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
+          targets: wasm32-unknown-unknown
 
-      - name: Install tauri cli
+      # - name: Install tauri cli
+      #   run: |
+      #     cargo install tauri-cli --version "^2.0.0" --locked
+
+      - name: Install trunk
         run: |
-          cargo install tauri-cli --version "^2.0.0" --locked
+          cargo install --locked trunk
 
-      - name: Create out directory
-        shell: bash
-        run: mkdir -p ./out
-
+      # - name: Create dist directory
+      #   shell: bash
+      #   run: mkdir -p ./dist
       - name: Build
+        uses: tauri-apps/tauri-action@v0
         env:
-          CARGO_TERM_COLOR: always
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          RUST_BACKTRACE: 1
-          RUST_LOG: "info"
-          RUST_LOG_SPAN_EVENTS: full
-          RUSTFLAGS: -Cinstrument-coverage
-          RUSTDOCFLAGS: -Cinstrument-coverage
-        run: |
-          cargo tauri build
+      # - name: Build
+      #   env:
+      #     CARGO_TERM_COLOR: always
+      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      #     RUST_BACKTRACE: 1
+      #     RUST_LOG: "info"
+      #     RUST_LOG_SPAN_EVENTS: full
+      #     RUSTFLAGS: -Cinstrument-coverage
+      #     RUSTDOCFLAGS: -Cinstrument-coverage
+      #   run: |
+      #     cargo tauri build

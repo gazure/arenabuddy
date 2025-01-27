@@ -2,10 +2,10 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use ap_core::match_insights::MatchInsightDB;
-use ap_core::processor::{ArenaEventSource, ParseError, PlayerLogProcessor};
-use ap_core::replay::MatchReplayBuilder;
-use ap_core::storage_backends::ArenaMatchStorageBackend;
+use arenabuddy_core::match_insights::MatchInsightDB;
+use arenabuddy_core::processor::{ArenaEventSource, ParseError, PlayerLogProcessor};
+use arenabuddy_core::replay::MatchReplayBuilder;
+use arenabuddy_core::storage_backends::ArenaMatchStorageBackend;
 use crossbeam_channel::{select, unbounded, Sender};
 use notify::{Event, Watcher};
 use tracing::{error, info};
@@ -78,7 +78,7 @@ fn log_process_start(
                         }
                         Err(parse_error) => {
                             if let ParseError::Error(s) = parse_error {
-                                let mut lc = log_collector.lock().unwrap();
+                                let mut lc = log_collector.lock().expect("log collector lock should be healthy");
                                 lc.ingest(s);
                             } else {
                                 break;
@@ -91,7 +91,7 @@ fn log_process_start(
     }
 }
 
-pub fn start_processing_logs(
+pub fn start(
     db: Arc<Mutex<MatchInsightDB>>,
     log_collector: Arc<Mutex<LogCollector>>,
     player_log_path: PathBuf,
