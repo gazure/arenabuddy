@@ -29,7 +29,7 @@ pub struct Card {
     pub lang: String,
     pub image_uri: Option<String>,
     pub mana_cost: Option<String>,
-    pub cmc: f32,
+    pub cmc: u8,
     pub type_line: String,
     pub layout: String,
     pub colors: Option<Vec<String>>,
@@ -50,8 +50,9 @@ impl Card {
         }
     }
 
+    #[inline]
     pub fn mana_value(&self) -> u8 {
-        self.cmc as u8
+        self.cmc
     }
 
     pub fn dominant_type(&self) -> CardType {

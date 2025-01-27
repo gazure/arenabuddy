@@ -2,3 +2,4 @@
 /target/
 /Cargo.lock
 /.zed/
+/scrape_data/

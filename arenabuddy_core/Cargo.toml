@@ -1,5 +1,6 @@
 [package]
 name = "arenabuddy_core"
+description = "core modules for arenabuddy"
 authors.workspace = true
 categories.workspace = true
 version.workspace = true

@@ -8,8 +8,8 @@ async fn main() -> Result<()> {
     match std::env::args().nth(1) {
         Some(target) => match target.as_str() {
             "scrape" => arenabuddy_scraper::scrape().await?,
-            "process" => arenabuddy_scraper::process("", "").await?,
-            "clean" => arenabuddy_scraper::clean(),
+            "process" => arenabuddy_scraper::process(None, None).await?,
+            "clean" => arenabuddy_scraper::clean().await?,
             _ => {
                 error!("Unknown target {}", target);
                 std::process::exit(1);
