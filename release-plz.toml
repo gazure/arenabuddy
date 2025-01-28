@@ -1,0 +1,26 @@
+[workspace]
+changelog_config = "config/git-cliff.toml" # use a custom git-cliff configuration
+changelog_update = true                    # disable changelog updates
+dependencies_update = true                 # update dependencies with `cargo update`
+pr_branch_prefix = "release-"              # PR branch prefix
+publish_timeout = "10m"                    # set a timeout for `cargo publish`
+
+[[package]]
+name = "arenabuddy"
+publish = false
+
+[[package]]
+name = "arenabuddy_core"
+publish = true
+
+[[package]]
+name = "arenabuddy_cli"
+publish = true
+
+[[package]]
+name = "arenabuddy_scraper"
+publish = false
+
+[[package]]
+name = "arenabuddy_ui"
+publish = false
