@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 pub struct CardDisplayRecord {
     pub name: String,
     pub type_field: CardType,
-    pub mana_value: i16,
+    pub mana_value: u8,
     pub quantity: u16,
     pub image_uri: String,
 }
@@ -77,7 +77,7 @@ impl From<&Card> for CardDisplayRecord {
             name,
             type_field: entry.dominant_type(),
             #[allow(clippy::cast_possible_truncation)]
-            mana_value: entry.cmc as i16,
+            mana_value: entry.cmc,
             quantity: 1,
             image_uri: image_uri.clone(),
         }
