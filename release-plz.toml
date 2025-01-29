@@ -7,6 +7,7 @@ publish_timeout = "10m"       # set a timeout for `cargo publish`
 [[package]]
 name = "arenabuddy"
 publish = false
+release = false
 
 [[package]]
 name = "arenabuddy_core"
@@ -19,7 +20,9 @@ publish = true
 [[package]]
 name = "arenabuddy_scraper"
 publish = false
+release = false
 
 [[package]]
 name = "arenabuddy_ui"
 publish = false
+release = false
