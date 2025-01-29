@@ -59,7 +59,7 @@ jobs:
         run: cargo test --all
 
   build-bins:
-    name: cli-${{ matrix.platform }}
+    name: ${{ matrix.package }}-${{ matrix.platform }}
     needs: [checks]
     runs-on: ${{ matrix.os }}
     strategy:
