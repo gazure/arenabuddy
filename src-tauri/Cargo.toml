@@ -24,7 +24,7 @@ tauri-build = { workspace = true, features = [] }
 [dependencies]
 arenabuddy_core = { path = "../arenabuddy_core", version = "0.1.0" }
 tauri = { workspace = true, features = [] }
-tauri-plugin-opener = { workspace = true }
+tauri-plugin-opener.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 anyhow = { workspace = true }

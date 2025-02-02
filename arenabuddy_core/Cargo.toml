@@ -19,7 +19,9 @@ lazy_static = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 itertools = { workspace = true }
-rusqlite = { workspace = true, features = ["bundled"] }
 tracing = { workspace = true }
-rusqlite_migration = { workspace = true, features = ["from-directory"] }
 chrono = { workspace = true, features = ["serde"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+rusqlite = { workspace = true, features = ["bundled"] }
+rusqlite_migration = { workspace = true, features = ["from-directory"] }

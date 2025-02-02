@@ -19,9 +19,11 @@ use serde::{Deserialize, Serialize};
 use tauri::{path::BaseDirectory, App, Manager};
 use tracing::{info, Level};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
-use tracing_subscriber::fmt::writer::MakeWriterExt;
-use tracing_subscriber::layer::SubscriberExt;
-use tracing_subscriber::util::SubscriberInitExt;
+use tracing_subscriber::{
+    fmt::{self, writer::MakeWriterExt},
+    layer::SubscriberExt,
+    util::SubscriberInitExt,
+};
 
 mod card;
 mod commands;
@@ -76,9 +78,23 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
         .map_err(|_| ArenaBuddySetupError::LogSetupFailure)?
         .with_max_level(Level::INFO);
 
-    registry
-        .with(tracing_subscriber::fmt::layer().with_writer(file_appender))
-        .init();
+    let file_layer = fmt::layer()
+        .with_writer(file_appender)
+        .with_ansi(false)
+        .with_target(false)
+        .with_thread_ids(true)
+        .with_line_number(true)
+        .with_file(true)
+        .with_level(true);
+
+    let console_layer = fmt::Layer::new()
+        .with_target(true)
+        .with_thread_ids(true)
+        .with_line_number(true)
+        .with_file(true)
+        .with_level(true);
+
+    registry.with(file_layer).with(console_layer).init();
 
     let cards_path = app
         .path()
