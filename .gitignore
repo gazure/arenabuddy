@@ -4,5 +4,6 @@
 /.zed/
 /scrape_data/
 /node_modules/
+src-tauri/logs
 package.json
 package-lock.json

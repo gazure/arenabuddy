@@ -1,3 +1,4 @@
+#![deny(clippy::pedantic)]
 use anyhow::Result;
 use tracing::{error, info};
 

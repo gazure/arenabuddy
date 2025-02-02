@@ -5,6 +5,7 @@
 #![allow(clippy::must_use_candidate)]
 
 pub mod cards;
+#[cfg(not(target_arch = "wasm32"))]
 pub mod match_insights;
 pub mod models;
 pub mod mtga_events;
