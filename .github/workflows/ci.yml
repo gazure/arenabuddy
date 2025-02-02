@@ -113,17 +113,19 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - macos-arm64
+          - macos-latest
           - macos-x64
           - windows-x64
-
         include:
-          - platform: macos-arm64
+          - platform: macos-latest
             os: macos-14
+            args: "--target aarch64-apple-darwin"
           - platform: macos-x64
             os: macos-13
+            args: "--target x86_64-apple-darwin"
           - platform: windows-x64
             os: windows-2022
+            args: ""
 
     steps:
       - name: Checkout source code
@@ -134,30 +136,15 @@ jobs:
         with:
           toolchain: stable
           targets: wasm32-unknown-unknown
-
-      # - name: Install tauri cli
-      #   run: |
-      #     cargo install tauri-cli --version "^2.0.0" --locked
+      - uses: cargo-bins/cargo-binstall@main
 
       - name: Install trunk
         run: |
-          cargo install --locked trunk
+          cargo binstall --locked trunk
 
-      # - name: Create dist directory
-      #   shell: bash
-      #   run: mkdir -p ./dist
-      - name: Build
+      - name: build-tauri
         uses: tauri-apps/tauri-action@v0
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      # - name: Build
-      #   env:
-      #     CARGO_TERM_COLOR: always
-      #     GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      #     RUST_BACKTRACE: 1
-      #     RUST_LOG: "info"
-      #     RUST_LOG_SPAN_EVENTS: full
-      #     RUSTFLAGS: -Cinstrument-coverage
-      #     RUSTDOCFLAGS: -Cinstrument-coverage
-      #   run: |
-      #     cargo tauri build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: ${{ matrix.args }}

@@ -8,21 +8,26 @@ publish_timeout = "10m"       # set a timeout for `cargo publish`
 name = "arenabuddy"
 publish = false
 release = false
+git_release_enable = false
 
 [[package]]
 name = "arenabuddy_core"
 publish = true
+git_release_enable = false
 
 [[package]]
 name = "arenabuddy_cli"
 publish = true
+git_release_enable = false
 
 [[package]]
 name = "arenabuddy_scraper"
 publish = false
 release = false
+git_release_enable = false
 
 [[package]]
 name = "arenabuddy_ui"
 publish = false
 release = false
+git_release_enable = false
