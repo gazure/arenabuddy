@@ -10,7 +10,6 @@ keywords.workspace = true
 license.workspace = true
 
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 arenabuddy_core = { path = "arenabuddy_core/", version = "0.1.0" }
 leptos = { workspace = true, features = ["csr"] }
