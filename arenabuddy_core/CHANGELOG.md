@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/gazure/arenabuddy/compare/arenabuddy_core-v0.1.0...arenabuddy_core-v0.1.1) - 2025-02-04
+
+### Other
+
+- trying to get the leptos front-end to work ([#9](https://github.com/gazure/arenabuddy/pull/9))
+
 ## [0.1.0](https://github.com/gazure/arenabuddy/releases/tag/arenabuddy_core-v0.1.0) - 2025-01-28
 
 ### Other
