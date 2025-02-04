@@ -1,0 +1,65 @@
+name: release-bundles
+
+permissions:
+  contents: write
+
+on:
+  release:
+    types: [published]
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_GIT_FETCH_WITH_CLI: true
+  CARGO_NET_RETRY: 10
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  RUSTFLAGS: -D warnings
+  RUSTUP_MAX_RETRIES: 10
+
+jobs:
+  build-tauri-app:
+    name: release-app-${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - macos-latest
+          - macos-x64
+          - windows-x64
+        include:
+          - platform: macos-latest
+            os: macos-14
+            args: "--target aarch64-apple-darwin"
+          - platform: macos-x64
+            os: macos-13
+            args: "--target x86_64-apple-darwin"
+          - platform: windows-x64
+            os: windows-2022
+            args: ""
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+
+      - name: Install trunk
+        run: |
+          cargo install --locked trunk
+
+      - name: build-tauri
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: arenabuddy-v__VERSION__
+          releaseName: "Arenabuddy v__VERSION__"
+          releaseBody: "See the assets to download this version and install."
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
