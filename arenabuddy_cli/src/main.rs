@@ -7,9 +7,9 @@ use crossbeam::channel::{select, unbounded, Receiver};
 use tracing::error;
 
 use arenabuddy_core::match_insights::MatchInsightDB;
-use arenabuddy_core::processor::{ArenaEventSource, PlayerLogProcessor};
+use arenabuddy_core::processor::{EventSource, PlayerLogProcessor};
 use arenabuddy_core::replay::MatchReplayBuilder;
-use arenabuddy_core::storage_backends::{ArenaMatchStorageBackend, DirectoryStorageBackend};
+use arenabuddy_core::storage_backends::{DirectoryStorageBackend, Storage};
 
 const PLAYER_LOG_POLLING_INTERVAL: u64 = 1;
 
@@ -52,7 +52,7 @@ fn main() -> Result<()> {
 
     let mut processor = PlayerLogProcessor::try_new(args.player_log)?;
     let mut match_replay_builder = MatchReplayBuilder::new();
-    let mut storage_backends: Vec<Box<dyn ArenaMatchStorageBackend>> = Vec::new();
+    let mut storage_backends: Vec<Box<dyn Storage>> = Vec::new();
     let cards_db = arenabuddy_core::cards::CardsDatabase::new(
         args.cards_db.unwrap_or("data/merged.json".into()),
     )?;
@@ -81,7 +81,7 @@ fn main() -> Result<()> {
                         match match_replay_builder.build() {
                             Ok(match_replay) => {
                                 for backend in &mut storage_backends {
-                                    if let Err(e) =backend.write(&match_replay){
+                                    if let Err(e) = backend.write(&match_replay) {
                                         error!("Error writing replay to backend: {e}");
                                     }
                                 }
