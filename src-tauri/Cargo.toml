@@ -22,7 +22,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { workspace = true, features = [] }
 
 [dependencies]
-arenabuddy_core = { path = "../arenabuddy_core", version = "0.1.1" }
+arenabuddy_core = { path = "../arenabuddy_core", version = "0.1.2" }
 tauri = { workspace = true, features = [] }
 tauri-plugin-opener.workspace = true
 serde = { workspace = true, features = ["derive"] }
