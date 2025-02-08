@@ -1,23 +1,25 @@
 [workspace]
-changelog_update = true       # disable changelog updates
-dependencies_update = true    # update dependencies with `cargo update`
-pr_branch_prefix = "release-" # PR branch prefix
-publish_timeout = "10m"       # set a timeout for `cargo publish`
+changelog_update = true
+dependencies_update = true
+pr_branch_prefix = "release-"
+publish_timeout = "10m"
 
 [[package]]
 name = "arenabuddy"
 publish = false
-release = false
-git_release_enable = false
+release = true
+git_release_enable = true
 
 [[package]]
 name = "arenabuddy_core"
 publish = true
+release = true
 git_release_enable = false
 
 [[package]]
 name = "arenabuddy_cli"
 publish = true
+release = true
 git_release_enable = false
 
 [[package]]
