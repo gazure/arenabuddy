@@ -11,9 +11,10 @@ async fn retrieve_matches() -> Vec<MTGAMatch> {
 
 #[component]
 fn MatchRow(m: MTGAMatch) -> impl IntoView {
+    let link = format!("/match/{}", m.id);
     view! {
-        <tr class="text-center transition-colors duration-200">
-            <td>{m.controller_player_name}</td>
+        <tr>
+            <td><a href={link}>{m.controller_player_name}</a></td>
             <td>{m.opponent_player_name}</td>
             <td>{m.created_at.to_string()}</td>
         </tr>

@@ -1,3 +1,4 @@
+use crate::match_details::MatchDetails;
 use crate::matches::Matches;
 use leptos::prelude::*;
 use leptos_router::components::{Route, Router, Routes};
@@ -86,6 +87,7 @@ pub fn App() -> impl IntoView {
                     <Route path=path!("/") view=Home />
                     <Route path=path!("/matches") view=Matches />
                     <Route path=path!("/contact") view=Contact />
+                    <Route path=path!("/match/:id") view=MatchDetails/>
                 </Routes>
             </main>
         </Router>

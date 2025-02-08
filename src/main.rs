@@ -1,6 +1,7 @@
 #![deny(clippy::pedantic)]
 
 mod app;
+mod match_details;
 mod matches;
 
 use app::App;
