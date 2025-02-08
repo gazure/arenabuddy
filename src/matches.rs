@@ -9,6 +9,17 @@ async fn retrieve_matches() -> Vec<MTGAMatch> {
         .unwrap_or_default()
 }
 
+#[component]
+fn MatchRow(m: MTGAMatch) -> impl IntoView {
+    view! {
+        <tr class="text-center transition-colors duration-200">
+            <td>{m.controller_player_name}</td>
+            <td>{m.opponent_player_name}</td>
+            <td>{m.created_at.to_string()}</td>
+        </tr>
+    }
+}
+
 // Component for Matches page
 #[component]
 pub(crate) fn Matches() -> impl IntoView {
@@ -25,12 +36,26 @@ pub(crate) fn Matches() -> impl IntoView {
     view! {
         <div>
             <h1>"Matches Page"</h1>
-            <button on:click=move |_| load() >refresh</button>
+            <button on:click=move |_| load()>refresh</button>
             <p>{move || length.get()}</p>
-            {move || {
-                matches.get().into_iter().map(|m| view! { <div>{m.id}</div> }).collect::<Vec<_>>()
-                }}
-        // Add your matches page content here
+            <table>
+                <thead>
+                    <tr>
+                        <th>Controller</th>
+                        <th>Opponent</th>
+                        <th>Created At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <For
+                        each=move || matches.get().clone()
+                        key=|m| m.id.clone()
+                        children=move |m| {
+                            view! { <MatchRow m=m /> }
+                        }
+                    />
+                </tbody>
+            </table>
         </div>
     }
 }

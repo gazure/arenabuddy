@@ -24,20 +24,27 @@ use crate::processor::ParseOutput;
 
 const DEFAULT_HAND_SIZE: i32 = 7;
 
-#[derive(Debug, Default)]
-pub struct MatchReplay {
-    pub match_id: String,
-    pub match_start_message: RequestTypeMGRSCEvent,
-    pub match_end_message: RequestTypeMGRSCEvent,
-    pub client_server_messages: Vec<MatchReplayEvent>,
-    pub business_messages: Vec<BusinessEventRequest>,
-}
-
 #[derive(Debug, Clone)]
 pub enum MatchReplayEvent {
     GRE(RequestTypeGREToClientEvent),
     Client(RequestTypeClientToMatchServiceMessage),
     MGRSC(RequestTypeMGRSCEvent),
+}
+
+impl<'a> From<&'a MatchReplayEvent> for MatchReplayEventRef<'a> {
+    fn from(value: &'a MatchReplayEvent) -> Self {
+        match value {
+            MatchReplayEvent::GRE(e) => MatchReplayEventRef::GRE(e),
+            MatchReplayEvent::Client(e) => MatchReplayEventRef::Client(e),
+            MatchReplayEvent::MGRSC(e) => MatchReplayEventRef::MGRSC(e),
+        }
+    }
+}
+
+impl<'a> From<&'a BusinessEventRequest> for MatchReplayEventRef<'a> {
+    fn from(value: &'a BusinessEventRequest) -> Self {
+        MatchReplayEventRef::Business(value)
+    }
 }
 
 pub enum MatchReplayEventRef<'a> {
@@ -59,6 +66,15 @@ impl Serialize for MatchReplayEventRef<'_> {
             Self::Business(event) => event.serialize(serializer),
         }
     }
+}
+
+#[derive(Debug, Default)]
+pub struct MatchReplay {
+    pub match_id: String,
+    pub match_start_message: RequestTypeMGRSCEvent,
+    pub match_end_message: RequestTypeMGRSCEvent,
+    pub client_server_messages: Vec<MatchReplayEvent>,
+    pub business_messages: Vec<BusinessEventRequest>,
 }
 
 impl MatchReplay {
@@ -400,17 +416,12 @@ impl<'a> IntoIterator for &'a MatchReplay {
         let mut events = Vec::new();
         events.push(MatchReplayEventRef::MGRSC(&self.match_start_message));
         self.client_server_messages.iter().for_each(|mre| {
-            let mre_ref = match mre {
-                MatchReplayEvent::GRE(event) => MatchReplayEventRef::GRE(event),
-                MatchReplayEvent::Client(event) => MatchReplayEventRef::Client(event),
-                MatchReplayEvent::MGRSC(event) => MatchReplayEventRef::MGRSC(event),
-            };
-            events.push(mre_ref);
+            events.push(mre.into());
         });
         events.push(MatchReplayEventRef::MGRSC(&self.match_end_message));
-        self.business_messages.iter().for_each(|bm| {
-            events.push(MatchReplayEventRef::Business(bm));
-        });
+        self.business_messages
+            .iter()
+            .for_each(|bm| events.push(bm.into()));
         events.into_iter()
     }
 }
