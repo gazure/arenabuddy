@@ -11,7 +11,7 @@ use crate::mtga_events::client::RequestTypeClientToMatchServiceMessage;
 use crate::mtga_events::gre::RequestTypeGREToClientEvent;
 use crate::mtga_events::mgrsc::RequestTypeMGRSCEvent;
 
-pub trait ArenaEventSource {
+pub trait EventSource {
     /// # Errors
     ///
     /// Errors when json events that look parseable do not parse, or when no events are found
@@ -97,7 +97,7 @@ impl PlayerLogProcessor {
     }
 }
 
-impl ArenaEventSource for PlayerLogProcessor {
+impl EventSource for PlayerLogProcessor {
     fn get_next_event(&mut self) -> StdResult<ParseOutput, ParseError> {
         self.process_lines();
         let event = self.json_events.pop_front().ok_or(ParseError::NoEvent)?;

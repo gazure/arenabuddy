@@ -3,9 +3,9 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use arenabuddy_core::match_insights::MatchInsightDB;
-use arenabuddy_core::processor::{ArenaEventSource, ParseError, PlayerLogProcessor};
+use arenabuddy_core::processor::{EventSource, ParseError, PlayerLogProcessor};
 use arenabuddy_core::replay::MatchReplayBuilder;
-use arenabuddy_core::storage_backends::ArenaMatchStorageBackend;
+use arenabuddy_core::storage_backends::Storage;
 use crossbeam_channel::{select, unbounded, Sender};
 use notify::{Event, Watcher};
 use tracing::{error, info};

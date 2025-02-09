@@ -12,7 +12,7 @@ use crate::models::match_result::{MatchResult, MatchResultBuilder};
 use crate::models::mtga_match::{MTGAMatch, MTGAMatchBuilder};
 use crate::models::mulligan::MulliganInfo;
 use crate::replay::MatchReplay;
-use crate::storage_backends::ArenaMatchStorageBackend;
+use crate::storage_backends::Storage;
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations");
 
@@ -233,7 +233,7 @@ impl MatchInsightDB {
     }
 }
 
-impl ArenaMatchStorageBackend for MatchInsightDB {
+impl Storage for MatchInsightDB {
     /// # Errors
     ///
     /// will return an error if a `controller_seat_id` cannot be found

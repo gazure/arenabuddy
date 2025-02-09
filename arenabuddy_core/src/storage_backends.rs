@@ -6,7 +6,7 @@ use std::io::{BufWriter, Write};
 use std::path::PathBuf;
 use tracing::info;
 
-pub trait ArenaMatchStorageBackend {
+pub trait Storage {
     /// # Errors
     ///
     /// Will return an error if the match replay cannot be written to the storage backend
@@ -33,7 +33,7 @@ where
     Ok(())
 }
 
-impl ArenaMatchStorageBackend for DirectoryStorageBackend {
+impl Storage for DirectoryStorageBackend {
     fn write(&mut self, match_replay: &MatchReplay) -> anyhow::Result<()> {
         let path = self.path.join(format!("{}.json", match_replay.match_id));
         info!(
