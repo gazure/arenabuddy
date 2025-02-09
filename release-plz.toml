@@ -8,6 +8,7 @@ publish_timeout = "10m"
 name = "arenabuddy"
 publish = true
 release = true
+publish_no_verify = true
 git_release_enable = true
 
 [[package]]
