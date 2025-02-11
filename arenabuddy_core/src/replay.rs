@@ -245,12 +245,12 @@ impl MatchReplay {
         let controller_id = self.get_controller_seat_id()?;
 
         let mut game_number = 1;
-        let mut opening_hands = BTreeMap::<i32, Vec<Vec<i32>>>::new();
-        let mut mulligan_requests = BTreeMap::<i32, Vec<&MulliganReqWrapper>>::new();
+        let mut opening_hands = Vec::<(i32, Vec<i32>)>::new();
+        let mut mulligan_requests = Vec::<(i32, &MulliganReqWrapper)>::new();
         let mut play_or_draw: BTreeMap<i32, String> = BTreeMap::new();
         let opponent_color_identity = self.get_opponent_color_identity(cards_db)?;
 
-        for gre in self.gre_messages_iter() {
+        self.gre_messages_iter().try_for_each(|gre| -> Result<()> {
             match gre {
                 GREToClientMessage::GameStateMessage(wrapper) => {
                     let gsm = &wrapper.game_state_message;
@@ -300,24 +300,22 @@ impl MatchReplay {
                             })
                             .map(|go| go.grp_id)
                             .collect();
-                        opening_hands
-                            .entry(game_number)
-                            .or_default()
-                            .push(game_objects_in_hand);
+
+                        opening_hands.push((game_number, game_objects_in_hand));
                     }
+                    Ok(())
                 }
                 GREToClientMessage::MulliganReq(wrapper) => {
-                    mulligan_requests
-                        .entry(game_number)
-                        .or_default()
-                        .push(wrapper);
+                    mulligan_requests.push((game_number, wrapper));
+                    Ok(())
                 }
                 GREToClientMessage::IntermissionReq(_) => {
                     game_number += 1;
+                    Ok(())
                 }
-                _ => {}
+                _ => Ok(()),
             }
-        }
+        })?;
 
         let mulligan_responses: BTreeMap<i32, &MulliganRespWrapper> = self
             .client_messages_iter()
@@ -329,32 +327,39 @@ impl MatchReplay {
             })
             .collect();
 
-        let mut mulligan_infos = Vec::new();
-        for (game_number, hands) in opening_hands {
-            let mut mulligan_requests_iter = mulligan_requests
-                .get(&game_number)
-                .ok_or(anyhow!(
-                    "No mulligan requests found for game {}",
-                    game_number
-                ))?
-                .iter();
-            let play_draw = play_or_draw.get(&game_number).ok_or(anyhow!(
-                "No play/draw decision found for game {}",
-                game_number
-            ))?;
-            for hand in hands {
+        if opening_hands.len() != mulligan_requests.len() {
+            warn!(
+                "Missing mulligan data for {}. # of hands: {}, number mulligan responses: {}",
+                self.match_id,
+                opening_hands.len(),
+                mulligan_requests.len(),
+            );
+            return Err(anyhow!("missing mulligan data"));
+        }
+
+        Ok(opening_hands
+            .into_iter()
+            .zip(mulligan_requests)
+            .filter_map(|((gn, hand), (gn2, mulligan_request))| {
+                if gn != gn2 {
+                    warn!("invalid mulilgan data for {}", self.match_id);
+                    return None;
+                }
+
+                let play_draw = play_or_draw
+                    .get(&game_number)
+                    .cloned()
+                    .unwrap_or("Unknown".to_string());
+
                 let hand_string = hand
                     .iter()
                     .map(std::string::ToString::to_string)
                     .collect::<Vec<String>>()
                     .join(",");
-                let Some(mulligan_request) = mulligan_requests_iter.next() else {
-                    warn!("No mulligan request found for game {}", game_number);
-                    continue;
-                };
+
                 let Some(game_state_id) = mulligan_request.meta.game_state_id else {
                     warn!("No game state ID found for mulligan request");
-                    continue;
+                    return None;
                 };
                 let number_to_keep =
                     DEFAULT_HAND_SIZE - mulligan_request.mulligan_req.mulligan_count;
@@ -373,7 +378,7 @@ impl MatchReplay {
                 }
                 .to_string();
 
-                let mulligan = MulliganInfoBuilder::default()
+                MulliganInfoBuilder::default()
                     .match_id(self.match_id.clone())
                     .game_number(game_number)
                     .number_to_keep(number_to_keep)
@@ -381,13 +386,10 @@ impl MatchReplay {
                     .play_draw(play_draw.clone())
                     .opponent_identity(opp_identity)
                     .decision(decision)
-                    .build()?;
-
-                mulligan_infos.push(mulligan);
-            }
-        }
-
-        Ok(mulligan_infos)
+                    .build()
+                    .ok()
+            })
+            .collect())
     }
 
     pub fn match_start_time(&self) -> Option<DateTime<Utc>> {
