@@ -4,7 +4,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 use tokio::fs::File;
 use tokio::io::AsyncWriteExt;
-use tracing::info;
+use tracing::{debug, info};
 
 const DEFAULT_SCRYFALL_CARDS: &str = crate::scrape::SCRYFALL_OUT;
 const DEFAULT_SEVENTEEN_LANDS: &str = crate::scrape::SEVENTEEN_LANDS_OUT;
@@ -140,7 +140,7 @@ fn merge(
                 cards_by_name.get(card_name),
             ) {
                 if card_id != 0 && !cards_by_id.contains_key(&card_id) {
-                    info!("Adding card {} with ID {}", card_name, card_id);
+                    debug!("Adding card {} with ID {}", card_name, card_id);
                     let mut new_card = card_by_name.clone();
                     new_card.id = card_id;
                     cards_by_id.insert(card_id, new_card);
@@ -164,6 +164,8 @@ pub async fn process(
     let scryfall_cards = load_cards(scryfall_cards_file)
         .await
         .with_context(|| format!("Failed to load Scryfall cards from {scryfall_cards_file}"))?;
+
+    info!("loaded scryfall cards");
 
     let arena_cards = extract_arena_id_cards(&scryfall_cards);
     let reduced_arena_cards: Vec<Card> =
