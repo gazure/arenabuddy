@@ -15,6 +15,7 @@ license.workspace = true
 anyhow = { workspace = true }
 include_dir = { workspace = true }
 derive_builder = { workspace = true }
+indoc = { workspace = true }
 lazy_static = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

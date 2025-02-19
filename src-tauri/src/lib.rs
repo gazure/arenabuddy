@@ -25,9 +25,7 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-mod card;
 mod commands;
-mod deck;
 mod ingest;
 mod log_collector;
 
