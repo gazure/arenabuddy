@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.2.2...arenabuddy-v0.2.3) - 2025-02-19
+
+### Added
+
+- get basic match_details UI working (#23)
+
 ## [0.2.2](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.2.1...arenabuddy-v0.2.2) - 2025-02-12
 
 ### Other
