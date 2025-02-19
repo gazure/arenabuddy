@@ -13,7 +13,7 @@ pub(crate) const REDUCED_ARENA_OUT: &str = "scrape_data/reduced_arena.json";
 pub(crate) const MERGED_OUT: &str = "src-tauri/data/cards-full.json";
 
 fn reduce_arena_cards(card: &Value) -> Option<Card> {
-    let mut reduced_card = Card {
+    Some(Card {
         id: card["arena_id"]
             .as_i64()
             .map(|i| i32::try_from(i).unwrap_or(0))?,
@@ -43,11 +43,7 @@ fn reduce_arena_cards(card: &Value) -> Option<Card> {
                 .filter_map(|v| v.as_str().map(std::borrow::ToOwned::to_owned))
                 .collect()
         })?,
-        card_faces: None,
-    };
-
-    if let Some(card_faces) = card["card_faces"].as_array() {
-        reduced_card.card_faces = Some(
+        card_faces: card["card_faces"].as_array().map(|card_faces| {
             card_faces
                 .iter()
                 .filter_map(|face| {
@@ -69,11 +65,9 @@ fn reduce_arena_cards(card: &Value) -> Option<Card> {
                         }),
                     })
                 })
-                .collect(),
-        );
-    }
-
-    Some(reduced_card)
+                .collect()
+        }),
+    })
 }
 
 fn extract_arena_id_cards(cards: &[Value]) -> Vec<Value> {

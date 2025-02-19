@@ -1,11 +1,9 @@
-use std::collections::HashMap;
-
-use arenabuddy_core::cards::{CardType, CardsDatabase};
-use arenabuddy_core::models::deck::{Deck, Quantities};
+use crate::cards::{CardType, CardsDatabase};
+use crate::display::card::CardDisplayRecord;
+use crate::models::deck::{Deck, Quantities};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-
-use crate::card::CardDisplayRecord;
+use std::collections::HashMap;
 
 fn get_card(db: &CardsDatabase, quantities: &Quantities, card_id: i32) -> CardDisplayRecord {
     let mut card: CardDisplayRecord = db.get(&card_id).map_or_else(
@@ -17,7 +15,7 @@ fn get_card(db: &CardsDatabase, quantities: &Quantities, card_id: i32) -> CardDi
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
-pub(crate) struct DeckDisplayRecord {
+pub struct DeckDisplayRecord {
     pub archetype: String,
     pub main_deck: HashMap<CardType, Vec<CardDisplayRecord>>,
     pub sideboard: Vec<CardDisplayRecord>,

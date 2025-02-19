@@ -1,10 +1,11 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use include_dir::{include_dir, Dir};
+use indoc::indoc;
 use lazy_static::lazy_static;
 use rusqlite::{Connection, Params as RusqliteParams, Result as RusqliteResult, Transaction};
 use rusqlite_migration::Migrations;
-use tracing::{debug, info};
+use tracing::{debug, error, info};
 
 use crate::cards::CardsDatabase;
 use crate::models::deck::Deck;
@@ -230,6 +231,44 @@ impl MatchInsightDB {
             .collect::<RusqliteResult<Vec<MTGAMatch>>>()?;
 
         Ok(matches)
+    }
+
+    /// # Errors
+    ///
+    /// Errors if underlying data is malformed
+    pub fn get_match(&mut self, match_id: &str) -> Result<(MTGAMatch, bool)> {
+        let mut statement = self.conn.prepare(indoc! {r#"
+            SELECT
+                m.id, m.controller_player_name, m.opponent_player_name, m.controller_seat_id = mr.winning_team_id, m.controller_seat_id, m.created_at
+            FROM matches m JOIN match_results mr ON m.id = mr.match_id
+            WHERE m.id = ?1 AND mr.result_scope = "MatchScope_Match" LIMIT 1
+            "#}
+        )?;
+
+        info!("Getting match details for match_id: {}", match_id);
+        Ok(statement
+            .query_row([&match_id], |row| {
+                let id: String = row.get(0)?;
+                let controller_player_name: String = row.get(1)?;
+                let opponent_player_name: String = row.get(2)?;
+                let did_controller_win: bool = row.get(3)?;
+                let controller_seat_id: i32 = row.get(4)?;
+                let created_at: DateTime<Utc> = row.get(5)?;
+                Ok((
+                    MTGAMatch {
+                        id,
+                        controller_seat_id,
+                        controller_player_name,
+                        opponent_player_name,
+                        created_at,
+                    },
+                    did_controller_win,
+                ))
+            })
+            .unwrap_or_else(|e| {
+                error!("Error getting match details: {:?}", e);
+                (MTGAMatch::default(), false)
+            }))
     }
 }
 
