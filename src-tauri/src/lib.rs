@@ -12,12 +12,12 @@ use std::fmt::Display;
 use std::sync::{Arc, Mutex};
 
 use arenabuddy_core::cards::CardsDatabase;
-use arenabuddy_core::match_insights::MatchInsightDB;
+use arenabuddy_core::match_insights::MatchDB;
 use log_collector::LogCollector;
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
-use tauri::{path::BaseDirectory, App, Manager};
-use tracing::{info, Level};
+use tauri::{App, Manager, path::BaseDirectory};
+use tracing::{Level, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{
     fmt::{self, writer::MakeWriterExt},
@@ -108,7 +108,7 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     let db_path = app_data_dir.join("matches.db");
     info!("Database path: {}", db_path.to_string_lossy());
     let conn = Connection::open(db_path).map_err(|_| ArenaBuddySetupError::NoMathchesDatabase)?;
-    let mut db = MatchInsightDB::new(conn, cards_db);
+    let mut db = MatchDB::new(conn, cards_db);
     db.init()
         .map_err(|_| ArenaBuddySetupError::MatchesDatabaseInitializationFailure)?;
     let db_arc = Arc::new(Mutex::new(db));

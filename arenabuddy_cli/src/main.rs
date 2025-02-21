@@ -3,10 +3,10 @@ use std::time::Duration;
 
 use anyhow::Result;
 use clap::Parser;
-use crossbeam::channel::{select, unbounded, Receiver};
+use crossbeam::channel::{Receiver, select, unbounded};
 use tracing::error;
 
-use arenabuddy_core::match_insights::MatchInsightDB;
+use arenabuddy_core::match_insights::MatchDB;
 use arenabuddy_core::processor::{EventSource, PlayerLogProcessor};
 use arenabuddy_core::replay::MatchReplayBuilder;
 use arenabuddy_core::storage_backends::{DirectoryStorageBackend, Storage};
@@ -65,7 +65,7 @@ fn main() -> Result<()> {
 
     if let Some(db_path) = args.db {
         let conn = rusqlite::Connection::open(db_path)?;
-        let mut db = MatchInsightDB::new(conn, cards_db);
+        let mut db = MatchDB::new(conn, cards_db);
         db.init()?;
         storage_backends.push(Box::new(db));
     }

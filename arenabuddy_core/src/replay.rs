@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::vec::IntoIter;
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
 use serde::{Serialize, Serializer};
 use tracing::{debug, info, warn};

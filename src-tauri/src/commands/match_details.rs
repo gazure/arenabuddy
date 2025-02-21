@@ -5,7 +5,7 @@ use arenabuddy_core::{
         match_details::MatchDetails,
         mulligan::Mulligan,
     },
-    match_insights::MatchInsightDB,
+    match_insights::MatchDB,
 };
 use std::sync::{Arc, Mutex};
 use tauri::State;
@@ -14,7 +14,7 @@ use tracing::{error, info};
 #[tauri::command]
 pub(crate) fn command_match_details(
     match_id: String,
-    db: State<'_, Arc<Mutex<MatchInsightDB>>>,
+    db: State<'_, Arc<Mutex<MatchDB>>>,
 ) -> MatchDetails {
     let db_lock_result = db.inner().lock();
     info!("looking for match {match_id}");
