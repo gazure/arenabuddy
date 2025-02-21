@@ -2,11 +2,11 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use arenabuddy_core::match_insights::MatchInsightDB;
+use arenabuddy_core::match_insights::MatchDB;
 use arenabuddy_core::processor::{EventSource, ParseError, PlayerLogProcessor};
 use arenabuddy_core::replay::MatchReplayBuilder;
 use arenabuddy_core::storage_backends::Storage;
-use crossbeam_channel::{select, unbounded, Sender};
+use crossbeam_channel::{Sender, select, unbounded};
 use notify::{Event, Watcher};
 use tracing::{error, info};
 
@@ -31,7 +31,7 @@ fn watch_player_log_rotation(notify_tx: Sender<Event>, player_log_path: &Path) {
 }
 
 fn log_process_start(
-    db: Arc<Mutex<MatchInsightDB>>,
+    db: Arc<Mutex<MatchDB>>,
     log_collector: Arc<Mutex<LogCollector>>,
     player_log_path: &Path,
 ) {
@@ -92,7 +92,7 @@ fn log_process_start(
 }
 
 pub fn start(
-    db: Arc<Mutex<MatchInsightDB>>,
+    db: Arc<Mutex<MatchDB>>,
     log_collector: Arc<Mutex<LogCollector>>,
     player_log_path: PathBuf,
 ) {

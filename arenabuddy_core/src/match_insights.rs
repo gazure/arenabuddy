@@ -1,7 +1,8 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use include_dir::{include_dir, Dir};
+use include_dir::{Dir, include_dir};
 use indoc::indoc;
+
 use lazy_static::lazy_static;
 use rusqlite::{Connection, Params as RusqliteParams, Result as RusqliteResult, Transaction};
 use rusqlite_migration::Migrations;
@@ -23,12 +24,12 @@ lazy_static! {
 }
 
 #[derive(Debug)]
-pub struct MatchInsightDB {
+pub struct MatchDB {
     pub conn: Connection,
     pub cards_database: CardsDatabase,
 }
 
-impl MatchInsightDB {
+impl MatchDB {
     pub fn new(conn: Connection, cards_database: CardsDatabase) -> Self {
         Self {
             conn,
@@ -64,9 +65,9 @@ impl MatchInsightDB {
             &mtga_match.created_at,
         );
 
-        let sql = "INSERT INTO matches \
-            (id, controller_seat_id, controller_player_name, opponent_player_name, created_at)\
-            VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(id) DO NOTHING";
+        let sql = indoc! {r"INSERT INTO matches
+        (id, controller_seat_id, controller_player_name, opponent_player_name, created_at)
+        VALUES (?1, ?2, ?3, ?4, ?5) ON CONFLICT(id) DO NOTHING"};
         tx.execute(sql, params)?;
         Ok(())
     }
@@ -78,12 +79,11 @@ impl MatchInsightDB {
         let deck_string = serde_json::to_string(&deck.mainboard)?;
         let sideboard_string = serde_json::to_string(&deck.sideboard)?;
 
-        tx.execute(
-            "INSERT INTO decks
-                    (match_id, game_number, deck_cards, sideboard_cards)
-                    VALUES (?1, ?2, ?3, ?4)
-                    ON CONFLICT (match_id, game_number)
-                    DO UPDATE SET deck_cards = excluded.deck_cards, sideboard_cards = excluded.sideboard_cards",
+        tx.execute(indoc! {r"INSERT INTO decks
+                (match_id, game_number, deck_cards, sideboard_cards)
+                VALUES (?1, ?2, ?3, ?4)
+                ON CONFLICT (match_id, game_number)
+                DO UPDATE SET deck_cards = excluded.deck_cards, sideboard_cards = excluded.sideboard_cards"},
             (match_id, deck.game_number, deck_string, sideboard_string)
         )?;
         Ok(())
@@ -94,10 +94,10 @@ impl MatchInsightDB {
     /// will return an error if the database cannot be contacted for some reason
     fn insert_mulligan_info(mulligan_info: MulliganInfo, tx: &Transaction) -> Result<()> {
         tx.execute(
-            "INSERT INTO mulligans (match_id, game_number, number_to_keep, hand, play_draw, opponent_identity, decision)\
+            indoc!{r"INSERT INTO mulligans (match_id, game_number, number_to_keep, hand, play_draw, opponent_identity, decision)\
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)\
              ON CONFLICT (match_id, game_number, number_to_keep) \
-             DO UPDATE SET hand = excluded.hand, play_draw = excluded.play_draw, opponent_identity = excluded.opponent_identity, decision = excluded.decision",
+             DO UPDATE SET hand = excluded.hand, play_draw = excluded.play_draw, opponent_identity = excluded.opponent_identity, decision = excluded.decision"},
             (
                 mulligan_info.match_id,
                 mulligan_info.game_number,
@@ -122,10 +122,10 @@ impl MatchInsightDB {
             &match_result.result_scope,
         );
 
-        let sql = "INSERT INTO match_results (match_id, game_number, winning_team_id, result_scope)\
-             VALUES (?1, ?2, ?3, ?4)\
-             ON CONFLICT (match_id, game_number)\
-             DO UPDATE SET winning_team_id = excluded.winning_team_id, result_scope = excluded.result_scope";
+        let sql = indoc! {r"INSERT INTO match_results (match_id, game_number, winning_team_id, result_scope)
+             VALUES (?1, ?2, ?3, ?4)
+             ON CONFLICT (match_id, game_number)
+             DO UPDATE SET winning_team_id = excluded.winning_team_id, result_scope = excluded.result_scope"};
         tx.execute(sql, params)?;
         Ok(())
     }
@@ -272,7 +272,7 @@ impl MatchInsightDB {
     }
 }
 
-impl Storage for MatchInsightDB {
+impl Storage for MatchDB {
     /// # Errors
     ///
     /// will return an error if a `controller_seat_id` cannot be found

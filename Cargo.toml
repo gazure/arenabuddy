@@ -36,7 +36,7 @@ authors = ["Grant Azure <azure.grant@gmail.com>"]
 categories = []
 version = "0.2.3"
 repository = "https://github.com/gazure/arenabuddy"
-edition = "2021"
+edition = "2024"
 keywords = ["magic"]
 license = "Apache-2.0 OR MIT"
 
