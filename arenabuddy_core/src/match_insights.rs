@@ -94,9 +94,9 @@ impl MatchDB {
     /// will return an error if the database cannot be contacted for some reason
     fn insert_mulligan_info(mulligan_info: MulliganInfo, tx: &Transaction) -> Result<()> {
         tx.execute(
-            indoc!{r"INSERT INTO mulligans (match_id, game_number, number_to_keep, hand, play_draw, opponent_identity, decision)\
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)\
-             ON CONFLICT (match_id, game_number, number_to_keep) \
+            indoc!{r"INSERT INTO mulligans (match_id, game_number, number_to_keep, hand, play_draw, opponent_identity, decision)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+             ON CONFLICT (match_id, game_number, number_to_keep)
              DO UPDATE SET hand = excluded.hand, play_draw = excluded.play_draw, opponent_identity = excluded.opponent_identity, decision = excluded.decision"},
             (
                 mulligan_info.match_id,
