@@ -5,7 +5,6 @@ use leptos_router::hooks::use_params_map;
 use wasm_bindgen_futures::spawn_local;
 
 async fn get_match_details(id: &str) -> Option<MatchDetails> {
-    // Build the object we want to send to Tauri
     let command_object =
         serde_wasm_bindgen::to_value(&serde_json::json!({ "matchId": id })).unwrap();
     serde_wasm_bindgen::from_value(invoke("command_match_details", command_object).await).ok()
@@ -20,10 +19,7 @@ pub(crate) fn MatchDetails() -> impl IntoView {
     let load = move || {
         set_loading.set(true);
         set_error.set(None);
-
         let id = params.with(|params| params.get("id").unwrap_or_default().to_string());
-        leptos::logging::log!("Loading match ID: {}", id);
-
         spawn_local(async move {
             if let Some(m) = get_match_details(&id).await {
                 set_match_details.set(m);

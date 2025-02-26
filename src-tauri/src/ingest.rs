@@ -10,8 +10,6 @@ use crossbeam_channel::{Sender, select, unbounded};
 use notify::{Event, Watcher};
 use tracing::{error, info};
 
-use crate::log_collector::LogCollector;
-
 fn watch_player_log_rotation(notify_tx: Sender<Event>, player_log_path: &Path) {
     let mut watcher = notify::recommended_watcher(move |res: notify::Result<Event>| match res {
         Ok(event) => {
@@ -32,7 +30,7 @@ fn watch_player_log_rotation(notify_tx: Sender<Event>, player_log_path: &Path) {
 
 fn log_process_start(
     db: Arc<Mutex<MatchDB>>,
-    log_collector: Arc<Mutex<LogCollector>>,
+    log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: &Path,
 ) {
     let (notify_tx, notify_rx) = unbounded::<Event>();
@@ -79,7 +77,7 @@ fn log_process_start(
                         Err(parse_error) => {
                             if let ParseError::Error(s) = parse_error {
                                 let mut lc = log_collector.lock().expect("log collector lock should be healthy");
-                                lc.ingest(s);
+                                lc.push(s);
                             } else {
                                 break;
                             }
@@ -93,7 +91,7 @@ fn log_process_start(
 
 pub fn start(
     db: Arc<Mutex<MatchDB>>,
-    log_collector: Arc<Mutex<LogCollector>>,
+    log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
 ) {
     std::thread::spawn(move || {
