@@ -1,4 +1,5 @@
 #![deny(clippy::pedantic)]
+#![allow(clippy::too_many_lines)]
 
 mod app;
 mod match_details;
