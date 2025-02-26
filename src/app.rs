@@ -23,25 +23,29 @@ struct GreetArgs<'a> {
     name: &'a str,
 }
 
-// Component for Home page
 #[component]
 fn Home() -> impl IntoView {
     view! {
-        <div>
-            <h1>"Home Page"</h1>
-        // Add your home page content here
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">"Home Page"</h1>
+            <p class="text-gray-600">
+                "Welcome to ArenaBuddy. Track and analyze your Arena matches."
+            </p>
         </div>
     }
 }
 
-// Component for Matches page
 #[component]
 fn Contact() -> impl IntoView {
     view! {
-        <div>
-            <h1>"Contact"</h1>
-            <a href="#" on:click=move |_| open_github()>
-                Github Repo
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h1 class="text-2xl font-bold mb-4 text-gray-800">"Contact"</h1>
+            <a
+                href="#"
+                on:click=move |_| open_github()
+                class="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+            >
+                "Github Repo"
             </a>
         </div>
     }
@@ -51,13 +55,13 @@ fn Contact() -> impl IntoView {
 pub fn App() -> impl IntoView {
     view! {
         <Router>
-            <nav class="bg-white border-b border-gray-200 dark:bg-gray-900 dark:border-gray-700">
-                <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-                    <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+            <nav class="bg-gray-800 p-4 shadow-md">
+                <div class="container mx-auto">
+                    <ul class="flex space-x-6 text-white">
                         <li>
                             <a
                                 href="/"
-                                class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
+                                class="hover:text-blue-400 transition-colors duration-200"
                                 aria-current="page"
                             >
                                 "Home"
@@ -66,7 +70,7 @@ pub fn App() -> impl IntoView {
                         <li>
                             <a
                                 href="/matches"
-                                class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                                class="hover:text-blue-400 transition-colors duration-200"
                             >
                                 "Matches"
                             </a>
@@ -74,7 +78,7 @@ pub fn App() -> impl IntoView {
                         <li>
                             <a
                                 href="/contact"
-                                class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                                class="hover:text-blue-400 transition-colors duration-200"
                             >
                                 "Contact"
                             </a>
@@ -82,12 +86,21 @@ pub fn App() -> impl IntoView {
                     </ul>
                 </div>
             </nav>
-            <main>
-                <Routes fallback=|| "Not found.">
+            <main class="container mx-auto p-4">
+                <Routes fallback=|| {
+                    view! {
+                        <div class="text-center mt-8">
+                            <h1 class="text-2xl font-bold text-red-600">"Page Not Found"</h1>
+                            <p class="mt-2 text-gray-600">
+                                "The page you're looking for doesn't exist."
+                            </p>
+                        </div>
+                    }
+                }>
                     <Route path=path!("/") view=Home />
                     <Route path=path!("/matches") view=Matches />
                     <Route path=path!("/contact") view=Contact />
-                    <Route path=path!("/match/:id") view=MatchDetails/>
+                    <Route path=path!("/match/:id") view=MatchDetails />
                 </Routes>
             </main>
         </Router>
