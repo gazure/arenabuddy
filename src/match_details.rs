@@ -52,12 +52,34 @@ pub(crate) fn MatchDetails() -> impl IntoView {
 
     view! {
         <div class="container mx-auto px-4 py-8 max-w-8xl">
+            <div class="mb-4">
+                <a
+                    href="/matches"
+                    class="inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
+                    </svg>
+                </a>
+            </div>
+
             <div class="bg-gradient-to-r from-purple-700 to-blue-600 rounded-lg shadow-lg mb-8 p-6 text-white">
                 <div class="flex justify-between items-center">
                     <h1 class="text-3xl font-bold">Match Details</h1>
                     <button
                         on:click=move |_| load()
-                        class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center"
+                        class="bg-black bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center"
                         disabled=move || loading.get()
                     >
                         <span class="mr-2">
@@ -227,21 +249,21 @@ pub(crate) fn MatchDetails() -> impl IntoView {
 
             <style>
                 {".deck-scrollbar::-webkit-scrollbar {
-                   width: 8px;
+                width: 8px;
                 }
                 
                 .deck-scrollbar::-webkit-scrollbar-track {
-                   background: #f1f1f1;
-                   border-radius: 8px;
+                background: #f1f1f1;
+                border-radius: 8px;
                 }
                 
                 .deck-scrollbar::-webkit-scrollbar-thumb {
-                   background: #c5c5c5;
-                   border-radius: 8px;
+                background: #c5c5c5;
+                border-radius: 8px;
                 }
                 
                 .deck-scrollbar::-webkit-scrollbar-thumb:hover {
-                   background: #a0a0a0;
+                background: #a0a0a0;
                 }"}
             </style>
         </div>
