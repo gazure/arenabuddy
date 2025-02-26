@@ -13,7 +13,6 @@ use std::sync::{Arc, Mutex};
 
 use arenabuddy_core::cards::CardsDatabase;
 use arenabuddy_core::match_insights::MatchDB;
-use log_collector::LogCollector;
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager, path::BaseDirectory};
@@ -27,7 +26,6 @@ use tracing_subscriber::{
 
 mod commands;
 mod ingest;
-mod log_collector;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum ArenaBuddySetupError {
@@ -130,7 +128,7 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
         player_log_path.to_string_lossy()
     );
 
-    let log_collector = Arc::new(Mutex::new(LogCollector::new()));
+    let log_collector = Arc::new(Mutex::new(Vec::<String>::new()));
 
     app.manage(log_collector.clone());
 

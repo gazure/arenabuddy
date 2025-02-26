@@ -1,3 +1,4 @@
+use crate::error_logs::ErrorLogs;
 use crate::match_details::MatchDetails;
 use crate::matches::Matches;
 use leptos::prelude::*;
@@ -77,6 +78,14 @@ pub fn App() -> impl IntoView {
                         </li>
                         <li>
                             <a
+                                href="/errors"
+                                class="hover:text-blue-400 transition-colors duration-200"
+                            >
+                                "Error Logs"
+                            </a>
+                        </li>
+                        <li>
+                            <a
                                 href="/contact"
                                 class="hover:text-blue-400 transition-colors duration-200"
                             >
@@ -99,6 +108,7 @@ pub fn App() -> impl IntoView {
                 }>
                     <Route path=path!("/") view=Home />
                     <Route path=path!("/matches") view=Matches />
+                    <Route path=path!("/errors") view=ErrorLogs />
                     <Route path=path!("/contact") view=Contact />
                     <Route path=path!("/match/:id") view=MatchDetails />
                 </Routes>
