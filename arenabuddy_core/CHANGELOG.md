@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3](https://github.com/gazure/arenabuddy/compare/arenabuddy_core-v0.3.2...arenabuddy_core-v0.3.3) - 2025-03-30
+
+### Other
+
+- update Cargo.toml dependencies
+
 ## [0.3.1](https://github.com/gazure/arenabuddy/compare/arenabuddy_core-v0.3.0...arenabuddy_core-v0.3.1) - 2025-02-22
 
 ### Fixed
