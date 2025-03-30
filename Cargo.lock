@@ -137,7 +137,7 @@ checksum = "dcfed56ad506cb2c684a14971b8861fdc3baaaae314b9e5f9bb532cbe3ba7a4f"
 
 [[package]]
 name = "arenabuddy"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "anyhow",
  "arenabuddy_core",
@@ -160,7 +160,7 @@ dependencies = [
 
 [[package]]
 name = "arenabuddy_cli"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "anyhow",
  "arenabuddy_core",
@@ -176,7 +176,7 @@ dependencies = [
 
 [[package]]
 name = "arenabuddy_core"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "anyhow",
  "chrono",
@@ -194,7 +194,7 @@ dependencies = [
 
 [[package]]
 name = "arenabuddy_scraper"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "anyhow",
  "arenabuddy_core",
@@ -209,7 +209,7 @@ dependencies = [
 
 [[package]]
 name = "arenabuddy_ui"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "arenabuddy_core",
  "console_error_panic_hook",
