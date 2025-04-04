@@ -8,7 +8,6 @@ use crate::mtga_events::primitives::{
     ResultListEntry, Skin, Stop, Target, Timer, Toughness, TurnInfo, Zone,
 };
 
-//
 // GRE refers to the server-side MTGA engine
 //
 // no clue what it actually stands for, but these are a bunch of events that come from

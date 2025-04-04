@@ -8,53 +8,46 @@ on:
   workflow_call:
 
 jobs:
-  check:
-    runs-on: windows-2022
+  check-clippy:
+    runs-on: windows-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: stable
-      - name: Create out directory
-        shell: bash
-        run: mkdir -p ./out
-      - name: Check the project
-        working-directory: ./
-        run: |
-          cargo check --workspace --all-targets --all-features
+      - uses: actions/checkout@v3
 
-  clippy:
-    runs-on: windows-2022
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
         with:
+          profile: minimal
           toolchain: stable
-      - name: Create out directory
-        shell: bash
-        run: mkdir -p ./out
-      - name: Check lints
-        working-directory: ./
-        run: |
-          cargo clippy --all --all-targets --all-features --examples --tests
+          override: true
+          components: clippy
 
-  fmt:
-    runs-on: windows-2022
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
+      - name: check
+        uses: actions-rs/cargo@v1
         with:
-          toolchain: stable
+          command: check
+          args: --workspace --all-targets --all-features
+
+      - name: Run clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all --all-targets --all-features --examples --tests
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install nightly toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
           components: rustfmt
-      - name: Create out directory
-        shell: bash
-        run: mkdir -p ./out
+
       - name: Check formatting
-        working-directory: ./
-        run: cargo fmt --all --check
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check

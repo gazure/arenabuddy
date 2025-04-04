@@ -8,7 +8,6 @@ use crate::mtga_events::{
     primitives::{SubZoneType, Target, ZoneType},
 };
 
-//
 // Client messages to the game server
 //
 
