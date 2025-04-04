@@ -1,9 +1,9 @@
+use std::collections::HashMap;
+
 use anyhow::{Context, Result};
 use arenabuddy_core::cards::{Card, CardFace};
 use serde_json::Value;
-use std::collections::HashMap;
-use tokio::fs::File;
-use tokio::io::AsyncWriteExt;
+use tokio::{fs::File, io::AsyncWriteExt};
 use tracing::{debug, info};
 
 const DEFAULT_SCRYFALL_CARDS: &str = crate::scrape::SCRYFALL_OUT;

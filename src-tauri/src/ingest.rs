@@ -1,11 +1,15 @@
-use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::{
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex},
+    time::Duration,
+};
 
-use arenabuddy_core::match_insights::MatchDB;
-use arenabuddy_core::processor::{EventSource, ParseError, PlayerLogProcessor};
-use arenabuddy_core::replay::MatchReplayBuilder;
-use arenabuddy_core::storage_backends::Storage;
+use arenabuddy_core::{
+    match_insights::MatchDB,
+    processor::{EventSource, ParseError, PlayerLogProcessor},
+    replay::MatchReplayBuilder,
+    storage_backends::Storage,
+};
 use crossbeam_channel::{Sender, select, unbounded};
 use notify::{Event, Watcher};
 use tracing::{error, info};

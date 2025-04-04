@@ -1,15 +1,15 @@
-use std::path::PathBuf;
-use std::time::Duration;
+use std::{path::PathBuf, time::Duration};
 
 use anyhow::Result;
+use arenabuddy_core::{
+    match_insights::MatchDB,
+    processor::{EventSource, PlayerLogProcessor},
+    replay::MatchReplayBuilder,
+    storage_backends::{DirectoryStorageBackend, Storage},
+};
 use clap::Parser;
 use crossbeam::channel::{Receiver, select, unbounded};
 use tracing::error;
-
-use arenabuddy_core::match_insights::MatchDB;
-use arenabuddy_core::processor::{EventSource, PlayerLogProcessor};
-use arenabuddy_core::replay::MatchReplayBuilder;
-use arenabuddy_core::storage_backends::{DirectoryStorageBackend, Storage};
 
 const PLAYER_LOG_POLLING_INTERVAL: u64 = 1;
 

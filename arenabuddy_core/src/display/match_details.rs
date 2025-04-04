@@ -1,9 +1,14 @@
-use crate::display::deck::{DeckDifference, DeckDisplayRecord};
-use crate::display::game::GameResultDisplay;
-use crate::display::mulligan::Mulligan;
-use crate::models::deck::Deck;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+
+use crate::{
+    display::{
+        deck::{DeckDifference, DeckDisplayRecord},
+        game::GameResultDisplay,
+        mulligan::Mulligan,
+    },
+    models::deck::Deck,
+};
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct MatchDetails {

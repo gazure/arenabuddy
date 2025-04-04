@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
-use crate::mtga_events::gre::DeckMessage;
-use crate::mtga_events::primitives::{SubZoneType, Target, ZoneType};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+
+use crate::mtga_events::{
+    gre::DeckMessage,
+    primitives::{SubZoneType, Target, ZoneType},
+};
 
 //
 // Client messages to the game server

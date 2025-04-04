@@ -1,5 +1,6 @@
-use crate::cards::{Card, CardType};
 use serde::{Deserialize, Serialize};
+
+use crate::cards::{Card, CardType};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CardDisplayRecord {

@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use crate::mtga_events::primitives::ResultListEntry;
-use crate::mtga_events::primitives::{
-    Action, Annotation, MulliganType, OptionPrompt, Player, PlayerDieRoll, Power, Prompt, Skin,
-    Stop, Target, Timer, Toughness, TurnInfo, Zone,
-};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+
+use crate::mtga_events::primitives::{
+    Action, Annotation, MulliganType, OptionPrompt, Player, PlayerDieRoll, Power, Prompt,
+    ResultListEntry, Skin, Stop, Target, Timer, Toughness, TurnInfo, Zone,
+};
 
 //
 // GRE refers to the server-side MTGA engine
@@ -518,8 +518,9 @@ pub struct DieRollResultsResp {
 #[cfg(test)]
 mod test {
 
-    use super::*;
     use std::mem::size_of;
+
+    use super::*;
 
     #[test]
     fn test_gre_sizes() {

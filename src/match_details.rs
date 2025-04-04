@@ -1,8 +1,9 @@
-use crate::app::invoke;
 use arenabuddy_core::display::match_details::MatchDetails;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use wasm_bindgen_futures::spawn_local;
+
+use crate::app::invoke;
 
 async fn get_match_details(id: &str) -> Option<MatchDetails> {
     let command_object =

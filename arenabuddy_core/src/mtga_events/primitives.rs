@@ -1,6 +1,8 @@
-use crate::mtga_events::gre::Reference;
-use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter};
+
+use serde::{Deserialize, Serialize};
+
+use crate::mtga_events::gre::Reference;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

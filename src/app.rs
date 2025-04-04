@@ -1,11 +1,12 @@
-use crate::error_logs::ErrorLogs;
-use crate::match_details::MatchDetails;
-use crate::matches::Matches;
 use leptos::prelude::*;
-use leptos_router::components::{Route, Router, Routes};
-use leptos_router::path;
+use leptos_router::{
+    components::{Route, Router, Routes},
+    path,
+};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
+
+use crate::{error_logs::ErrorLogs, match_details::MatchDetails, matches::Matches};
 
 #[wasm_bindgen]
 extern "C" {

@@ -1,8 +1,9 @@
-use crate::app::invoke;
 use arenabuddy_core::models::mtga_match::MTGAMatch;
 use leptos::prelude::*;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;
+
+use crate::app::invoke;
 
 async fn retrieve_matches() -> Vec<MTGAMatch> {
     serde_wasm_bindgen::from_value(invoke("command_matches", JsValue::null()).await)

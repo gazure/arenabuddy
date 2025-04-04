@@ -7,12 +7,13 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::needless_pass_by_value)]
 
-use std::error::Error;
-use std::fmt::Display;
-use std::sync::{Arc, Mutex};
+use std::{
+    error::Error,
+    fmt::Display,
+    sync::{Arc, Mutex},
+};
 
-use arenabuddy_core::cards::CardsDatabase;
-use arenabuddy_core::match_insights::MatchDB;
+use arenabuddy_core::{cards::CardsDatabase, match_insights::MatchDB};
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager, path::BaseDirectory};

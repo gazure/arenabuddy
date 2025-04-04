@@ -1,15 +1,18 @@
+use std::{
+    collections::VecDeque,
+    fs::File,
+    io::{BufRead, BufReader},
+    path::PathBuf,
+    result::Result as StdResult,
+};
+
 use anyhow::Result;
-use std::collections::VecDeque;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
-use std::result::Result as StdResult;
 use tracing::{debug, error};
 
-use crate::mtga_events::business::RequestTypeBusinessEvent;
-use crate::mtga_events::client::RequestTypeClientToMatchServiceMessage;
-use crate::mtga_events::gre::RequestTypeGREToClientEvent;
-use crate::mtga_events::mgrsc::RequestTypeMGRSCEvent;
+use crate::mtga_events::{
+    business::RequestTypeBusinessEvent, client::RequestTypeClientToMatchServiceMessage,
+    gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
+};
 
 pub trait EventSource {
     /// # Errors
