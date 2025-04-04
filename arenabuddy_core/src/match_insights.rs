@@ -3,7 +3,6 @@ use chrono::{DateTime, Utc};
 use include_dir::{Dir, include_dir};
 use indoc::indoc;
 
-use lazy_static::lazy_static;
 use rusqlite::{Connection, Params as RusqliteParams, Result as RusqliteResult, Transaction};
 use rusqlite_migration::Migrations;
 use tracing::{debug, error, info};
@@ -18,10 +17,11 @@ use crate::storage_backends::Storage;
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations");
 
-lazy_static! {
-    static ref MIGRATIONS: Migrations<'static> =
-        Migrations::from_directory(&MIGRATIONS_DIR).unwrap_or(Migrations::new(Vec::new()));
-}
+use std::sync::LazyLock;
+
+static MIGRATIONS: LazyLock<Migrations<'static>> = LazyLock::new(|| {
+    Migrations::from_directory(&MIGRATIONS_DIR).unwrap_or(Migrations::new(Vec::new()))
+});
 
 #[derive(Debug)]
 pub struct MatchDB {
