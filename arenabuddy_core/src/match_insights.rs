@@ -1,27 +1,29 @@
+use std::sync::LazyLock;
+
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use include_dir::{Dir, include_dir};
 use indoc::indoc;
-
-use lazy_static::lazy_static;
 use rusqlite::{Connection, Params as RusqliteParams, Result as RusqliteResult, Transaction};
 use rusqlite_migration::Migrations;
 use tracing::{debug, error, info};
 
-use crate::cards::CardsDatabase;
-use crate::models::deck::Deck;
-use crate::models::match_result::{MatchResult, MatchResultBuilder};
-use crate::models::mtga_match::{MTGAMatch, MTGAMatchBuilder};
-use crate::models::mulligan::MulliganInfo;
-use crate::replay::MatchReplay;
-use crate::storage_backends::Storage;
+use crate::{
+    cards::CardsDatabase,
+    models::{
+        deck::Deck,
+        match_result::{MatchResult, MatchResultBuilder},
+        mtga_match::{MTGAMatch, MTGAMatchBuilder},
+        mulligan::MulliganInfo,
+    },
+    replay::MatchReplay,
+    storage_backends::Storage,
+};
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations");
-
-lazy_static! {
-    static ref MIGRATIONS: Migrations<'static> =
-        Migrations::from_directory(&MIGRATIONS_DIR).unwrap_or(Migrations::new(Vec::new()));
-}
+static MIGRATIONS: LazyLock<Migrations<'static>> = LazyLock::new(|| {
+    Migrations::from_directory(&MIGRATIONS_DIR).unwrap_or(Migrations::new(Vec::new()))
+});
 
 #[derive(Debug)]
 pub struct MatchDB {

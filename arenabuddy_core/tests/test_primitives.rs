@@ -1,7 +1,6 @@
 use anyhow::Result;
-use serde_json::json;
-
 use arenabuddy_core::mtga_events::primitives::AnnotationType;
+use serde_json::json;
 
 #[test]
 fn test_annotation_type() -> Result<()> {

@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use arenabuddy_core::{
     display::{
         deck::{DeckDifference, DeckDisplayRecord},
@@ -7,7 +9,6 @@ use arenabuddy_core::{
     },
     match_insights::MatchDB,
 };
-use std::sync::{Arc, Mutex};
 use tauri::State;
 use tracing::{error, info};
 

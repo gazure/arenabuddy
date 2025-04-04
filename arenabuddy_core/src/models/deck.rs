@@ -1,8 +1,8 @@
+use std::{collections::HashMap, fmt::Display};
+
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use std::collections::HashMap;
-use std::fmt::Display;
 
 use crate::mtga_events::gre::DeckMessage;
 

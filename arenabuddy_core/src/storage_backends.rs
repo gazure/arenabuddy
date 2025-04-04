@@ -1,10 +1,14 @@
-use crate::replay::MatchReplay;
+use std::{
+    fs::File,
+    io::{BufWriter, Write},
+    path::PathBuf,
+};
+
 use anyhow::Result;
 use serde::Serialize;
-use std::fs::File;
-use std::io::{BufWriter, Write};
-use std::path::PathBuf;
 use tracing::info;
+
+use crate::replay::MatchReplay;
 
 pub trait Storage {
     /// # Errors

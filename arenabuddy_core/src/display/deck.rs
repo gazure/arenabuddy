@@ -1,9 +1,13 @@
-use crate::cards::{CardType, CardsDatabase};
-use crate::display::card::CardDisplayRecord;
-use crate::models::deck::{Deck, Quantities};
+use std::collections::HashMap;
+
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
+use crate::{
+    cards::{CardType, CardsDatabase},
+    display::card::CardDisplayRecord,
+    models::deck::{Deck, Quantities},
+};
 
 fn get_card(db: &CardsDatabase, quantities: &Quantities, card_id: i32) -> CardDisplayRecord {
     let mut card: CardDisplayRecord = db.get(&card_id).map_or_else(

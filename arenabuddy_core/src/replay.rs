@@ -1,26 +1,34 @@
-use std::collections::{BTreeMap, BTreeSet};
-use std::vec::IntoIter;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    vec::IntoIter,
+};
 
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
 use serde::{Serialize, Serializer};
 use tracing::{debug, info, warn};
 
-use crate::cards::CardsDatabase;
-use crate::models::deck::Deck;
-use crate::models::mulligan::MulliganInfo;
-use crate::models::mulligan::MulliganInfoBuilder;
-use crate::mtga_events::business::BusinessEventRequest;
-use crate::mtga_events::client::{
-    ClientMessage, MulliganOption, MulliganRespWrapper, RequestTypeClientToMatchServiceMessage,
+use crate::{
+    cards::CardsDatabase,
+    models::{
+        deck::Deck,
+        mulligan::{MulliganInfo, MulliganInfoBuilder},
+    },
+    mtga_events::{
+        business::BusinessEventRequest,
+        client::{
+            ClientMessage, MulliganOption, MulliganRespWrapper,
+            RequestTypeClientToMatchServiceMessage,
+        },
+        gre::{
+            DeckMessage, GREToClientMessage, GameObjectType, GameStateMessage, MulliganReqWrapper,
+            RequestTypeGREToClientEvent,
+        },
+        mgrsc::{FinalMatchResult, RequestTypeMGRSCEvent, StateType},
+        primitives::ZoneType,
+    },
+    processor::ParseOutput,
 };
-use crate::mtga_events::gre::{
-    DeckMessage, GREToClientMessage, GameObjectType, GameStateMessage, MulliganReqWrapper,
-    RequestTypeGREToClientEvent,
-};
-use crate::mtga_events::mgrsc::{FinalMatchResult, RequestTypeMGRSCEvent, StateType};
-use crate::mtga_events::primitives::ZoneType;
-use crate::processor::ParseOutput;
 
 const DEFAULT_HAND_SIZE: i32 = 7;
 

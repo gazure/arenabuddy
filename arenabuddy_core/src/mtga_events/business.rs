@@ -2,9 +2,7 @@ use chrono::Utc;
 use serde::{Deserialize, Deserializer, Serialize, de::Error};
 use serde_json::Value;
 
-///
 /// Structs for MTGA "Business" events
-///
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]

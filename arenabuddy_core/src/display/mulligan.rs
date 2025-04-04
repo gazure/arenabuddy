@@ -1,7 +1,8 @@
-use crate::cards::CardsDatabase;
-use crate::display::card::CardDisplayRecord;
-use crate::models::mulligan::MulliganInfo;
 use serde::{Deserialize, Serialize};
+
+use crate::{
+    cards::CardsDatabase, display::card::CardDisplayRecord, models::mulligan::MulliganInfo,
+};
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Mulligan {

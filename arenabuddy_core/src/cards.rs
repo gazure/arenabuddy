@@ -1,10 +1,8 @@
+use std::{
+    cmp::Ordering, collections::BTreeMap, fmt::Display, fs::File, io::BufReader, path::Path,
+};
+
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
-use std::collections::BTreeMap;
-use std::fmt::Display;
-use std::fs::File;
-use std::io::BufReader;
-use std::path::Path;
 use tracing::error;
 
 #[derive(Debug)]
