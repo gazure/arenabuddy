@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.3.3...arenabuddy-v0.3.4) - 2025-04-05
+
+### Other
+
+- Rust update ([#34](https://github.com/gazure/arenabuddy/pull/34))
+
 ## [0.3.3](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.3.2...arenabuddy-v0.3.3) - 2025-03-30
 
 ### Other
