@@ -39,7 +39,7 @@ impl DeckDisplayRecord {
             .fold(
                 HashMap::new(),
                 |mut acc: HashMap<CardType, Vec<CardDisplayRecord>>, card| {
-                    let card_type = card.type_field.clone();
+                    let card_type = card.type_field;
                     acc.entry(card_type).or_default().push(card);
                     acc
                 },
@@ -62,12 +62,12 @@ impl DeckDisplayRecord {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DeckDifference {
+pub struct Difference {
     pub added: Vec<CardDisplayRecord>,
     pub removed: Vec<CardDisplayRecord>,
 }
 
-impl DeckDifference {
+impl Difference {
     pub fn new(added: Vec<CardDisplayRecord>, removed: Vec<CardDisplayRecord>) -> Self {
         Self { added, removed }
     }
@@ -103,7 +103,7 @@ impl DeckDifference {
             .sorted()
             .collect()
     }
-    pub fn difference(deck1: &Deck, deck2: &Deck, cards_database: &CardsDatabase) -> Self {
+    pub fn diff(deck1: &Deck, deck2: &Deck, cards_database: &CardsDatabase) -> Self {
         let deck1_quantities = deck1.quantities();
         let deck2_quantities = deck2.quantities();
 

@@ -63,12 +63,7 @@ impl Deck {
         }
     }
 
-    pub fn from_raw_decklist(
-        name: String,
-        game_number: i32,
-        mainboard: &str,
-        sideboard: &str,
-    ) -> Self {
+    pub fn from_raw(name: String, game_number: i32, mainboard: &str, sideboard: &str) -> Self {
         let mainboard = process_raw_decklist(mainboard);
         let sideboard = process_raw_decklist(sideboard);
         Self::new(name, game_number, mainboard, sideboard)
@@ -97,13 +92,13 @@ pub fn quantities(deck: &[i32]) -> Quantities {
 
 fn process_raw_decklist(raw_decklist: &str) -> Vec<i32> {
     let parsed = serde_json::from_str(raw_decklist).unwrap_or(Value::Array(Vec::new()));
-    match parsed {
-        Value::Array(arr) => arr
-            .iter()
+    if let Value::Array(arr) = parsed {
+        arr.iter()
             .filter_map(Value::as_i64)
             .filter_map(|v| i32::try_from(v).ok())
-            .collect(),
-        _ => Vec::new(),
+            .collect()
+    } else {
+        Vec::default()
     }
 }
 
@@ -128,8 +123,7 @@ mod tests {
 
     #[test]
     fn test_deck_from_raw_decklist() {
-        let deck =
-            super::Deck::from_raw_decklist("Test Deck".to_string(), 0, "[1, 2, 3]", "[4, 5, 6]");
+        let deck = super::Deck::from_raw("Test Deck".to_string(), 0, "[1, 2, 3]", "[4, 5, 6]");
         assert_eq!(deck.name, "Test Deck");
         assert_eq!(deck.game_number, 0);
         assert_eq!(deck.mainboard, vec![1, 2, 3]);

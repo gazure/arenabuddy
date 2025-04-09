@@ -8,12 +8,12 @@ use serde_json::Value;
 #[serde(rename_all = "camelCase")]
 pub struct RequestTypeBusinessEvent {
     id: String,
-    pub request: BusinessEventRequest,
+    pub request: BusinessEvent,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct BusinessEventRequest {
+pub struct BusinessEvent {
     pub event_id: Option<String>,
     pub event_type: Option<i32>,
     pub event_time: Option<chrono::DateTime<Utc>>,
@@ -50,7 +50,7 @@ impl RequestTypeBusinessEvent {
     }
 }
 
-impl BusinessEventRequest {
+impl BusinessEvent {
     pub fn is_relevant(&self) -> bool {
         self.event_id.is_some()
             && self.event_type.is_some()

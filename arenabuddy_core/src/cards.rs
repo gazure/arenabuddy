@@ -1,5 +1,6 @@
 use std::{
     cmp::Ordering, collections::BTreeMap, fmt::Display, fs::File, io::BufReader, path::Path,
+    str::FromStr,
 };
 
 use serde::{Deserialize, Serialize};
@@ -8,6 +9,18 @@ use tracing::error;
 #[derive(Debug)]
 pub struct CardsDatabase {
     pub db: BTreeMap<String, Card>,
+}
+
+impl Default for CardsDatabase {
+    fn default() -> Self {
+        let default_path = Path::new("data/cards.json");
+        Self::new(default_path).unwrap_or_else(|e| {
+            error!("Error loading default cards database: {:?}", e);
+            Self {
+                db: BTreeMap::new(),
+            }
+        })
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -53,54 +66,26 @@ impl Card {
         self.cmc
     }
 
+    fn types(&self) -> Vec<CardType> {
+        let mut faces = self.type_line.split("//");
+        let Some(front) = faces.next() else {
+            return vec![];
+        };
+        front
+            .trim()
+            .split("—")
+            .filter_map(|t| CardType::from_str(t).ok())
+            .collect()
+    }
+
     pub fn dominant_type(&self) -> CardType {
-        if self.type_line.contains("Creature") {
-            CardType::Creature
-        } else if self.type_line.contains("Land") {
-            CardType::Land
-        } else if self.type_line.contains("Artifact") {
-            CardType::Artifact
-        } else if self.type_line.contains("Enchantment") {
-            CardType::Enchantment
-        } else if self.type_line.contains("Planeswalker") {
-            CardType::Planeswalker
-        } else if self.type_line.contains("Instant") {
-            CardType::Instant
-        } else if self.type_line.contains("Sorcery") {
-            CardType::Sorcery
-        } else if self.type_line.contains("Battle") {
-            CardType::Battle
-        } else {
-            CardType::Unknown
-        }
+        self.types().first().copied().unwrap_or(CardType::Unknown)
     }
 }
 
 impl Display for Card {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} -- {}", self.name, self.set)
-    }
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum CardType {
-    Creature,
-    Land,
-    Artifact,
-    Enchantment,
-    Planeswalker,
-    Instant,
-    Sorcery,
-    Battle,
-    #[default]
-    Unknown,
-}
-
-impl Display for CardType {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        serde_json::to_string(self)
-            .unwrap_or("Unknown".to_string())
-            .fmt(f)
     }
 }
 
@@ -172,14 +157,48 @@ impl CardsDatabase {
     }
 }
 
-impl Default for CardsDatabase {
-    fn default() -> Self {
-        let default_path = Path::new("data/cards.json");
-        Self::new(default_path).unwrap_or_else(|e| {
-            error!("Error loading default cards database: {:?}", e);
-            Self {
-                db: BTreeMap::new(),
-            }
-        })
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum CardType {
+    Creature,
+    Land,
+    Artifact,
+    Enchantment,
+    Planeswalker,
+    Instant,
+    Sorcery,
+    Battle,
+    #[default]
+    Unknown,
+}
+impl FromStr for CardType {
+    type Err = serde_json::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        serde_json::from_str(s)
+    }
+}
+
+impl TryFrom<&str> for CardType {
+    type Error = ();
+
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
+        match s.trim() {
+            "Creature" => Ok(CardType::Creature),
+            "Land" => Ok(CardType::Land),
+            "Artifact" => Ok(CardType::Artifact),
+            "Enchantment" => Ok(CardType::Enchantment),
+            "Planeswalker" => Ok(CardType::Planeswalker),
+            "Instant" => Ok(CardType::Instant),
+            "Sorcery" => Ok(CardType::Sorcery),
+            "Battle" => Ok(CardType::Battle),
+            _ => Ok(CardType::Unknown),
+        }
+    }
+}
+impl Display for CardType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        serde_json::to_string(self)
+            .unwrap_or("Unknown".to_string())
+            .fmt(f)
     }
 }

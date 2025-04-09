@@ -34,9 +34,8 @@ impl PlayerLogProcessor {
     ///
     /// Will return an error if the player log file cannot be opened
     pub fn try_new(player_log_path: PathBuf) -> Result<Self> {
-        let reader = BufReader::new(File::open(player_log_path)?);
         Ok(Self {
-            player_log_reader: reader,
+            player_log_reader: BufReader::new(File::open(player_log_path)?),
             json_events: VecDeque::new(),
             current_json_str: None,
             bracket_depth: 0,
@@ -48,35 +47,33 @@ impl PlayerLogProcessor {
     // any issues given the log entries I've read
     pub fn process_line(&mut self, log_line: &str) -> Vec<String> {
         let mut completed_json_strings = Vec::new();
-        for char in log_line.chars() {
-            match char {
-                '{' => {
-                    if self.current_json_str.is_none() {
-                        self.current_json_str = Some(String::new());
-                    }
-                    if let Some(json_str) = &mut self.current_json_str {
-                        json_str.push('{');
-                    }
-                    self.bracket_depth += 1;
+        log_line.chars().for_each(|char| match char {
+            '{' => {
+                if self.current_json_str.is_none() {
+                    self.current_json_str = Some(String::new());
                 }
-                '}' => {
-                    if let Some(json_str) = &mut self.current_json_str {
-                        json_str.push('}');
-                        self.bracket_depth -= 1;
-                        if self.bracket_depth == 0 {
-                            completed_json_strings.push(json_str.clone());
-                            self.current_json_str = None;
-                        }
-                    }
+                if let Some(json_str) = &mut self.current_json_str {
+                    json_str.push('{');
                 }
-                ' ' | '\n' | '\r' => {}
-                _ => {
-                    if let Some(json_str) = &mut self.current_json_str {
-                        json_str.push(char);
+                self.bracket_depth += 1;
+            }
+            '}' => {
+                if let Some(json_str) = &mut self.current_json_str {
+                    json_str.push('}');
+                    self.bracket_depth -= 1;
+                    if self.bracket_depth == 0 {
+                        completed_json_strings.push(json_str.clone());
+                        self.current_json_str = None;
                     }
                 }
             }
-        }
+            ' ' | '\n' | '\r' => {}
+            _ => {
+                if let Some(json_str) = &mut self.current_json_str {
+                    json_str.push(char);
+                }
+            }
+        });
         completed_json_strings
     }
 

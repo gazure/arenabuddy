@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use arenabuddy_core::{
     display::{
-        deck::{DeckDifference, DeckDisplayRecord},
+        deck::{DeckDisplayRecord, Difference},
         game::GameResultDisplay,
         match_details::MatchDetails,
         mulligan::Mulligan,
@@ -45,7 +45,7 @@ pub(crate) fn command_match_details(
 
     match_details.decklists.windows(2).for_each(|pair| {
         if let [prev, next] = pair {
-            let diff = DeckDifference::difference(prev, next, &db.cards_database);
+            let diff = Difference::diff(prev, next, &db.cards_database);
             match_details
                 .differences
                 .get_or_insert_with(Vec::new)

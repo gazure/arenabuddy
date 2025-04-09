@@ -84,9 +84,8 @@ pub fn ErrorLogs() -> impl IntoView {
 
                                     <textarea
                                         readonly
-                                        class="border border-gray-300 rounded-md bg-gray-50 font-mono text-sm leading-relaxed text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        class="border border-gray-300 rounded-md bg-gray-50 font-mono text-sm leading-relaxed text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500, w-full"
                                     >
-
                                         {error_logs.get().join("\n")}
                                     </textarea>
                                 </div>
