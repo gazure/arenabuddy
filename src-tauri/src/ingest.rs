@@ -59,8 +59,7 @@ fn log_process_start(
             }
             default(Duration::from_secs(1)) => {
                 loop {
-                    let event_result = processor.get_next_event();
-                    match event_result {
+                    match processor.get_next_event() {
                         Ok(parse_output) => {
                             if match_replay_builder.ingest_event(parse_output) {
                                 let match_replay = match_replay_builder.build();
@@ -80,8 +79,7 @@ fn log_process_start(
                         }
                         Err(parse_error) => {
                             if let ParseError::Error(s) = parse_error {
-                                let mut lc = log_collector.lock().expect("log collector lock should be healthy");
-                                lc.push(s);
+                                log_collector.lock().expect("log collector lock should be healthy").push(s);
                             } else {
                                 break;
                             }

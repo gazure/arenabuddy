@@ -5,17 +5,17 @@ use std::{
 
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
-use serde::{Serialize, Serializer};
 use tracing::{debug, info, warn};
 
 use crate::{
     cards::CardsDatabase,
+    events::{Event, EventRef},
     models::{
         deck::Deck,
         mulligan::{MulliganInfo, MulliganInfoBuilder},
     },
     mtga_events::{
-        business::BusinessEventRequest,
+        business::BusinessEvent,
         client::{
             ClientMessage, MulliganOption, MulliganRespWrapper,
             RequestTypeClientToMatchServiceMessage,
@@ -32,57 +32,14 @@ use crate::{
 
 const DEFAULT_HAND_SIZE: i32 = 7;
 
-#[derive(Debug, Clone)]
-pub enum MatchReplayEvent {
-    GRE(RequestTypeGREToClientEvent),
-    Client(RequestTypeClientToMatchServiceMessage),
-    MGRSC(RequestTypeMGRSCEvent),
-}
-
-impl<'a> From<&'a MatchReplayEvent> for MatchReplayEventRef<'a> {
-    fn from(value: &'a MatchReplayEvent) -> Self {
-        match value {
-            MatchReplayEvent::GRE(e) => MatchReplayEventRef::GRE(e),
-            MatchReplayEvent::Client(e) => MatchReplayEventRef::Client(e),
-            MatchReplayEvent::MGRSC(e) => MatchReplayEventRef::MGRSC(e),
-        }
-    }
-}
-
-impl<'a> From<&'a BusinessEventRequest> for MatchReplayEventRef<'a> {
-    fn from(value: &'a BusinessEventRequest) -> Self {
-        MatchReplayEventRef::Business(value)
-    }
-}
-
-pub enum MatchReplayEventRef<'a> {
-    GRE(&'a RequestTypeGREToClientEvent),
-    Client(&'a RequestTypeClientToMatchServiceMessage),
-    MGRSC(&'a RequestTypeMGRSCEvent),
-    Business(&'a BusinessEventRequest),
-}
-
-impl Serialize for MatchReplayEventRef<'_> {
-    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            Self::MGRSC(event) => event.serialize(serializer),
-            Self::GRE(event) => event.serialize(serializer),
-            Self::Client(event) => event.serialize(serializer),
-            Self::Business(event) => event.serialize(serializer),
-        }
-    }
-}
-
 #[derive(Debug, Default)]
 pub struct MatchReplay {
     pub match_id: String,
+    controller_seat_id: i32,
     pub match_start_message: RequestTypeMGRSCEvent,
     pub match_end_message: RequestTypeMGRSCEvent,
-    pub client_server_messages: Vec<MatchReplayEvent>,
-    pub business_messages: Vec<BusinessEventRequest>,
+    pub client_server_messages: Vec<Event>,
+    pub business_messages: Vec<BusinessEvent>,
 }
 
 impl MatchReplay {
@@ -90,7 +47,7 @@ impl MatchReplay {
         self.client_server_messages
             .iter()
             .filter_map(|mre| match mre {
-                MatchReplayEvent::GRE(message) => Some(message),
+                Event::GRE(message) => Some(message),
                 _ => None,
             })
     }
@@ -114,7 +71,7 @@ impl MatchReplay {
         self.client_server_messages
             .iter()
             .filter_map(|mre| match mre {
-                MatchReplayEvent::Client(message) => Some(message),
+                Event::Client(message) => Some(message),
                 _ => None,
             })
     }
@@ -122,13 +79,8 @@ impl MatchReplay {
     /// # Errors
     ///
     /// Returns an error if the controller seat ID is not found
-    pub(crate) fn get_controller_seat_id(&self) -> Result<i32> {
-        for gre_message in self.gre_messages_iter() {
-            if let GREToClientMessage::ConnectResp(wrapper) = gre_message {
-                return Ok(wrapper.meta.system_seat_ids[0]);
-            }
-        }
-        Err(anyhow!("Controller seat ID not found"))
+    pub(crate) fn get_controller_seat_id(&self) -> i32 {
+        self.controller_seat_id
     }
 
     /// # Errors
@@ -151,42 +103,36 @@ impl MatchReplay {
         Err(anyhow!("player names not found"))
     }
 
-    /// # Errors
-    ///
-    /// Returns an error if the controller seat ID is not found
-    fn get_opponent_cards(&self) -> Result<Vec<i32>> {
-        let controller_id = self.get_controller_seat_id()?;
-        let opponent_cards = self
-            .game_state_messages_iter()
+    fn get_opponent_cards(&self) -> Vec<i32> {
+        self.game_state_messages_iter()
             .flat_map(|gsm| &gsm.game_objects)
             .filter(|game_object| {
-                game_object.owner_seat_id != controller_id
-                    && (game_object.type_field == GameObjectType::Card
-                        || game_object.type_field == GameObjectType::MDFCBack)
+                game_object.owner_seat_id != self.controller_seat_id
+                    && matches!(
+                        game_object.type_field,
+                        GameObjectType::Card | GameObjectType::MDFCBack
+                    )
             })
             .map(|game_object| game_object.grp_id)
-            .collect();
-        Ok(opponent_cards)
+            .collect()
     }
 
     /// # Errors
     ///
     /// Returns an error if the controller seat id is not found
-    fn get_opponent_color_identity(&self, cards_db: &CardsDatabase) -> Result<String> {
-        let opponent_cards = self.get_opponent_cards()?;
+    fn get_opponent_color_identity(&self, cards_db: &CardsDatabase) -> String {
+        let opponent_cards = self.get_opponent_cards();
         let mut color_identity = BTreeSet::new();
         for card in opponent_cards {
             if let Some(card_db_entry) = cards_db.get(&card) {
-                let colors = if card_db_entry.name == "jegantha_the_wellspring" {
-                    vec!["R".to_string(), "G".to_string()]
-                } else {
-                    card_db_entry.color_identity.clone()
-                };
-                debug!("card: {}, colors: {:?}", card_db_entry.name, colors);
-                color_identity.extend(colors);
+                debug!(
+                    "card: {}, colors: {:?}",
+                    card_db_entry.name, card_db_entry.color_identity
+                );
+                color_identity.extend(card_db_entry.color_identity.clone());
             }
         }
-        Ok(color_identity.into_iter().collect::<String>())
+        color_identity.into_iter().collect::<String>()
     }
 
     /// # Errors
@@ -250,13 +196,13 @@ impl MatchReplay {
     /// Returns an error if the controller seat ID is not found among other things
     #[allow(clippy::too_many_lines)]
     pub fn get_mulligan_infos(&self, cards_db: &CardsDatabase) -> Result<Vec<MulliganInfo>> {
-        let controller_id = self.get_controller_seat_id()?;
+        let controller_id = self.get_controller_seat_id();
 
         let mut game_number = 1;
         let mut opening_hands = Vec::<(i32, Vec<i32>)>::new();
         let mut mulligan_requests = Vec::<(i32, &MulliganReqWrapper)>::new();
         let mut play_or_draw: BTreeMap<i32, String> = BTreeMap::new();
-        let opponent_color_identity = self.get_opponent_color_identity(cards_db)?;
+        let opponent_color_identity = self.get_opponent_color_identity(cards_db);
 
         self.gre_messages_iter().try_for_each(|gre| -> Result<()> {
             match gre {
@@ -413,25 +359,25 @@ impl MatchReplay {
             .and_then(|message| message.event_id.clone())
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = MatchReplayEventRef> {
+    pub fn iter(&self) -> impl Iterator<Item = EventRef> {
         self.into_iter()
     }
 }
 
 impl<'a> IntoIterator for &'a MatchReplay {
-    type Item = MatchReplayEventRef<'a>;
+    type Item = EventRef<'a>;
     type IntoIter = IntoIter<Self::Item>;
 
     fn into_iter(self) -> Self::IntoIter {
         let mut events = Vec::new();
-        events.push(MatchReplayEventRef::MGRSC(&self.match_start_message));
+        events.push(EventRef::MGRSC(&self.match_start_message));
         self.client_server_messages.iter().for_each(|mre| {
-            events.push(mre.into());
+            events.push(mre.as_ref());
         });
-        events.push(MatchReplayEventRef::MGRSC(&self.match_end_message));
+        events.push(EventRef::MGRSC(&self.match_end_message));
         self.business_messages
             .iter()
-            .for_each(|bm| events.push(bm.into()));
+            .for_each(|bm| events.push(EventRef::Business(bm)));
         events.into_iter()
     }
 }
@@ -441,8 +387,8 @@ pub struct MatchReplayBuilder {
     pub match_id: Option<String>,
     pub match_start_message: Option<RequestTypeMGRSCEvent>,
     pub match_end_message: Option<RequestTypeMGRSCEvent>,
-    pub client_server_messages: Vec<MatchReplayEvent>,
-    pub business_messages: Vec<BusinessEventRequest>,
+    pub client_server_messages: Vec<Event>,
+    pub business_messages: Vec<BusinessEvent>,
 }
 
 #[derive(Debug)]
@@ -475,12 +421,12 @@ impl MatchReplayBuilder {
 
     pub fn ingest_event(&mut self, event: ParseOutput) -> bool {
         match event {
-            ParseOutput::GREMessage(gre_message) => self
-                .client_server_messages
-                .push(MatchReplayEvent::GRE(gre_message)),
+            ParseOutput::GREMessage(gre_message) => {
+                self.client_server_messages.push(Event::GRE(gre_message));
+            }
             ParseOutput::ClientMessage(client_message) => self
                 .client_server_messages
-                .push(MatchReplayEvent::Client(client_message)),
+                .push(Event::Client(client_message)),
             ParseOutput::MGRSCMessage(mgrsc_event) => {
                 return self.ingest_mgrc_event(mgrsc_event);
             }
@@ -532,9 +478,28 @@ impl MatchReplayBuilder {
         let match_end_message = self
             .match_end_message
             .ok_or(MatchReplayBuilderError::MissingMatchEndMessage)?;
+        let Some(controller_seat_id) = self.client_server_messages.iter().find_map(|e| {
+            if let Event::GRE(r) = e {
+                r.gre_to_client_event
+                    .gre_to_client_messages
+                    .iter()
+                    .find_map(|e| {
+                        if let GREToClientMessage::ConnectResp(w) = e {
+                            w.meta.system_seat_ids.first().copied()
+                        } else {
+                            None
+                        }
+                    })
+            } else {
+                None
+            }
+        }) else {
+            return Err(anyhow!("no controller seat id found"));
+        };
 
         let match_replay = MatchReplay {
             match_id,
+            controller_seat_id,
             match_start_message,
             match_end_message,
             client_server_messages: self.client_server_messages,

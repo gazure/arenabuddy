@@ -169,7 +169,7 @@ impl MatchDB {
                 let deck_cards: String = row.get(1)?;
                 let sideboard_cards: String = row.get(2)?;
 
-                Ok(Deck::from_raw_decklist(
+                Ok(Deck::from_raw(
                     "Found Deck".to_string(),
                     game_number,
                     &deck_cards,
@@ -277,12 +277,11 @@ impl MatchDB {
 impl Storage for MatchDB {
     /// # Errors
     ///
-    /// will return an error if a `controller_seat_id` cannot be found
-    /// or if the match replay cannot be written to the database due to missing data
+    /// will return an error if if the match replay cannot be written to the database due to missing data
     /// or connection error
     fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
         info!("Writing match replay to database");
-        let controller_seat_id = match_replay.get_controller_seat_id()?;
+        let controller_seat_id = match_replay.get_controller_seat_id();
         let match_id = &match_replay.match_id;
         let (controller_name, opponent_name) = match_replay.get_player_names(controller_seat_id)?;
         let event_start = match_replay.match_start_time().unwrap_or(Utc::now());

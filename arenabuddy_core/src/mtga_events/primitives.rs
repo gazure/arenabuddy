@@ -145,7 +145,7 @@ pub struct Target {
 pub struct Annotation {
     #[serde(default)]
     pub affected_ids: Vec<i32>,
-    pub affector_id: Option<i32>,
+    pub affector_id: Option<i64>,
     pub id: i32,
     #[serde(default)]
     #[serde(rename = "type")]

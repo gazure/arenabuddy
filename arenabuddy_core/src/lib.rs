@@ -6,6 +6,7 @@
 
 pub mod cards;
 pub mod display;
+pub mod events;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod match_insights;
 pub mod models;

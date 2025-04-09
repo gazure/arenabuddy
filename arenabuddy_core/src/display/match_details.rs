@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     display::{
-        deck::{DeckDifference, DeckDisplayRecord},
+        deck::{DeckDisplayRecord, Difference},
         game::GameResultDisplay,
         mulligan::Mulligan,
     },
@@ -19,7 +19,7 @@ pub struct MatchDetails {
     pub opponent_player_name: String,
     pub created_at: DateTime<Utc>,
     pub primary_decklist: Option<DeckDisplayRecord>,
-    pub differences: Option<Vec<DeckDifference>>,
+    pub differences: Option<Vec<Difference>>,
     pub game_results: Vec<GameResultDisplay>,
     pub decklists: Vec<Deck>,
     pub mulligans: Vec<Mulligan>,
