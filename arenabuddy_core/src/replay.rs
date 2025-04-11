@@ -35,7 +35,7 @@ const DEFAULT_HAND_SIZE: i32 = 7;
 #[derive(Debug, Default)]
 pub struct MatchReplay {
     pub match_id: String,
-    controller_seat_id: i32,
+    pub controller_seat_id: i32,
     pub match_start_message: RequestTypeMGRSCEvent,
     pub match_end_message: RequestTypeMGRSCEvent,
     pub client_server_messages: Vec<Event>,

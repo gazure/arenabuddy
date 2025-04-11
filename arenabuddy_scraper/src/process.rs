@@ -119,13 +119,9 @@ fn merge(
 
     for card in seventeen_lands_cards {
         if let (Some(card_name), Some(card_id_str)) = (card.get("name"), card.get("id")) {
-            let card_name = if let Some(full_name) =
-                card_names_with_2_faces.get(card_name.split("//").next().unwrap_or("").trim())
-            {
-                full_name
-            } else {
-                card_name
-            };
+            let card_name = card_names_with_2_faces
+                .get(card_name.split("//").next().unwrap_or("").trim())
+                .unwrap_or(card_name);
 
             if let (Ok(card_id), Some(card_by_name)) = (
                 card_id_str
