@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.3.4...arenabuddy_cli-v0.4.0) - 2025-04-12
+
+### Other
+
+- update Cargo.lock dependencies
+
 ## [0.3.4](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.3.3...arenabuddy_cli-v0.3.4) - 2025-04-05
 
 ### Other
