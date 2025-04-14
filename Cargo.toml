@@ -42,7 +42,7 @@ keywords = ["magic"]
 license = "Apache-2.0 OR MIT"
 
 [workspace.dependencies]
-anyhow = "1.0.97"
+anyhow = "1.0.98"
 console_error_panic_hook = "0.1.7"
 chrono = { version = "0.4.40", features = ["serde"] }
 crossbeam = "0.8.4"
