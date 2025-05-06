@@ -6,6 +6,8 @@ use std::{
 use serde::{Deserialize, Serialize};
 use tracing::error;
 
+use crate::models::mana::Cost;
+
 #[derive(Debug)]
 pub struct CardsDatabase {
     pub db: BTreeMap<String, Card>,
@@ -59,6 +61,10 @@ impl Card {
                 .flatten()
                 .map_or("", |v| v)
         }
+    }
+
+    pub fn cost(&self) -> Option<Cost> {
+        self.mana_cost.as_ref().and_then(|s| s.parse::<Cost>().ok())
     }
 
     #[inline]
