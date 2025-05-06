@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.4.3...arenabuddy-v0.4.4) - 2025-05-06
+
+### Other
+
+- mana module, update for dragonstorm ([#52](https://github.com/gazure/arenabuddy/pull/52))
+
 ## [0.4.3](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.4.2...arenabuddy-v0.4.3) - 2025-04-21
 
 ### Other
