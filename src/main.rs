@@ -2,6 +2,7 @@
 #![allow(clippy::too_many_lines)]
 
 mod app;
+mod components;
 mod error_logs;
 mod match_details;
 mod matches;

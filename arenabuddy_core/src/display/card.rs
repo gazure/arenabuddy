@@ -63,7 +63,6 @@ impl From<&Card> for CardDisplayRecord {
         let image_uri = if let Some(image_uri) = &entry.image_uri {
             image_uri.clone()
         } else {
-            // Gross!
             entry
                 .card_faces
                 .as_ref()

@@ -17,13 +17,11 @@ pub(crate) fn command_match_details(
     match_id: String,
     db: State<'_, Arc<Mutex<MatchDB>>>,
 ) -> MatchDetails {
-    let db_lock_result = db.inner().lock();
-    info!("looking for match {match_id}");
-    if let Err(e) = db_lock_result {
-        error!("Failed to obtain db lock: {}", e);
+    let Ok(mut db) = db.inner().lock() else {
+        error!("Failed to obtain db lock");
         return MatchDetails::default();
-    }
-    let mut db = db_lock_result.expect("handled error case");
+    };
+    info!("looking for match {match_id}");
 
     let (mtga_match, did_controller_win) = db.get_match(&match_id).unwrap_or_default();
 
