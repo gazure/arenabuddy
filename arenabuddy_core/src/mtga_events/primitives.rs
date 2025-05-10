@@ -156,6 +156,8 @@ pub struct Annotation {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AnnotationType {
+    #[serde(rename = "AnnotationType_CopiedObject")]
+    CopiedObject,
     #[serde(rename = "AnnotationType_ResolutionStart")]
     ResolutionStart,
     #[serde(rename = "AnnotationType_ResolutionComplete")]
