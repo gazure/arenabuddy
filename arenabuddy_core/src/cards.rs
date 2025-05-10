@@ -177,34 +177,39 @@ pub enum CardType {
     Unknown,
 }
 impl FromStr for CardType {
-    type Err = serde_json::Error;
+    type Err = Self;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        serde_json::from_str(s)
-    }
-}
-
-impl TryFrom<&str> for CardType {
-    type Error = ();
-
-    fn try_from(s: &str) -> Result<Self, Self::Error> {
         match s.trim() {
             "Creature" => Ok(CardType::Creature),
-            "Land" => Ok(CardType::Land),
+            "Land" | "Basic Land" => Ok(CardType::Land),
             "Artifact" => Ok(CardType::Artifact),
             "Enchantment" => Ok(CardType::Enchantment),
             "Planeswalker" => Ok(CardType::Planeswalker),
             "Instant" => Ok(CardType::Instant),
             "Sorcery" => Ok(CardType::Sorcery),
             "Battle" => Ok(CardType::Battle),
-            _ => Ok(CardType::Unknown),
+            _ => Err(Self::Err::Unknown),
         }
     }
 }
+
 impl Display for CardType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        serde_json::to_string(self)
-            .unwrap_or("Unknown".to_string())
-            .fmt(f)
+        write!(
+            f,
+            "{}",
+            match self {
+                CardType::Creature => "Creature",
+                CardType::Land => "Land",
+                CardType::Artifact => "Artifact",
+                CardType::Enchantment => "Enchantment",
+                CardType::Planeswalker => "Planeswalker",
+                CardType::Instant => "Instant",
+                CardType::Sorcery => "Sorcery",
+                CardType::Battle => "Battle",
+                CardType::Unknown => "Unknown",
+            }
+        )
     }
 }

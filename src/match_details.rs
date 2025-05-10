@@ -3,7 +3,10 @@ use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use wasm_bindgen_futures::spawn_local;
 
-use crate::app::invoke;
+use crate::{
+    app::invoke,
+    components::{DeckList, MatchInfo, MulliganDisplay, deck_list::TypedCard},
+};
 
 async fn get_match_details(id: &str) -> Option<MatchDetails> {
     let command_object =
@@ -39,10 +42,18 @@ pub(crate) fn MatchDetails() -> impl IntoView {
             .get()
             .primary_decklist
             .map(|pd| {
-                pd.main_deck
-                    .values()
-                    .flat_map(|cdrs| cdrs.iter().map(|cdr| (cdr.name.clone(), cdr.quantity)))
-                    .collect::<Vec<_>>()
+                let mut cards = Vec::new();
+                for card_type_cards in &pd.main_deck {
+                    for card in card_type_cards.1 {
+                        cards.push(TypedCard {
+                            name: card.name.clone(),
+                            quantity: card.quantity,
+                            card_type: *card_type_cards.0,
+                            mana_value: card.mana_value,
+                        });
+                    }
+                }
+                cards
             })
             .unwrap_or_default()
     };
@@ -130,139 +141,26 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                         .into_any()
                 } else {
                     view! {
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                                <div class="bg-gradient-to-r from-blue-500 to-blue-600 py-4 px-6">
-                                    <h2 class="text-xl font-bold text-white">Match Information</h2>
-                                </div>
-                                <div class="p-6">
-                                    <div class="mb-4">
-                                        <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                                            Players
-                                        </h3>
-                                        <div class="flex flex-col gap-2">
-                                            <div class="bg-blue-50 p-3 rounded-md">
-                                                <span class="font-semibold">You</span>
-                                                {move || {
-                                                    format!(" {}", match_details.get().controller_player_name)
-                                                }}
-                                            </div>
-                                            <div class="bg-red-50 p-3 rounded-md">
-                                                <span class="font-semibold">Opponent</span>
-                                                {move || {
-                                                    format!(" {}", match_details.get().opponent_player_name)
-                                                }}
-                                            </div>
-                                        </div>
-                                    </div>
+                        <MatchInfo
+                            controller_player_name=Signal::derive(move || match_details.get().controller_player_name)
+                            opponent_player_name=Signal::derive(move || match_details.get().opponent_player_name)
+                            did_controller_win=Signal::derive(move || match_details.get().did_controller_win)
+                        />
 
-                                    <div class="mb-4">
-                                        <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                                            Game Details
-                                        </h3>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <div class="bg-gray-50 p-3 rounded-md">
-                                                <span class="text-sm text-gray-500 block">Format</span>
-                                                <span class="font-medium">unknown</span>
-                                            </div>
-                                            <div class="bg-gray-50 p-3 rounded-md">
-                                                <span class="text-sm text-gray-500 block">Result</span>
-                                                <span class="font-medium">
-                                                    {move || {
-                                                        if match_details.get().did_controller_win {
-                                                            view! {
-                                                                <span class="text-green-600 font-bold">Victory</span>
-                                                            }
-                                                                .into_view()
-                                                        } else {
-                                                            view! { <span class="text-red-600 font-bold">Defeat</span> }
-                                                                .into_view()
-                                                        }
-                                                    }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <DeckList cards=Signal::derive(deck_cards) />
 
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden">
-                                <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 py-4 px-6">
-                                    <h2 class="text-xl font-bold text-white">Your Deck</h2>
-                                </div>
-                                <div class="p-6">
-                                    {move || {
-                                        let cards = deck_cards();
-                                        if cards.is_empty() {
-                                            view! {
-                                                <div class="text-center text-gray-500 py-8">
-                                                    <p>No deck information available</p>
-                                                </div>
-                                            }
-                                                .into_any()
-                                        } else {
-                                            view! {
-                                                <div class="max-h-96 overflow-y-auto pr-2 deck-scrollbar">
-                                                    <table class="min-w-full">
-                                                        <thead>
-                                                            <tr class="border-b">
-                                                                <th class="text-left py-2 font-semibold text-gray-600">
-                                                                    Count
-                                                                </th>
-                                                                <th class="text-left py-2 font-semibold text-gray-600">
-                                                                    Card Name
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <For
-                                                                each=move || deck_cards()
-                                                                key=|(name, _)| name.clone()
-                                                                children=move |(name, count)| {
-                                                                    view! {
-                                                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                                                                            <td class="py-2 text-center font-medium text-gray-600">
-                                                                                {count}
-                                                                            </td>
-                                                                            <td class="py-2">{name}</td>
-                                                                        </tr>
-                                                                    }
-                                                                }
-                                                            />
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            }
-                                                .into_any()
-                                        }
-                                    }}
-                                </div>
-                            </div>
+                        // Mulligan Hands Section
+                        <div class="mt-8 col-span-full">
+                            <MulliganDisplay mulligans=Signal::derive(move || {
+                                match_details.get().mulligans.clone()
+                            }) />
                         </div>
                     }
                         .into_any()
                 }
             }}
 
-            <style>
-                {".deck-scrollbar::-webkit-scrollbar {
-                width: 8px;
-                }
-                
-                .deck-scrollbar::-webkit-scrollbar-track {
-                background: #f1f1f1;
-                border-radius: 8px;
-                }
-                
-                .deck-scrollbar::-webkit-scrollbar-thumb {
-                background: #c5c5c5;
-                border-radius: 8px;
-                }
-                
-                .deck-scrollbar::-webkit-scrollbar-thumb:hover {
-                background: #a0a0a0;
-                }"}
-            </style>
+
         </div>
     }
 }

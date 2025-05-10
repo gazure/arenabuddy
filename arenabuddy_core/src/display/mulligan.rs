@@ -6,12 +6,12 @@ use crate::{
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Mulligan {
-    hand: Vec<CardDisplayRecord>,
-    opponent_identity: String,
-    game_number: i32,
-    number_to_keep: i32,
-    play_draw: String,
-    decision: String,
+    pub hand: Vec<CardDisplayRecord>,
+    pub opponent_identity: String,
+    pub game_number: i32,
+    pub number_to_keep: i32,
+    pub play_draw: String,
+    pub decision: String,
 }
 
 impl Mulligan {
