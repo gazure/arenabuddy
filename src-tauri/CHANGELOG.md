@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.4.4...arenabuddy-v0.5.0) - 2025-05-10
+
+### Other
+
+- added mulligan display, playing with decklist display, fixing card types ([#55](https://github.com/gazure/arenabuddy/pull/55))
+
 ## [0.4.4](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.4.3...arenabuddy-v0.4.4) - 2025-05-06
 
 ### Other
