@@ -26,13 +26,5 @@ rusqlite = { workspace = true, features = ["bundled"] }
 arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.1" }
 
 [[bin]]
-name = "arenaparser"
-path = "src/main.rs"
-
-[[bin]]
-name = "cardconverter"
-path = "src/card_converter.rs"
-
-[[bin]]
 name = "arenabuddy"
-path = "src/arenabuddy.rs"
+path = "src/main.rs"

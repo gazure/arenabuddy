@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::cards::{Card, CardType};
+use crate::{
+    cards::{Card, CardType},
+    proto::Card as ProtoCard,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CardDisplayRecord {
@@ -49,6 +52,25 @@ impl Ord for CardDisplayRecord {
 impl PartialOrd for CardDisplayRecord {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+impl From<&ProtoCard> for CardDisplayRecord {
+    fn from(value: &ProtoCard) -> Self {
+        let name = if value.card_faces.is_empty() {
+            value.name.clone()
+        } else {
+            let front_face = &value.card_faces[0];
+            front_face.name.clone()
+        };
+
+        Self {
+            name: name,
+            type_field: value.dominant_type().unwrap_or(CardType::Unknown),
+            mana_value: value.mana_value(),
+            quantity: 1,
+            image_uri: value.image_uri.clone(),
+        }
     }
 }
 

@@ -1,11 +1,14 @@
-
-pub mod arenabuddy {
-    // Include the generated code from the build script
-    include!(concat!(env!("OUT_DIR"), "/arenabuddy.rs"));
-}
+use std::str::FromStr;
 
 // Re-export the card types for easier access
 pub use arenabuddy::{Card, CardCollection, CardFace};
+
+use crate::cards::CardType;
+
+mod arenabuddy {
+    // Include the generated code from the build script
+    include!(concat!(env!("OUT_DIR"), "/arenabuddy.rs"));
+}
 
 // Utility functions for working with protobuf card types
 impl Card {
@@ -113,6 +116,30 @@ impl Card {
         }
 
         Ok(card)
+    }
+
+    pub fn mana_value(&self) -> u8 {
+        self.cmc.try_into().unwrap_or(0)
+    }
+
+    pub fn dominant_type(&self) -> Option<CardType> {
+        self.type_line
+            .split_whitespace()
+            .next()
+            .map(CardType::from_str)
+            .map(|t| t.unwrap_or(CardType::Unknown))
+    }
+
+    fn multiface(&self) -> bool {
+        self.card_faces.len() > 0
+    }
+
+    pub fn primary_image_uri(&self) -> Option<String> {
+        if self.multiface() {
+            self.card_faces.first().unwrap().image_uri.clone()
+        } else {
+            Some(self.image_uri.clone())
+        }
     }
 }
 

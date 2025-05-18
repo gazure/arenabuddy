@@ -13,7 +13,7 @@ use crate::models::mana::Cost;
 
 #[derive(Debug)]
 pub struct CardsDatabase {
-    pub db: BTreeMap<String, Card>,
+    pub db: BTreeMap<String, ProtoCard>,
 }
 
 impl Default for CardsDatabase {
@@ -65,8 +65,8 @@ pub struct Card {
     pub card_faces: Option<Vec<CardFace>>,
 }
 
-impl Card {
-    fn from_proto(proto_card: ProtoCard) -> Self {
+impl From<ProtoCard> for Card {
+    fn from(proto_card: ProtoCard) -> Self {
         Self {
             id: proto_card.id as i32, // Convert i64 to i32
             set: proto_card.set,
@@ -79,10 +79,10 @@ impl Card {
             layout: proto_card.layout,
             colors: if proto_card.colors.is_empty() { None } else { Some(proto_card.colors) },
             color_identity: proto_card.color_identity,
-            card_faces: if proto_card.card_faces.is_empty() { 
-                None 
-            } else { 
-                Some(proto_card.card_faces.into_iter().map(CardFace::from_proto).collect()) 
+            card_faces: if proto_card.card_faces.is_empty() {
+                None
+            } else {
+                Some(proto_card.card_faces.into_iter().map(CardFace::from_proto).collect())
             },
         }
     }
@@ -165,11 +165,10 @@ impl CardsDatabase {
         let mut cards_db_file = File::open(path)?;
         let mut buffer = Vec::new();
         cards_db_file.read_to_end(&mut buffer)?;
-        
+
         let card_collection = CardCollection::decode(buffer.as_slice())?;
         let cards_db = card_collection.cards.into_iter()
-            .map(|proto_card| {
-                let card = Card::from_proto(proto_card);
+            .map(|card| {
                 (card.id.to_string(), card)
             })
             .collect();
@@ -200,7 +199,7 @@ impl CardsDatabase {
             .unwrap_or_else(|_| grp_id.to_string())
     }
 
-    pub fn get<T>(&self, grp_id: &T) -> Option<&Card>
+    pub fn get<T>(&self, grp_id: &T) -> Option<&ProtoCard>
     where
         T: Display + ?Sized,
     {
