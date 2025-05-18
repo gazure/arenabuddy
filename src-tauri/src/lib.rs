@@ -95,7 +95,7 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
 
     let cards_path = app
         .path()
-        .resolve("./data/cards-full.json", BaseDirectory::Resource)
+        .resolve("./data/cards-full.pb", BaseDirectory::Resource)
         .map_err(|_| ArenaBuddySetupError::NoCardsDatabase)?;
     info!("cards_db path: {:?}", cards_path);
     let cards_db =

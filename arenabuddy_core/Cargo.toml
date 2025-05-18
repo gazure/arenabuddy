@@ -11,12 +11,17 @@ license.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[build-dependencies]
+prost-build = { workspace = true }
+
 [dependencies]
 anyhow = { workspace = true }
 include_dir = { workspace = true }
 derive_builder = { workspace = true }
 indoc = { workspace = true }
 lazy_static = { workspace = true }
+prost = { workspace = true }
+prost-types = { workspace = true }
 regex = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

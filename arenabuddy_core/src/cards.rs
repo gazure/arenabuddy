@@ -1,10 +1,13 @@
 use std::{
-    cmp::Ordering, collections::BTreeMap, fmt::Display, fs::File, io::BufReader, path::Path,
+    cmp::Ordering, collections::BTreeMap, fmt::Display, fs::File, io::Read, path::Path,
     str::FromStr,
 };
 
+use prost::Message;
 use serde::{Deserialize, Serialize};
 use tracing::error;
+
+use crate::proto::{Card as ProtoCard, CardCollection, CardFace as ProtoCardFace};
 
 use crate::models::mana::Cost;
 
@@ -34,6 +37,18 @@ pub struct CardFace {
     pub colors: Option<Vec<String>>,
 }
 
+impl CardFace {
+    fn from_proto(proto_face: ProtoCardFace) -> Self {
+        Self {
+            name: proto_face.name,
+            type_line: proto_face.type_line,
+            mana_cost: if proto_face.mana_cost.is_empty() { None } else { Some(proto_face.mana_cost) },
+            image_uri: proto_face.image_uri,
+            colors: if proto_face.colors.is_empty() { None } else { Some(proto_face.colors) },
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Card {
     pub id: i32,
@@ -48,6 +63,29 @@ pub struct Card {
     pub colors: Option<Vec<String>>,
     pub color_identity: Vec<String>,
     pub card_faces: Option<Vec<CardFace>>,
+}
+
+impl Card {
+    fn from_proto(proto_card: ProtoCard) -> Self {
+        Self {
+            id: proto_card.id as i32, // Convert i64 to i32
+            set: proto_card.set,
+            name: proto_card.name,
+            lang: proto_card.lang,
+            image_uri: if proto_card.image_uri.is_empty() { None } else { Some(proto_card.image_uri) },
+            mana_cost: if proto_card.mana_cost.is_empty() { None } else { Some(proto_card.mana_cost) },
+            cmc: proto_card.cmc as u8, // Convert i32 to u8
+            type_line: proto_card.type_line,
+            layout: proto_card.layout,
+            colors: if proto_card.colors.is_empty() { None } else { Some(proto_card.colors) },
+            color_identity: proto_card.color_identity,
+            card_faces: if proto_card.card_faces.is_empty() { 
+                None 
+            } else { 
+                Some(proto_card.card_faces.into_iter().map(CardFace::from_proto).collect()) 
+            },
+        }
+    }
 }
 
 impl Card {
@@ -122,11 +160,19 @@ impl PartialOrd<Self> for Card {
 impl CardsDatabase {
     /// # Errors
     ///
-    /// Will return an error if the database file cannot be opened or if the database file is not valid JSON
+    /// Will return an error if the database file cannot be opened or if the database file is not a valid protobuf
     pub fn new(path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let cards_db_file = File::open(path)?;
-        let cards_db_reader = BufReader::new(cards_db_file);
-        let cards_db: BTreeMap<String, Card> = serde_json::from_reader(cards_db_reader)?;
+        let mut cards_db_file = File::open(path)?;
+        let mut buffer = Vec::new();
+        cards_db_file.read_to_end(&mut buffer)?;
+        
+        let card_collection = CardCollection::decode(buffer.as_slice())?;
+        let cards_db = card_collection.cards.into_iter()
+            .map(|proto_card| {
+                let card = Card::from_proto(proto_card);
+                (card.id.to_string(), card)
+            })
+            .collect();
 
         Ok(Self { db: cards_db })
     }

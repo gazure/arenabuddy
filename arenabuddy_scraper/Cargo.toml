@@ -16,6 +16,7 @@ license.workspace = true
 arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.1" }
 anyhow = { workspace = true }
 csv = { workspace = true }
+prost = { workspace = true }
 reqwest = { workspace = true, features = ["json", "stream"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
