@@ -23,20 +23,11 @@ To get started with the ArenaBuddy development environment, follow these steps:
 
 3. CLI Tool:
 
-   The consolidated CLI tool provides functionality for log parsing, card scraping, and data processing:
+   The consolidated CLI tool provides functionality for log parsing, card scraping:
 
    ```bash
-   # Build and install the CLI
-   make install
-
    # Scrape card data from online sources
    arenabuddy scrape
-
-   # Process scraped data into usable format
-   arenabuddy process
-
-   # Clean scraped data directory
-   arenabuddy clean
 
    # Parse MTGA log files
    arenabuddy parse --player-log /path/to/Player.log
@@ -46,7 +37,7 @@ To get started with the ArenaBuddy development environment, follow these steps:
 
 4. Project Structure:
 
-   - `/arenabuddy_scraper` - (deprecated) scraping utility for building card databases
+   - `/arenabuddy_core` - common modules
    - `/public` - Static assets
    - `/arenabuddy_cli` - Consolidated command line tool for log parsing and card scraping
    - `/src` - Frontend source code

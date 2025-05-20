@@ -13,6 +13,5 @@ pub mod models;
 pub mod mtga_events;
 pub mod processor;
 pub mod proto;
-pub mod proto_utils;
 pub mod replay;
 pub mod storage_backends;

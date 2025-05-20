@@ -13,11 +13,15 @@ pub fn execute(file: &PathBuf) -> Result<()> {
 fn display_file_info(file: &PathBuf) -> Result<()> {
     info!("Displaying information for file: {}", file.display());
 
-    // Read and analyze the Protocol Buffers file using proto_utils
-    let cards = proto_utils::load_card_collection_from_file(file)?;
+    // Read the file
+    let bytes = std::fs::read(input_path)?;
+
+    // Decode as CardCollection
+    let collection = CardCollection::decode(bytes.as_slice())?;
+
 
     // Display information about the card data
-    info!("Number of cards: {}", cards.len());
+    info!("Number of cards: {}", collection.len());
 
     // Additional information could be extracted here
     info!("File information displayed successfully");

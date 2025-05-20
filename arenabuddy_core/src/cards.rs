@@ -36,9 +36,7 @@ impl CardsDatabase {
         let cards_db: BTreeMap<String, ProtoCard> = card_collection
             .cards
             .into_iter()
-            .map(|card| {
-                (card.id.to_string(), card)
-            })
+            .map(|card| (card.id.to_string(), card))
             .collect();
         tracing::info!("loaded cards: {}", cards_db.len());
 

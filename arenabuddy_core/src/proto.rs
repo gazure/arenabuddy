@@ -202,7 +202,7 @@ impl Display for Card {
         if !self.card_faces.is_empty() {
             write!(f, "\nCard Faces:")?;
             for (i, face) in self.card_faces.iter().enumerate() {
-                write!(f, "\n  Face {}: {}", i+1, face.name)?;
+                write!(f, "\n  Face {}: {}", i + 1, face.name)?;
                 if !face.mana_cost.is_empty() {
                     write!(f, " {}", face.mana_cost)?;
                 }
