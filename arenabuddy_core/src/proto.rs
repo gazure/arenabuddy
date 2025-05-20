@@ -9,6 +9,7 @@ use prost::Message;
 
 use crate::cards::CardType;
 
+#[allow(clippy::all)]
 mod arenabuddy {
     // Include the generated code from the build script
     include!(concat!(env!("OUT_DIR"), "/arenabuddy.rs"));
