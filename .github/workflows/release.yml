@@ -47,6 +47,9 @@ jobs:
           toolchain: stable
           targets: wasm32-unknown-unknown
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+
       - uses: cargo-bins/cargo-binstall@main
 
       - name: Install trunk
