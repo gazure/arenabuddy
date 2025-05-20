@@ -143,6 +143,9 @@ jobs:
         run: |
           cargo binstall --locked trunk
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+
       - name: build-tauri
         uses: tauri-apps/tauri-action@v0
         env:
