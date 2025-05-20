@@ -16,6 +16,8 @@ struct Cli {
 }
 
 fn main() {
+    // Initialize tracing for logging
+    tracing_subscriber::fmt().init();
     if let Err(e) = run() {
         eprintln!("Error: {e}");
         process::exit(1);
@@ -48,21 +50,8 @@ fn run() -> Result<()> {
                 output_dir,
             ))?;
         }
-        Commands::Process {
-            scryfall_cards_file,
-            seventeen_lands_file,
-            reduced_arena_out,
-            merged_out,
-        } => {
-            commands::process::execute(
-                scryfall_cards_file,
-                seventeen_lands_file,
-                reduced_arena_out,
-                merged_out,
-            )?;
-        }
-        Commands::Convert { action } => {
-            commands::convert::execute(action)?;
+        Commands::Info { file } => {
+            commands::info::execute(file)?;
         }
     }
 

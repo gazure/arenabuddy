@@ -1,7 +1,11 @@
-use std::str::FromStr;
+use std::{
+    fmt::{Display, Formatter, Result as FmtResult},
+    str::FromStr,
+};
 
 // Re-export the card types for easier access
 pub use arenabuddy::{Card, CardCollection, CardFace};
+use prost::Message;
 
 use crate::cards::CardType;
 
@@ -30,13 +34,9 @@ impl Card {
         }
     }
 
-    // Convert from JSON representation
-    pub fn from_json(json: &str) -> Result<Self, prost::DecodeError> {
-        let card_json: serde_json::Value = serde_json::from_str(json)
-            .map_err(|_| prost::DecodeError::new("Failed to parse JSON"))?;
-
+    pub fn from_json(card_json: &serde_json::Value) -> Result<Self, prost::DecodeError> {
         let mut card = Self::new(
-            card_json["id"].as_i64().unwrap_or_default(),
+            card_json["arena_id"].as_i64().unwrap_or_default(),
             card_json["set"].as_str().unwrap_or_default(),
             card_json["name"].as_str().unwrap_or_default(),
         );
@@ -46,7 +46,7 @@ impl Card {
             card.lang = lang.to_string();
         }
 
-        if let Some(image_uri) = card_json["image_uri"].as_str() {
+        if let Some(image_uri) = card_json["image_uris"]["small"].as_str() {
             card.image_uri = image_uri.to_string();
         }
 
@@ -54,7 +54,7 @@ impl Card {
             card.mana_cost = mana_cost.to_string();
         }
 
-        if let Some(cmc) = card_json["cmc"].as_i64() {
+        if let Some(cmc) = card_json["cmc"].as_f64() {
             card.cmc = cmc as i32;
         }
 
@@ -99,7 +99,7 @@ impl Card {
                     };
 
                     // Optional fields
-                    if let Some(image) = face["image_uri"].as_str() {
+                    if let Some(image) = face["image_uris"]["small"].as_str() {
                         card_face.image_uri = Some(image.to_string());
                     }
 
@@ -114,8 +114,15 @@ impl Card {
                 })
                 .collect();
         }
-
+        tracing::info!("{}", card);
         Ok(card)
+    }
+
+    // Convert from JSON representation
+    pub fn from_json_str(json: &str) -> Result<Self, prost::DecodeError> {
+        let card_json: serde_json::Value = serde_json::from_str(json)
+            .map_err(|_| prost::DecodeError::new("Failed to parse JSON"))?;
+        Self::from_json(&card_json)
     }
 
     pub fn mana_value(&self) -> u8 {
@@ -131,15 +138,87 @@ impl Card {
     }
 
     fn multiface(&self) -> bool {
-        self.card_faces.len() > 0
+        !self.card_faces.is_empty()
     }
 
     pub fn primary_image_uri(&self) -> Option<String> {
         if self.multiface() {
-            self.card_faces.first().unwrap().image_uri.clone()
+            self.card_faces
+                .first()
+                .map(|f| f.image_uri.clone())
+                .flatten()
         } else {
             Some(self.image_uri.clone())
         }
+    }
+}
+
+impl Display for Card {
+    fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        // First write the card name and set
+        write!(f, "{} ({})", self.name, self.set)?;
+
+        // Add mana cost if available
+        if !self.mana_cost.is_empty() {
+            write!(f, " {}", self.mana_cost)?;
+        }
+
+        // Add type line if available
+        if !self.type_line.is_empty() {
+            write!(f, " - {}", self.type_line)?;
+        }
+        // Write the ID
+        write!(f, "\nID: {}", self.id)?;
+
+        // Write language if present
+        if !self.lang.is_empty() {
+            write!(f, "\nLanguage: {}", self.lang)?;
+        }
+
+        // Write image URI if present
+        if !self.image_uri.is_empty() {
+            write!(f, "\nImage URI: {}", self.image_uri)?;
+        }
+
+        // Write converted mana cost
+        write!(f, "\nMana Value: {}", self.cmc)?;
+
+        // Write layout if present
+        if !self.layout.is_empty() {
+            write!(f, "\nLayout: {}", self.layout)?;
+        }
+
+        // Write colors if present
+        if !self.colors.is_empty() {
+            write!(f, "\nColors: {}", self.colors.join(", "))?;
+        }
+
+        // Write color identity if present
+        if !self.color_identity.is_empty() {
+            write!(f, "\nColor Identity: {}", self.color_identity.join(", "))?;
+        }
+
+        // Write card faces if present
+        if !self.card_faces.is_empty() {
+            write!(f, "\nCard Faces:")?;
+            for (i, face) in self.card_faces.iter().enumerate() {
+                write!(f, "\n  Face {}: {}", i+1, face.name)?;
+                if !face.mana_cost.is_empty() {
+                    write!(f, " {}", face.mana_cost)?;
+                }
+                if !face.type_line.is_empty() {
+                    write!(f, " - {}", face.type_line)?;
+                }
+                if let Some(ref image) = face.image_uri {
+                    write!(f, "\n    Image URI: {}", image)?;
+                }
+                if !face.colors.is_empty() {
+                    write!(f, "\n    Colors: {}", face.colors.join(", "))?;
+                }
+            }
+        }
+
+        Ok(())
     }
 }
 
@@ -162,5 +241,11 @@ impl CardCollection {
     // Check if the collection is empty
     pub fn is_empty(&self) -> bool {
         self.cards.is_empty()
+    }
+
+    pub fn encode_to_vec(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        self.encode(&mut buf).expect("should be able to encode");
+        buf
     }
 }

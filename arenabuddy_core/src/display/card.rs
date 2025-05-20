@@ -65,7 +65,7 @@ impl From<&ProtoCard> for CardDisplayRecord {
         };
 
         Self {
-            name: name,
+            name,
             type_field: value.dominant_type().unwrap_or(CardType::Unknown),
             mana_value: value.mana_value(),
             quantity: 1,

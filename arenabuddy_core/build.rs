@@ -1,7 +1,8 @@
-
-use std::io::Result;
-use std::path::{Path, PathBuf};
-use std::fs;
+use std::{
+    fs,
+    io::Result,
+    path::{Path, PathBuf},
+};
 
 fn main() -> Result<()> {
     // Tell Cargo to rerun this script if any .proto files change
@@ -17,10 +18,7 @@ fn main() -> Result<()> {
     }
 
     // Convert PathBuf to &str references
-    let proto_paths: Vec<&str> = proto_files
-        .iter()
-        .filter_map(|p| p.to_str())
-        .collect();
+    let proto_paths: Vec<&str> = proto_files.iter().filter_map(|p| p.to_str()).collect();
 
     // Compile the proto files with prost-build
     prost_build::compile_protos(&proto_paths, &[proto_dir])?;

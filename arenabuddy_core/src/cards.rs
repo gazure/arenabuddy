@@ -5,11 +5,11 @@ use std::{
 
 use prost::Message;
 use serde::{Deserialize, Serialize};
-use tracing::error;
 
-use crate::proto::{Card as ProtoCard, CardCollection, CardFace as ProtoCardFace};
-
-use crate::models::mana::Cost;
+use crate::{
+    models::mana::Cost,
+    proto::{Card as ProtoCard, CardCollection, CardFace as ProtoCardFace},
+};
 
 #[derive(Debug)]
 pub struct CardsDatabase {
@@ -18,13 +18,62 @@ pub struct CardsDatabase {
 
 impl Default for CardsDatabase {
     fn default() -> Self {
-        let default_path = Path::new("data/cards.json");
-        Self::new(default_path).unwrap_or_else(|e| {
-            error!("Error loading default cards database: {:?}", e);
-            Self {
-                db: BTreeMap::new(),
-            }
-        })
+        Self {
+            db: BTreeMap::new(),
+        }
+    }
+}
+
+impl CardsDatabase {
+    /// # Errors
+    ///
+    /// Will return an error if the database file cannot be opened or if the database file is not a valid protobuf
+    pub fn new(path: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let mut cards_db_file = File::open(path)?;
+        let mut buffer = Vec::new();
+        cards_db_file.read_to_end(&mut buffer)?;
+        let card_collection = CardCollection::decode(buffer.as_slice())?;
+        let cards_db: BTreeMap<String, ProtoCard> = card_collection
+            .cards
+            .into_iter()
+            .map(|card| {
+                (card.id.to_string(), card)
+            })
+            .collect();
+        tracing::info!("loaded cards: {}", cards_db.len());
+
+        Ok(Self { db: cards_db })
+    }
+
+    /// # Errors
+    ///
+    /// Will return an error if the card cannot be found in the database
+    pub fn get_pretty_name<T>(&self, grp_id: &T) -> anyhow::Result<String>
+    where
+        T: Display + ?Sized,
+    {
+        let grp_id = grp_id.to_string();
+        let card = self
+            .db
+            .get(&grp_id)
+            .ok_or_else(|| anyhow::anyhow!("Card not found in database"))?;
+        Ok(card.name.clone())
+    }
+
+    pub fn get_pretty_name_defaulted<T>(&self, grp_id: &T) -> String
+    where
+        T: Display + ?Sized,
+    {
+        self.get_pretty_name(grp_id)
+            .unwrap_or_else(|_| grp_id.to_string())
+    }
+
+    pub fn get<T>(&self, grp_id: &T) -> Option<&ProtoCard>
+    where
+        T: Display + ?Sized,
+    {
+        let grp_id = grp_id.to_string();
+        self.db.get(&grp_id)
     }
 }
 
@@ -42,9 +91,17 @@ impl CardFace {
         Self {
             name: proto_face.name,
             type_line: proto_face.type_line,
-            mana_cost: if proto_face.mana_cost.is_empty() { None } else { Some(proto_face.mana_cost) },
+            mana_cost: if proto_face.mana_cost.is_empty() {
+                None
+            } else {
+                Some(proto_face.mana_cost)
+            },
             image_uri: proto_face.image_uri,
-            colors: if proto_face.colors.is_empty() { None } else { Some(proto_face.colors) },
+            colors: if proto_face.colors.is_empty() {
+                None
+            } else {
+                Some(proto_face.colors)
+            },
         }
     }
 }
@@ -72,17 +129,35 @@ impl From<ProtoCard> for Card {
             set: proto_card.set,
             name: proto_card.name,
             lang: proto_card.lang,
-            image_uri: if proto_card.image_uri.is_empty() { None } else { Some(proto_card.image_uri) },
-            mana_cost: if proto_card.mana_cost.is_empty() { None } else { Some(proto_card.mana_cost) },
+            image_uri: if proto_card.image_uri.is_empty() {
+                None
+            } else {
+                Some(proto_card.image_uri)
+            },
+            mana_cost: if proto_card.mana_cost.is_empty() {
+                None
+            } else {
+                Some(proto_card.mana_cost)
+            },
             cmc: proto_card.cmc as u8, // Convert i32 to u8
             type_line: proto_card.type_line,
             layout: proto_card.layout,
-            colors: if proto_card.colors.is_empty() { None } else { Some(proto_card.colors) },
+            colors: if proto_card.colors.is_empty() {
+                None
+            } else {
+                Some(proto_card.colors)
+            },
             color_identity: proto_card.color_identity,
             card_faces: if proto_card.card_faces.is_empty() {
                 None
             } else {
-                Some(proto_card.card_faces.into_iter().map(CardFace::from_proto).collect())
+                Some(
+                    proto_card
+                        .card_faces
+                        .into_iter()
+                        .map(CardFace::from_proto)
+                        .collect(),
+                )
             },
         }
     }
@@ -154,57 +229,6 @@ impl PartialEq<Self> for Card {
 impl PartialOrd<Self> for Card {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
-    }
-}
-
-impl CardsDatabase {
-    /// # Errors
-    ///
-    /// Will return an error if the database file cannot be opened or if the database file is not a valid protobuf
-    pub fn new(path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let mut cards_db_file = File::open(path)?;
-        let mut buffer = Vec::new();
-        cards_db_file.read_to_end(&mut buffer)?;
-
-        let card_collection = CardCollection::decode(buffer.as_slice())?;
-        let cards_db = card_collection.cards.into_iter()
-            .map(|card| {
-                (card.id.to_string(), card)
-            })
-            .collect();
-
-        Ok(Self { db: cards_db })
-    }
-
-    /// # Errors
-    ///
-    /// Will return an error if the card cannot be found in the database
-    pub fn get_pretty_name<T>(&self, grp_id: &T) -> anyhow::Result<String>
-    where
-        T: Display + ?Sized,
-    {
-        let grp_id = grp_id.to_string();
-        let card = self
-            .db
-            .get(&grp_id)
-            .ok_or_else(|| anyhow::anyhow!("Card not found in database"))?;
-        Ok(card.name.clone())
-    }
-
-    pub fn get_pretty_name_defaulted<T>(&self, grp_id: &T) -> String
-    where
-        T: Display + ?Sized,
-    {
-        self.get_pretty_name(grp_id)
-            .unwrap_or_else(|_| grp_id.to_string())
-    }
-
-    pub fn get<T>(&self, grp_id: &T) -> Option<&ProtoCard>
-    where
-        T: Display + ?Sized,
-    {
-        let grp_id = grp_id.to_string();
-        self.db.get(&grp_id)
     }
 }
 

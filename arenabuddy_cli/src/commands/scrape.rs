@@ -1,7 +1,11 @@
-use std::path::PathBuf;
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
-use anyhow::Result;
-use tracing::info;
+use anyhow::{Context, Result};
+use arenabuddy_core::proto::{Card, CardCollection};
+use tracing::{debug, error, info};
 
 /// Execute the Scrape command
 pub async fn execute(
@@ -9,26 +13,42 @@ pub async fn execute(
     seventeen_lands_host: &str,
     output_dir: &PathBuf,
 ) -> Result<()> {
-    // Create output directory if it doesn't exist
-    tokio::fs::create_dir_all(output_dir).await?;
-    
-    // Set up file paths
-    let scryfall_output = output_dir.join("all_cards.json");
-    let seventeen_lands_output = output_dir.join("seventeen_lands.csv");
-    
     // Scrape data from both sources
-    info!("Scraping Scryfall data...");
-    scrape_scryfall(scryfall_host, &scryfall_output).await?;
-    
+
     info!("Scraping 17Lands data...");
-    scrape_seventeen_lands(seventeen_lands_host, &seventeen_lands_output).await?;
-    
+    let seventeen_lands_data = scrape_seventeen_lands(seventeen_lands_host).await?;
+
+    info!("Scraping Scryfall data...");
+    let mut scryfall_data = scrape_scryfall(scryfall_host).await?;
+
+    // Extract cards with Arena IDs
+    let Some(cards_array) = scryfall_data.as_array_mut() else {
+        anyhow::bail!("Could not find cards array");
+    };
+
+    cards_array.retain(|card| card["arena_id"].is_number());
+
+    let cards: Vec<Card> = cards_array
+        .iter()
+        .filter_map(|c| Card::from_json(c).ok())
+        .collect();
+
+    debug!("Filtered to {} cards with Arena IDs", cards_array.len());
+
+    let collection = CardCollection {
+        cards: merge(cards, &seventeen_lands_data)?,
+    };
+
     info!("Scraping completed successfully");
+
+    // Save the card collection to a binary protobuf file
+    save_card_collection_to_file(&collection, output_dir.join("cards.pb")).await?;
+    save_to_s3(&collection).await?;
     Ok(())
 }
 
 /// Scrape card data from Scryfall API
-async fn scrape_scryfall(base_url: &str, output_file: &PathBuf) -> Result<()> {
+async fn scrape_scryfall(base_url: &str) -> Result<serde_json::Value> {
     let client = reqwest::Client::builder()
         .user_agent("arenabuddy/1.0")
         .build()?;
@@ -53,30 +73,25 @@ async fn scrape_scryfall(base_url: &str, output_file: &PathBuf) -> Result<()> {
                 let cards_response = client.get(download_uri).send().await?;
                 cards_response.error_for_status_ref()?;
 
-                let cards_data: serde_json::Value = cards_response.json().await?;
+                // Save the response to a file before parsing JSON
+                let scrape_dir = PathBuf::from("./scrape_data");
+                tokio::fs::create_dir_all(&scrape_dir).await?;
 
-                // Create output directory if it doesn't exist
-                if let Some(parent) = output_file.parent() {
-                    tokio::fs::create_dir_all(parent).await?;
-                }
+                let response_text = cards_response.text().await?;
+                tokio::fs::write(scrape_dir.join("scryfall_all_cards.json"), &response_text)
+                    .await?;
+                info!("Saved raw Scryfall data to ./scrape_data/scryfall_all_cards.json");
 
-                // Write to file using tokio
-                let file = tokio::fs::File::create(output_file).await?;
-                let mut writer = tokio::io::BufWriter::new(file);
-                tokio::io::AsyncWriteExt::write_all(
-                    &mut writer,
-                    serde_json::to_string(&cards_data)?.as_bytes(),
-                )
-                .await?;
-                break;
+                // Parse the saved text as JSON for the return value
+                return Ok(serde_json::from_str(&response_text)?);
             }
         }
     }
-    Ok(())
+    anyhow::bail!("No bulk cards found")
 }
 
 /// Scrape card data from 17Lands
-async fn scrape_seventeen_lands(base_url: &str, output_file: &PathBuf) -> Result<String> {
+async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, String>>> {
     let client = reqwest::Client::builder()
         .user_agent("arenabuddy/1.0")
         .build()?;
@@ -86,17 +101,103 @@ async fn scrape_seventeen_lands(base_url: &str, output_file: &PathBuf) -> Result
     info!("Response {}: {}", url, response.status());
     response.error_for_status_ref()?;
 
-    let data = response.text().await?;
+    let value = response.text().await?;
 
-    // Create output directory if it doesn't exist
-    if let Some(parent) = output_file.parent() {
-        tokio::fs::create_dir_all(parent).await?;
+    // Save the response to a file before parsing JSON
+    let scrape_dir = PathBuf::from("./scrape_data");
+    tokio::fs::create_dir_all(&scrape_dir).await?;
+
+    tokio::fs::write(scrape_dir.join("seventeen_lands.csv"), &value).await?;
+    info!("Saved raw Seventeen lands data to ./scrape_data/seventeen_lands.csv");
+
+    let mut reader = csv::Reader::from_reader(value.as_bytes());
+    Ok(reader
+        .deserialize()
+        .collect::<std::result::Result<_, _>>()
+        .with_context(|| "Failed to parse CSV records")?)
+}
+
+/// Save a collection of cards to a binary protobuf file
+pub async fn save_card_collection_to_file(
+    cards: &CardCollection,
+    output_path: impl AsRef<Path>,
+) -> Result<()> {
+    let data = cards.encode_to_vec();
+    tokio::fs::write(output_path.as_ref(), &data).await?;
+    Ok(())
+}
+
+/// Merge Arena cards with 17Lands data
+fn merge(
+    mut arena_cards: Vec<Card>,
+    seventeen_lands_cards: &Vec<HashMap<String, String>>,
+) -> Result<Vec<Card>> {
+    let cards_by_name: HashMap<String, &Card> =
+        arena_cards.iter().map(|c| (c.name.clone(), c)).collect();
+
+    let cards_by_id: HashMap<i64, &Card> = arena_cards.iter().map(|c| (c.id, c)).collect();
+    // Create map of two-faced cards
+    let card_names_with_2_faces: HashMap<String, String> = seventeen_lands_cards
+        .iter()
+        .filter_map(|card| {
+            let name = card.get("name")?;
+            if name.contains("//") {
+                Some((name.split("//").next()?.trim().to_string(), name.clone()))
+            } else {
+                None
+            }
+        })
+        .collect();
+    let mut new_cards = vec![];
+
+    for card in seventeen_lands_cards {
+        if let (Some(card_name), Some(card_id_str)) = (card.get("name"), card.get("id")) {
+            let card_name = card_names_with_2_faces
+                .get(card_name.split("//").next().unwrap_or("").trim())
+                .unwrap_or(card_name);
+
+            if let (Ok(card_id), Some(card_by_name)) = (
+                card_id_str
+                    .parse::<i64>()
+                    .with_context(|| format!("Failed to parse card ID: {card_id_str}")),
+                cards_by_name.get(card_name),
+            ) {
+                if card_id != 0 && !cards_by_id.contains_key(&card_id) {
+                    let mut new_card = (*card_by_name).clone();
+                    new_card.id = card_id;
+                    new_cards.push(new_card);
+                }
+            }
+        }
     }
 
-    // Write to file using tokio
-    let file = tokio::fs::File::create(output_file).await?;
-    let mut writer = tokio::io::BufWriter::new(file);
-    tokio::io::AsyncWriteExt::write_all(&mut writer, data.as_bytes()).await?;
+    arena_cards.extend(new_cards.into_iter());
+    debug!("Merged arena cards with 17Lands data");
 
-    Ok(data)
+    Ok(arena_cards)
+}
+
+async fn save_to_s3(cards: &CardCollection) -> Result<()> {
+    let encoded = cards.encode_to_vec();
+
+    // Write to S3
+    let s3_client = aws_sdk_s3::Client::new(&aws_config::load_from_env().await);
+    let bucket_name = "arenabuddy-data";
+    let key = "cards.pb";
+
+    info!("uploading cards.pb to S3");
+    let res = s3_client
+        .put_object()
+        .bucket(bucket_name)
+        .key(key)
+        .body(encoded.into())
+        .send()
+        .await;
+
+    if let Err(err) = res {
+        error!("Failed to upload cards.pb to S3: {}", err);
+        return Err(err.into());
+    }
+
+    Ok(())
 }

@@ -8,8 +8,8 @@ use arenabuddy_core::{
     replay::MatchReplayBuilder,
     storage_backends::{DirectoryStorageBackend, Storage},
 };
-use crossbeam::channel::{select, Receiver};
-use tracing::{error, Level};
+use crossbeam::channel::{Receiver, select};
+use tracing::{Level, error};
 use tracing_subscriber::fmt;
 
 // Constants
@@ -35,11 +35,7 @@ pub fn execute(
 ) -> Result<()> {
     // Initialize logging
     fmt()
-        .with_max_level(if debug {
-            Level::DEBUG
-        } else {
-            Level::INFO
-        })
+        .with_max_level(if debug { Level::DEBUG } else { Level::INFO })
         .init();
 
     let mut processor = PlayerLogProcessor::try_new(player_log.clone())?;
@@ -52,7 +48,7 @@ pub fn execute(
     )?;
 
     let ctrl_c_rx = ctrl_c_channel()?;
-    
+
     // Initialize directory storage backend if specified
     if let Some(output_dir) = output_dir {
         std::fs::create_dir_all(output_dir)?;

@@ -1,9 +1,10 @@
 use std::path::PathBuf;
+
 use clap::Subcommand;
 
 // Constants used in command definitions
 pub const SCRYFALL_HOST_DEFAULT: &str = "https://api.scryfall.com";
-pub const SEVENTEEN_LANDS_HOST_DEFAULT: &str = "https://www.17lands.com";
+pub const SEVENTEEN_LANDS_HOST_DEFAULT: &str = "https://17lands-public.s3.amazonaws.com";
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
@@ -47,58 +48,6 @@ pub enum Commands {
         output_dir: PathBuf,
     },
 
-    /// Process scraped card data into a usable format
-    Process {
-        #[arg(
-            long,
-            help = "Scryfall cards file to process",
-            default_value = "scrape_data/all_cards.json"
-        )]
-        scryfall_cards_file: PathBuf,
-
-        #[arg(
-            long,
-            help = "17Lands cards file to process",
-            default_value = "scrape_data/seventeen_lands.csv"
-        )]
-        seventeen_lands_file: PathBuf,
-
-        #[arg(
-            long,
-            help = "Output file for reduced Arena cards",
-            default_value = "scrape_data/reduced_arena.pb"
-        )]
-        reduced_arena_out: PathBuf,
-
-        #[arg(
-            long,
-            help = "Output file for merged card data",
-            default_value = "src-tauri/data/cards-full.pb"
-        )]
-        merged_out: PathBuf,
-    },
-
-    /// Convert card data between formats
-    Convert {
-        #[command(subcommand)]
-        action: ConvertAction,
-    },
-}
-
-#[derive(Debug, Subcommand)]
-pub enum ConvertAction {
-    /// Convert JSON card data to Protocol Buffers format
-    JsonToProto {
-        /// Input JSON file path
-        #[clap(short, long)]
-        input: PathBuf,
-
-        /// Output Protocol Buffers file path
-        #[clap(short, long)]
-        output: PathBuf,
-    },
-
-    /// Display information about a card data file
     Info {
         /// Protocol Buffers file path
         #[clap(short, long)]
