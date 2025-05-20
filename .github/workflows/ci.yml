@@ -66,7 +66,6 @@ jobs:
       matrix:
         package:
           - arenabuddy_cli
-          - arenabuddy_scraper
         platform:
           - macos-arm64
           - macos-x64
