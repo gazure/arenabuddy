@@ -21,7 +21,17 @@ fn main() -> Result<()> {
     let proto_paths: Vec<&str> = proto_files.iter().filter_map(|p| p.to_str()).collect();
 
     // Compile the proto files with prost-build
-    prost_build::compile_protos(&proto_paths, &[proto_dir])?;
+    let mut config = prost_build::Config::new();
+
+    // Add clippy allow attributes to generated code
+    config.type_attribute(
+        ".",
+        "#[allow(clippy::derive_partial_eq_without_eq, clippy::pedantic, clippy::nursery)]",
+    );
+    config.field_attribute(".", "#[allow(clippy::pedantic, clippy::nursery)]");
+
+    // Compile the protos
+    config.compile_protos(&proto_paths, &[proto_dir])?;
 
     Ok(())
 }

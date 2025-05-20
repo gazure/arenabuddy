@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    cards::{Card, CardType},
-    proto::Card as ProtoCard,
-};
+use crate::{cards::CardType, proto::Card};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CardDisplayRecord {
@@ -55,8 +52,8 @@ impl PartialOrd for CardDisplayRecord {
     }
 }
 
-impl From<&ProtoCard> for CardDisplayRecord {
-    fn from(value: &ProtoCard) -> Self {
+impl From<&Card> for CardDisplayRecord {
+    fn from(value: &Card) -> Self {
         let name = if value.card_faces.is_empty() {
             value.name.clone()
         } else {
@@ -70,38 +67,6 @@ impl From<&ProtoCard> for CardDisplayRecord {
             mana_value: value.mana_value(),
             quantity: 1,
             image_uri: value.image_uri.clone(),
-        }
-    }
-}
-
-impl From<&Card> for CardDisplayRecord {
-    fn from(entry: &Card) -> Self {
-        let name = if let Some(card_faces) = &entry.card_faces {
-            let front_face = &card_faces[0];
-            front_face.name.clone()
-        } else {
-            entry.name.clone()
-        };
-        let image_uri = if let Some(image_uri) = &entry.image_uri {
-            image_uri.clone()
-        } else {
-            entry
-                .card_faces
-                .as_ref()
-                .and_then(|faces| faces.first().map(|face| face.image_uri.clone()))
-                .flatten()
-                .as_ref()
-                .unwrap_or(&String::new())
-                .to_string()
-        };
-
-        Self {
-            name,
-            type_field: entry.dominant_type(),
-            #[allow(clippy::cast_possible_truncation)]
-            mana_value: entry.cmc,
-            quantity: 1,
-            image_uri: image_uri.clone(),
         }
     }
 }

@@ -8,12 +8,12 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     models::mana::Cost,
-    proto::{Card as ProtoCard, CardCollection},
+    proto::{Card, CardCollection},
 };
 
 #[derive(Debug, Default)]
 pub struct CardsDatabase {
-    pub db: BTreeMap<String, ProtoCard>,
+    pub db: BTreeMap<String, Card>,
 }
 
 impl CardsDatabase {
@@ -25,7 +25,7 @@ impl CardsDatabase {
         let mut buffer = Vec::new();
         cards_db_file.read_to_end(&mut buffer)?;
         let card_collection = CardCollection::decode(buffer.as_slice())?;
-        let cards_db: BTreeMap<String, ProtoCard> = card_collection
+        let cards_db: BTreeMap<String, Card> = card_collection
             .cards
             .into_iter()
             .map(|card| (card.id.to_string(), card))
@@ -58,7 +58,7 @@ impl CardsDatabase {
             .unwrap_or_else(|_| grp_id.to_string())
     }
 
-    pub fn get<T>(&self, grp_id: &T) -> Option<&ProtoCard>
+    pub fn get<T>(&self, grp_id: &T) -> Option<&Card>
     where
         T: Display + ?Sized,
     {
@@ -77,7 +77,7 @@ pub struct CardFace {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Card {
+pub struct LegacyCard {
     pub id: i32,
     pub set: String,
     pub name: String,
@@ -92,7 +92,7 @@ pub struct Card {
     pub card_faces: Option<Vec<CardFace>>,
 }
 
-impl Card {
+impl LegacyCard {
     pub fn image_uri(&self) -> &str {
         if let Some(image_uri) = &self.image_uri {
             image_uri
@@ -131,15 +131,15 @@ impl Card {
     }
 }
 
-impl Display for Card {
+impl Display for LegacyCard {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} -- {}", self.name, self.set)
     }
 }
 
-impl Eq for Card {}
+impl Eq for LegacyCard {}
 
-impl Ord for Card {
+impl Ord for LegacyCard {
     fn cmp(&self, other: &Self) -> Ordering {
         let mana_value_ordering = self.mana_value().cmp(&other.mana_value());
         if mana_value_ordering == Ordering::Equal {
@@ -150,12 +150,12 @@ impl Ord for Card {
     }
 }
 
-impl PartialEq<Self> for Card {
+impl PartialEq<Self> for LegacyCard {
     fn eq(&self, other: &Self) -> bool {
         self.cmp(other) == Ordering::Equal
     }
 }
-impl PartialOrd<Self> for Card {
+impl PartialOrd<Self> for LegacyCard {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
