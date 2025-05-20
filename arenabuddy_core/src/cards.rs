@@ -8,21 +8,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     models::mana::Cost,
-    proto::{Card as ProtoCard, CardCollection, CardFace as ProtoCardFace},
+    proto::{Card as ProtoCard, CardCollection},
 };
 
 #[derive(Debug)]
+#[derive(Default)]
 pub struct CardsDatabase {
     pub db: BTreeMap<String, ProtoCard>,
 }
 
-impl Default for CardsDatabase {
-    fn default() -> Self {
-        Self {
-            db: BTreeMap::new(),
-        }
-    }
-}
 
 impl CardsDatabase {
     /// # Errors
@@ -84,26 +78,6 @@ pub struct CardFace {
     pub colors: Option<Vec<String>>,
 }
 
-impl CardFace {
-    fn from_proto(proto_face: ProtoCardFace) -> Self {
-        Self {
-            name: proto_face.name,
-            type_line: proto_face.type_line,
-            mana_cost: if proto_face.mana_cost.is_empty() {
-                None
-            } else {
-                Some(proto_face.mana_cost)
-            },
-            image_uri: proto_face.image_uri,
-            colors: if proto_face.colors.is_empty() {
-                None
-            } else {
-                Some(proto_face.colors)
-            },
-        }
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Card {
     pub id: i32,
@@ -120,46 +94,6 @@ pub struct Card {
     pub card_faces: Option<Vec<CardFace>>,
 }
 
-impl From<ProtoCard> for Card {
-    fn from(proto_card: ProtoCard) -> Self {
-        Self {
-            id: proto_card.id as i32, // Convert i64 to i32
-            set: proto_card.set,
-            name: proto_card.name,
-            lang: proto_card.lang,
-            image_uri: if proto_card.image_uri.is_empty() {
-                None
-            } else {
-                Some(proto_card.image_uri)
-            },
-            mana_cost: if proto_card.mana_cost.is_empty() {
-                None
-            } else {
-                Some(proto_card.mana_cost)
-            },
-            cmc: proto_card.cmc as u8, // Convert i32 to u8
-            type_line: proto_card.type_line,
-            layout: proto_card.layout,
-            colors: if proto_card.colors.is_empty() {
-                None
-            } else {
-                Some(proto_card.colors)
-            },
-            color_identity: proto_card.color_identity,
-            card_faces: if proto_card.card_faces.is_empty() {
-                None
-            } else {
-                Some(
-                    proto_card
-                        .card_faces
-                        .into_iter()
-                        .map(CardFace::from_proto)
-                        .collect(),
-                )
-            },
-        }
-    }
-}
 
 impl Card {
     pub fn image_uri(&self) -> &str {

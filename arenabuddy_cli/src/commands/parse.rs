@@ -1,4 +1,4 @@
-use std::{path::PathBuf, time::Duration};
+use std::{path::{Path, PathBuf}, time::Duration};
 
 use anyhow::Result;
 use arenabuddy_core::{
@@ -26,7 +26,7 @@ pub fn ctrl_c_channel() -> Result<Receiver<()>> {
 
 /// Execute the Parse command
 pub fn execute(
-    player_log: &PathBuf,
+    player_log: &Path,
     output_dir: &Option<PathBuf>,
     db: &Option<PathBuf>,
     cards_db: &Option<PathBuf>,
@@ -38,7 +38,7 @@ pub fn execute(
         .with_max_level(if debug { Level::DEBUG } else { Level::INFO })
         .init();
 
-    let mut processor = PlayerLogProcessor::try_new(player_log.clone())?;
+    let mut processor = PlayerLogProcessor::try_new(player_log)?;
     let mut match_replay_builder = MatchReplayBuilder::new();
     let mut storage_backends: Vec<Box<dyn Storage>> = Vec::new();
     let cards_db = CardsDatabase::new(

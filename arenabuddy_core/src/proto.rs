@@ -34,7 +34,8 @@ impl Card {
         }
     }
 
-    pub fn from_json(card_json: &serde_json::Value) -> Result<Self, prost::DecodeError> {
+    #[expect(clippy::cast_possible_truncation)]
+    pub fn from_json(card_json: &serde_json::Value) -> Self {
         let mut card = Self::new(
             card_json["arena_id"].as_i64().unwrap_or_default(),
             card_json["set"].as_str().unwrap_or_default(),
@@ -91,9 +92,9 @@ impl Card {
                     }
 
                     let mut card_face = CardFace {
-                        name: face["name"].as_str()?.to_string(),
-                        type_line: face["type_line"].as_str()?.to_string(),
-                        mana_cost: face["mana_cost"].as_str()?.to_string(),
+                        name: face["name"].as_str().unwrap_or_default().to_string(),
+                        type_line: face["type_line"].as_str().unwrap_or_default().to_string(),
+                        mana_cost: face["mana_cost"].as_str().unwrap_or_default().to_string(),
                         image_uri: None,
                         colors: Vec::new(),
                     };
@@ -114,15 +115,7 @@ impl Card {
                 })
                 .collect();
         }
-        tracing::info!("{}", card);
-        Ok(card)
-    }
-
-    // Convert from JSON representation
-    pub fn from_json_str(json: &str) -> Result<Self, prost::DecodeError> {
-        let card_json: serde_json::Value = serde_json::from_str(json)
-            .map_err(|_| prost::DecodeError::new("Failed to parse JSON"))?;
-        Self::from_json(&card_json)
+        card
     }
 
     pub fn mana_value(&self) -> u8 {
@@ -143,10 +136,7 @@ impl Card {
 
     pub fn primary_image_uri(&self) -> Option<String> {
         if self.multiface() {
-            self.card_faces
-                .first()
-                .map(|f| f.image_uri.clone())
-                .flatten()
+            self.card_faces.first().and_then(|f| f.image_uri.clone())
         } else {
             Some(self.image_uri.clone())
         }
@@ -210,7 +200,7 @@ impl Display for Card {
                     write!(f, " - {}", face.type_line)?;
                 }
                 if let Some(ref image) = face.image_uri {
-                    write!(f, "\n    Image URI: {}", image)?;
+                    write!(f, "\n    Image URI: {image}")?;
                 }
                 if !face.colors.is_empty() {
                     write!(f, "\n    Colors: {}", face.colors.join(", "))?;
@@ -245,7 +235,7 @@ impl CardCollection {
 
     pub fn encode_to_vec(&self) -> Vec<u8> {
         let mut buf = Vec::new();
-        self.encode(&mut buf).expect("should be able to encode");
+        self.encode(&mut buf).unwrap_or_default();
         buf
     }
 }

@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::{collections::HashMap, path::Path};
 
 use anyhow::{Context, Result};
 use arenabuddy_core::proto::{Card, CardCollection};
@@ -11,7 +8,7 @@ use tracing::{debug, error, info};
 pub async fn execute(
     scryfall_host: &str,
     seventeen_lands_host: &str,
-    output_dir: &PathBuf,
+    output_dir: &Path,
 ) -> Result<()> {
     // Scrape data from both sources
 
@@ -19,18 +16,17 @@ pub async fn execute(
     let seventeen_lands_data = scrape_seventeen_lands(seventeen_lands_host).await?;
 
     info!("Scraping Scryfall data...");
-    let mut scryfall_data = scrape_scryfall(scryfall_host).await?;
+    let scryfall_data = scrape_scryfall(scryfall_host).await?;
 
     // Extract cards with Arena IDs
-    let Some(cards_array) = scryfall_data.as_array_mut() else {
+    let Some(cards_array) = scryfall_data.as_array() else {
         anyhow::bail!("Could not find cards array");
     };
 
-    cards_array.retain(|card| card["arena_id"].is_number());
-
     let cards: Vec<Card> = cards_array
         .iter()
-        .filter_map(|c| Card::from_json(c).ok())
+        .filter(|c| c["arena_id"].is_number())
+        .map(Card::from_json)
         .collect();
 
     debug!("Filtered to {} cards with Arena IDs", cards_array.len());
@@ -73,14 +69,7 @@ async fn scrape_scryfall(base_url: &str) -> Result<serde_json::Value> {
                 let cards_response = client.get(download_uri).send().await?;
                 cards_response.error_for_status_ref()?;
 
-                // Save the response to a file before parsing JSON
-                let scrape_dir = PathBuf::from("./scrape_data");
-                tokio::fs::create_dir_all(&scrape_dir).await?;
-
                 let response_text = cards_response.text().await?;
-                tokio::fs::write(scrape_dir.join("scryfall_all_cards.json"), &response_text)
-                    .await?;
-                info!("Saved raw Scryfall data to ./scrape_data/scryfall_all_cards.json");
 
                 // Parse the saved text as JSON for the return value
                 return Ok(serde_json::from_str(&response_text)?);
@@ -103,18 +92,11 @@ async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, St
 
     let value = response.text().await?;
 
-    // Save the response to a file before parsing JSON
-    let scrape_dir = PathBuf::from("./scrape_data");
-    tokio::fs::create_dir_all(&scrape_dir).await?;
-
-    tokio::fs::write(scrape_dir.join("seventeen_lands.csv"), &value).await?;
-    info!("Saved raw Seventeen lands data to ./scrape_data/seventeen_lands.csv");
-
     let mut reader = csv::Reader::from_reader(value.as_bytes());
-    Ok(reader
+    reader
         .deserialize()
         .collect::<std::result::Result<_, _>>()
-        .with_context(|| "Failed to parse CSV records")?)
+        .with_context(|| "Failed to parse CSV records")
 }
 
 /// Save a collection of cards to a binary protobuf file
@@ -171,7 +153,7 @@ fn merge(
         }
     }
 
-    arena_cards.extend(new_cards.into_iter());
+    arena_cards.extend(new_cards);
     debug!("Merged arena cards with 17Lands data");
 
     Ok(arena_cards)
