@@ -11,12 +11,10 @@ use crate::{
     proto::{Card as ProtoCard, CardCollection},
 };
 
-#[derive(Debug)]
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct CardsDatabase {
     pub db: BTreeMap<String, ProtoCard>,
 }
-
 
 impl CardsDatabase {
     /// # Errors
@@ -93,7 +91,6 @@ pub struct Card {
     pub color_identity: Vec<String>,
     pub card_faces: Option<Vec<CardFace>>,
 }
-
 
 impl Card {
     pub fn image_uri(&self) -> &str {
