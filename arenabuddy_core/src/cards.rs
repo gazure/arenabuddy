@@ -1,27 +1,69 @@
 use std::{
-    cmp::Ordering, collections::BTreeMap, fmt::Display, fs::File, io::BufReader, path::Path,
+    cmp::Ordering, collections::BTreeMap, fmt::Display, fs::File, io::Read, path::Path,
     str::FromStr,
 };
 
+use prost::Message;
 use serde::{Deserialize, Serialize};
-use tracing::error;
 
-use crate::models::mana::Cost;
+use crate::{
+    models::mana::Cost,
+    proto::{Card, CardCollection},
+};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct CardsDatabase {
     pub db: BTreeMap<String, Card>,
 }
 
-impl Default for CardsDatabase {
-    fn default() -> Self {
-        let default_path = Path::new("data/cards.json");
-        Self::new(default_path).unwrap_or_else(|e| {
-            error!("Error loading default cards database: {:?}", e);
-            Self {
-                db: BTreeMap::new(),
-            }
-        })
+impl CardsDatabase {
+    /// # Errors
+    ///
+    /// Will return an error if the database file cannot be opened or if the database file is not a valid protobuf
+    pub fn new(path: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let mut cards_db_file = File::open(path)?;
+        let mut buffer = Vec::new();
+        cards_db_file.read_to_end(&mut buffer)?;
+        let card_collection = CardCollection::decode(buffer.as_slice())?;
+        let cards_db: BTreeMap<String, Card> = card_collection
+            .cards
+            .into_iter()
+            .map(|card| (card.id.to_string(), card))
+            .collect();
+        tracing::info!("loaded cards: {}", cards_db.len());
+
+        Ok(Self { db: cards_db })
+    }
+
+    /// # Errors
+    ///
+    /// Will return an error if the card cannot be found in the database
+    pub fn get_pretty_name<T>(&self, grp_id: &T) -> anyhow::Result<String>
+    where
+        T: Display + ?Sized,
+    {
+        let grp_id = grp_id.to_string();
+        let card = self
+            .db
+            .get(&grp_id)
+            .ok_or_else(|| anyhow::anyhow!("Card not found in database"))?;
+        Ok(card.name.clone())
+    }
+
+    pub fn get_pretty_name_defaulted<T>(&self, grp_id: &T) -> String
+    where
+        T: Display + ?Sized,
+    {
+        self.get_pretty_name(grp_id)
+            .unwrap_or_else(|_| grp_id.to_string())
+    }
+
+    pub fn get<T>(&self, grp_id: &T) -> Option<&Card>
+    where
+        T: Display + ?Sized,
+    {
+        let grp_id = grp_id.to_string();
+        self.db.get(&grp_id)
     }
 }
 
@@ -35,7 +77,7 @@ pub struct CardFace {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Card {
+pub struct LegacyCard {
     pub id: i32,
     pub set: String,
     pub name: String,
@@ -50,7 +92,7 @@ pub struct Card {
     pub card_faces: Option<Vec<CardFace>>,
 }
 
-impl Card {
+impl LegacyCard {
     pub fn image_uri(&self) -> &str {
         if let Some(image_uri) = &self.image_uri {
             image_uri
@@ -89,15 +131,15 @@ impl Card {
     }
 }
 
-impl Display for Card {
+impl Display for LegacyCard {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} -- {}", self.name, self.set)
     }
 }
 
-impl Eq for Card {}
+impl Eq for LegacyCard {}
 
-impl Ord for Card {
+impl Ord for LegacyCard {
     fn cmp(&self, other: &Self) -> Ordering {
         let mana_value_ordering = self.mana_value().cmp(&other.mana_value());
         if mana_value_ordering == Ordering::Equal {
@@ -108,58 +150,14 @@ impl Ord for Card {
     }
 }
 
-impl PartialEq<Self> for Card {
+impl PartialEq<Self> for LegacyCard {
     fn eq(&self, other: &Self) -> bool {
         self.cmp(other) == Ordering::Equal
     }
 }
-impl PartialOrd<Self> for Card {
+impl PartialOrd<Self> for LegacyCard {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
-    }
-}
-
-impl CardsDatabase {
-    /// # Errors
-    ///
-    /// Will return an error if the database file cannot be opened or if the database file is not valid JSON
-    pub fn new(path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let cards_db_file = File::open(path)?;
-        let cards_db_reader = BufReader::new(cards_db_file);
-        let cards_db: BTreeMap<String, Card> = serde_json::from_reader(cards_db_reader)?;
-
-        Ok(Self { db: cards_db })
-    }
-
-    /// # Errors
-    ///
-    /// Will return an error if the card cannot be found in the database
-    pub fn get_pretty_name<T>(&self, grp_id: &T) -> anyhow::Result<String>
-    where
-        T: Display + ?Sized,
-    {
-        let grp_id = grp_id.to_string();
-        let card = self
-            .db
-            .get(&grp_id)
-            .ok_or_else(|| anyhow::anyhow!("Card not found in database"))?;
-        Ok(card.name.clone())
-    }
-
-    pub fn get_pretty_name_defaulted<T>(&self, grp_id: &T) -> String
-    where
-        T: Display + ?Sized,
-    {
-        self.get_pretty_name(grp_id)
-            .unwrap_or_else(|_| grp_id.to_string())
-    }
-
-    pub fn get<T>(&self, grp_id: &T) -> Option<&Card>
-    where
-        T: Display + ?Sized,
-    {
-        let grp_id = grp_id.to_string();
-        self.db.get(&grp_id)
     }
 }
 

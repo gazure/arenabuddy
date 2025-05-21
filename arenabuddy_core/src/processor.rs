@@ -2,7 +2,7 @@ use std::{
     collections::VecDeque,
     fs::File,
     io::{BufRead, BufReader},
-    path::PathBuf,
+    path::Path,
     result::Result as StdResult,
 };
 
@@ -33,7 +33,7 @@ impl PlayerLogProcessor {
     /// # Errors
     ///
     /// Will return an error if the player log file cannot be opened
-    pub fn try_new(player_log_path: PathBuf) -> Result<Self> {
+    pub fn try_new(player_log_path: &Path) -> Result<Self> {
         Ok(Self {
             player_log_reader: BufReader::new(File::open(player_log_path)?),
             json_events: VecDeque::new(),

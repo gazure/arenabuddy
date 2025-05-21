@@ -21,10 +21,24 @@ To get started with the ArenaBuddy development environment, follow these steps:
    cargo tauri build
    ```
 
-3. Project Structure:
+3. CLI Tool:
 
-   - `/arenabuddy_scraper` - scraping utility for building card databases from external sources
+   The consolidated CLI tool provides functionality for log parsing, card scraping:
+
+   ```bash
+   # Scrape card data from online sources
+   arenabuddy scrape
+
+   # Parse MTGA log files
+   arenabuddy parse --player-log /path/to/Player.log
+   ```
+
+   You can get help on any command with `arenabuddy --help` or `arenabuddy <command> --help`.
+
+4. Project Structure:
+
+   - `/arenabuddy_core` - common modules
    - `/public` - Static assets
-   - `/arenabuddy_cli` - Command line tool for testing arena log parsing without UI
+   - `/arenabuddy_cli` - Consolidated command line tool for log parsing and card scraping
    - `/src` - Frontend source code
    - `/src-tauri` - Rust backend code

@@ -25,6 +25,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
         with:
@@ -63,7 +68,6 @@ jobs:
       matrix:
         package:
           - arenabuddy_cli
-          - arenabuddy_scraper
         platform:
           - macos-arm64
           - macos-x64
@@ -80,6 +84,11 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -132,11 +141,17 @@ jobs:
         with:
           toolchain: stable
           targets: wasm32-unknown-unknown
+
       - uses: cargo-bins/cargo-binstall@main
 
       - name: Install trunk
         run: |
           cargo binstall --locked trunk
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-tauri
         uses: tauri-apps/tauri-action@v0

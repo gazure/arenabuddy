@@ -27,8 +27,7 @@ resolver = "2"
 members = [
     "src-tauri",
     "arenabuddy_core",
-    "arenabuddy_cli",
-    "arenabuddy_scraper",
+    "arenabuddy_cli"
 ]
 
 [workspace.package]
@@ -37,12 +36,14 @@ categories = []
 version = "0.5.1"
 repository = "https://github.com/gazure/arenabuddy"
 edition = "2024"
-rust-version = "1.86"
+rust-version = "1.87"
 keywords = ["magic"]
 license = "Apache-2.0 OR MIT"
 
 [workspace.dependencies]
 anyhow = "1.0.98"
+aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
+aws-sdk-s3 = "1.86.0"
 console_error_panic_hook = "0.1.7"
 chrono = { version = "0.4.41", features = ["serde"] }
 crossbeam = "0.8.4"
@@ -59,6 +60,9 @@ lazy_static = "1.5.0"
 leptos = { version = "0.8", features = ["csr"] }
 leptos_router = { version = "0.8.2", features = ["tracing"] }
 notify = "8.0.0"
+prost = "0.12"
+prost-build = "0.12"
+prost-types = "0.12"
 regex = "1.11.1"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"

@@ -38,8 +38,8 @@ fn log_process_start(
     player_log_path: &Path,
 ) {
     let (notify_tx, notify_rx) = unbounded::<Event>();
-    let mut processor = PlayerLogProcessor::try_new(player_log_path.into())
-        .expect("Could not build player log processor");
+    let mut processor =
+        PlayerLogProcessor::try_new(player_log_path).expect("Could not build player log processor");
     let mut match_replay_builder = MatchReplayBuilder::new();
     info!("Player log: {:?}", player_log_path);
     let plp = player_log_path.to_owned().clone();
@@ -53,7 +53,7 @@ fn log_process_start(
             recv(notify_rx) -> event => {
                 if let Ok(event) = event {
                     info!("log file rotated!, {:?}", event);
-                    processor = PlayerLogProcessor::try_new(player_log_path.into())
+                    processor = PlayerLogProcessor::try_new(player_log_path)
                         .expect("Could not build player log processor");
                 }
             }
