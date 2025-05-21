@@ -24,12 +24,6 @@ release = true
 git_release_enable = false
 
 [[package]]
-name = "arenabuddy_scraper"
-publish = false
-release = false
-git_release_enable = false
-
-[[package]]
 name = "arenabuddy_ui"
 publish = false
 release = false
