@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.5.1...arenabuddy_cli-v0.5.2) - 2025-05-21
+
+### Other
+
+- Using protos ([#59](https://github.com/gazure/arenabuddy/pull/59))
+
 ## [0.5.1](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.5.0...arenabuddy_cli-v0.5.1) - 2025-05-12
 
 ### Other

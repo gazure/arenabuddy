@@ -25,7 +25,7 @@ tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 rusqlite = { workspace = true, features = ["bundled"] }
-arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.1" }
+arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.2" }
 
 [[bin]]
 name = "arenabuddy"
