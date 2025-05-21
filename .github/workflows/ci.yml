@@ -27,6 +27,8 @@ jobs:
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -85,6 +87,8 @@ jobs:
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@master
@@ -137,6 +141,7 @@ jobs:
         with:
           toolchain: stable
           targets: wasm32-unknown-unknown
+
       - uses: cargo-bins/cargo-binstall@main
 
       - name: Install trunk
@@ -145,6 +150,8 @@ jobs:
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: build-tauri
         uses: tauri-apps/tauri-action@v0
