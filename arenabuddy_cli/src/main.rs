@@ -50,8 +50,9 @@ fn run() -> Result<()> {
                 output_dir,
             ))?;
         }
-        Commands::Info { file } => {
-            commands::info::execute(file)?;
+
+        Commands::Repl { cards_db } => {
+            commands::repl::execute(cards_db)?;
         }
     }
 

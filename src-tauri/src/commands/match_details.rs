@@ -58,7 +58,7 @@ pub(crate) fn command_match_details(
 
     match_details.mulligans = raw_mulligans
         .iter()
-        .map(|mulligan| Mulligan::from_mulligan_info(mulligan, &db.cards_database))
+        .map(|mulligan| Mulligan::from_model(mulligan, &db.cards_database))
         .collect();
 
     match_details.game_results = db

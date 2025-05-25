@@ -474,6 +474,8 @@ pub enum GameObjectType {
     RoomRight,
     #[serde(rename = "GameObjectType_SplitLeft")]
     SplitLeft,
+    #[serde(rename = "GameObjectType_Omen")]
+    Omen,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -61,7 +61,7 @@ fn log_process_start(
                 loop {
                     match processor.get_next_event() {
                         Ok(parse_output) => {
-                            if match_replay_builder.ingest_event(parse_output) {
+                            if match_replay_builder.ingest(parse_output) {
                                 let match_replay = match_replay_builder.build();
                                 match match_replay {
                                     Ok(mr) => {

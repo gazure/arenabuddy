@@ -1,4 +1,4 @@
-use arenabuddy_core::models::mtga_match::MTGAMatch;
+use arenabuddy_core::models::MTGAMatch;
 use leptos::prelude::*;
 use wasm_bindgen::JsValue;
 use wasm_bindgen_futures::spawn_local;

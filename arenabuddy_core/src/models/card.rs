@@ -1,4 +1,5 @@
 use std::{
+    cmp::Ordering,
     fmt::{Display, Formatter, Result as FmtResult},
     str::FromStr,
 };
@@ -6,13 +7,65 @@ use std::{
 // Re-export the card types for easier access
 pub use arenabuddy::{Card, CardCollection, CardFace};
 use prost::Message;
+use serde::{Deserialize, Serialize};
 
-use crate::cards::CardType;
+use crate::models::Cost;
 
 #[allow(clippy::all)]
 mod arenabuddy {
     // Include the generated code from the build script
     include!(concat!(env!("OUT_DIR"), "/arenabuddy.rs"));
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum CardType {
+    Creature,
+    Land,
+    Artifact,
+    Enchantment,
+    Planeswalker,
+    Instant,
+    Sorcery,
+    Battle,
+    #[default]
+    Unknown,
+}
+impl FromStr for CardType {
+    type Err = Self;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim() {
+            "Creature" => Ok(CardType::Creature),
+            "Land" | "Basic Land" => Ok(CardType::Land),
+            "Artifact" => Ok(CardType::Artifact),
+            "Enchantment" => Ok(CardType::Enchantment),
+            "Planeswalker" => Ok(CardType::Planeswalker),
+            "Instant" => Ok(CardType::Instant),
+            "Sorcery" => Ok(CardType::Sorcery),
+            "Battle" => Ok(CardType::Battle),
+            _ => Err(Self::Err::Unknown),
+        }
+    }
+}
+
+impl Display for CardType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                CardType::Creature => "Creature",
+                CardType::Land => "Land",
+                CardType::Artifact => "Artifact",
+                CardType::Enchantment => "Enchantment",
+                CardType::Planeswalker => "Planeswalker",
+                CardType::Instant => "Instant",
+                CardType::Sorcery => "Sorcery",
+                CardType::Battle => "Battle",
+                CardType::Unknown => "Unknown",
+            }
+        )
+    }
 }
 
 // Utility functions for working with protobuf card types
@@ -123,6 +176,10 @@ impl Card {
         self.cmc.try_into().unwrap_or(0)
     }
 
+    pub fn cost(&self) -> Cost {
+        Cost::from_str(&self.mana_cost).unwrap_or(Cost::default())
+    }
+
     pub fn dominant_type(&self) -> Option<CardType> {
         self.type_line
             .split_whitespace()
@@ -141,6 +198,30 @@ impl Card {
         } else {
             Some(self.image_uri.clone())
         }
+    }
+}
+
+impl Eq for Card {}
+
+impl Ord for Card {
+    fn cmp(&self, other: &Self) -> Ordering {
+        let mana_value_ordering = self.mana_value().cmp(&other.mana_value());
+        if mana_value_ordering == Ordering::Equal {
+            self.name.cmp(&other.name)
+        } else {
+            mana_value_ordering
+        }
+    }
+}
+
+// impl PartialEq<Self> for Card {
+//     fn eq(&self, other: &Self) -> bool {
+//         self.cmp(other) == Ordering::Equal
+//     }
+// }
+impl PartialOrd<Self> for Card {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 

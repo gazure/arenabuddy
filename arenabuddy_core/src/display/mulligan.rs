@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    cards::CardsDatabase, display::card::CardDisplayRecord, models::mulligan::MulliganInfo,
+    cards::CardsDatabase, display::card::CardDisplayRecord, models::Mulligan as ModelMulligan,
 };
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
@@ -45,10 +45,7 @@ impl Mulligan {
         }
     }
 
-    pub fn from_mulligan_info(
-        mulligan_info: &MulliganInfo,
-        cards_database: &CardsDatabase,
-    ) -> Self {
+    pub fn from_model(mulligan_info: &ModelMulligan, cards_database: &CardsDatabase) -> Self {
         Self::new(
             &mulligan_info.hand,
             mulligan_info.opponent_identity.clone(),
