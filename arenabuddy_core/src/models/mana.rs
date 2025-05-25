@@ -42,6 +42,7 @@ impl Display for Color {
     }
 }
 
+#[derive(Debug)]
 pub enum CostSymbol {
     Colorless { n: u8 },
     Color { color: Color },
@@ -113,6 +114,7 @@ impl FromStr for CostSymbol {
     }
 }
 
+#[derive(Debug, Default)]
 pub struct Cost {
     inner: Vec<CostSymbol>,
 }
@@ -141,35 +143,6 @@ impl FromStr for Cost {
         }
 
         Ok(Cost { inner: symbols })
-
-        // while let Some(c) = chars.next() {
-        //     match c {
-        //         '{' => {
-        //             let mut symbol_str = String::new();
-
-        //             // Read until we find a closing brace
-        //             while let Some(&next) = chars.peek() {
-        //                 if next == '}' {
-        //                     // Parse the symbol and add it to our list
-        //                     symbols.push(symbol_str.parse()?);
-        //                     break;
-        //                 }
-
-        //                 chars.next(); // Consume the character
-        //                 symbol_str.push(next);
-        //             }
-
-        //             if !symbol_str.is_empty() && chars.peek().is_none() {
-        //                 return Err(format!(
-        //                     "Cost symbol missing close parentheses: {symbol_str}"
-        //                 ));
-        //             }
-        //         }
-        //         _ => return Err(format!("Expected '{{' at start of symbol, got '{c}'")),
-        //     }
-        // }
-
-        // Ok(Cost { inner: symbols })
     }
 }
 

@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use arenabuddy_core::{match_insights::MatchDB, models::mtga_match::MTGAMatch};
+use arenabuddy_core::{match_insights::MatchDB, models::MTGAMatch};
 use tauri::State;
 use tracing::error;
 

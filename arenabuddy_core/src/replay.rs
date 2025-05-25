@@ -10,10 +10,7 @@ use tracing::{debug, info, warn};
 use crate::{
     cards::CardsDatabase,
     events::{Event, EventRef},
-    models::{
-        deck::Deck,
-        mulligan::{MulliganInfo, MulliganInfoBuilder},
-    },
+    models::{Deck, Mulligan, MulliganBuilder},
     mtga_events::{
         business::BusinessEvent,
         client::{
@@ -195,7 +192,7 @@ impl MatchReplay {
     ///
     /// Returns an error if the controller seat ID is not found among other things
     #[allow(clippy::too_many_lines)]
-    pub fn get_mulligan_infos(&self, cards_db: &CardsDatabase) -> Result<Vec<MulliganInfo>> {
+    pub fn get_mulligan_infos(&self, cards_db: &CardsDatabase) -> Result<Vec<Mulligan>> {
         let controller_id = self.get_controller_seat_id();
 
         let mut game_number = 1;
@@ -332,7 +329,7 @@ impl MatchReplay {
                 }
                 .to_string();
 
-                MulliganInfoBuilder::default()
+                MulliganBuilder::default()
                     .match_id(self.match_id.clone())
                     .game_number(game_number)
                     .number_to_keep(number_to_keep)
@@ -419,7 +416,7 @@ impl MatchReplayBuilder {
         Self::default()
     }
 
-    pub fn ingest_event(&mut self, event: ParseOutput) -> bool {
+    pub fn ingest(&mut self, event: ParseOutput) -> bool {
         match event {
             ParseOutput::GREMessage(gre_message) => {
                 self.client_server_messages.push(Event::GRE(gre_message));
@@ -441,7 +438,7 @@ impl MatchReplayBuilder {
         false
     }
 
-    pub fn ingest_mgrc_event(&mut self, mgrsc_event: RequestTypeMGRSCEvent) -> bool {
+    fn ingest_mgrc_event(&mut self, mgrsc_event: RequestTypeMGRSCEvent) -> bool {
         let state_type = mgrsc_event.mgrsc_event.game_room_info.state_type.clone();
         let match_id = mgrsc_event
             .mgrsc_event

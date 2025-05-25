@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::match_result::MatchResult;
+use crate::models::MatchResult;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct GameResultDisplay {

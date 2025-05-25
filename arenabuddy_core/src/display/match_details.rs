@@ -7,7 +7,7 @@ use crate::{
         game::GameResultDisplay,
         mulligan::Mulligan,
     },
-    models::deck::Deck,
+    models::Deck,
 };
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]

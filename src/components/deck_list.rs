@@ -1,4 +1,4 @@
-use arenabuddy_core::cards::CardType;
+use arenabuddy_core::models::CardType;
 use leptos::prelude::*;
 
 #[derive(Clone, PartialEq, Eq)]

@@ -48,9 +48,9 @@ pub enum Commands {
         output_dir: PathBuf,
     },
 
-    Info {
-        /// Protocol Buffers file path
-        #[clap(short, long)]
-        file: PathBuf,
+    /// Start an interactive REPL for card searches, analytics, and file info
+    Repl {
+        #[arg(short, long, help = "Database of cards to reference")]
+        cards_db: PathBuf,
     },
 }

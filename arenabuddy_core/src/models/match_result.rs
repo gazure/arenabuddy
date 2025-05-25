@@ -1,6 +1,5 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
-
 #[derive(Debug, Clone, Serialize, Deserialize, Builder)]
 pub struct MatchResult {
     pub match_id: String,

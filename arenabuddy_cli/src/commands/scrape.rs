@@ -1,7 +1,7 @@
 use std::{collections::HashMap, path::Path};
 
 use anyhow::{Context, Result};
-use arenabuddy_core::proto::{Card, CardCollection};
+use arenabuddy_core::models::{Card, CardCollection};
 use tracing::{debug, error, info};
 
 /// Execute the Scrape command

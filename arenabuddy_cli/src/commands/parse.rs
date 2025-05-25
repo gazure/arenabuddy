@@ -13,7 +13,6 @@ use arenabuddy_core::{
 };
 use crossbeam::channel::{Receiver, select};
 use tracing::{Level, error};
-use tracing_subscriber::fmt;
 
 // Constants
 const PLAYER_LOG_POLLING_INTERVAL: u64 = 1;
@@ -37,7 +36,7 @@ pub fn execute(
     follow: bool,
 ) -> Result<()> {
     // Initialize logging
-    fmt()
+    tracing_subscriber::fmt()
         .with_max_level(if debug { Level::DEBUG } else { Level::INFO })
         .init();
 
@@ -73,8 +72,8 @@ pub fn execute(
                 break;
             }
             default(Duration::from_secs(PLAYER_LOG_POLLING_INTERVAL)) => {
-                while let Ok(parse_output) = processor.get_next_event() {
-                    if match_replay_builder.ingest_event(parse_output) {
+                while let Ok(event) = processor.get_next_event() {
+                    if match_replay_builder.ingest(event) {
                         match match_replay_builder.build() {
                             Ok(match_replay) => {
                                 for backend in &mut storage_backends {

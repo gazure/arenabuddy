@@ -1,7 +1,7 @@
 use derive_builder::Builder;
 
 #[derive(Debug, Clone, Builder)]
-pub struct MulliganInfo {
+pub struct Mulligan {
     pub match_id: String,
     pub game_number: i32,
     pub number_to_keep: i32,

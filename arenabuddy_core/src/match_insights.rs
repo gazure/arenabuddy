@@ -10,12 +10,7 @@ use tracing::{debug, error, info};
 
 use crate::{
     cards::CardsDatabase,
-    models::{
-        deck::Deck,
-        match_result::{MatchResult, MatchResultBuilder},
-        mtga_match::{MTGAMatch, MTGAMatchBuilder},
-        mulligan::MulliganInfo,
-    },
+    models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     replay::MatchReplay,
     storage_backends::Storage,
 };
@@ -94,7 +89,7 @@ impl MatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    fn insert_mulligan_info(mulligan_info: MulliganInfo, tx: &Transaction) -> Result<()> {
+    fn insert_mulligan_info(mulligan_info: Mulligan, tx: &Transaction) -> Result<()> {
         tx.execute(
             indoc!{r"INSERT INTO mulligans (match_id, game_number, number_to_keep, hand, play_draw, opponent_identity, decision)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
@@ -183,7 +178,7 @@ impl MatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    pub fn get_mulligans(&mut self, match_id: &str) -> Result<Vec<MulliganInfo>> {
+    pub fn get_mulligans(&mut self, match_id: &str) -> Result<Vec<Mulligan>> {
         let mut stmt = self
             .conn
             .prepare("SELECT game_number, number_to_keep, hand, play_draw, opponent_identity, decision FROM mulligans WHERE match_id = ?1")?;
@@ -196,7 +191,7 @@ impl MatchDB {
                 let opponent_identity: String = row.get(4)?;
                 let decision: String = row.get(5)?;
 
-                Ok(MulliganInfo {
+                Ok(Mulligan {
                     match_id: match_id.to_string(),
                     game_number,
                     number_to_keep,
@@ -206,7 +201,7 @@ impl MatchDB {
                     decision,
                 })
             })?
-            .collect::<rusqlite::Result<Vec<MulliganInfo>>>()?;
+            .collect::<rusqlite::Result<Vec<Mulligan>>>()?;
         Ok(mulligans)
     }
 

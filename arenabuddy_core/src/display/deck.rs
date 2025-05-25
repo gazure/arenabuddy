@@ -4,9 +4,9 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    cards::{CardType, CardsDatabase},
+    cards::CardsDatabase,
     display::card::CardDisplayRecord,
-    models::deck::{Deck, Quantities},
+    models::{CardType, Deck, Quantities},
 };
 
 fn get_card(db: &CardsDatabase, quantities: &Quantities, card_id: i32) -> CardDisplayRecord {
