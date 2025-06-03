@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.5.2...arenabuddy_cli-v0.5.3) - 2025-06-03
+
+### Other
+
+- *(deps)* bump rustyline from 11.0.0 to 16.0.0 ([#65](https://github.com/gazure/arenabuddy/pull/65))
+- re-org, fixing some things, something is broken with mulligan detection ([#63](https://github.com/gazure/arenabuddy/pull/63))
+
 ## [0.5.2](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.5.1...arenabuddy_cli-v0.5.2) - 2025-05-21
 
 ### Other
