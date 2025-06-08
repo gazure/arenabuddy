@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.5.3...arenabuddy-v0.5.4) - 2025-06-08
+
+### Other
+
+- Ga/make models better ([#70](https://github.com/gazure/arenabuddy/pull/70))
+
 ## [0.5.3](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.5.2...arenabuddy-v0.5.3) - 2025-06-03
 
 ### Other
