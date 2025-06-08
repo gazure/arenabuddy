@@ -262,6 +262,11 @@ impl Card {
     ///
     /// The primary `CardType` of this card, or None if it couldn't be determined
     pub fn dominant_type(&self) -> Option<CardType> {
+        // Handle basic lands explicitly
+        if self.type_line.contains("Basic Land") {
+            return Some(CardType::Land);
+        }
+
         self.type_line
             .split_whitespace()
             .next()

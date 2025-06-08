@@ -233,10 +233,10 @@ impl MatchDB {
     /// # Errors
     ///
     /// Errors if underlying data is malformed
-    pub fn get_match(&mut self, match_id: &str) -> Result<(MTGAMatch, bool)> {
+    pub fn get_match(&mut self, match_id: &str) -> Result<(MTGAMatch, Option<MatchResult>)> {
         let mut statement = self.conn.prepare(indoc! {r#"
             SELECT
-                m.id, m.controller_player_name, m.opponent_player_name, m.controller_seat_id = mr.winning_team_id, m.controller_seat_id, m.created_at
+                m.id, m.controller_player_name, m.opponent_player_name, mr.winning_team_id, m.controller_seat_id, m.created_at
             FROM matches m JOIN match_results mr ON m.id = mr.match_id
             WHERE m.id = ?1 AND mr.result_scope = "MatchScope_Match" LIMIT 1
             "#}
@@ -248,23 +248,23 @@ impl MatchDB {
                 let id: String = row.get(0)?;
                 let controller_player_name: String = row.get(1)?;
                 let opponent_player_name: String = row.get(2)?;
-                let did_controller_win: bool = row.get(3)?;
+                let winning_team_id: i32 = row.get(3)?;
                 let controller_seat_id: i32 = row.get(4)?;
                 let created_at: DateTime<Utc> = row.get(5)?;
                 Ok((
                     MTGAMatch::new_with_timestamp(
-                        id,
+                        id.clone(),
                         controller_seat_id,
                         controller_player_name,
                         opponent_player_name,
                         created_at,
                     ),
-                    did_controller_win,
+                    Some(MatchResult::new_match_result(id, winning_team_id)),
                 ))
             })
             .unwrap_or_else(|e| {
                 error!("Error getting match details: {:?}", e);
-                (MTGAMatch::default(), false)
+                (MTGAMatch::default(), None)
             }))
     }
 }

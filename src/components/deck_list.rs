@@ -30,13 +30,11 @@ pub fn DeckList(
                                 <div class="text-center text-gray-500 py-8">
                                     <p>No deck information available</p>
                                 </div>
-                            }.into_any()
+                            }
+                                .into_any()
                         } else {
-                            // Sort by type
                             let mut sorted_cards = card_list.clone();
                             sorted_cards.sort_by_key(|card| (card.mana_value, card.name.clone()));
-
-                            // Calculate total
                             let total_count: u16 = sorted_cards.iter().map(|c| c.quantity).sum();
 
                             view! {
@@ -44,19 +42,19 @@ pub fn DeckList(
                                     <div class="mb-4 text-right text-sm text-gray-500">
                                         {"Total cards: "}{total_count}
                                     </div>
-                                    <table class="min-w-full">
+                                    <table class="min-w-full table-fixed">
                                         <thead>
                                             <tr class="border-b">
-                                                <th class="text-left py-2 font-semibold text-gray-600">
+                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-16">
                                                     Count
                                                 </th>
-                                                <th class="text-left py-2 font-semibold text-gray-600">
-                                                    Mana Value
+                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-20">
+                                                    Mana
                                                 </th>
-                                                <th class="text-left py-2 font-semibold text-gray-600">
+                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-32">
                                                     Type
                                                 </th>
-                                                <th class="text-left py-2 font-semibold text-gray-600">
+                                                <th class="text-left py-3 px-4 font-semibold text-gray-600">
                                                     Card Name
                                                 </th>
                                             </tr>
@@ -68,16 +66,16 @@ pub fn DeckList(
                                                 children=move |card| {
                                                     view! {
                                                         <tr class="border-b border-gray-100 hover:bg-gray-50">
-                                                            <td class="py-2 text-center font-medium text-gray-600 w-10">
+                                                            <td class="py-3 px-4 text-center font-medium text-gray-600">
                                                                 {card.quantity}
                                                             </td>
-                                                            <td class="py-2 text-center text-gray-500 w-10">
+                                                            <td class="py-3 px-4 text-center text-gray-500">
                                                                 {card.mana_value}
                                                             </td>
-                                                            <td class="py-2 text-gray-500 w-24">
+                                                            <td class="py-3 px-4 text-gray-500 truncate">
                                                                 {card.card_type.to_string()}
                                                             </td>
-                                                            <td class="py-2">{card.name}</td>
+                                                            <td class="py-3 px-4 truncate">{card.name}</td>
                                                         </tr>
                                                     }
                                                 }
@@ -85,7 +83,8 @@ pub fn DeckList(
                                         </tbody>
                                     </table>
                                 </div>
-                            }.into_any()
+                            }
+                                .into_any()
                         }
                     }}
                 </div>
