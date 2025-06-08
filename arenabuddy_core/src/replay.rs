@@ -179,10 +179,12 @@ impl MatchReplay {
             .map(|deck| -> Deck { deck.into() })
             .enumerate()
             .map(|(i, mut deck)| {
-                deck.game_number = i32::try_from(i).unwrap_or_else(|e| {
-                    warn!("Error converting usize to i32: {}", e);
-                    0
-                }) + 1;
+                deck.set_game_number(
+                    i32::try_from(i).unwrap_or_else(|e| {
+                        warn!("Error converting usize to i32: {}", e);
+                        0
+                    }) + 1,
+                );
                 deck
             })
             .collect())

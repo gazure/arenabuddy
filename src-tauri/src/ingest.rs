@@ -42,7 +42,7 @@ fn log_process_start(
         PlayerLogProcessor::try_new(player_log_path).expect("Could not build player log processor");
     let mut match_replay_builder = MatchReplayBuilder::new();
     info!("Player log: {:?}", player_log_path);
-    let plp = player_log_path.to_owned().clone();
+    let plp = player_log_path.to_owned();
 
     std::thread::spawn(move || {
         watch_player_log_rotation(notify_tx, &plp);

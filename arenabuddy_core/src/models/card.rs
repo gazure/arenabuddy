@@ -5,6 +5,8 @@ use std::{
 };
 
 // Re-export the card types for easier access
+/// Re-export the card types for easier access
+/// These are protobuf-generated types that represent Magic: The Gathering cards
 pub use arenabuddy::{Card, CardCollection, CardFace};
 use prost::Message;
 use serde::{Deserialize, Serialize};
@@ -17,6 +19,10 @@ mod arenabuddy {
     include!(concat!(env!("OUT_DIR"), "/arenabuddy.rs"));
 }
 
+/// Represents the primary type of a Magic: The Gathering card
+///
+/// Each card in Magic has one or more types that define its characteristics
+/// and how it can be played. This enum represents the most common primary types.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum CardType {
     Creature,
@@ -70,7 +76,17 @@ impl Display for CardType {
 
 // Utility functions for working with protobuf card types
 impl Card {
-    // Create a new card with required fields
+    /// Creates a new card with required fields, initializing optional fields to empty values
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - The Arena ID of the card
+    /// * `set` - The set code the card belongs to (e.g., "RNA" for Ravnica Allegiance)
+    /// * `name` - The name of the card
+    ///
+    /// # Returns
+    ///
+    /// A new Card instance with minimal initialization
     pub fn new(id: i64, set: impl Into<String>, name: impl Into<String>) -> Self {
         Self {
             id,
@@ -172,14 +188,79 @@ impl Card {
         card
     }
 
+    /// Returns the card's ID
+    pub fn id(&self) -> i64 {
+        self.id
+    }
+
+    /// Returns the card's set code
+    pub fn set(&self) -> &str {
+        &self.set
+    }
+
+    /// Returns the card's name
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the card's language
+    pub fn lang(&self) -> &str {
+        &self.lang
+    }
+
+    /// Returns the card's mana cost string
+    pub fn mana_cost_str(&self) -> &str {
+        &self.mana_cost
+    }
+
+    /// Returns the card's type line
+    pub fn type_line(&self) -> &str {
+        &self.type_line
+    }
+
+    /// Returns the card's layout
+    pub fn layout(&self) -> &str {
+        &self.layout
+    }
+
+    /// Returns the card's colors
+    pub fn colors(&self) -> &[String] {
+        &self.colors
+    }
+
+    /// Returns the card's color identity
+    pub fn color_identity(&self) -> &[String] {
+        &self.color_identity
+    }
+
+    /// Returns the card's faces, if it has multiple faces
+    pub fn faces(&self) -> &[CardFace] {
+        &self.card_faces
+    }
+
+    /// Returns the card's mana value (formerly known as converted mana cost)
+    ///
+    /// # Returns
+    ///
+    /// The total mana value of the card as a u8
     pub fn mana_value(&self) -> u8 {
         self.cmc.try_into().unwrap_or(0)
     }
 
+    /// Returns the card's mana cost as a structured Cost object
+    ///
+    /// # Returns
+    ///
+    /// A Cost object representing the mana cost, or the default Cost if parsing fails
     pub fn cost(&self) -> Cost {
         Cost::from_str(&self.mana_cost).unwrap_or(Cost::default())
     }
 
+    /// Determines the dominant card type from the type line
+    ///
+    /// # Returns
+    ///
+    /// The primary `CardType` of this card, or None if it couldn't be determined
     pub fn dominant_type(&self) -> Option<CardType> {
         self.type_line
             .split_whitespace()
@@ -188,16 +269,73 @@ impl Card {
             .map(|t| t.unwrap_or(CardType::Unknown))
     }
 
+    /// Checks if this card has multiple faces
+    ///
+    /// # Returns
+    ///
+    /// true if the card has multiple faces, false otherwise
     fn multiface(&self) -> bool {
         !self.card_faces.is_empty()
     }
 
-    pub fn primary_image_uri(&self) -> Option<String> {
+    /// Gets the primary image URI for the card
+    ///
+    /// For single-faced cards, this is the main image URI.
+    /// For multi-faced cards, this is the image URI of the first face.
+    ///
+    /// # Returns
+    ///
+    /// The image URI as an Option<String>
+    pub fn primary_image_uri(&self) -> Option<&str> {
         if self.multiface() {
-            self.card_faces.first().and_then(|f| f.image_uri.clone())
+            self.card_faces.first().and_then(|f| f.image_uri.as_deref())
         } else {
-            Some(self.image_uri.clone())
+            Some(&self.image_uri)
         }
+    }
+
+    /// Checks if the card matches the given color
+    ///
+    /// # Arguments
+    ///
+    /// * `color` - The color to check for
+    ///
+    /// # Returns
+    ///
+    /// true if the card contains the specified color, false otherwise
+    pub fn has_color(&self, color: &str) -> bool {
+        self.colors.iter().any(|c| c == color)
+    }
+
+    /// Checks if the card is multicolored
+    ///
+    /// # Returns
+    ///
+    /// true if the card has more than one color, false otherwise
+    pub fn is_multicolored(&self) -> bool {
+        self.colors.len() > 1
+    }
+
+    /// Checks if the card is colorless
+    ///
+    /// # Returns
+    ///
+    /// true if the card has no colors, false otherwise
+    pub fn is_colorless(&self) -> bool {
+        self.colors.is_empty()
+    }
+
+    /// Checks if this card is of the specified type
+    ///
+    /// # Arguments
+    ///
+    /// * `card_type` - The card type to check for
+    ///
+    /// # Returns
+    ///
+    /// true if the card's type line contains the specified type, false otherwise
+    pub fn is_type(&self, card_type: &str) -> bool {
+        self.type_line.contains(card_type)
     }
 }
 
@@ -295,26 +433,148 @@ impl Display for Card {
 }
 
 impl CardCollection {
-    // Create a new empty card collection
+    /// Creates a new empty card collection
     pub fn new() -> Self {
         Self { cards: Vec::new() }
     }
 
-    // Add a card to the collection
+    /// Creates a new card collection with the specified cards
+    ///
+    /// # Arguments
+    ///
+    /// * `cards` - A vector of Card objects to initialize the collection with
+    ///
+    /// # Returns
+    ///
+    /// A new `CardCollection` containing the specified cards
+    pub fn with_cards(cards: Vec<Card>) -> Self {
+        Self { cards }
+    }
+
+    /// Adds a card to the collection
+    ///
+    /// # Arguments
+    ///
+    /// * `card` - The Card to add to the collection
     pub fn add_card(&mut self, card: Card) {
         self.cards.push(card);
     }
 
-    // Get the number of cards in the collection
+    /// Adds multiple cards to the collection
+    ///
+    /// # Arguments
+    ///
+    /// * `cards` - A slice of Card objects to add to the collection
+    pub fn add_cards(&mut self, cards: &[Card]) {
+        self.cards.extend_from_slice(cards);
+    }
+
+    /// Removes a card from the collection by index
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - The index of the card to remove
+    ///
+    /// # Returns
+    ///
+    /// The removed Card if the index was valid, None otherwise
+    pub fn remove_card(&mut self, index: usize) -> Option<Card> {
+        if index < self.cards.len() {
+            Some(self.cards.remove(index))
+        } else {
+            None
+        }
+    }
+
+    /// Gets a reference to the cards in this collection
+    ///
+    /// # Returns
+    ///
+    /// A slice containing references to all cards in the collection
+    pub fn cards(&self) -> &[Card] {
+        &self.cards
+    }
+
+    /// Gets a reference to a specific card by index
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - The index of the card to retrieve
+    ///
+    /// # Returns
+    ///
+    /// A reference to the Card at the specified index, or None if the index is out of bounds
+    pub fn get(&self, index: usize) -> Option<&Card> {
+        self.cards.get(index)
+    }
+
+    /// Finds a card by its Arena ID
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - The Arena ID to search for
+    ///
+    /// # Returns
+    ///
+    /// A reference to the first Card with the specified ID, or None if no matching card is found
+    pub fn find_by_id(&self, id: i64) -> Option<&Card> {
+        self.cards.iter().find(|card| card.id == id)
+    }
+
+    /// Finds all cards with the specified name
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - The name to search for
+    ///
+    /// # Returns
+    ///
+    /// A vector of references to Cards with the specified name
+    pub fn find_by_name(&self, name: &str) -> Vec<&Card> {
+        self.cards.iter().filter(|card| card.name == name).collect()
+    }
+
+    /// Finds all cards from the specified set
+    ///
+    /// # Arguments
+    ///
+    /// * `set` - The set code to search for
+    ///
+    /// # Returns
+    ///
+    /// A vector of references to Cards from the specified set
+    pub fn find_by_set(&self, set: &str) -> Vec<&Card> {
+        self.cards.iter().filter(|card| card.set == set).collect()
+    }
+
+    /// Gets the number of cards in the collection
+    ///
+    /// # Returns
+    ///
+    /// The number of cards in the collection
     pub fn len(&self) -> usize {
         self.cards.len()
     }
 
-    // Check if the collection is empty
+    /// Checks if the collection is empty
+    ///
+    /// # Returns
+    ///
+    /// true if the collection contains no cards, false otherwise
     pub fn is_empty(&self) -> bool {
         self.cards.is_empty()
     }
 
+    /// Sorts the cards in this collection by mana value, then by name
+    pub fn sort(&mut self) {
+        self.cards.sort();
+    }
+
+    /// Encodes the card collection to a vector of bytes using Protocol Buffers
+    ///
+    /// # Returns
+    ///
+    /// A vector of bytes representing the serialized `CardCollection`
     pub fn encode_to_vec(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         self.encode(&mut buf).unwrap_or_default();
