@@ -47,12 +47,12 @@ impl Mulligan {
 
     pub fn from_model(mulligan_info: &ModelMulligan, cards_database: &CardsDatabase) -> Self {
         Self::new(
-            &mulligan_info.hand,
-            mulligan_info.opponent_identity.clone(),
-            mulligan_info.game_number,
-            mulligan_info.number_to_keep,
-            mulligan_info.play_draw.clone(),
-            mulligan_info.decision.clone(),
+            mulligan_info.hand(),
+            mulligan_info.opponent_identity().to_string(),
+            mulligan_info.game_number(),
+            mulligan_info.number_to_keep(),
+            mulligan_info.play_draw().to_string(),
+            mulligan_info.decision().to_string(),
             cards_database,
         )
     }

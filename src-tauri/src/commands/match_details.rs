@@ -27,10 +27,10 @@ pub(crate) fn command_match_details(
 
     let mut match_details = MatchDetails {
         id: match_id.clone(),
-        controller_seat_id: mtga_match.controller_seat_id,
-        controller_player_name: mtga_match.controller_player_name,
-        opponent_player_name: mtga_match.opponent_player_name,
-        created_at: mtga_match.created_at,
+        controller_seat_id: mtga_match.controller_seat_id(),
+        controller_player_name: mtga_match.controller_player_name().to_string(),
+        opponent_player_name: mtga_match.opponent_player_name().to_string(),
+        created_at: mtga_match.created_at(),
         did_controller_win,
         ..Default::default()
     };

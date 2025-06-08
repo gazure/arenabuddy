@@ -55,11 +55,11 @@ impl MatchDB {
     /// will return an error if the database cannot be contacted for some reason
     fn insert_match(mtga_match: &MTGAMatch, tx: &Transaction) -> Result<()> {
         let params = (
-            &mtga_match.id,
-            &mtga_match.controller_seat_id,
-            &mtga_match.controller_player_name,
-            &mtga_match.opponent_player_name,
-            &mtga_match.created_at,
+            mtga_match.id(),
+            mtga_match.controller_seat_id(),
+            mtga_match.controller_player_name(),
+            mtga_match.opponent_player_name(),
+            mtga_match.created_at(),
         );
 
         let sql = indoc! {r"INSERT INTO matches
@@ -73,15 +73,15 @@ impl MatchDB {
     ///
     /// will return an error if the database cannot be contacted for some reason
     fn insert_deck(match_id: &str, deck: &Deck, tx: &Transaction) -> Result<()> {
-        let deck_string = serde_json::to_string(&deck.mainboard)?;
-        let sideboard_string = serde_json::to_string(&deck.sideboard)?;
+        let deck_string = serde_json::to_string(deck.mainboard())?;
+        let sideboard_string = serde_json::to_string(deck.sideboard())?;
 
         tx.execute(indoc! {r"INSERT INTO decks
                 (match_id, game_number, deck_cards, sideboard_cards)
                 VALUES (?1, ?2, ?3, ?4)
                 ON CONFLICT (match_id, game_number)
                 DO UPDATE SET deck_cards = excluded.deck_cards, sideboard_cards = excluded.sideboard_cards"},
-            (match_id, deck.game_number, deck_string, sideboard_string)
+            (match_id, deck.game_number(), deck_string, sideboard_string)
         )?;
         Ok(())
     }
@@ -96,13 +96,13 @@ impl MatchDB {
              ON CONFLICT (match_id, game_number, number_to_keep)
              DO UPDATE SET hand = excluded.hand, play_draw = excluded.play_draw, opponent_identity = excluded.opponent_identity, decision = excluded.decision"},
             (
-                mulligan_info.match_id,
-                mulligan_info.game_number,
-                mulligan_info.number_to_keep,
-                mulligan_info.hand,
-                mulligan_info.play_draw,
-                mulligan_info.opponent_identity,
-                mulligan_info.decision,
+                mulligan_info.match_id(),
+                mulligan_info.game_number(),
+                mulligan_info.number_to_keep(),
+                mulligan_info.hand(),
+                mulligan_info.play_draw(),
+                mulligan_info.opponent_identity(),
+                mulligan_info.decision(),
             ),
         )?;
         Ok(())
@@ -113,10 +113,10 @@ impl MatchDB {
     /// will return an error if the database cannot be contacted for some reason
     fn insert_match_result(match_result: &MatchResult, tx: &Transaction) -> Result<()> {
         let params = (
-            &match_result.match_id,
-            &match_result.game_number,
-            &match_result.winning_team_id,
-            &match_result.result_scope,
+            match_result.match_id(),
+            match_result.game_number(),
+            match_result.winning_team_id(),
+            match_result.result_scope(),
         );
 
         let sql = indoc! {r"INSERT INTO match_results (match_id, game_number, winning_team_id, result_scope)
@@ -140,12 +140,12 @@ impl MatchDB {
                 let winning_team_id: i32 = row.get(1)?;
                 let result_scope: String = row.get(2)?;
 
-                Ok(MatchResult {
-                    match_id: match_id.to_string(),
+                Ok(MatchResult::new(
+                    match_id.to_string(),
                     game_number,
                     winning_team_id,
                     result_scope,
-                })
+                ))
             })?
             .collect::<rusqlite::Result<Vec<MatchResult>>>()?;
         Ok(results)
@@ -191,15 +191,15 @@ impl MatchDB {
                 let opponent_identity: String = row.get(4)?;
                 let decision: String = row.get(5)?;
 
-                Ok(Mulligan {
-                    match_id: match_id.to_string(),
+                Ok(Mulligan::new(
+                    match_id.to_string(),
                     game_number,
                     number_to_keep,
                     hand,
                     play_draw,
                     opponent_identity,
                     decision,
-                })
+                ))
             })?
             .collect::<rusqlite::Result<Vec<Mulligan>>>()?;
         Ok(mulligans)
@@ -217,13 +217,13 @@ impl MatchDB {
                 let controller_player_name: String = row.get(2)?;
                 let opponent_player_name: String = row.get(3)?;
                 let created_at: Option<DateTime<Utc>> = row.get(4)?;
-                Ok(MTGAMatch {
+                Ok(MTGAMatch::new_with_timestamp(
                     id,
                     controller_seat_id,
                     controller_player_name,
                     opponent_player_name,
-                    created_at: created_at.unwrap_or_default(),
-                })
+                    created_at.unwrap_or_default(),
+                ))
             })?
             .collect::<RusqliteResult<Vec<MTGAMatch>>>()?;
 
@@ -252,13 +252,13 @@ impl MatchDB {
                 let controller_seat_id: i32 = row.get(4)?;
                 let created_at: DateTime<Utc> = row.get(5)?;
                 Ok((
-                    MTGAMatch {
+                    MTGAMatch::new_with_timestamp(
                         id,
                         controller_seat_id,
                         controller_player_name,
                         opponent_player_name,
                         created_at,
-                    },
+                    ),
                     did_controller_win,
                 ))
             })
