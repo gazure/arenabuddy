@@ -26,7 +26,7 @@ impl MatchResult {
     ///
     /// # Returns
     ///
-    /// A new MatchResult instance
+    /// A new `MatchResult` instance
     pub fn new(
         match_id: impl Into<String>,
         game_number: i32,
@@ -51,7 +51,7 @@ impl MatchResult {
     ///
     /// # Returns
     ///
-    /// A new MatchResult instance with "Game" scope
+    /// A new `MatchResult` instance with "Game" scope
     pub fn new_game_result(
         match_id: impl Into<String>,
         game_number: i32,
@@ -69,11 +69,8 @@ impl MatchResult {
     ///
     /// # Returns
     ///
-    /// A new MatchResult instance with "Match" scope and game_number 0
-    pub fn new_match_result(
-        match_id: impl Into<String>,
-        winning_team_id: i32,
-    ) -> Self {
+    /// A new `MatchResult` instance with "Match" scope and `game_number` 0
+    pub fn new_match_result(match_id: impl Into<String>, winning_team_id: i32) -> Self {
         Self::new(match_id, 0, winning_team_id, "Match")
     }
 

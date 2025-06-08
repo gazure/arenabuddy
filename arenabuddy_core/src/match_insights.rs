@@ -89,7 +89,7 @@ impl MatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    fn insert_mulligan_info(mulligan_info: Mulligan, tx: &Transaction) -> Result<()> {
+    fn insert_mulligan_info(mulligan_info: &Mulligan, tx: &Transaction) -> Result<()> {
         tx.execute(
             indoc!{r"INSERT INTO mulligans (match_id, game_number, number_to_keep, hand, play_draw, opponent_identity, decision)
              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
@@ -301,7 +301,7 @@ impl Storage for MatchDB {
         let mulligan_infos = match_replay.get_mulligan_infos(&self.cards_database)?;
         mulligan_infos
             .iter()
-            .try_for_each(|mulligan_info| Self::insert_mulligan_info(mulligan_info.clone(), &tx))?;
+            .try_for_each(|mulligan_info| Self::insert_mulligan_info(mulligan_info, &tx))?;
 
         // not too keen on this data model
         let match_results = match_replay.get_match_results()?;

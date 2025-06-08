@@ -104,56 +104,6 @@ impl Card {
         }
     }
 
-    /// Creates a new card with fully specified fields
-    ///
-    /// # Arguments
-    ///
-    /// * `id` - The Arena ID of the card
-    /// * `set` - The set code the card belongs to
-    /// * `name` - The name of the card
-    /// * `lang` - The language of the card (e.g., "en" for English)
-    /// * `image_uri` - The URI to the card's image
-    /// * `mana_cost` - The mana cost of the card in string form (e.g., "{1}{W}")
-    /// * `cmc` - The converted mana cost (total mana value)
-    /// * `type_line` - The type line of the card (e.g., "Creature — Human Warrior")
-    /// * `layout` - The layout of the card (e.g., "normal", "split", "transform")
-    /// * `colors` - The colors of the card (e.g., ["W", "U"])
-    /// * `color_identity` - The color identity of the card
-    /// * `card_faces` - For cards with multiple faces, the data for each face
-    ///
-    /// # Returns
-    ///
-    /// A new Card instance with all fields initialized
-    pub fn new_full(
-        id: i64,
-        set: impl Into<String>,
-        name: impl Into<String>,
-        lang: impl Into<String>,
-        image_uri: impl Into<String>,
-        mana_cost: impl Into<String>,
-        cmc: i32,
-        type_line: impl Into<String>,
-        layout: impl Into<String>,
-        colors: Vec<String>,
-        color_identity: Vec<String>,
-        card_faces: Vec<CardFace>,
-    ) -> Self {
-        Self {
-            id,
-            set: set.into(),
-            name: name.into(),
-            lang: lang.into(),
-            image_uri: image_uri.into(),
-            mana_cost: mana_cost.into(),
-            cmc,
-            type_line: type_line.into(),
-            layout: layout.into(),
-            colors,
-            color_identity,
-            card_faces,
-        }
-    }
-
     #[expect(clippy::cast_possible_truncation)]
     pub fn from_json(card_json: &serde_json::Value) -> Self {
         let mut card = Self::new(
@@ -310,7 +260,7 @@ impl Card {
     ///
     /// # Returns
     ///
-    /// The primary CardType of this card, or None if it couldn't be determined
+    /// The primary `CardType` of this card, or None if it couldn't be determined
     pub fn dominant_type(&self) -> Option<CardType> {
         self.type_line
             .split_whitespace()
@@ -338,13 +288,9 @@ impl Card {
     /// The image URI as an Option<String>
     pub fn primary_image_uri(&self) -> Option<&str> {
         if self.multiface() {
-            self.card_faces.first()
-                .and_then(|f| f.image_uri.as_deref(.as_ref())
+            self.card_faces.first().and_then(|f| f.image_uri.as_deref())
         } else {
-
- {        } else
- uri.as_str())                mp(|uri|
-)            Some(&self.image_uri)
+            Some(&self.image_uri)
         }
     }
 
@@ -500,7 +446,7 @@ impl CardCollection {
     ///
     /// # Returns
     ///
-    /// A new CardCollection containing the specified cards
+    /// A new `CardCollection` containing the specified cards
     pub fn with_cards(cards: Vec<Card>) -> Self {
         Self { cards }
     }
@@ -628,7 +574,7 @@ impl CardCollection {
     ///
     /// # Returns
     ///
-    /// A vector of bytes representing the serialized CardCollection
+    /// A vector of bytes representing the serialized `CardCollection`
     pub fn encode_to_vec(&self) -> Vec<u8> {
         let mut buf = Vec::new();
         self.encode(&mut buf).unwrap_or_default();

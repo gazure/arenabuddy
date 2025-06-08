@@ -12,16 +12,16 @@ async fn retrieve_matches() -> Vec<MTGAMatch> {
 
 #[component]
 fn MatchRow(m: MTGAMatch) -> impl IntoView {
-    let link = format!("/match/{}", m.id);
+    let link = format!("/match/{}", m.id());
     view! {
         <tr class="hover:bg-gray-100 transition-colors duration-150">
             <td class="py-3 px-4 border-b">
                 <a href=link class="text-blue-600 hover:text-blue-800 hover:underline font-medium">
-                    {m.controller_player_name}
+                    {m.controller_player_name().to_string()}
                 </a>
             </td>
-            <td class="py-3 px-4 border-b">{m.opponent_player_name}</td>
-            <td class="py-3 px-4 border-b text-gray-500">{m.created_at.to_string()}</td>
+            <td class="py-3 px-4 border-b">{m.opponent_player_name().to_string()}</td>
+            <td class="py-3 px-4 border-b text-gray-500">{m.created_at().to_string()}</td>
         </tr>
     }
 }
@@ -99,7 +99,7 @@ pub(crate) fn Matches() -> impl IntoView {
                                     <tbody>
                                         <For
                                             each=move || matches.get().clone()
-                                            key=|m| m.id.clone()
+                                            key=|m| m.id().to_string()
                                             children=move |m| {
                                                 view! { <MatchRow m=m /> }
                                             }

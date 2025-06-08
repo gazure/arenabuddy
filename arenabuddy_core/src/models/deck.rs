@@ -135,6 +135,11 @@ impl Deck {
         self.game_number
     }
 
+    /// Sets the game number
+    pub fn set_game_number(&mut self, game_number: i32) {
+        self.game_number = game_number;
+    }
+
     /// Returns a reference to the mainboard cards
     pub fn mainboard(&self) -> &[i32] {
         &self.mainboard
@@ -187,12 +192,12 @@ impl Deck {
 
     /// Adds multiple copies of a card to the mainboard
     pub fn add_copies_to_mainboard(&mut self, card_id: i32, count: usize) {
-        self.mainboard.extend(std::iter::repeat(card_id).take(count));
+        self.mainboard.extend(std::iter::repeat_n(card_id, count));
     }
 
     /// Adds multiple copies of a card to the sideboard
     pub fn add_copies_to_sideboard(&mut self, card_id: i32, count: usize) {
-        self.sideboard.extend(std::iter::repeat(card_id).take(count));
+        self.sideboard.extend(std::iter::repeat_n(card_id, count));
     }
 
     /// Returns whether the mainboard contains at least one copy of the specified card
@@ -264,7 +269,7 @@ mod tests {
         let display = format!("{deck}");
         assert_eq!(
             display,
-            "Test Deck\nMainboard:\n1\n2\n3\n\nSideboard:\n4\n5\n6\n"
+            "Test Deck\nMainboard: 3 cards\n1\n2\n3\n\nSideboard: 3 cards\n4\n5\n6\n"
         );
     }
 

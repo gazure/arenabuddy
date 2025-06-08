@@ -14,7 +14,7 @@ pub struct MTGAMatch {
 }
 
 impl MTGAMatch {
-    /// Creates a new MTGAMatch with the current timestamp
+    /// Creates a new `MTGAMatch` with the current timestamp
     ///
     /// # Arguments
     ///
@@ -25,7 +25,7 @@ impl MTGAMatch {
     ///
     /// # Returns
     ///
-    /// A new MTGAMatch instance with the current UTC timestamp
+    /// A new `MTGAMatch` instance with the current UTC timestamp
     pub fn new(
         id: impl Into<String>,
         controller_seat_id: i32,
@@ -41,7 +41,7 @@ impl MTGAMatch {
         }
     }
 
-    /// Creates a new MTGAMatch with a specified timestamp
+    /// Creates a new `MTGAMatch` with a specified timestamp
     ///
     /// # Arguments
     ///
@@ -53,7 +53,7 @@ impl MTGAMatch {
     ///
     /// # Returns
     ///
-    /// A new MTGAMatch instance with the specified timestamp
+    /// A new `MTGAMatch` instance with the specified timestamp
     pub fn new_with_timestamp(
         id: impl Into<String>,
         controller_seat_id: i32,
