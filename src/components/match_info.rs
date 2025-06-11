@@ -13,29 +13,21 @@ pub fn MatchInfo(
             </div>
             <div class="p-6">
                 <div class="mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                        Players
-                    </h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Players</h3>
                     <div class="flex flex-col gap-2">
                         <div class="bg-blue-50 p-3 rounded-md">
                             <span class="font-semibold">You</span>
-                            {move || {
-                                format!(" {}", controller_player_name.get())
-                            }}
+                            {move || { format!(" {}", controller_player_name.get()) }}
                         </div>
                         <div class="bg-red-50 p-3 rounded-md">
                             <span class="font-semibold">Opponent</span>
-                            {move || {
-                                format!(" {}", opponent_player_name.get())
-                            }}
+                            {move || { format!(" {}", opponent_player_name.get()) }}
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700 mb-2">
-                        Game Details
-                    </h3>
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Game Details</h3>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-gray-50 p-3 rounded-md">
                             <span class="text-sm text-gray-500 block">Format</span>

@@ -13,17 +13,14 @@ use tauri::State;
 use tracing::{error, info};
 
 #[tauri::command]
-pub(crate) fn command_match_details(
-    match_id: String,
-    db: State<'_, Arc<Mutex<MatchDB>>>,
-) -> MatchDetails {
+pub fn command_match_details(match_id: String, db: State<'_, Arc<Mutex<MatchDB>>>) -> MatchDetails {
     let Ok(mut db) = db.inner().lock() else {
         error!("Failed to obtain db lock");
         return MatchDetails::default();
     };
     info!("looking for match {match_id}");
 
-    let (mtga_match, did_controller_win) = db.get_match(&match_id).unwrap_or_default();
+    let (mtga_match, result) = db.get_match(&match_id).unwrap_or_default();
 
     let mut match_details = MatchDetails {
         id: match_id.clone(),
@@ -31,7 +28,7 @@ pub(crate) fn command_match_details(
         controller_player_name: mtga_match.controller_player_name().to_string(),
         opponent_player_name: mtga_match.opponent_player_name().to_string(),
         created_at: mtga_match.created_at(),
-        did_controller_win,
+        did_controller_win: result.is_some_and(|r| r.is_winner(mtga_match.controller_seat_id())),
         ..Default::default()
     };
 

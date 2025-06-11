@@ -8,29 +8,46 @@ use crate::{
     components::{DeckList, MatchInfo, MulliganDisplay, deck_list::TypedCard},
 };
 
+#[derive(Clone, Debug)]
+enum AsyncState<T, E = String> {
+    Loading,
+    Error(E),
+    Success(T),
+}
+
+impl<T, E> AsyncState<T, E> {
+    pub fn is_loading(&self) -> bool {
+        matches!(self, AsyncState::Loading)
+    }
+
+    pub fn details(&self) -> Option<&T> {
+        match self {
+            AsyncState::Success(details) => Some(details),
+            _ => None,
+        }
+    }
+}
+
 async fn get_match_details(id: &str) -> Option<MatchDetails> {
     let command_object =
         serde_wasm_bindgen::to_value(&serde_json::json!({ "matchId": id })).unwrap();
     serde_wasm_bindgen::from_value(invoke("command_match_details", command_object).await).ok()
 }
+
 #[component]
 pub(crate) fn MatchDetails() -> impl IntoView {
     let params = use_params_map();
-    let (match_details, set_match_details) = signal(MatchDetails::default());
-    let (loading, set_loading) = signal(true);
-    let (error, set_error) = signal(None::<String>);
+    let (state, set_state) = signal(AsyncState::Loading);
 
     let load = move || {
-        set_loading.set(true);
-        set_error.set(None);
+        set_state.set(AsyncState::Loading);
         let id = params.with(|params| params.get("id").unwrap_or_default().to_string());
         spawn_local(async move {
-            if let Some(m) = get_match_details(&id).await {
-                set_match_details.set(m);
-                set_loading.set(false);
-            } else {
-                set_error.set(Some(format!("Could not find match details for ID: {id}")));
-                set_loading.set(false);
+            match get_match_details(&id).await {
+                Some(details) => set_state.set(AsyncState::Success(details)),
+                None => set_state.set(AsyncState::Error(format!(
+                    "Could not find match details for ID: {id}"
+                ))),
             }
         });
     };
@@ -38,9 +55,10 @@ pub(crate) fn MatchDetails() -> impl IntoView {
     load();
 
     let deck_cards = move || {
-        match_details
+        state
             .get()
-            .primary_decklist
+            .details()
+            .and_then(|details| details.primary_decklist.as_ref())
             .map(|pd| {
                 let mut cards = Vec::new();
                 for card_type_cards in &pd.main_deck {
@@ -56,6 +74,51 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                 cards
             })
             .unwrap_or_default()
+    };
+
+    let render_content = move || {
+        match state.get() {
+            AsyncState::Loading => view! {
+                <div class="bg-white rounded-lg shadow-md p-8 text-center">
+                    <div class="animate-pulse flex flex-col items-center">
+                        <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                        <p class="text-gray-600">Loading match details...</p>
+                    </div>
+                </div>
+            }.into_any(),
+
+            AsyncState::Error(err) => view! {
+                <div class="bg-white rounded-lg shadow-md p-8">
+                    <div
+                        class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
+                        role="alert"
+                    >
+                        <p class="font-bold">Error</p>
+                        <p>{err}</p>
+                    </div>
+                </div>
+            }.into_any(),
+
+            AsyncState::Success(details) => view! {
+                <MatchInfo
+                    controller_player_name=Signal::derive(move || {
+                        details.controller_player_name.clone()
+                    })
+                    opponent_player_name=Signal::derive(move || {
+                        details.opponent_player_name.clone()
+                    })
+                    did_controller_win=Signal::derive(move || { details.did_controller_win })
+                />
+
+                <DeckList cards=Signal::derive(deck_cards) />
+
+                <div class="mt-8 col-span-full">
+                    <MulliganDisplay mulligans=Signal::derive(move || {
+                        details.mulligans.clone()
+                    }) />
+                </div>
+            }.into_any(),
+        }
     };
 
     view! {
@@ -88,10 +151,12 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                     <button
                         on:click=move |_| load()
                         class="bg-black bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center"
-                        disabled=move || loading.get()
+                        disabled=move || state.get().is_loading()
                     >
                         <span class="mr-2">
-                            {move || if loading.get() { "Loading..." } else { "Refresh" }}
+                            {move || {
+                                if state.get().is_loading() { "Loading..." } else { "Refresh" }
+                            }}
                         </span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -111,56 +176,11 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                 </div>
                 <p class="text-lg opacity-80 mt-2">
                     <span class="font-semibold">Match ID:</span>
-                    {move || match_details.get().id}
+                    {move || params.with(|params| params.get("id").unwrap_or_default().to_string())}
                 </p>
             </div>
 
-            {move || {
-                if loading.get() {
-                    view! {
-                        <div class="bg-white rounded-lg shadow-md p-8 text-center">
-                            <div class="animate-pulse flex flex-col items-center">
-                                <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                <p class="text-gray-600">Loading match details...</p>
-                            </div>
-                        </div>
-                    }
-                        .into_any()
-                } else if let Some(err) = error.get() {
-                    view! {
-                        <div class="bg-white rounded-lg shadow-md p-8">
-                            <div
-                                class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded"
-                                role="alert"
-                            >
-                                <p class="font-bold">Error</p>
-                                <p>{err}</p>
-                            </div>
-                        </div>
-                    }
-                        .into_any()
-                } else {
-                    view! {
-                        <MatchInfo
-                            controller_player_name=Signal::derive(move || match_details.get().controller_player_name)
-                            opponent_player_name=Signal::derive(move || match_details.get().opponent_player_name)
-                            did_controller_win=Signal::derive(move || match_details.get().did_controller_win)
-                        />
-
-                        <DeckList cards=Signal::derive(deck_cards) />
-
-                        // Mulligan Hands Section
-                        <div class="mt-8 col-span-full">
-                            <MulliganDisplay mulligans=Signal::derive(move || {
-                                match_details.get().mulligans.clone()
-                            }) />
-                        </div>
-                    }
-                        .into_any()
-                }
-            }}
-
-
+            {render_content}
         </div>
     }
 }

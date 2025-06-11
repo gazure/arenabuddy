@@ -101,9 +101,6 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     let cards_db =
         CardsDatabase::new(cards_path).map_err(|_| ArenaBuddySetupError::NoCardsDatabase)?;
 
-    let ruby = cards_db.get("93958");
-    info!("Ruby: {:?}", ruby);
-
     let db_path = app_data_dir.join("matches.db");
     info!("Database path: {}", db_path.to_string_lossy());
     let conn = Connection::open(db_path).map_err(|_| ArenaBuddySetupError::NoMathchesDatabase)?;
