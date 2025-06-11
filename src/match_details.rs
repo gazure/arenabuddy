@@ -55,7 +55,9 @@ pub(crate) fn MatchDetails() -> impl IntoView {
     load();
 
     let deck_cards = move || {
-        state.get().details()
+        state
+            .get()
+            .details()
             .and_then(|details| details.primary_decklist.as_ref())
             .map(|pd| {
                 let mut cards = Vec::new();
@@ -105,9 +107,7 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                     opponent_player_name=Signal::derive(move || {
                         details.opponent_player_name.clone()
                     })
-                    did_controller_win=Signal::derive(move || {
-                        details.did_controller_win
-                    })
+                    did_controller_win=Signal::derive(move || { details.did_controller_win })
                 />
 
                 <DeckList cards=Signal::derive(deck_cards) />
@@ -154,7 +154,9 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                         disabled=move || state.get().is_loading()
                     >
                         <span class="mr-2">
-                            {move || if state.get().is_loading() { "Loading..." } else { "Refresh" }}
+                            {move || {
+                                if state.get().is_loading() { "Loading..." } else { "Refresh" }
+                            }}
                         </span>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -177,7 +179,7 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                     {move || params.with(|params| params.get("id").unwrap_or_default().to_string())}
                 </p>
             </div>
-            
+
             {render_content}
         </div>
     }

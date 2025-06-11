@@ -94,17 +94,17 @@ pub fn DeckList(
                 {".deck-scrollbar::-webkit-scrollbar {
                 width: 8px;
                 }
-
+                
                 .deck-scrollbar::-webkit-scrollbar-track {
                 background: #f1f1f1;
                 border-radius: 8px;
                 }
-
+                
                 .deck-scrollbar::-webkit-scrollbar-thumb {
                 background: #c5c5c5;
                 border-radius: 8px;
                 }
-
+                
                 .deck-scrollbar::-webkit-scrollbar-thumb:hover {
                 background: #a0a0a0;
                 }"}

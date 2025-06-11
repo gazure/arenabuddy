@@ -28,9 +28,7 @@ pub fn command_match_details(match_id: String, db: State<'_, Arc<Mutex<MatchDB>>
         controller_player_name: mtga_match.controller_player_name().to_string(),
         opponent_player_name: mtga_match.opponent_player_name().to_string(),
         created_at: mtga_match.created_at(),
-        did_controller_win: result
-            .map(|r| r.is_winner(mtga_match.controller_seat_id()))
-            .unwrap_or_default(),
+        did_controller_win: result.is_some_and(|r| r.is_winner(mtga_match.controller_seat_id())),
         ..Default::default()
     };
 
