@@ -8,7 +8,7 @@ use arenabuddy_core::{
     match_insights::MatchDB,
     processor::{EventSource, ParseError, PlayerLogProcessor},
     replay::MatchReplayBuilder,
-    storage_backends::Storage,
+    storage::{DirectoryStorageBackend, Storage},
 };
 use crossbeam_channel::{Sender, select, unbounded};
 use notify::{Event, Watcher};
@@ -34,6 +34,7 @@ fn watch_player_log_rotation(notify_tx: Sender<Event>, player_log_path: &Path) {
 
 fn log_process_start(
     db: Arc<Mutex<MatchDB>>,
+    debug_dir: Arc<Mutex<Option<DirectoryStorageBackend>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: &Path,
 ) {
@@ -69,6 +70,13 @@ fn log_process_start(
                                         if let Err(e) = db.write(&mr) {
                                             error!("Error writing match to db: {}", e);
                                         }
+
+                                        let mut debug_dir = debug_dir.lock().expect("Could not lock debug dir");
+                                        if let Some(dir) = debug_dir.as_mut() {
+                                            if let Err(e) = dir.write(&mr) {
+                                                error!("Error writing match to debug dir: {}", e);
+                                            }
+                                        }
                                     }
                                     Err(e) => {
                                         error!("Error building match replay: {}", e);
@@ -93,10 +101,11 @@ fn log_process_start(
 
 pub fn start(
     db: Arc<Mutex<MatchDB>>,
+    debug_dir: Arc<Mutex<Option<DirectoryStorageBackend>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
 ) {
     std::thread::spawn(move || {
-        log_process_start(db, log_collector, &player_log_path);
+        log_process_start(db, debug_dir, log_collector, &player_log_path);
     });
 }

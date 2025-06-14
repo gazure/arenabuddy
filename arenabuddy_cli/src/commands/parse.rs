@@ -9,7 +9,7 @@ use arenabuddy_core::{
     match_insights::MatchDB,
     processor::{EventSource, PlayerLogProcessor},
     replay::MatchReplayBuilder,
-    storage_backends::{DirectoryStorageBackend, Storage},
+    storage::{DirectoryStorageBackend, Storage},
 };
 use crossbeam::channel::{Receiver, select};
 use tracing::{Level, error};

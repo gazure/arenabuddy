@@ -12,7 +12,7 @@ use crate::{
     cards::CardsDatabase,
     models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     replay::MatchReplay,
-    storage_backends::Storage,
+    storage::Storage,
 };
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations");

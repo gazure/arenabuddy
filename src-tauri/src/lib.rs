@@ -13,7 +13,9 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use arenabuddy_core::{cards::CardsDatabase, match_insights::MatchDB};
+use arenabuddy_core::{
+    cards::CardsDatabase, match_insights::MatchDB, storage::DirectoryStorageBackend,
+};
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager, path::BaseDirectory};
@@ -127,10 +129,17 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     );
 
     let log_collector = Arc::new(Mutex::new(Vec::<String>::new()));
-
     app.manage(log_collector.clone());
 
-    ingest::start(db_arc.clone(), log_collector, player_log_path);
+    let debug_backend = Arc::new(Mutex::new(None::<DirectoryStorageBackend>));
+    app.manage(debug_backend.clone());
+
+    ingest::start(
+        db_arc.clone(),
+        debug_backend.clone(),
+        log_collector,
+        player_log_path,
+    );
     Ok(())
 }
 
@@ -140,11 +149,13 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
 pub fn run() -> tauri::Result<()> {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(setup)
         .invoke_handler(tauri::generate_handler![
             commands::matches::command_matches,
             commands::match_details::command_match_details,
             commands::error_logs::command_error_logs,
+            commands::debug_logs::command_set_debug_logs,
         ])
         .run(tauri::generate_context!())
 }

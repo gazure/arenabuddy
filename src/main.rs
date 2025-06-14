@@ -3,9 +3,11 @@
 
 mod app;
 mod components;
+mod debug_logs;
 mod error_logs;
 mod match_details;
 mod matches;
+mod state;
 
 use app::App;
 use leptos::prelude::*;
