@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6](https://github.com/gazure/arenabuddy/compare/arenabuddy_core-v0.5.5...arenabuddy_core-v0.5.6) - 2025-06-14
+
+### Other
+
+- adding debug logging, even if it's kinda buggy ([#74](https://github.com/gazure/arenabuddy/pull/74))
+
 ## [0.5.5](https://github.com/gazure/arenabuddy/compare/arenabuddy_core-v0.5.4...arenabuddy_core-v0.5.5) - 2025-06-11
 
 ### Other
