@@ -6,27 +6,8 @@ use wasm_bindgen_futures::spawn_local;
 use crate::{
     app::invoke,
     components::{DeckList, MatchInfo, MulliganDisplay, deck_list::TypedCard},
+    state::AsyncState,
 };
-
-#[derive(Clone, Debug)]
-enum AsyncState<T, E = String> {
-    Loading,
-    Error(E),
-    Success(T),
-}
-
-impl<T, E> AsyncState<T, E> {
-    pub fn is_loading(&self) -> bool {
-        matches!(self, AsyncState::Loading)
-    }
-
-    pub fn details(&self) -> Option<&T> {
-        match self {
-            AsyncState::Success(details) => Some(details),
-            _ => None,
-        }
-    }
-}
 
 async fn get_match_details(id: &str) -> Option<MatchDetails> {
     let command_object =

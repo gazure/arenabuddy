@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
-use tracing::{debug, info, warn};
+use tracing::{info, warn};
 
 use crate::{
     cards::CardsDatabase,
@@ -122,10 +122,6 @@ impl MatchReplay {
         let mut color_identity = BTreeSet::new();
         for card in opponent_cards {
             if let Some(card_db_entry) = cards_db.get(&card) {
-                debug!(
-                    "card: {}, colors: {:?}",
-                    card_db_entry.name, card_db_entry.color_identity
-                );
                 color_identity.extend(card_db_entry.color_identity.clone());
             }
         }
@@ -431,7 +427,6 @@ impl MatchReplayBuilder {
             }
             ParseOutput::BusinessMessage(business_message) => {
                 if business_message.is_relevant() {
-                    debug!("Business message: {:?}", business_message);
                     self.business_messages.push(business_message.request);
                 }
             }
