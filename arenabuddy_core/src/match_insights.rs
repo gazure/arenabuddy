@@ -1,6 +1,5 @@
 use std::sync::LazyLock;
 
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use include_dir::{Dir, include_dir};
 use indoc::indoc;
@@ -9,6 +8,7 @@ use rusqlite_migration::Migrations;
 use tracing::{debug, error, info};
 
 use crate::{
+    Result,
     cards::CardsDatabase,
     models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     replay::MatchReplay,

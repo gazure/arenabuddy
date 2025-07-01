@@ -15,7 +15,7 @@ impl CardsDatabase {
     /// # Errors
     ///
     /// Will return an error if the database file cannot be opened or if the database file is not a valid protobuf
-    pub fn new(path: impl AsRef<Path>) -> anyhow::Result<Self> {
+    pub fn new(path: impl AsRef<Path>) -> crate::Result<Self> {
         let mut cards_db_file = File::open(path)?;
         let mut buffer = Vec::new();
         cards_db_file.read_to_end(&mut buffer)?;

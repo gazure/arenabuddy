@@ -4,17 +4,16 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::Result;
 use serde::Serialize;
 use tracing::info;
 
-use crate::replay::MatchReplay;
+use crate::{Result, replay::MatchReplay};
 
 pub trait Storage {
     /// # Errors
     ///
     /// Will return an error if the match replay cannot be written to the storage backend
-    fn write(&mut self, match_replay: &MatchReplay) -> anyhow::Result<()>;
+    fn write(&mut self, match_replay: &MatchReplay) -> crate::Result<()>;
 }
 
 pub struct DirectoryStorageBackend {
@@ -38,7 +37,7 @@ where
 }
 
 impl Storage for DirectoryStorageBackend {
-    fn write(&mut self, match_replay: &MatchReplay) -> anyhow::Result<()> {
+    fn write(&mut self, match_replay: &MatchReplay) -> crate::Result<()> {
         let path = self.path.join(format!("{}.json", match_replay.match_id));
         info!(
             "Writing match replay to file: {}",

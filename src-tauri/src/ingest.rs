@@ -5,8 +5,10 @@ use std::{
 };
 
 use arenabuddy_core::{
+    Error,
+    errors::ParseError,
     match_insights::MatchDB,
-    processor::{EventSource, ParseError, PlayerLogProcessor},
+    processor::{EventSource, PlayerLogProcessor},
     replay::MatchReplayBuilder,
     storage::{DirectoryStorageBackend, Storage},
 };
@@ -86,7 +88,7 @@ fn log_process_start(
                             }
                         }
                         Err(parse_error) => {
-                            if let ParseError::Error(s) = parse_error {
+                            if let Error::ParseError(ParseError::Error(s)) = parse_error {
                                 log_collector.lock().expect("log collector lock should be healthy").push(s);
                             } else {
                                 break;

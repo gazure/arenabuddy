@@ -3,11 +3,11 @@ use std::{
     vec::IntoIter,
 };
 
-use anyhow::{Result, anyhow};
 use chrono::{DateTime, Utc};
 use tracing::{info, warn};
 
 use crate::{
+    Error, Result,
     cards::CardsDatabase,
     events::{Event, EventRef},
     models::{Deck, Mulligan, MulliganBuilder},
@@ -97,7 +97,7 @@ impl MatchReplay {
                 }
             }
         }
-        Err(anyhow!("player names not found"))
+        Err(Error::NotFound("Player names".to_owned()))
     }
 
     fn get_opponent_cards(&self) -> Vec<i32> {
@@ -137,7 +137,7 @@ impl MatchReplay {
             .game_room_info
             .final_match_result
             .clone()
-            .ok_or(anyhow!("Match results not found"))
+            .ok_or(Error::NotFound("Match results not found".to_owned()))
     }
 
     /// # Errors
@@ -149,7 +149,7 @@ impl MatchReplay {
                 return Ok(wrapper.connect_resp.deck_message.clone());
             }
         }
-        Err(anyhow!("Initial decklist not found"))
+        Err(Error::NotFound("Initial decklist".to_owned()))
     }
 
     fn get_sideboarded_decklists(&self) -> Vec<DeckMessage> {
@@ -235,7 +235,7 @@ impl MatchReplay {
                                 zone.type_field == ZoneType::Hand
                                     && zone.owner_seat_id == Some(controller_id)
                             })
-                            .ok_or(anyhow!("Controller hand zone not found"))?
+                            .ok_or(Error::NotFound("Controller hand zone".to_owned()))?
                             .zone_id;
                         let game_objects_in_hand: Vec<i32> = gsm
                             .game_objects
@@ -283,7 +283,7 @@ impl MatchReplay {
                 opening_hands.len(),
                 mulligan_requests.len(),
             );
-            return Err(anyhow!("missing mulligan data"));
+            return Err(Error::NotFound("Mulligan data".to_owned()));
         }
 
         Ok(opening_hands
@@ -488,7 +488,7 @@ impl MatchReplayBuilder {
                 None
             }
         }) else {
-            return Err(anyhow!("no controller seat id found"));
+            return Err(Error::NotFound("Controller seat id".to_owned()));
         };
 
         let match_replay = MatchReplay {
