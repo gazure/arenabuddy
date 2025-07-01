@@ -25,8 +25,10 @@ pub enum Error {
     DecodeError,
     #[error("Could not encode data")]
     EncodeError,
+    #[cfg(not(target_arch = "wasm32"))]
     #[error("Database migration failed {0}")]
     MigrationError(rusqlite_migration::Error),
+    #[cfg(not(target_arch = "wasm32"))]
     #[error("SQLite error {0}")]
     SqliteError(rusqlite::Error),
     #[error("Json error {0}")]
@@ -61,12 +63,14 @@ impl From<prost::EncodeError> for Error {
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl From<rusqlite_migration::Error> for Error {
     fn from(err: rusqlite_migration::Error) -> Self {
         Error::MigrationError(err)
     }
 }
 
+#[cfg(not(target_arch = "wasm32"))]
 impl From<rusqlite::Error> for Error {
     fn from(err: rusqlite::Error) -> Self {
         Error::SqliteError(err)
