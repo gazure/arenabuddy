@@ -3,22 +3,24 @@ use std::{
     fs::File,
     io::{BufRead, BufReader},
     path::Path,
-    result::Result as StdResult,
 };
 
-use anyhow::Result;
 use tracing::{debug, error};
 
-use crate::mtga_events::{
-    business::RequestTypeBusinessEvent, client::RequestTypeClientToMatchServiceMessage,
-    gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
+use crate::{
+    Result,
+    errors::ParseError,
+    mtga_events::{
+        business::RequestTypeBusinessEvent, client::RequestTypeClientToMatchServiceMessage,
+        gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
+    },
 };
 
 pub trait EventSource {
     /// # Errors
     ///
     /// Errors when json events that look parseable do not parse, or when no events are found
-    fn get_next_event(&mut self) -> StdResult<ParseOutput, ParseError>;
+    fn get_next_event(&mut self) -> Result<ParseOutput>;
 }
 
 #[derive(Debug)]
@@ -98,13 +100,13 @@ impl PlayerLogProcessor {
 }
 
 impl EventSource for PlayerLogProcessor {
-    fn get_next_event(&mut self) -> StdResult<ParseOutput, ParseError> {
+    fn get_next_event(&mut self) -> Result<ParseOutput> {
         self.process_lines();
         let event = self.json_events.pop_front().ok_or(ParseError::NoEvent)?;
         parse(&event).map_err(|e| {
             error!("Error parsing event: {}", e);
             debug!("Event: {}", event);
-            ParseError::Error(event)
+            ParseError::Error(event).into()
         })
     }
 }
@@ -116,11 +118,6 @@ pub enum ParseOutput {
     MGRSCMessage(RequestTypeMGRSCEvent),
     BusinessMessage(RequestTypeBusinessEvent),
     NoEvent,
-}
-
-pub enum ParseError {
-    NoEvent,
-    Error(String),
 }
 
 /// # Errors

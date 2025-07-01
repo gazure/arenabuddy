@@ -84,7 +84,7 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                 }
             }
             Err(err) => {
-                println!("Error: {}", err);
+                println!("Error: {err}");
                 break;
             }
         }
@@ -107,7 +107,7 @@ fn find_card(cards_db: &CardsDatabase, arena_id: i64) {
             println!("  CMC: {}", card.cmc);
         }
         None => {
-            println!("No card found with Arena ID: {}", arena_id);
+            println!("No card found with Arena ID: {arena_id}");
         }
     }
 }
@@ -127,7 +127,7 @@ fn count_cards_by_set(cards_db: &CardsDatabase, filter_set: Option<&str>) {
 
     if set_counts.is_empty() {
         if let Some(filter) = filter_set {
-            println!("No cards found for set code: {}", filter);
+            println!("No cards found for set code: {filter}");
         } else {
             println!("No cards found in the database");
         }
@@ -141,17 +141,17 @@ fn count_cards_by_set(cards_db: &CardsDatabase, filter_set: Option<&str>) {
     if let Some(filter) = filter_set {
         if sets.len() == 1 {
             let (set, count) = &sets[0];
-            println!("Set {}: {} cards", set, count);
+            println!("Set {set}: {count} cards");
         } else {
-            println!("Filtered results for set '{}' not found.", filter);
+            println!("Filtered results for set '{filter}' not found.");
         }
     } else {
         println!("Cards by set:");
         let total: usize = sets.iter().map(|(_, count)| count).sum();
         for (set, count) in &sets {
-            println!("  {}: {} cards", set, count);
+            println!("  {set}: {count} cards");
         }
-        println!("Total: {} cards in {} sets", total, sets.len());
+        println!("Total: {total} cards in {} sets", sets.len());
     }
 }
 
@@ -167,7 +167,7 @@ fn list_sets(cards_db: &CardsDatabase) {
 
     println!("Available set codes ({}):", sets_vec.len());
     for set in sets_vec {
-        println!("  {}", set);
+        println!("  {set}");
     }
 }
 
