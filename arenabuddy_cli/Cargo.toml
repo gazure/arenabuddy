@@ -26,7 +26,7 @@ tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 rusqlite = { workspace = true, features = ["bundled"] }
 rustyline = "16.0.0"
-arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.5" }
+arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.6" }
 
 [[bin]]
 name = "arenabuddy"

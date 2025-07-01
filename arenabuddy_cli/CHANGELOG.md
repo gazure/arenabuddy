@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.5.5...arenabuddy_cli-v0.5.6) - 2025-07-01
+
+### Fixed
+
+- clippy fix in build.rs ([#82](https://github.com/gazure/arenabuddy/pull/82))
+
+### Other
+
+- adding debug logging, even if it's kinda buggy ([#74](https://github.com/gazure/arenabuddy/pull/74))
+
 ## [0.5.3](https://github.com/gazure/arenabuddy/compare/arenabuddy_cli-v0.5.2...arenabuddy_cli-v0.5.3) - 2025-06-03
 
 ### Other
