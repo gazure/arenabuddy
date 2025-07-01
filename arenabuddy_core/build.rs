@@ -13,7 +13,7 @@ fn main() -> Result<()> {
     let proto_files = find_proto_files(proto_dir)?;
 
     if proto_files.is_empty() {
-        println!("cargo:warning=No .proto files found in {}", proto_dir);
+        println!("cargo:warning=No .proto files found in {proto_dir}");
         return Ok(());
     }
 
@@ -41,7 +41,7 @@ fn find_proto_files(dir: &str) -> Result<Vec<PathBuf>> {
     let dir_path = Path::new(dir);
 
     if !dir_path.is_dir() {
-        println!("cargo:warning=Directory '{}' not found", dir);
+        println!("cargo:warning=Directory '{dir}' not found");
         return Ok(proto_files);
     }
 
