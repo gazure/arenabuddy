@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.7](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.5.6...arenabuddy-v0.5.7) - 2025-07-02
+
+### Fixed
+
+- mulligan game numbers, improve debug logs ux ([#83](https://github.com/gazure/arenabuddy/pull/83))
+
 ## [0.5.6](https://github.com/gazure/arenabuddy/compare/arenabuddy-v0.5.5...arenabuddy-v0.5.6) - 2025-07-01
 
 ### Fixed
