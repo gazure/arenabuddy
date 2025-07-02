@@ -261,17 +261,16 @@ impl Card {
     /// # Returns
     ///
     /// The primary `CardType` of this card, or None if it couldn't be determined
-    pub fn dominant_type(&self) -> Option<CardType> {
+    pub fn dominant_type(&self) -> CardType {
         // Handle basic lands explicitly
         if self.type_line.contains("Basic Land") {
-            return Some(CardType::Land);
+            return CardType::Land;
         }
 
         self.type_line
             .split_whitespace()
-            .next()
-            .map(CardType::from_str)
-            .map(|t| t.unwrap_or(CardType::Unknown))
+            .find_map(|s| CardType::from_str(s).ok())
+            .unwrap_or(CardType::Unknown)
     }
 
     /// Checks if this card has multiple faces

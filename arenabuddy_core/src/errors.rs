@@ -42,7 +42,7 @@ pub enum Error {
     #[error("{0} not found")]
     NotFound(String),
     #[error("{0}")]
-    ParseError(ParseError),
+    Parse(ParseError),
 }
 
 impl From<std::io::Error> for Error {
@@ -103,6 +103,6 @@ impl From<MatchReplayBuilderError> for Error {
 
 impl From<ParseError> for Error {
     fn from(err: ParseError) -> Self {
-        Error::ParseError(err)
+        Error::Parse(err)
     }
 }

@@ -156,6 +156,7 @@ pub fn run() -> tauri::Result<()> {
             commands::match_details::command_match_details,
             commands::error_logs::command_error_logs,
             commands::debug_logs::command_set_debug_logs,
+            commands::debug_logs::command_get_debug_logs,
         ])
         .run(tauri::generate_context!())
 }

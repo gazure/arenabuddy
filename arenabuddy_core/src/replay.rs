@@ -4,7 +4,8 @@ use std::{
 };
 
 use chrono::{DateTime, Utc};
-use tracing::{info, warn};
+use serde::Serialize;
+use tracing::{debug, info, warn};
 
 use crate::{
     Error, Result,
@@ -260,6 +261,7 @@ impl MatchReplay {
                 }
                 GREToClientMessage::IntermissionReq(_) => {
                     game_number += 1;
+                    debug!("Intermission Request, game_number: {game_number}");
                     Ok(())
                 }
                 _ => Ok(()),
@@ -329,7 +331,7 @@ impl MatchReplay {
 
                 MulliganBuilder::default()
                     .match_id(self.match_id.clone())
-                    .game_number(game_number)
+                    .game_number(gn)
                     .number_to_keep(number_to_keep)
                     .hand(hand_string)
                     .play_draw(play_draw.clone())
@@ -356,6 +358,15 @@ impl MatchReplay {
 
     pub fn iter(&self) -> impl Iterator<Item = EventRef> {
         self.into_iter()
+    }
+}
+
+impl Serialize for MatchReplay {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.collect_seq(self.iter())
     }
 }
 
