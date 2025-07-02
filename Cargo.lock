@@ -180,7 +180,6 @@ dependencies = [
 name = "arenabuddy_core"
 version = "0.5.6"
 dependencies = [
- "anyhow",
  "chrono",
  "derive_builder",
  "include_dir",

@@ -88,7 +88,7 @@ fn log_process_start(
                             }
                         }
                         Err(parse_error) => {
-                            if let Error::ParseError(ParseError::Error(s)) = parse_error {
+                            if let Error::Parse(ParseError::Error(s)) = parse_error {
                                 log_collector.lock().expect("log collector lock should be healthy").push(s);
                             } else {
                                 break;

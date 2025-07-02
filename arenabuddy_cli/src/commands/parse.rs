@@ -15,7 +15,7 @@ use crossbeam::channel::{Receiver, select};
 use tracing::{Level, error};
 
 // Constants
-const PLAYER_LOG_POLLING_INTERVAL: u64 = 1;
+const PLAYER_LOG_POLLING_INTERVAL: Duration = Duration::from_secs(1);
 
 /// Creates a channel that receives a signal when Ctrl+C is pressed
 pub fn ctrl_c_channel() -> Result<Receiver<()>> {
@@ -71,7 +71,7 @@ pub fn execute(
             recv(ctrl_c_rx) -> _ => {
                 break;
             }
-            default(Duration::from_secs(PLAYER_LOG_POLLING_INTERVAL)) => {
+            default(PLAYER_LOG_POLLING_INTERVAL) => {
                 while let Ok(event) = processor.get_next_event() {
                     if match_replay_builder.ingest(event) {
                         match match_replay_builder.build() {

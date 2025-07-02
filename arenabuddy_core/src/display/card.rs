@@ -63,7 +63,7 @@ impl From<&Card> for CardDisplayRecord {
 
         Self {
             name,
-            type_field: value.dominant_type().unwrap_or(CardType::Unknown),
+            type_field: value.dominant_type(),
             mana_value: value.mana_value(),
             quantity: 1,
             image_uri: value.image_uri.clone(),

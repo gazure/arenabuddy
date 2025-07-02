@@ -280,6 +280,8 @@ pub enum CastingTimeOptionType {
     Done,
     #[serde(rename = "CastingTimeOptionType_Kicker")]
     Kicker,
+    #[serde(rename = "CastingTimeOptionType_Bargain")]
+    Bargain,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]

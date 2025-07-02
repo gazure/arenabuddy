@@ -24,3 +24,16 @@ pub fn command_set_debug_logs(
 
     Ok(())
 }
+
+#[tauri::command]
+pub fn command_get_debug_logs(
+    dir_backend: State<'_, Arc<Mutex<Option<DirectoryStorageBackend>>>>,
+) -> Option<String> {
+    let backend = dir_backend
+        .lock()
+        .expect("Failed to lock directory backend");
+
+    backend
+        .as_ref()
+        .map(|b| b.path().to_string_lossy().to_string())
+}

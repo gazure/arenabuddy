@@ -1,10 +1,5 @@
-use std::{
-    fs::File,
-    io::{BufWriter, Write},
-    path::PathBuf,
-};
+use std::{fs::File, io::BufWriter, path::PathBuf};
 
-use serde::Serialize;
 use tracing::info;
 
 use crate::{Result, replay::MatchReplay};
@@ -24,31 +19,24 @@ impl DirectoryStorageBackend {
     pub fn new(path: PathBuf) -> Self {
         Self { path }
     }
-}
 
-fn write_line<T>(writer: &mut BufWriter<File>, line: &T) -> Result<()>
-where
-    T: Serialize,
-{
-    let line_str = serde_json::to_string(line)?;
-    writer.write_all(line_str.as_bytes())?;
-    writer.write_all(b"\n")?;
-    Ok(())
+    pub fn path(&self) -> &PathBuf {
+        &self.path
+    }
 }
 
 impl Storage for DirectoryStorageBackend {
-    fn write(&mut self, match_replay: &MatchReplay) -> crate::Result<()> {
+    fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
         let path = self.path.join(format!("{}.json", match_replay.match_id));
         info!(
             "Writing match replay to file: {}",
             path.clone().to_str().unwrap_or("Path not found")
         );
         let file = File::create(path)?;
-        let mut writer = BufWriter::new(file);
+        let writer = BufWriter::new(file);
 
-        for match_item in match_replay {
-            write_line(&mut writer, &match_item)?;
-        }
+        serde_json::to_writer(writer, match_replay)?;
+
         info!("Match replay written to file");
         Ok(())
     }
