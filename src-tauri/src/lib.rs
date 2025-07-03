@@ -13,8 +13,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use arenabuddy_core::{cards::CardsDatabase, storage::DirectoryStorageBackend};
-use arenabuddy_data::MatchDB;
+use arenabuddy_core::cards::CardsDatabase;
+use arenabuddy_data::{DirectoryStorage, MatchDB};
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager, path::BaseDirectory};
@@ -129,7 +129,7 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     let log_collector = Arc::new(Mutex::new(Vec::<String>::new()));
     app.manage(log_collector.clone());
 
-    let debug_backend = Arc::new(Mutex::new(None::<DirectoryStorageBackend>));
+    let debug_backend = Arc::new(Mutex::new(None::<DirectoryStorage>));
     app.manage(debug_backend.clone());
 
     ingest::start(

@@ -3,13 +3,13 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use arenabuddy_core::storage::DirectoryStorageBackend;
+use arenabuddy_data::DirectoryStorage;
 use tauri::State;
 
 #[tauri::command]
 pub fn command_set_debug_logs(
     dir: String,
-    dir_backend: State<'_, Arc<Mutex<Option<DirectoryStorageBackend>>>>,
+    dir_backend: State<'_, Arc<Mutex<Option<DirectoryStorage>>>>,
 ) -> Result<(), String> {
     let path = std::path::PathBuf::from(dir);
 
@@ -20,14 +20,14 @@ pub fn command_set_debug_logs(
     let mut backend = dir_backend
         .lock()
         .expect("Failed to lock directory backend");
-    *backend = Some(DirectoryStorageBackend::new(path));
+    *backend = Some(DirectoryStorage::new(path));
 
     Ok(())
 }
 
 #[tauri::command]
 pub fn command_get_debug_logs(
-    dir_backend: State<'_, Arc<Mutex<Option<DirectoryStorageBackend>>>>,
+    dir_backend: State<'_, Arc<Mutex<Option<DirectoryStorage>>>>,
 ) -> Option<String> {
     dir_backend
         .lock()

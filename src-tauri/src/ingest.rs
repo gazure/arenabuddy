@@ -9,9 +9,8 @@ use arenabuddy_core::{
     errors::ParseError,
     processor::{EventSource, PlayerLogProcessor},
     replay::MatchReplayBuilder,
-    storage::{DirectoryStorageBackend, Storage},
 };
-use arenabuddy_data::MatchDB;
+use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use crossbeam_channel::{Sender, select, unbounded};
 use notify::{Event, Watcher};
 use tracing::{error, info};
@@ -36,7 +35,7 @@ fn watch_player_log_rotation(notify_tx: Sender<Event>, player_log_path: &Path) {
 
 fn log_process_start(
     db: Arc<Mutex<MatchDB>>,
-    debug_dir: Arc<Mutex<Option<DirectoryStorageBackend>>>,
+    debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: &Path,
 ) {
@@ -103,7 +102,7 @@ fn log_process_start(
 
 pub fn start(
     db: Arc<Mutex<MatchDB>>,
-    debug_dir: Arc<Mutex<Option<DirectoryStorageBackend>>>,
+    debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
 ) {

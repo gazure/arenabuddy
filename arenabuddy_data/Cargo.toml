@@ -1,5 +1,6 @@
 [package]
 name = "arenabuddy_data"
+description =  "Storage of arenabuddy data"
 authors.workspace = true
 categories.workspace = true
 version.workspace = true
