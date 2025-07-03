@@ -77,14 +77,14 @@ impl MatchReplay {
     /// # Errors
     ///
     /// Returns an error if the controller seat ID is not found
-    pub(crate) fn get_controller_seat_id(&self) -> i32 {
+    pub fn get_controller_seat_id(&self) -> i32 {
         self.controller_seat_id
     }
 
     /// # Errors
     ///
     /// Returns an error if the player names are not found
-    pub(crate) fn get_player_names(&self, seat_id: i32) -> Result<(String, String)> {
+    pub fn get_player_names(&self, seat_id: i32) -> Result<(String, String)> {
         if let Some(players) = &self.match_start_message.mgrsc_event.game_room_info.players {
             let controller = players
                 .iter()

@@ -7,11 +7,11 @@ use std::{
 use arenabuddy_core::{
     Error,
     errors::ParseError,
-    match_insights::MatchDB,
     processor::{EventSource, PlayerLogProcessor},
     replay::MatchReplayBuilder,
     storage::{DirectoryStorageBackend, Storage},
 };
+use arenabuddy_data::MatchDB;
 use crossbeam_channel::{Sender, select, unbounded};
 use notify::{Event, Watcher};
 use tracing::{error, info};

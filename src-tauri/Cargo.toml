@@ -1,6 +1,6 @@
 [package]
 name = "arenabuddy"
-description = "A Tauri App"
+description = "An MTGA companion app"
 authors.workspace = true
 categories.workspace = true
 version.workspace = true
@@ -23,6 +23,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.7" }
+arenabuddy_data = { path = "../arenabuddy_data", version = "0.5.7" }
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-dialog = "2"

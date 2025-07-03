@@ -1,0 +1,21 @@
+[package]
+name = "arenabuddy_data"
+authors.workspace = true
+categories.workspace = true
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+[dependencies]
+arenabuddy_core = { path = "../arenabuddy_core/", version = "0.5.7" }
+chrono = { workspace = true, features = ["serde"] }
+include_dir = { workspace = true }
+indoc = { workspace = true }
+rusqlite = { workspace = true, features = ["bundled"] }
+rusqlite_migration = { workspace = true, features = ["from-directory"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

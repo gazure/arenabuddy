@@ -1,14 +1,12 @@
 use std::sync::{Arc, Mutex};
 
-use arenabuddy_core::{
-    display::{
-        deck::{DeckDisplayRecord, Difference},
-        game::GameResultDisplay,
-        match_details::MatchDetails,
-        mulligan::Mulligan,
-    },
-    match_insights::MatchDB,
+use arenabuddy_core::display::{
+    deck::{DeckDisplayRecord, Difference},
+    game::GameResultDisplay,
+    match_details::MatchDetails,
+    mulligan::Mulligan,
 };
+use arenabuddy_data::MatchDB;
 use tauri::State;
 use tracing::{error, info};
 

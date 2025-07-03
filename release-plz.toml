@@ -12,6 +12,12 @@ publish_no_verify = true
 git_release_enable = true
 
 [[package]]
+name = "arenabuddy_data"
+publish = true
+release = true
+git_release_enable = false
+
+[[package]]
 name = "arenabuddy_core"
 publish = true
 release = true
