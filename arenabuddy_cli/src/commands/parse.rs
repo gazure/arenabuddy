@@ -6,11 +6,11 @@ use std::{
 use anyhow::Result;
 use arenabuddy_core::{
     cards::CardsDatabase,
-    match_insights::MatchDB,
     processor::{EventSource, PlayerLogProcessor},
     replay::MatchReplayBuilder,
     storage::{DirectoryStorageBackend, Storage},
 };
+use arenabuddy_data::MatchDB;
 use crossbeam::channel::{Receiver, select};
 use tracing::{Level, error};
 

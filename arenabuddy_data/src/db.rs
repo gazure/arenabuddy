@@ -1,5 +1,11 @@
 use std::sync::LazyLock;
 
+use arenabuddy_core::{
+    cards::CardsDatabase,
+    models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
+    replay::MatchReplay,
+    storage::Storage,
+};
 use chrono::{DateTime, Utc};
 use include_dir::{Dir, include_dir};
 use indoc::indoc;
@@ -7,13 +13,7 @@ use rusqlite::{Connection, Params as RusqliteParams, Result as RusqliteResult, T
 use rusqlite_migration::Migrations;
 use tracing::{debug, error, info};
 
-use crate::{
-    Result,
-    cards::CardsDatabase,
-    models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
-    replay::MatchReplay,
-    storage::Storage,
-};
+use crate::{MatchDBError, Result};
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations");
 static MIGRATIONS: LazyLock<Migrations<'static>> = LazyLock::new(|| {
@@ -274,7 +274,7 @@ impl Storage for MatchDB {
     ///
     /// will return an error if if the match replay cannot be written to the database due to missing data
     /// or connection error
-    fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
+    fn write(&mut self, match_replay: &MatchReplay) -> arenabuddy_core::Result<()> {
         info!("Writing match replay to database");
         let controller_seat_id = match_replay.get_controller_seat_id();
         let match_id = &match_replay.match_id;
@@ -289,19 +289,21 @@ impl Storage for MatchDB {
             .created_at(event_start)
             .build()?;
 
-        let tx = self.conn.transaction()?;
+        let tx = self.conn.transaction().map_err(|e| MatchDBError::from(e))?;
 
-        Self::insert_match(&mtga_match, &tx)?;
+        Self::insert_match(&mtga_match, &tx).map_err(|e| MatchDBError::from(e))?;
 
         match_replay
             .get_decklists()?
             .iter()
-            .try_for_each(|deck| Self::insert_deck(&match_replay.match_id, deck, &tx))?;
+            .try_for_each(|deck| Self::insert_deck(&match_replay.match_id, deck, &tx))
+            .map_err(|e| MatchDBError::from(e))?;
 
         let mulligan_infos = match_replay.get_mulligan_infos(&self.cards_database)?;
         mulligan_infos
             .iter()
-            .try_for_each(|mulligan_info| Self::insert_mulligan_info(mulligan_info, &tx))?;
+            .try_for_each(|mulligan_info| Self::insert_mulligan_info(mulligan_info, &tx))
+            .map_err(|e| MatchDBError::from(e))?;
 
         // not too keen on this data model
         let match_results = match_replay.get_match_results()?;
@@ -320,10 +322,10 @@ impl Storage for MatchDB {
                 .result_scope(result.scope.clone())
                 .build()?;
 
-            Self::insert_match_result(&match_result, &tx)?;
+            Self::insert_match_result(&match_result, &tx).map_err(|e| MatchDBError::from(e))?;
         }
 
-        tx.commit()?;
+        tx.commit().map_err(|e| MatchDBError::from(e))?;
         Ok(())
     }
 }

@@ -8,8 +8,6 @@ pub mod cards;
 pub mod display;
 pub mod errors;
 pub mod events;
-#[cfg(not(target_arch = "wasm32"))]
-pub mod match_insights;
 pub mod models;
 pub mod mtga_events;
 pub mod processor;

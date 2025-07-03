@@ -13,9 +13,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use arenabuddy_core::{
-    cards::CardsDatabase, match_insights::MatchDB, storage::DirectoryStorageBackend,
-};
+use arenabuddy_core::{cards::CardsDatabase, storage::DirectoryStorageBackend};
+use arenabuddy_data::MatchDB;
 use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager, path::BaseDirectory};
@@ -31,7 +30,7 @@ mod commands;
 mod ingest;
 
 #[derive(Debug, Deserialize, Serialize)]
-pub enum ArenaBuddySetupError {
+pub enum ArenaBuddyError {
     CorruptedAppData,
     LogSetupFailure,
     MatchesDatabaseInitializationFailure,
@@ -41,7 +40,7 @@ pub enum ArenaBuddySetupError {
     UnsupportedOS,
 }
 
-impl Display for ArenaBuddySetupError {
+impl Display for ArenaBuddyError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::CorruptedAppData => write!(f, "App data is corrupted"),
@@ -57,24 +56,24 @@ impl Display for ArenaBuddySetupError {
     }
 }
 
-impl Error for ArenaBuddySetupError {}
+impl Error for ArenaBuddyError {}
 
 fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     let registry = tracing_subscriber::registry();
     let app_data_dir = app
         .path()
         .app_data_dir()
-        .map_err(|_| ArenaBuddySetupError::CorruptedAppData)?;
-    std::fs::create_dir_all(&app_data_dir).map_err(|_| ArenaBuddySetupError::CorruptedAppData)?;
+        .map_err(|_| ArenaBuddyError::CorruptedAppData)?;
+    std::fs::create_dir_all(&app_data_dir).map_err(|_| ArenaBuddyError::CorruptedAppData)?;
 
     let log_dir = app_data_dir.join("logs");
-    std::fs::create_dir_all(&log_dir).map_err(|_| ArenaBuddySetupError::CorruptedAppData)?;
+    std::fs::create_dir_all(&log_dir).map_err(|_| ArenaBuddyError::CorruptedAppData)?;
 
     let file_appender = RollingFileAppender::builder()
         .rotation(Rotation::DAILY)
         .filename_prefix("arena-buddy")
         .build(log_dir)
-        .map_err(|_| ArenaBuddySetupError::LogSetupFailure)?
+        .map_err(|_| ArenaBuddyError::LogSetupFailure)?
         .with_max_level(Level::INFO);
 
     let file_layer = fmt::layer()
@@ -98,28 +97,27 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     let cards_path = app
         .path()
         .resolve("./data/cards-full.pb", BaseDirectory::Resource)
-        .map_err(|_| ArenaBuddySetupError::NoCardsDatabase)?;
+        .map_err(|_| ArenaBuddyError::NoCardsDatabase)?;
     info!("cards_db path: {:?}", cards_path);
-    let cards_db =
-        CardsDatabase::new(cards_path).map_err(|_| ArenaBuddySetupError::NoCardsDatabase)?;
+    let cards_db = CardsDatabase::new(cards_path).map_err(|_| ArenaBuddyError::NoCardsDatabase)?;
 
     let db_path = app_data_dir.join("matches.db");
     info!("Database path: {}", db_path.to_string_lossy());
-    let conn = Connection::open(db_path).map_err(|_| ArenaBuddySetupError::NoMathchesDatabase)?;
+    let conn = Connection::open(db_path).map_err(|_| ArenaBuddyError::NoMathchesDatabase)?;
     let mut db = MatchDB::new(conn, cards_db);
     db.init()
-        .map_err(|_| ArenaBuddySetupError::MatchesDatabaseInitializationFailure)?;
+        .map_err(|_| ArenaBuddyError::MatchesDatabaseInitializationFailure)?;
     let db_arc = Arc::new(Mutex::new(db));
 
     let home = app
         .path()
         .home_dir()
-        .map_err(|_| ArenaBuddySetupError::NoHomeDir)?;
+        .map_err(|_| ArenaBuddyError::NoHomeDir)?;
     let os = std::env::consts::OS;
     let player_log_path = match os {
         "macos" => Ok(home.join("Library/Logs/Wizards of the Coast/MTGA/Player.log")),
         "windows" => Ok(home.join("AppData/LocalLow/Wizards of the Coast/MTGA/Player.log")),
-        _ => Err(ArenaBuddySetupError::UnsupportedOS),
+        _ => Err(ArenaBuddyError::UnsupportedOS),
     }?;
 
     app.manage(db_arc.clone());

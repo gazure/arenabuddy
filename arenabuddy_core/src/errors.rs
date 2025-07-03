@@ -25,12 +25,6 @@ pub enum Error {
     DecodeError,
     #[error("Could not encode data")]
     EncodeError,
-    #[cfg(not(target_arch = "wasm32"))]
-    #[error("Database migration failed {0}")]
-    MigrationError(rusqlite_migration::Error),
-    #[cfg(not(target_arch = "wasm32"))]
-    #[error("SQLite error {0}")]
-    SqliteError(rusqlite::Error),
     #[error("Json error {0}")]
     JsonError(serde_json::Error),
     #[error("Match Replay Build Error {0}")]
@@ -43,6 +37,8 @@ pub enum Error {
     NotFound(String),
     #[error("{0}")]
     Parse(ParseError),
+    #[error("Storage error: {0}")]
+    StorageError(String),
 }
 
 impl From<std::io::Error> for Error {
@@ -60,20 +56,6 @@ impl From<prost::DecodeError> for Error {
 impl From<prost::EncodeError> for Error {
     fn from(_: prost::EncodeError) -> Self {
         Error::DatabaseNotFound
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-impl From<rusqlite_migration::Error> for Error {
-    fn from(err: rusqlite_migration::Error) -> Self {
-        Error::MigrationError(err)
-    }
-}
-
-#[cfg(not(target_arch = "wasm32"))]
-impl From<rusqlite::Error> for Error {
-    fn from(err: rusqlite::Error) -> Self {
-        Error::SqliteError(err)
     }
 }
 

@@ -147,30 +147,43 @@ pub fn DebugLogs() -> impl IntoView {
                 </button>
             </div>
 
-            {move || selected_dir.get().map(|dir| view! {
-                <div class="mb-4 p-3 bg-gray-100 rounded-lg">
-                    <p class="text-sm font-medium text-gray-700">"Debug Logs Directory:"</p>
-                    <p class="text-sm text-gray-600 break-all">{dir}</p>
-                </div>
-            })}
+            {move || {
+                selected_dir
+                    .get()
+                    .map(|dir| {
+                        view! {
+                            <div class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                <p class="text-sm font-medium text-gray-700">
+                                    "Debug Logs Directory:"
+                                </p>
+                                <p class="text-sm text-gray-600 break-all">{dir}</p>
+                            </div>
+                        }
+                    })
+            }}
 
-            {move || status_message.get().map(|msg| {
-                let is_error = msg.contains("Error");
-                let is_info = msg.contains("Loaded current") || msg.contains("No debug logs directory configured");
-                let class = if is_error {
-                    "p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg"
-                } else if is_info {
-                    "p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg"
-                } else {
-                    "p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg"
-                };
+            {move || {
+                status_message
+                    .get()
+                    .map(|msg| {
+                        let is_error = msg.contains("Error");
+                        let is_info = msg.contains("Loaded current")
+                            || msg.contains("No debug logs directory configured");
+                        let class = if is_error {
+                            "p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+                        } else if is_info {
+                            "p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg"
+                        } else {
+                            "p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg"
+                        };
 
-                view! {
-                    <div class=class>
-                        <p class="text-sm">{msg}</p>
-                    </div>
-                }
-            })}
+                        view! {
+                            <div class=class>
+                                <p class="text-sm">{msg}</p>
+                            </div>
+                        }
+                    })
+            }}
         </div>
     }
 }

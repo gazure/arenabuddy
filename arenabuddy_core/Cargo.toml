@@ -15,8 +15,8 @@ license.workspace = true
 prost-build = { workspace = true }
 
 [dependencies]
-include_dir = { workspace = true }
 derive_builder = { workspace = true }
+include_dir = { workspace = true }
 indoc = { workspace = true }
 lazy_static = { workspace = true }
 prost = { workspace = true }
@@ -28,7 +28,3 @@ thiserror = { workspace = true }
 itertools = { workspace = true }
 tracing = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
-
-[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-rusqlite = { workspace = true, features = ["bundled"] }
-rusqlite_migration = { workspace = true, features = ["from-directory"] }

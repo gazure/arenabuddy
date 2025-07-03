@@ -135,6 +135,7 @@ version = "0.5.7"
 dependencies = [
  "anyhow",
  "arenabuddy_core",
+ "arenabuddy_data",
  "chrono",
  "crossbeam",
  "crossbeam-channel",
@@ -159,6 +160,7 @@ version = "0.5.7"
 dependencies = [
  "anyhow",
  "arenabuddy_core",
+ "arenabuddy_data",
  "aws-config",
  "aws-sdk-s3",
  "clap",
@@ -190,9 +192,22 @@ dependencies = [
  "prost-build",
  "prost-types",
  "regex",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.12",
+ "tracing",
+]
+
+[[package]]
+name = "arenabuddy_data"
+version = "0.5.7"
+dependencies = [
+ "arenabuddy_core",
+ "chrono",
+ "include_dir",
+ "indoc",
  "rusqlite",
  "rusqlite_migration",
- "serde",
  "serde_json",
  "thiserror 2.0.12",
  "tracing",
