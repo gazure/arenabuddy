@@ -4,7 +4,6 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     replay::MatchReplay,
-    storage::Storage,
 };
 use chrono::{DateTime, Utc};
 use include_dir::{Dir, include_dir};
@@ -13,7 +12,7 @@ use rusqlite::{Connection, Params as RusqliteParams, Result as RusqliteResult, T
 use rusqlite_migration::Migrations;
 use tracing::{debug, error, info};
 
-use crate::{MatchDBError, Result};
+use crate::{MatchDBError, Result, Storage};
 
 static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations");
 static MIGRATIONS: LazyLock<Migrations<'static>> = LazyLock::new(|| {
@@ -274,7 +273,7 @@ impl Storage for MatchDB {
     ///
     /// will return an error if if the match replay cannot be written to the database due to missing data
     /// or connection error
-    fn write(&mut self, match_replay: &MatchReplay) -> arenabuddy_core::Result<()> {
+    fn write(&mut self, match_replay: &MatchReplay) -> crate::Result<()> {
         info!("Writing match replay to database");
         let controller_seat_id = match_replay.get_controller_seat_id();
         let match_id = &match_replay.match_id;

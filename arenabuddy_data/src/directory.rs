@@ -1,21 +1,15 @@
 use std::{fs::File, io::BufWriter, path::PathBuf};
 
+use arenabuddy_core::replay::MatchReplay;
 use tracing::info;
 
-use crate::{Result, replay::MatchReplay};
+use crate::{Result, Storage};
 
-pub trait Storage {
-    /// # Errors
-    ///
-    /// Will return an error if the match replay cannot be written to the storage backend
-    fn write(&mut self, match_replay: &MatchReplay) -> crate::Result<()>;
-}
-
-pub struct DirectoryStorageBackend {
+pub struct DirectoryStorage {
     path: PathBuf,
 }
 
-impl DirectoryStorageBackend {
+impl DirectoryStorage {
     pub fn new(path: PathBuf) -> Self {
         Self { path }
     }
@@ -25,7 +19,7 @@ impl DirectoryStorageBackend {
     }
 }
 
-impl Storage for DirectoryStorageBackend {
+impl Storage for DirectoryStorage {
     fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
         let path = self.path.join(format!("{}.json", match_replay.match_id));
         info!(

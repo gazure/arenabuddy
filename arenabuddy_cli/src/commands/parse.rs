@@ -8,9 +8,8 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     processor::{EventSource, PlayerLogProcessor},
     replay::MatchReplayBuilder,
-    storage::{DirectoryStorageBackend, Storage},
 };
-use arenabuddy_data::MatchDB;
+use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use crossbeam::channel::{Receiver, select};
 use tracing::{Level, error};
 
@@ -54,7 +53,7 @@ pub fn execute(
     // Initialize directory storage backend if specified
     if let Some(output_dir) = output_dir {
         std::fs::create_dir_all(output_dir)?;
-        storage_backends.push(Box::new(DirectoryStorageBackend::new(output_dir.clone())));
+        storage_backends.push(Box::new(DirectoryStorage::new(output_dir.clone())));
     }
 
     // Initialize database storage backend if specified
