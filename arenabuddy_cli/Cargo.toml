@@ -11,8 +11,8 @@ version.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
-arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.8" }
-arenabuddy_data = { path = "../arenabuddy_data", version = "0.5.8" }
+arenabuddy_core = { path = "../arenabuddy_core", version = "0.5.9" }
+arenabuddy_data = { path = "../arenabuddy_data", version = "0.5.9" }
 aws-config = { workspace = true, features = ["behavior-version-latest"] }
 aws-sdk-s3 = { workspace = true }
 clap = { workspace = true }
