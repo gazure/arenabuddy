@@ -289,21 +289,19 @@ impl Storage for MatchDB {
             .created_at(event_start)
             .build()?;
 
-        let tx = self.conn.transaction().map_err(|e| MatchDBError::from(e))?;
+        let tx = self.conn.transaction().map_err(MatchDBError::from)?;
 
-        Self::insert_match(&mtga_match, &tx).map_err(|e| MatchDBError::from(e))?;
+        Self::insert_match(&mtga_match, &tx)?;
 
         match_replay
             .get_decklists()?
             .iter()
-            .try_for_each(|deck| Self::insert_deck(&match_replay.match_id, deck, &tx))
-            .map_err(|e| MatchDBError::from(e))?;
+            .try_for_each(|deck| Self::insert_deck(&match_replay.match_id, deck, &tx))?;
 
         let mulligan_infos = match_replay.get_mulligan_infos(&self.cards_database)?;
         mulligan_infos
             .iter()
-            .try_for_each(|mulligan_info| Self::insert_mulligan_info(mulligan_info, &tx))
-            .map_err(|e| MatchDBError::from(e))?;
+            .try_for_each(|mulligan_info| Self::insert_mulligan_info(mulligan_info, &tx))?;
 
         // not too keen on this data model
         let match_results = match_replay.get_match_results()?;
@@ -322,10 +320,10 @@ impl Storage for MatchDB {
                 .result_scope(result.scope.clone())
                 .build()?;
 
-            Self::insert_match_result(&match_result, &tx).map_err(|e| MatchDBError::from(e))?;
+            Self::insert_match_result(&match_result, &tx)?;
         }
 
-        tx.commit().map_err(|e| MatchDBError::from(e))?;
+        tx.commit().map_err(MatchDBError::from)?;
         Ok(())
     }
 }

@@ -1,6 +1,6 @@
 [package]
 name = "arenabuddy"
-description = "A Tauri App"
+description = "An MTGA companion app"
 authors.workspace = true
 categories.workspace = true
 version.workspace = true
