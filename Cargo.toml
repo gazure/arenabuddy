@@ -11,7 +11,7 @@ license.workspace = true
 
 
 [dependencies]
-arenabuddy_core = { path = "arenabuddy_core/", version = "0.5.9" }
+arenabuddy_core = { path = "arenabuddy_core/", version = "0.5.10" }
 leptos = { workspace = true, features = ["csr"] }
 wasm-bindgen = { workspace = true }
 wasm-bindgen-futures = { workspace = true }
@@ -29,7 +29,7 @@ members = ["src-tauri", "arenabuddy_core", "arenabuddy_cli", "arenabuddy_data"]
 [workspace.package]
 authors = ["Grant Azure <azure.grant@gmail.com>"]
 categories = []
-version = "0.5.9"
+version = "0.5.10"
 repository = "https://github.com/gazure/arenabuddy"
 edition = "2024"
 rust-version = "1.88"
