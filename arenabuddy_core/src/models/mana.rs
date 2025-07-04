@@ -2,13 +2,25 @@ use std::{fmt::Display, str::FromStr};
 
 use regex::Regex;
 
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, Clone, Copy, serde::Deserialize, serde::Serialize)]
 pub enum Color {
     White,
     Blue,
     Black,
     Red,
     Green,
+}
+
+impl Color {
+    pub fn svg_file(&self) -> &'static str {
+        match self {
+            Color::White => "W.svg",
+            Color::Blue => "U.svg",
+            Color::Black => "B.svg",
+            Color::Red => "R.svg",
+            Color::Green => "G.svg",
+        }
+    }
 }
 
 impl FromStr for Color {
@@ -42,7 +54,7 @@ impl Display for Color {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CostSymbol {
     Colorless { n: u8 },
     Color { color: Color },
@@ -50,6 +62,64 @@ pub enum CostSymbol {
     Fuse { color1: Color, color2: Color },
     Variable,
     Snow,
+}
+
+impl CostSymbol {
+    pub fn svg_file(&self) -> &'static str {
+        match self {
+            CostSymbol::Colorless { n } => match n {
+                0 => "0.svg",
+                1 => "1.svg",
+                2 => "2.svg",
+                3 => "3.svg",
+                4 => "4.svg",
+                5 => "5.svg",
+                6 => "6.svg",
+                7 => "7.svg",
+                8 => "8.svg",
+                9 => "9.svg",
+                10 => "10.svg",
+                11 => "11.svg",
+                12 => "12.svg",
+                13 => "13.svg",
+                14 => "14.svg",
+                15 => "15.svg",
+                16 => "16.svg",
+                17 => "17.svg",
+                18 => "18.svg",
+                19 => "19.svg",
+                20 => "20.svg",
+                _ => "X.svg",
+            },
+            CostSymbol::Color { color } => match color {
+                Color::White => "W.svg",
+                Color::Blue => "U.svg",
+                Color::Black => "B.svg",
+                Color::Red => "R.svg",
+                Color::Green => "G.svg",
+            },
+            CostSymbol::Phyrexian { color } => color.svg_file(),
+            CostSymbol::Fuse { color1, color2 } => match (color1, color2) {
+                (Color::White, Color::White) => "W.svg",
+                (Color::Red, Color::Red) => "R.svg",
+                (Color::Blue, Color::Blue) => "U.svg",
+                (Color::Green, Color::Green) => "G.svg",
+                (Color::Black, Color::Black) => "B.svg",
+                (Color::White, Color::Blue) | (Color::Blue, Color::White) => "UW.svg",
+                (Color::White, Color::Green) | (Color::Green, Color::White) => "GW.svg",
+                (Color::Blue, Color::Black) | (Color::Black, Color::Blue) => "UB.svg",
+                (Color::Blue, Color::Red) | (Color::Red, Color::Blue) => "UR.svg",
+                (Color::Black, Color::White) | (Color::White, Color::Black) => "WB.svg",
+                (Color::Black, Color::Red) | (Color::Red, Color::Black) => "BR.svg",
+                (Color::White, Color::Red) | (Color::Red, Color::White) => "RW.svg",
+                (Color::Red, Color::Green) | (Color::Green, Color::Red) => "RG.svg",
+                (Color::Green, Color::Blue) | (Color::Blue, Color::Green) => "GU.svg",
+                (Color::Green, Color::Black) | (Color::Black, Color::Green) => "BG.svg",
+            },
+            CostSymbol::Variable => "X.svg",
+            CostSymbol::Snow => "S.svg",
+        }
+    }
 }
 
 impl Display for CostSymbol {
@@ -114,7 +184,7 @@ impl FromStr for CostSymbol {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Cost {
     inner: Vec<CostSymbol>,
 }
@@ -149,6 +219,15 @@ impl FromStr for Cost {
 impl Display for Cost {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.inner.iter().try_fold((), |(), c| c.fmt(f))
+    }
+}
+
+impl IntoIterator for Cost {
+    type Item = CostSymbol;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.inner.into_iter()
     }
 }
 

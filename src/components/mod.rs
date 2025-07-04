@@ -1,6 +1,7 @@
-pub mod deck_list;
-pub mod match_info;
-pub mod mulligan_display;
+mod cost;
+mod deck_list;
+mod match_info;
+mod mulligan_display;
 
 pub use deck_list::DeckList;
 pub use match_info::MatchInfo;

@@ -1,17 +1,11 @@
-use arenabuddy_core::models::CardType;
+use arenabuddy_core::display::card::CardDisplayRecord;
 use leptos::prelude::*;
 
-#[derive(Clone, PartialEq, Eq)]
-pub struct TypedCard {
-    pub name: String,
-    pub quantity: u16,
-    pub card_type: CardType,
-    pub mana_value: u8,
-}
+use crate::components::cost::ManaCost;
 
 #[component]
 pub fn DeckList(
-    #[prop(into)] cards: Signal<Vec<TypedCard>>,
+    #[prop(into)] cards: Signal<Vec<CardDisplayRecord>>,
     #[prop(optional)] title: Option<&'static str>,
 ) -> impl IntoView {
     let title = title.unwrap_or("Your Deck");
@@ -48,7 +42,7 @@ pub fn DeckList(
                                                 <th class="text-left py-3 px-4 font-semibold text-gray-600 w-16">
                                                     Count
                                                 </th>
-                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-20">
+                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-32">
                                                     Mana
                                                 </th>
                                                 <th class="text-left py-3 px-4 font-semibold text-gray-600 w-32">
@@ -70,10 +64,10 @@ pub fn DeckList(
                                                                 {card.quantity}
                                                             </td>
                                                             <td class="py-3 px-4 text-center text-gray-500">
-                                                                {card.mana_value}
+                                                                <ManaCost cost=card.cost() />
                                                             </td>
                                                             <td class="py-3 px-4 text-gray-500 truncate">
-                                                                {card.card_type.to_string()}
+                                                                {card.type_field.to_string()}
                                                             </td>
                                                             <td class="py-3 px-4 truncate">{card.name}</td>
                                                         </tr>
@@ -94,17 +88,17 @@ pub fn DeckList(
                 {".deck-scrollbar::-webkit-scrollbar {
                 width: 8px;
                 }
-                
+
                 .deck-scrollbar::-webkit-scrollbar-track {
                 background: #f1f1f1;
                 border-radius: 8px;
                 }
-                
+
                 .deck-scrollbar::-webkit-scrollbar-thumb {
                 background: #c5c5c5;
                 border-radius: 8px;
                 }
-                
+
                 .deck-scrollbar::-webkit-scrollbar-thumb:hover {
                 background: #a0a0a0;
                 }"}
