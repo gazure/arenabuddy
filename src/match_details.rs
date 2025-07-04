@@ -5,7 +5,7 @@ use wasm_bindgen_futures::spawn_local;
 
 use crate::{
     app::invoke,
-    components::{DeckList, MatchInfo, MulliganDisplay, deck_list::TypedCard},
+    components::{DeckList, MatchInfo, MulliganDisplay},
     state::AsyncState,
 };
 
@@ -22,8 +22,9 @@ pub(crate) fn MatchDetails() -> impl IntoView {
 
     let load = move || {
         set_state.set(AsyncState::Loading);
-        let id = params.with(|params| params.get("id").unwrap_or_default().to_string());
         spawn_local(async move {
+            let id =
+                params.with_untracked(|params| params.get("id").unwrap_or_default().to_string());
             match get_match_details(&id).await {
                 Some(details) => set_state.set(AsyncState::Success(details)),
                 None => set_state.set(AsyncState::Error(format!(
@@ -42,14 +43,9 @@ pub(crate) fn MatchDetails() -> impl IntoView {
             .and_then(|details| details.primary_decklist.as_ref())
             .map(|pd| {
                 let mut cards = Vec::new();
-                for card_type_cards in &pd.main_deck {
-                    for card in card_type_cards.1 {
-                        cards.push(TypedCard {
-                            name: card.name.clone(),
-                            quantity: card.quantity,
-                            card_type: *card_type_cards.0,
-                            mana_value: card.mana_value,
-                        });
+                for cs in pd.main_deck.values() {
+                    for card in cs {
+                        cards.push(card.clone());
                     }
                 }
                 cards
