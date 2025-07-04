@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.10](https://github.com/gazure/arenabuddy/compare/arenabuddy_core-v0.5.9...arenabuddy_core-v0.5.10) - 2025-07-04
+
+### Added
+
+- add mana symbols to deck list view ([#89](https://github.com/gazure/arenabuddy/pull/89))
+
 ## [0.5.9](https://github.com/gazure/arenabuddy/compare/arenabuddy_core-v0.5.8...arenabuddy_core-v0.5.9) - 2025-07-03
 
 ### Added
