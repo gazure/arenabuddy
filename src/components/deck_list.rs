@@ -1,14 +1,23 @@
-use arenabuddy_core::display::card::CardDisplayRecord;
+use arenabuddy_core::{display::deck::DeckDisplayRecord, models::CardType};
 use leptos::prelude::*;
 
 use crate::components::cost::ManaCost;
 
 #[component]
 pub fn DeckList(
-    #[prop(into)] cards: Signal<Vec<CardDisplayRecord>>,
+    #[prop(into)] deck: Signal<DeckDisplayRecord>,
     #[prop(optional)] title: Option<&'static str>,
 ) -> impl IntoView {
     let title = title.unwrap_or("Your Deck");
+    let main_deck = deck.get().main_deck.clone();
+    let sideboard = deck.get().sideboard.clone();
+    let main_total: u16 = main_deck
+        .values()
+        .flat_map(|cards| cards.iter())
+        .map(|c| c.quantity)
+        .sum();
+    let sideboard_total: u16 = sideboard.iter().map(|c| c.quantity).sum();
+    let total_count = main_total + sideboard_total;
 
     view! {
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -18,68 +27,157 @@ pub fn DeckList(
             <div class="p-6">
                 <div class="deck-content">
                     {move || {
-                        let card_list = cards.get();
-                        if card_list.is_empty() {
-                            view! {
-                                <div class="text-center text-gray-500 py-8">
-                                    <p>No deck information available</p>
-                                </div>
-                            }
-                                .into_any()
-                        } else {
-                            let mut sorted_cards = card_list.clone();
-                            sorted_cards.sort_by_key(|card| (card.mana_value, card.name.clone()));
-                            let total_count: u16 = sorted_cards.iter().map(|c| c.quantity).sum();
+                        view! {
+                            <div class="mb-4 text-right text-sm text-gray-500">
+                                {"Total cards: "}{total_count}{" (Main: "}{main_total}
+                                {", Sideboard: "}{sideboard_total}{")"}
+                            </div>
 
-                            view! {
-                                <div class="max-h-96 overflow-y-auto pr-2 deck-scrollbar">
-                                    <div class="mb-4 text-right text-sm text-gray-500">
-                                        {"Total cards: "}{total_count}
-                                    </div>
-                                    <table class="min-w-full table-fixed">
-                                        <thead>
-                                            <tr class="border-b">
-                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-16">
-                                                    Count
-                                                </th>
-                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-32">
-                                                    Mana
-                                                </th>
-                                                <th class="text-left py-3 px-4 font-semibold text-gray-600 w-32">
-                                                    Type
-                                                </th>
-                                                <th class="text-left py-3 px-4 font-semibold text-gray-600">
-                                                    Card Name
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <For
-                                                each=move || sorted_cards.clone()
-                                                key=|card| card.name.clone()
-                                                children=move |card| {
-                                                    view! {
-                                                        <tr class="border-b border-gray-100 hover:bg-gray-50">
-                                                            <td class="py-3 px-4 text-center font-medium text-gray-600">
-                                                                {card.quantity}
-                                                            </td>
-                                                            <td class="py-3 px-4 text-center text-gray-500">
-                                                                <ManaCost cost=card.cost() />
-                                                            </td>
-                                                            <td class="py-3 px-4 text-gray-500 truncate">
-                                                                {card.type_field.to_string()}
-                                                            </td>
-                                                            <td class="py-3 px-4 truncate">{card.name}</td>
-                                                        </tr>
+                            <div class="grid grid-cols-2 gap-6">
+                                // Left column: Non-land cards
+                                <div class="space-y-6">
+
+                                    {
+                                        let main_deck_clone = main_deck.clone();
+                                        move || {
+                                            let mut non_land_sections = Vec::new();
+                                            let ordered_types = vec![
+                                                CardType::Creature,
+                                                CardType::Planeswalker,
+                                                CardType::Artifact,
+                                                CardType::Enchantment,
+                                                CardType::Instant,
+                                                CardType::Sorcery,
+                                                CardType::Battle,
+                                                CardType::Unknown,
+                                            ];
+                                            for card_type in ordered_types {
+                                                if let Some(cards) = main_deck_clone.get(&card_type) {
+                                                    if !cards.is_empty() {
+                                                        non_land_sections
+                                                            .push(
+
+                                                                // Order card types for display
+
+                                                                view! {
+                                                                    <div class="mb-4">
+                                                                        <h4 class="text-md font-medium text-gray-700 mb-2">
+                                                                            {format!("{} ({})", card_type, cards.len())}
+                                                                        </h4>
+                                                                        <div class="space-y-1">
+                                                                            {cards
+                                                                                .iter()
+                                                                                .map(|card| {
+                                                                                    view! {
+                                                                                        <div class="flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm">
+                                                                                            <div class="flex items-center space-x-2">
+                                                                                                <span class="font-medium text-gray-600 w-6 text-center">
+                                                                                                    {card.quantity}
+                                                                                                </span>
+                                                                                                <span class="truncate">{card.name.clone()}</span>
+                                                                                            </div>
+                                                                                            <div class="flex-shrink-0 ml-2">
+                                                                                                <ManaCost cost=card.cost() />
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    }
+                                                                                })
+                                                                                .collect::<Vec<_>>()}
+                                                                        </div>
+                                                                    </div>
+                                                                },
+                                                            );
                                                     }
                                                 }
-                                            />
-                                        </tbody>
-                                    </table>
+                                            }
+                                            non_land_sections
+                                        }
+                                    }
                                 </div>
-                            }
-                                .into_any()
+
+                                // Right column: Lands and Sideboard
+                                <div class="space-y-6">
+                                    // Lands section
+                                    {
+                                        let main_deck_clone = main_deck.clone();
+                                        move || {
+                                            if let Some(lands) = main_deck_clone.get(&CardType::Land)
+                                                && !lands.is_empty()
+                                            {
+                                                view! {
+                                                    <div>
+                                                        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">
+                                                            {format!("Lands ({})", lands.len())}
+                                                        </h3>
+                                                        <div class="space-y-1 mt-2">
+                                                            {lands
+                                                                .iter()
+                                                                .map(|card| {
+                                                                    view! {
+                                                                        <div class="flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm">
+                                                                            <div class="flex items-center space-x-2">
+                                                                                <span class="font-medium text-gray-600 w-6 text-center">
+                                                                                    {card.quantity}
+                                                                                </span>
+                                                                                <span class="truncate">{card.name.clone()}</span>
+                                                                            </div>
+                                                                            <div class="flex-shrink-0 ml-2">
+                                                                                <ManaCost cost=card.cost() />
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+                                                                })
+                                                                .collect::<Vec<_>>()}
+                                                        </div>
+                                                    </div>
+                                                }
+                                                    .into_any()
+                                            } else {
+                                                view! { <div></div> }.into_any()
+                                            }
+                                        }
+                                    } // Sideboard section
+                                    {
+                                        let sideboard_clone = sideboard.clone();
+                                        move || {
+                                            if sideboard_clone.is_empty() {
+                                                view! { <div></div> }.into_any()
+                                            } else {
+                                                view! {
+                                                    <div>
+                                                        <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">
+                                                            {format!("Sideboard ({})", sideboard_clone.len())}
+                                                        </h3>
+                                                        <div class="space-y-1 mt-2">
+                                                            {sideboard_clone
+                                                                .iter()
+                                                                .map(|card| {
+                                                                    view! {
+                                                                        <div class="flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm">
+                                                                            <div class="flex items-center space-x-2">
+                                                                                <span class="font-medium text-gray-600 w-6 text-center">
+                                                                                    {card.quantity}
+                                                                                </span>
+                                                                                <span class="truncate">{card.name.clone()}</span>
+                                                                            </div>
+                                                                            <div class="flex-shrink-0 ml-2">
+                                                                                <ManaCost cost=card.cost() />
+                                                                            </div>
+                                                                        </div>
+                                                                    }
+                                                                })
+                                                                .collect::<Vec<_>>()}
+                                                        </div>
+                                                    </div>
+                                                }
+                                                    .into_any()
+                                            }
+                                        }
+                                    }
+                                </div>
+                            </div>
                         }
+                            .into_any()
                     }}
                 </div>
             </div>
