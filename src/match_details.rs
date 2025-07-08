@@ -36,20 +36,12 @@ pub(crate) fn MatchDetails() -> impl IntoView {
 
     load();
 
-    let deck_cards = move || {
+    let deck_display = move || {
         state
             .get()
             .details()
             .and_then(|details| details.primary_decklist.as_ref())
-            .map(|pd| {
-                let mut cards = Vec::new();
-                for cs in pd.main_deck.values() {
-                    for card in cs {
-                        cards.push(card.clone());
-                    }
-                }
-                cards
-            })
+            .cloned()
             .unwrap_or_default()
     };
 
@@ -87,7 +79,7 @@ pub(crate) fn MatchDetails() -> impl IntoView {
                     did_controller_win=Signal::derive(move || { details.did_controller_win })
                 />
 
-                <DeckList cards=Signal::derive(deck_cards) />
+                <DeckList deck=Signal::derive(deck_display) />
 
                 <div class="mt-8 col-span-full">
                     <MulliganDisplay mulligans=Signal::derive(move || {

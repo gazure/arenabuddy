@@ -3,7 +3,6 @@ use leptos_router::{
     components::{Route, Router, Routes},
     path,
 };
-use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 use crate::{
@@ -20,11 +19,6 @@ extern "C" {
 
 fn open_github() {
     openUrl("https://github.com/gazure/arenabuddy");
-}
-
-#[derive(Serialize, Deserialize)]
-struct GreetArgs<'a> {
-    name: &'a str,
 }
 
 #[component]
