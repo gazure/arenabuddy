@@ -11,7 +11,7 @@ keywords.workspace = true
 license.workspace = true
 
 [dependencies]
-arenabuddy_core = { path = "../arenabuddy_core/", version = "0.5.10" }
+arenabuddy_core = { path = "../arenabuddy_core/", version = "0.5.11" }
 chrono = { workspace = true, features = ["serde"] }
 include_dir = { workspace = true }
 indoc = { workspace = true }
