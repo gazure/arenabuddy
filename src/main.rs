@@ -1,5 +1,6 @@
 #![deny(clippy::pedantic)]
-#![allow(clippy::too_many_lines)]
+#![expect(clippy::too_many_lines)]
+#![expect(clippy::needless_pass_by_value)]
 
 mod app;
 mod components;

@@ -56,6 +56,8 @@ pub fn command_match_details(match_id: String, db: State<'_, Arc<Mutex<MatchDB>>
         .map(|mulligan| Mulligan::from_model(mulligan, &db.cards_database))
         .collect();
 
+    match_details.mulligans.sort();
+
     match_details.game_results = db
         .get_match_results(&match_id)
         .unwrap_or_else(|e| {

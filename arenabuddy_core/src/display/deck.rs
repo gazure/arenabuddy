@@ -71,6 +71,7 @@ impl Difference {
     pub fn new(added: Vec<CardDisplayRecord>, removed: Vec<CardDisplayRecord>) -> Self {
         Self { added, removed }
     }
+
     fn missing_cards(main1: &HashMap<i32, u16>, main2: &HashMap<i32, u16>) -> HashMap<i32, u16> {
         let mut missing = Vec::new();
         for (card_id, quantity) in main1 {
@@ -103,6 +104,7 @@ impl Difference {
             .sorted()
             .collect()
     }
+
     pub fn diff(deck1: &Deck, deck2: &Deck, cards_database: &CardsDatabase) -> Self {
         let deck1_quantities = deck1.quantities();
         let deck2_quantities = deck2.quantities();

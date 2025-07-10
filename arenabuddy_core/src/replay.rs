@@ -371,8 +371,8 @@ impl Serialize for MatchReplay {
 }
 
 impl<'a> IntoIterator for &'a MatchReplay {
-    type Item = EventRef<'a>;
     type IntoIter = IntoIter<Self::Item>;
+    type Item = EventRef<'a>;
 
     fn into_iter(self) -> Self::IntoIter {
         let mut events = Vec::new();
