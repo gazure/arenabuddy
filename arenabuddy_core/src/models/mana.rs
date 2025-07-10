@@ -139,6 +139,7 @@ impl Display for CostSymbol {
 
 impl FromStr for CostSymbol {
     type Err = String;
+
     fn from_str(s: &str) -> Result<CostSymbol, String> {
         match s {
             // Variable costs
@@ -223,8 +224,8 @@ impl Display for Cost {
 }
 
 impl IntoIterator for Cost {
-    type Item = CostSymbol;
     type IntoIter = std::vec::IntoIter<Self::Item>;
+    type Item = CostSymbol;
 
     fn into_iter(self) -> Self::IntoIter {
         self.inner.into_iter()

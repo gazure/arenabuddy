@@ -14,6 +14,28 @@ pub struct Mulligan {
     pub decision: String,
 }
 
+impl PartialEq for Mulligan {
+    fn eq(&self, other: &Self) -> bool {
+        self.game_number == other.game_number && self.number_to_keep == other.number_to_keep
+    }
+}
+
+impl Eq for Mulligan {}
+
+impl PartialOrd for Mulligan {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Mulligan {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.game_number
+            .cmp(&other.game_number)
+            .then_with(|| self.number_to_keep.cmp(&other.number_to_keep).reverse())
+    }
+}
+
 impl Mulligan {
     pub fn new(
         hand: &str,

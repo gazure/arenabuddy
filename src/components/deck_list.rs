@@ -14,17 +14,20 @@ pub fn DeckList(
     #[prop(optional)] title: Option<&'static str>,
 ) -> impl IntoView {
     let title = title.unwrap_or("Your Deck");
-    let deck_data = deck.get();
-    let main_deck = deck_data.main_deck.clone();
-    let sideboard = deck_data.sideboard.clone();
+    let main_deck = Memo::new(move |_| deck.get().main_deck);
+    let sideboard = Memo::new(move |_| deck.get().sideboard);
 
-    let main_total: u16 = main_deck
-        .values()
-        .flat_map(|cards| cards.iter())
-        .map(|c| c.quantity)
-        .sum();
-    let sideboard_total: u16 = sideboard.iter().map(|c| c.quantity).sum();
-    let total_count = main_total + sideboard_total;
+    let main_total: Memo<u16> = Memo::new(move |_| {
+        main_deck
+            .get()
+            .values()
+            .flat_map(|cards| cards.iter())
+            .map(|c| c.quantity)
+            .sum()
+    });
+    let sideboard_total: Memo<u16> =
+        Memo::new(move |_| sideboard.get().iter().map(|c| c.quantity).sum());
+    let total_count = Memo::new(move |_| main_total.get() + sideboard_total.get());
 
     view! {
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -34,17 +37,17 @@ pub fn DeckList(
             <div class="p-6">
                 <div class="deck-content">
                     <div class="mb-4 text-right text-sm text-gray-500">
-                        {"Total cards: "}{total_count}{" (Main: "}{main_total}
-                        {", Sideboard: "}{sideboard_total}{")"}
+                        {"Total cards: "}{move || total_count.get()}{" (Main: "}{move|| main_total.get()}
+                        {", Sideboard: "}{move || sideboard_total.get()}{")"}
                     </div>
 
                     <div class="grid grid-cols-2 gap-6">
                         <div class="space-y-6">
-                            {render_non_land_cards(main_deck.clone())}
+                            {move || render_non_land_cards(main_deck.get())}
                         </div>
                         <div class="space-y-6">
-                            {render_lands(main_deck.clone())}
-                            {render_sideboard(sideboard.clone())}
+                            {move || render_lands(main_deck.get())}
+                            {move || render_sideboard(sideboard.get())}
                         </div>
                     </div>
                 </div>
@@ -88,18 +91,22 @@ fn render_non_land_cards(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -
     let sections: Vec<_> = ordered_types
         .into_iter()
         .filter_map(|card_type| {
-            main_deck.get(&card_type).filter(|cards| !cards.is_empty()).cloned().map(|cards| {
-                view! {
-                    <div class="mb-4">
-                        <h4 class="text-md font-medium text-gray-700 mb-2">
-                            {format!("{} ({})", card_type, cards.len())}
-                        </h4>
-                        <div class="space-y-1">
-                            {cards.into_iter().map(|card| render_card_row(card)).collect::<Vec<_>>()}
+            main_deck
+                .get(&card_type)
+                .filter(|cards| !cards.is_empty())
+                .cloned()
+                .map(|cards| {
+                    view! {
+                        <div class="mb-4">
+                            <h4 class="text-md font-medium text-gray-700 mb-2">
+                                {format!("{} ({})", card_type, cards.len())}
+                            </h4>
+                            <div class="space-y-1">
+                                {cards.into_iter().map(render_card_row).collect::<Vec<_>>()}
+                            </div>
                         </div>
-                    </div>
-                }
-            })
+                    }
+                })
         })
         .collect();
 
@@ -118,7 +125,7 @@ fn render_lands(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -> impl In
                     {format!("Lands ({})", lands.len())}
                 </h3>
                 <div class="space-y-1 mt-2">
-                    {lands.into_iter().map(|card| render_card_row(card)).collect::<Vec<_>>()}
+                    {lands.into_iter().map(render_card_row).collect::<Vec<_>>()}
                 </div>
             </div>
         }
@@ -138,7 +145,7 @@ fn render_sideboard(sideboard: Vec<CardDisplayRecord>) -> impl IntoView {
                     {format!("Sideboard ({})", sideboard.len())}
                 </h3>
                 <div class="space-y-1 mt-2">
-                    {sideboard.into_iter().map(|card| render_card_row(card)).collect::<Vec<_>>()}
+                    {sideboard.into_iter().map(render_card_row).collect::<Vec<_>>()}
                 </div>
             </div>
         }
