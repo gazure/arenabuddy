@@ -54,7 +54,7 @@ itertools = "0.14.0"
 js-sys = "0.3"
 lazy_static = "1.5.0"
 leptos = { version = "0.8", features = ["csr"] }
-leptos_router = { version = "0.8.2", features = ["tracing"] }
+leptos_router = { version = "0.8.3", features = ["tracing"] }
 notify = "8.0.0"
 prost = "0.13"
 prost-build = "0.13"

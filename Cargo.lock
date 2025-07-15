@@ -3600,9 +3600,9 @@ dependencies = [
 
 [[package]]
 name = "leptos_router"
-version = "0.8.2"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d1b70dbd176bd0129e5db0e2ed48b7ff076c1b17cf52bbd0e85dcc3e6b9cbc0"
+checksum = "e1b6df1b107c301bd39c114768a1196a8dfcbdae869364b3f0247e3f554b503a"
 dependencies = [
  "any_spawner",
  "either_of",
@@ -3611,7 +3611,6 @@ dependencies = [
  "js-sys",
  "leptos",
  "leptos_router_macro",
- "once_cell",
  "or_poisoned",
  "reactive_graph",
  "rustc_version",
@@ -3626,9 +3625,9 @@ dependencies = [
 
 [[package]]
 name = "leptos_router_macro"
-version = "0.8.2"
+version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8403f583a69812524b98c97f2ed0258771e205cd0f715b1bc6ba5e4f70dcb94b"
+checksum = "0d35d4bb7922e74546fac3e852b0f3252e9996e04fca12c359aba1e5958cfda8"
 dependencies = [
  "proc-macro-error2",
  "proc-macro2",
