@@ -10,6 +10,7 @@
 use std::{
     error::Error,
     fmt::Display,
+    path::Path,
     sync::{Arc, Mutex},
 };
 
@@ -58,14 +59,8 @@ impl Display for ArenaBuddyError {
 
 impl Error for ArenaBuddyError {}
 
-fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
+fn setup_logging(app_data_dir: &Path) -> Result<(), Box<dyn Error>> {
     let registry = tracing_subscriber::registry();
-    let app_data_dir = app
-        .path()
-        .app_data_dir()
-        .map_err(|_| ArenaBuddyError::CorruptedAppData)?;
-    std::fs::create_dir_all(&app_data_dir).map_err(|_| ArenaBuddyError::CorruptedAppData)?;
-
     let log_dir = app_data_dir.join("logs");
     std::fs::create_dir_all(&log_dir).map_err(|_| ArenaBuddyError::CorruptedAppData)?;
 
@@ -93,6 +88,17 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
         .with_level(true);
 
     registry.with(file_layer).with(console_layer).init();
+    Ok(())
+}
+
+fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
+    let app_data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|_| ArenaBuddyError::CorruptedAppData)?;
+    std::fs::create_dir_all(&app_data_dir).map_err(|_| ArenaBuddyError::CorruptedAppData)?;
+
+    setup_logging(&app_data_dir)?;
 
     let cards_path = app
         .path()
@@ -113,8 +119,7 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
         .path()
         .home_dir()
         .map_err(|_| ArenaBuddyError::NoHomeDir)?;
-    let os = std::env::consts::OS;
-    let player_log_path = match os {
+    let player_log_path = match std::env::consts::OS {
         "macos" => Ok(home.join("Library/Logs/Wizards of the Coast/MTGA/Player.log")),
         "windows" => Ok(home.join("AppData/LocalLow/Wizards of the Coast/MTGA/Player.log")),
         _ => Err(ArenaBuddyError::UnsupportedOS),
