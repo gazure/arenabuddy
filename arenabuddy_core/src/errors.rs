@@ -21,22 +21,26 @@ pub enum ParseError {
 pub enum Error {
     #[error("Database file not found")]
     DatabaseNotFound,
+    #[error("proto decoding error")]
+    ProtoEncodeError(#[from] prost::EncodeError),
+    #[error("proto decoding error")]
+    ProtoDecodeError(#[from] prost::DecodeError),
     #[error("Could not decode data")]
     DecodeError,
     #[error("Could not encode data")]
     EncodeError,
     #[error("Json error {0}")]
-    JsonError(serde_json::Error),
+    JsonError(#[from] serde_json::Error),
     #[error("Match Replay Build Error {0}")]
-    MTGAMatchBuildError(MTGAMatchBuilderError),
+    MTGAMatchBuildError(#[from] MTGAMatchBuilderError),
     #[error("Match Replay Build Error {0}")]
-    MatchReplayBuildError(MatchReplayBuilderError),
+    MatchReplayBuildError(#[from] MatchReplayBuilderError),
     #[error("Match Result Build Error {0}")]
-    MatchResultBuildError(MatchResultBuilderError),
+    MatchResultBuildError(#[from] MatchResultBuilderError),
     #[error("{0} not found")]
     NotFound(String),
     #[error("{0}")]
-    Parse(ParseError),
+    Parse(#[from] ParseError),
     #[error("Storage error: {0}")]
     StorageError(String),
 }
@@ -44,47 +48,5 @@ pub enum Error {
 impl From<std::io::Error> for Error {
     fn from(_: std::io::Error) -> Self {
         Error::DatabaseNotFound
-    }
-}
-
-impl From<prost::DecodeError> for Error {
-    fn from(_: prost::DecodeError) -> Self {
-        Error::DatabaseNotFound
-    }
-}
-
-impl From<prost::EncodeError> for Error {
-    fn from(_: prost::EncodeError) -> Self {
-        Error::DatabaseNotFound
-    }
-}
-
-impl From<serde_json::Error> for Error {
-    fn from(err: serde_json::Error) -> Self {
-        Error::JsonError(err)
-    }
-}
-
-impl From<MTGAMatchBuilderError> for Error {
-    fn from(err: MTGAMatchBuilderError) -> Self {
-        Error::MTGAMatchBuildError(err)
-    }
-}
-
-impl From<MatchResultBuilderError> for Error {
-    fn from(err: MatchResultBuilderError) -> Self {
-        Error::MatchResultBuildError(err)
-    }
-}
-
-impl From<MatchReplayBuilderError> for Error {
-    fn from(err: MatchReplayBuilderError) -> Self {
-        Error::MatchReplayBuildError(err)
-    }
-}
-
-impl From<ParseError> for Error {
-    fn from(err: ParseError) -> Self {
-        Error::Parse(err)
     }
 }

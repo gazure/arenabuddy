@@ -322,7 +322,7 @@ impl Storage for MatchDB {
             Self::insert_match_result(&match_result, &tx)?;
         }
 
-        tx.commit().map_err(MatchDBError::from)?;
+        tx.commit()?;
         Ok(())
     }
 }
