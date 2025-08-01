@@ -1,9 +1,12 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use tauri::State;
+use tokio::sync::Mutex;
 
 #[tauri::command]
-pub fn command_error_logs(log_collector: State<'_, Arc<Mutex<Vec<String>>>>) -> Vec<String> {
-    let lc = log_collector.lock().expect("log collector lock poisoned");
-    lc.clone()
+pub async fn command_error_logs(
+    log_collector: State<'_, Arc<Mutex<Vec<String>>>>,
+) -> Result<Vec<String>, ()> {
+    let lc = log_collector.lock().await;
+    Ok(lc.clone())
 }

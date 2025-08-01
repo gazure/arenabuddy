@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
 use arenabuddy_core::display::{
     deck::{DeckDisplayRecord, Difference},
@@ -8,17 +8,18 @@ use arenabuddy_core::display::{
 };
 use arenabuddy_data::MatchDB;
 use tauri::State;
+use tokio::sync::Mutex;
 use tracing::{error, info};
 
 #[tauri::command]
-pub fn command_match_details(match_id: String, db: State<'_, Arc<Mutex<MatchDB>>>) -> MatchDetails {
-    let Ok(mut db) = db.inner().lock() else {
-        error!("Failed to obtain db lock");
-        return MatchDetails::default();
-    };
+pub async fn command_match_details(
+    match_id: String,
+    db: State<'_, Arc<Mutex<MatchDB>>>,
+) -> Result<MatchDetails, ()> {
+    let db = db.inner().lock().await;
     info!("looking for match {match_id}");
 
-    let (mtga_match, result) = db.get_match(&match_id).unwrap_or_default();
+    let (mtga_match, result) = db.get_match(&match_id).await.unwrap_or_default();
 
     let mut match_details = MatchDetails {
         id: match_id.clone(),
@@ -30,15 +31,16 @@ pub fn command_match_details(match_id: String, db: State<'_, Arc<Mutex<MatchDB>>
         ..Default::default()
     };
 
-    match_details.decklists = db.get_decklists(&match_id).unwrap_or_default();
+    match_details.decklists = db.get_decklists(&match_id).await.unwrap_or_default();
 
-    match_details.primary_decklist = match_details.decklists.first().map(|primary_decklist| {
-        DeckDisplayRecord::from_decklist(primary_decklist, &db.cards_database)
-    });
+    match_details.primary_decklist = match_details
+        .decklists
+        .first()
+        .map(|primary_decklist| DeckDisplayRecord::from_decklist(primary_decklist, &db.cards));
 
     match_details.decklists.windows(2).for_each(|pair| {
         if let [prev, next] = pair {
-            let diff = Difference::diff(prev, next, &db.cards_database);
+            let diff = Difference::diff(prev, next, &db.cards);
             match_details
                 .differences
                 .get_or_insert_with(Vec::new)
@@ -46,20 +48,21 @@ pub fn command_match_details(match_id: String, db: State<'_, Arc<Mutex<MatchDB>>
         }
     });
 
-    let raw_mulligans = db.get_mulligans(&match_id).unwrap_or_else(|e| {
+    let raw_mulligans = db.get_mulligans(&match_id).await.unwrap_or_else(|e| {
         error!("Error retrieving Mulligans: {}", e);
         Vec::default()
     });
 
     match_details.mulligans = raw_mulligans
         .iter()
-        .map(|mulligan| Mulligan::from_model(mulligan, &db.cards_database))
+        .map(|mulligan| Mulligan::from_model(mulligan, &db.cards))
         .collect();
 
     match_details.mulligans.sort();
 
     match_details.game_results = db
         .get_match_results(&match_id)
+        .await
         .unwrap_or_else(|e| {
             error!("Error retrieving game results: {}", e);
             Vec::default()
@@ -74,6 +77,5 @@ pub fn command_match_details(match_id: String, db: State<'_, Arc<Mutex<MatchDB>>
             )
         })
         .collect();
-
-    match_details
+    Ok(match_details)
 }

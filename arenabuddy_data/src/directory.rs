@@ -1,6 +1,7 @@
-use std::{fs::File, io::BufWriter, path::PathBuf};
+use std::path::PathBuf;
 
 use arenabuddy_core::replay::MatchReplay;
+use tokio::fs::File;
 use tracing::info;
 
 use crate::{Result, Storage};
@@ -20,16 +21,17 @@ impl DirectoryStorage {
 }
 
 impl Storage for DirectoryStorage {
-    fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
+    async fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
         let path = self.path.join(format!("{}.json", match_replay.match_id));
         info!(
             "Writing match replay to file: {}",
-            path.clone().to_str().unwrap_or("Path not found")
+            path.to_str().unwrap_or("Path not found")
         );
-        let file = File::create(path)?;
-        let writer = BufWriter::new(file);
+        let file = File::create(&path).await?;
+        let mut writer = tokio::io::BufWriter::new(file);
 
-        serde_json::to_writer(writer, match_replay)?;
+        tokio::io::AsyncWriteExt::write_all(&mut writer, &serde_json::to_vec_pretty(match_replay)?)
+            .await?;
 
         info!("Match replay written to file");
         Ok(())

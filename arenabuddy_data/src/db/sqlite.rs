@@ -1,3 +1,4 @@
+// UNUSED
 use std::sync::LazyLock;
 
 use arenabuddy_core::{
@@ -14,7 +15,7 @@ use tracing::{debug, error, info};
 
 use crate::{MatchDBError, Result, Storage};
 
-static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations");
+static MIGRATIONS_DIR: Dir = include_dir!("$CARGO_MANIFEST_DIR/migrations/sqlite");
 static MIGRATIONS: LazyLock<Migrations<'static>> = LazyLock::new(|| {
     Migrations::from_directory(&MIGRATIONS_DIR).unwrap_or(Migrations::new(Vec::new()))
 });

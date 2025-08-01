@@ -16,18 +16,17 @@ arenabuddy_data = { path = "../arenabuddy_data", version = "0.5.11" }
 aws-config = { workspace = true, features = ["behavior-version-latest"] }
 aws-sdk-s3 = { workspace = true }
 clap = { workspace = true }
+crossbeam = { workspace = true }
 csv = { workspace = true }
 ctrlc = { workspace = true }
-crossbeam = { workspace = true }
 prost = { workspace = true }
 reqwest = { workspace = true, features = ["json", "stream"] }
+rustyline = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
-rusqlite = { workspace = true, features = ["bundled"] }
-rustyline = { workspace = true }
 
 [[bin]]
 name = "arenabuddy"

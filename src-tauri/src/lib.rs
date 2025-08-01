@@ -7,18 +7,13 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::needless_pass_by_value)]
 
-use std::{
-    error::Error,
-    fmt::Display,
-    path::Path,
-    sync::{Arc, Mutex},
-};
+use std::{error::Error, fmt::Display, path::Path, sync::Arc};
 
 use arenabuddy_core::cards::CardsDatabase;
 use arenabuddy_data::{DirectoryStorage, MatchDB};
-use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use tauri::{App, Manager, path::BaseDirectory};
+use tokio::sync::Mutex;
 use tracing::{Level, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{
@@ -91,7 +86,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
+async fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
     let app_data_dir = app
         .path()
         .app_data_dir()
@@ -109,10 +104,10 @@ fn setup(app: &mut App) -> Result<(), Box<dyn Error>> {
 
     let db_path = app_data_dir.join("matches.db");
     info!("Database path: {}", db_path.to_string_lossy());
-    let conn = Connection::open(db_path).map_err(|_| ArenaBuddyError::NoMathchesDatabase)?;
-    let mut db = MatchDB::new(conn, cards_db);
-    db.init()
-        .map_err(|_| ArenaBuddyError::MatchesDatabaseInitializationFailure)?;
+    let url = std::env::var("DATABASE_URL").ok();
+
+    let mut db = MatchDB::new(url.as_deref(), cards_db).await?;
+    db.init().await?;
     let db_arc = Arc::new(Mutex::new(db));
 
     let home = app
@@ -153,7 +148,7 @@ pub fn run() -> tauri::Result<()> {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
-        .setup(setup)
+        .setup(|app| tauri::async_runtime::block_on(setup(app)))
         .invoke_handler(tauri::generate_handler![
             commands::matches::command_matches,
             commands::match_details::command_match_details,

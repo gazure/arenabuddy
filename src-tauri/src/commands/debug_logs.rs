@@ -1,13 +1,11 @@
-use std::{
-    result::Result,
-    sync::{Arc, Mutex},
-};
+use std::{result::Result, sync::Arc};
 
 use arenabuddy_data::DirectoryStorage;
 use tauri::State;
+use tokio::sync::Mutex;
 
 #[tauri::command]
-pub fn command_set_debug_logs(
+pub async fn command_set_debug_logs(
     dir: String,
     dir_backend: State<'_, Arc<Mutex<Option<DirectoryStorage>>>>,
 ) -> Result<(), String> {
@@ -17,21 +15,19 @@ pub fn command_set_debug_logs(
         return Err(format!("Path does not exist: {}", path.display()));
     }
 
-    let mut backend = dir_backend
-        .lock()
-        .expect("Failed to lock directory backend");
+    let mut backend = dir_backend.lock().await;
     *backend = Some(DirectoryStorage::new(path));
 
     Ok(())
 }
 
 #[tauri::command]
-pub fn command_get_debug_logs(
+pub async fn command_get_debug_logs(
     dir_backend: State<'_, Arc<Mutex<Option<DirectoryStorage>>>>,
-) -> Option<String> {
-    dir_backend
+) -> Result<Option<String>, ()> {
+    Ok(dir_backend
         .lock()
-        .expect("Failed to lock directory backend")
+        .await
         .as_ref()
-        .map(|b| b.path().to_string_lossy().to_string())
+        .map(|b| b.path().to_string_lossy().to_string()))
 }

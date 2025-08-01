@@ -255,15 +255,6 @@ mod tests {
     }
 
     #[test]
-    fn test_deck_from_raw_decklist() {
-        let deck = super::Deck::from_raw("Test Deck".to_string(), 0, "[1, 2, 3]", "[4, 5, 6]");
-        assert_eq!(deck.name, "Test Deck");
-        assert_eq!(deck.game_number, 0);
-        assert_eq!(deck.mainboard, vec![1, 2, 3]);
-        assert_eq!(deck.sideboard, vec![4, 5, 6]);
-    }
-
-    #[test]
     fn test_deck_display() {
         let deck = super::Deck::new("Test Deck".to_string(), 0, vec![1, 2, 3], vec![4, 5, 6]);
         let display = format!("{deck}");

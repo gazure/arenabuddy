@@ -15,16 +15,17 @@ struct Cli {
     command: Commands,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     // Initialize tracing for logging
     tracing_subscriber::fmt().init();
-    if let Err(e) = run() {
+    if let Err(e) = run().await {
         eprintln!("Error: {e}");
         process::exit(1);
     }
 }
 
-fn run() -> Result<()> {
+async fn run() -> Result<()> {
     let cli = Cli::parse();
 
     match &cli.command {
@@ -36,7 +37,7 @@ fn run() -> Result<()> {
             debug,
             follow,
         } => {
-            commands::parse::execute(player_log, output_dir, db, cards_db, *debug, *follow)?;
+            commands::parse::execute(player_log, output_dir, db, cards_db, *debug, *follow).await?;
         }
         Commands::Scrape {
             scryfall_host,

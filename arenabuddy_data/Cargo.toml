@@ -1,6 +1,6 @@
 [package]
 name = "arenabuddy_data"
-description =  "Storage of arenabuddy data"
+description = "Storage of arenabuddy data"
 authors.workspace = true
 categories.workspace = true
 version.workspace = true
@@ -13,10 +13,10 @@ license.workspace = true
 [dependencies]
 arenabuddy_core = { path = "../arenabuddy_core/", version = "0.5.11" }
 chrono = { workspace = true, features = ["serde"] }
-include_dir = { workspace = true }
 indoc = { workspace = true }
-rusqlite = { workspace = true, features = ["bundled"] }
-rusqlite_migration = { workspace = true, features = ["from-directory"] }
+postgresql_embedded = { workspace = true, features = ["bundled"] }
 serde_json = { workspace = true }
+sqlx = { workspace = true, features = ["chrono", "uuid"] }
+tokio = { workspace = true, features = ["full"] }
 thiserror = { workspace = true }
 tracing = { workspace = true }

@@ -16,8 +16,8 @@ pub enum Commands {
         #[arg(short, long, help = "Directory to write replay output files")]
         output_dir: Option<PathBuf>,
 
-        #[arg(short, long, help = "Database to write match data to")]
-        db: Option<PathBuf>,
+        #[arg(short, long, help = "Database url")]
+        db: Option<String>,
 
         #[arg(short, long, help = "Database of cards to reference")]
         cards_db: Option<PathBuf>,
