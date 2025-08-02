@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO deck\n            (match_id, game_number, deck_cards, sideboard_cards)\n            VALUES ($1, $2, $3, $4)\n            ON CONFLICT (match_id, game_number)\n            DO UPDATE SET deck_cards = excluded.deck_cards, sideboard_cards = excluded.sideboard_cards",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "bd1db4bcb4f7129eedc063325dded6839e9fa7a834c5ffeaffd8dd807c316a62"
+}

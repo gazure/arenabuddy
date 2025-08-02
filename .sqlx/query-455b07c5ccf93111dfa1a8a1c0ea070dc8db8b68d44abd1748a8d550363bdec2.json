@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO match_result (match_id, game_number, winning_team_id, result_scope)\n             VALUES ($1, $2, $3, $4)\n             ON CONFLICT (match_id, game_number)\n             DO UPDATE SET winning_team_id = excluded.winning_team_id, result_scope = excluded.result_scope",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "455b07c5ccf93111dfa1a8a1c0ea070dc8db8b68d44abd1748a8d550363bdec2"
+}

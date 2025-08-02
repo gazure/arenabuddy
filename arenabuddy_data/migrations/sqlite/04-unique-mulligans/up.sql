@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX IF NOT EXISTS match_game_hand_idx on mulligans (match_id, game_number, number_to_keep);

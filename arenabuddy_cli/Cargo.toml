@@ -1,0 +1,34 @@
+[package]
+name = "arenabuddy_cli"
+authors.workspace = true
+categories.workspace = true
+description = "parse player.log files"
+edition.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+arenabuddy_core = { path = "../arenabuddy_core" }
+arenabuddy_data = { path = "../arenabuddy_data" }
+clap = { workspace = true }
+csv = { workspace = true }
+ctrlc = { workspace = true }
+prost = { workspace = true }
+reqwest = { workspace = true, features = ["json", "stream"] }
+rustyline = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+urlencoding = { workspace = true }
+
+[[bin]]
+name = "arenabuddyctl"
+path = "src/main.rs"
+
+[lints]
+workspace = true

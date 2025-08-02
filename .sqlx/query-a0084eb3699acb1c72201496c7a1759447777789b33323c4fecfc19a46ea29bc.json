@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO mulligan (match_id, game_number, number_to_keep, hand, play_draw, opponent_identity, decision)\n             VALUES ($1, $2, $3, $4, $5, $6, $7)\n             ON CONFLICT (match_id, game_number, number_to_keep)\n             DO UPDATE SET hand = excluded.hand, play_draw = excluded.play_draw, opponent_identity = excluded.opponent_identity, decision = excluded.decision",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Text",
+        "Text",
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a0084eb3699acb1c72201496c7a1759447777789b33323c4fecfc19a46ea29bc"
+}

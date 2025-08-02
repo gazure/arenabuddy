@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT game_number, deck_cards, sideboard_cards FROM deck WHERE match_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "game_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "deck_cards",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "sideboard_cards",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6e356a743d6f688aaf6cbdd4860585b660e4ada1c5e7a34c7522af89dc68fddb"
+}

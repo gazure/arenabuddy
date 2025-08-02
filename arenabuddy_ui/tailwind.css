@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* Configure content sources */
+@source "./src/**/*.{rs,html,css}";
+@source "./dist/**/*.html";
+@source "./index.html";

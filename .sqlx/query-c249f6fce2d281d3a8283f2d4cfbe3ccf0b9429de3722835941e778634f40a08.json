@@ -1,0 +1,44 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "controller_seat_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "controller_player_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "opponent_player_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "c249f6fce2d281d3a8283f2d4cfbe3ccf0b9429de3722835941e778634f40a08"
+}

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT game_number, number_to_keep, hand, play_draw, opponent_identity, decision FROM mulligan WHERE match_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "game_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "number_to_keep",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "hand",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "play_draw",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "opponent_identity",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "decision",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "1660e8fc890c77dd6bce2d8a3c16e817933376899f1e9a4cdffd5b6b08ee6f89"
+}

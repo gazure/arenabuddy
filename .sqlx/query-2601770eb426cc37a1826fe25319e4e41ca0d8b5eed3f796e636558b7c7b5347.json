@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                m.id, m.controller_player_name, m.opponent_player_name, mr.winning_team_id, m.controller_seat_id, m.created_at\n            FROM match m JOIN match_result mr ON m.id = mr.match_id\n            WHERE m.id = $1 AND mr.result_scope = 'MatchScope_Match' LIMIT 1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "controller_player_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "opponent_player_name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "winning_team_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "controller_seat_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamp"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "2601770eb426cc37a1826fe25319e4e41ca0d8b5eed3f796e636558b7c7b5347"
+}
