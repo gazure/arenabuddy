@@ -15,9 +15,11 @@ license.workspace = true
 prost-build = { workspace = true }
 
 [dependencies]
+chrono = { workspace = true, features = ["serde"] }
 derive_builder = { workspace = true }
 include_dir = { workspace = true }
 indoc = { workspace = true }
+itertools = { workspace = true }
 lazy_static = { workspace = true }
 prost = { workspace = true }
 prost-types = { workspace = true }
@@ -25,9 +27,8 @@ regex = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-itertools = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
-chrono = { workspace = true, features = ["serde"] }
 
 [lints]
 workspace = true
