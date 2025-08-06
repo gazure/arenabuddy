@@ -2,15 +2,13 @@ use arenabuddy_core::display::match_details::MatchDetails as MatchDetailsData;
 use dioxus::prelude::*;
 
 use crate::{
-    app::invoke,
     components::{DeckList, MatchInfo, MulliganDisplay},
+    service::command_match_details,
     state::AsyncState,
 };
 
 async fn get_match_details(id: &str) -> Option<MatchDetailsData> {
-    let command_object =
-        serde_wasm_bindgen::to_value(&serde_json::json!({ "matchId": id })).unwrap();
-    serde_wasm_bindgen::from_value(invoke("command_match_details", command_object).await).ok()
+    command_match_details(id.to_string()).await.ok()
 }
 
 #[component]

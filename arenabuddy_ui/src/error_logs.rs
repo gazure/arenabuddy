@@ -1,10 +1,8 @@
 use dioxus::prelude::*;
-use wasm_bindgen::JsValue;
-
-use crate::app::invoke;
+use crate::service::command_error_logs;
 
 async fn get_error_logs() -> Option<Vec<String>> {
-    serde_wasm_bindgen::from_value(invoke("command_error_logs", JsValue::null()).await).ok()
+    command_error_logs().await.ok()
 }
 
 #[component]

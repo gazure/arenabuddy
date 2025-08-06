@@ -16,7 +16,7 @@ chrono = { workspace = true, features = ["serde"] }
 indoc = { workspace = true }
 postgresql_embedded = { workspace = true, features = ["bundled"] }
 serde_json = { workspace = true }
-sqlx = { workspace = true, features = ["chrono", "uuid"] }
+sqlx = { workspace = true, features = ["chrono", "uuid", "postgres"] }
 tokio = { workspace = true, features = ["full"] }
 thiserror = { workspace = true }
 tracing = { workspace = true }

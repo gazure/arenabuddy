@@ -1,72 +1,35 @@
 use dioxus::prelude::*;
-use wasm_bindgen::{JsValue, prelude::*};
-
-use crate::app::invoke;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "dialog"])]
-    async fn open(options: JsValue) -> JsValue;
-}
+use crate::service::{command_set_debug_logs, command_get_debug_logs};
 
 async fn set_debug_logs_dir(directory: &str) -> Result<(), String> {
-    let result = invoke(
-        "command_set_debug_logs",
-        serde_wasm_bindgen::to_value(&serde_json::json!({"dir": directory})).unwrap(),
-    )
-    .await;
-
-    // Check if the result indicates an error
-    if result.is_null() || result.is_undefined() {
-        Ok(())
-    } else {
-        // Try to parse error from result
-        match serde_wasm_bindgen::from_value::<String>(result) {
-            Ok(error_msg) => Err(error_msg),
-            Err(_) => Ok(()), // If we can't parse it as an error, assume success
-        }
-    }
+    command_set_debug_logs(directory.to_string())
+        .await
+        .map_err(|e| e.to_string())
 }
 
-async fn get_debug_logs_dir() -> Result<Option<String>, String> {
-    let result = invoke(
-        "command_get_debug_logs",
-        serde_wasm_bindgen::to_value(&serde_json::json!({})).unwrap(),
-    )
-    .await;
-
-    // Check if the result indicates an error
-    if result.is_null() || result.is_undefined() {
-        Ok(None)
-    } else {
-        // Try to parse the result
-        match serde_wasm_bindgen::from_value::<Option<String>>(result) {
-            Ok(dir) => Ok(dir),
-            Err(_) => Err("Failed to parse debug logs directory".to_string()),
-        }
-    }
+async fn get_debug_logs_dir() -> Result<Option<Vec<String>>, String> {
+    command_get_debug_logs()
+        .await
+        .map_err(|e| e.to_string())
 }
 
 async fn select_directory() -> Result<String, String> {
-    let options = serde_json::json!({
-        "directory": true,
-        "multiple": false,
-        "title": "Select Debug Logs Directory"
-    });
-
-    let result = open(serde_wasm_bindgen::to_value(&options).unwrap()).await;
-
-    if result.is_null() {
-        return Err("No directory selected".to_string());
+    use rfd::AsyncFileDialog;
+    
+    let folder = AsyncFileDialog::new()
+        .set_title("Select Debug Logs Directory")
+        .pick_folder()
+        .await;
+        
+    match folder {
+        Some(path) => Ok(path.path().to_string_lossy().to_string()),
+        None => Err("No directory selected".to_string()),
     }
-
-    serde_wasm_bindgen::from_value::<String>(result)
-        .map_err(|_| "Failed to parse selected directory".to_string())
 }
 
 #[component]
 pub fn DebugLogs() -> Element {
-    let mut selected_dir = use_signal(|| Option::<String>::None);
+    let mut selected_dir = use_signal(|| Option::<Vec<String>>::None);
     let mut status_message = use_signal(|| Option::<String>::None);
     let mut is_loading = use_signal(|| false);
     let mut is_initial_load = use_signal(|| true);
@@ -75,16 +38,16 @@ pub fn DebugLogs() -> Element {
     use_effect(move || {
         spawn(async move {
             match get_debug_logs_dir().await {
-                Ok(Some(dir)) => {
-                    selected_dir.set(Some(dir));
-                    status_message.set(Some("Loaded current debug logs directory".to_string()));
+                Ok(Some(logs)) => {
+                    selected_dir.set(Some(logs));
+                    status_message.set(Some("Loaded current debug logs".to_string()));
                 }
                 Ok(None) => {
                     status_message
                         .set(Some("No debug logs directory configured yet".to_string()));
                 }
                 Err(err) => {
-                    status_message.set(Some(format!("Error loading current directory: {err}")));
+                    status_message.set(Some(format!("Error loading debug logs: {err}")));
                 }
             }
             is_initial_load.set(false);
@@ -98,12 +61,23 @@ pub fn DebugLogs() -> Element {
         spawn(async move {
             match select_directory().await {
                 Ok(dir) => {
-                    selected_dir.set(Some(dir.clone()));
                     match set_debug_logs_dir(&dir).await {
                         Ok(()) => {
-                            status_message.set(Some(
-                                "Debug logs directory updated successfully!".to_string(),
-                            ));
+                            // Reload the logs after setting directory
+                            match get_debug_logs_dir().await {
+                                Ok(Some(logs)) => {
+                                    selected_dir.set(Some(logs));
+                                    status_message.set(Some(
+                                        "Debug logs directory updated successfully!".to_string(),
+                                    ));
+                                }
+                                Ok(None) => {
+                                    status_message.set(Some("Directory set but no logs found".to_string()));
+                                }
+                                Err(err) => {
+                                    status_message.set(Some(format!("Directory set but error loading logs: {err}")));
+                                }
+                            }
                         }
                         Err(err) => {
                             status_message.set(Some(format!("Error setting directory: {err}")));
@@ -143,12 +117,16 @@ pub fn DebugLogs() -> Element {
                 }
             }
 
-            if let Some(dir) = selected_dir() {
+            if let Some(logs) = selected_dir() {
                 div { class: "mb-4 p-3 bg-gray-100 rounded-lg",
                     p { class: "text-sm font-medium text-gray-700",
-                        "Debug Logs Directory:"
+                        "Debug Logs ({logs.len()} entries):"
                     }
-                    p { class: "text-sm text-gray-600 break-all", "{dir}" }
+                    div { class: "max-h-48 overflow-y-auto",
+                        for log in logs {
+                            p { class: "text-sm text-gray-600 break-all font-mono", "{log}" }
+                        }
+                    }
                 }
             }
 

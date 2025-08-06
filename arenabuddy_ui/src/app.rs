@@ -1,21 +1,14 @@
 use dioxus::prelude::*;
 use dioxus_router::{Link, Outlet, Routable};
-use wasm_bindgen::prelude::*;
 
 use crate::{
     debug_logs::DebugLogs, error_logs::ErrorLogs, match_details::MatchDetails, matches::Matches,
 };
 
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
-    pub(crate) async fn invoke(cmd: &str, args: JsValue) -> JsValue;
-    #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "opener"])]
-    fn openUrl(url: &str) -> JsValue;
-}
-
 fn open_github() {
-    openUrl("https://github.com/gazure/arenabuddy");
+    if let Err(e) = open::that("https://github.com/gazure/arenabuddy") {
+        tracing::error!("Failed to open URL: {}", e);
+    }
 }
 
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");

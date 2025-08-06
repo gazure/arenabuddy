@@ -3,7 +3,7 @@ use arenabuddy_core::{
     models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     replay::MatchReplay,
 };
-use chrono::Utc;
+use chrono::{NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
 use sqlx::{PgPool, Postgres, Transaction, types::Uuid};
 use tracing::{debug, error, info};
@@ -260,7 +260,7 @@ impl PostgresMatchDB {
                     row.controller_player_name,
                     row.opponent_player_name,
                     row.created_at
-                        .map(|naive| naive.and_utc())
+                        .map(|naive: NaiveDateTime| naive.and_utc())
                         .unwrap_or_default(),
                 )
             })
@@ -296,7 +296,7 @@ impl PostgresMatchDB {
                     row.controller_player_name,
                     row.opponent_player_name,
                     row.created_at
-                        .map(|naive| naive.and_utc())
+                        .map(|naive: NaiveDateTime| naive.and_utc())
                         .unwrap_or_default(),
                 ),
                 Some(MatchResult::new_match_result(row.id, row.winning_team_id)),
