@@ -1,5 +1,5 @@
 use chrono::Utc;
-use serde::{Deserialize, Deserializer, Serialize, de::Error};
+use serde::{de::Error, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 
 /// Structs for MTGA "Business" events

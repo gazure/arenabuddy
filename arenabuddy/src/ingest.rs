@@ -1,15 +1,15 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use arenabuddy_core::{
-    Error,
     errors::ParseError,
     processor::{EventSource, PlayerLogProcessor},
     replay::MatchReplayBuilder,
+    Error,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use notify::{Event, Watcher};
 use tokio::{
-    sync::{Mutex, mpsc},
+    sync::{mpsc, Mutex},
     time::sleep,
 };
 use tracing::{error, info};

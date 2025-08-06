@@ -1,6 +1,6 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
-use anyhow::{anyhow,Result};
+use anyhow::{anyhow, Result};
 use arenabuddy_core::{
     errors::ParseError,
     processor::{EventSource, PlayerLogProcessor},
@@ -63,7 +63,7 @@ async fn log_process_start(
             }
             Err(TryRecvError::Empty) => {
                 info!("no log rotation");
-            },
+            }
             Err(TryRecvError::Disconnected) => {
                 error!("discconnected rotation channel");
                 return Err(anyhow!("discconnected rotation channel"));

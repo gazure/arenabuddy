@@ -5,7 +5,7 @@ use arenabuddy_core::{
 };
 use chrono::{NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
-use sqlx::{PgPool, Postgres, Transaction, types::Uuid};
+use sqlx::{types::Uuid, PgPool, Postgres, Transaction};
 use tracing::{debug, error, info};
 
 use crate::{MatchDBError, Result, Storage};

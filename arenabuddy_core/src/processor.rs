@@ -8,12 +8,12 @@ use std::{
 use tracing::{debug, error};
 
 use crate::{
-    Result,
     errors::ParseError,
     mtga_events::{
         business::RequestTypeBusinessEvent, client::RequestTypeClientToMatchServiceMessage,
         gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
     },
+    Result,
 };
 
 pub trait EventSource {

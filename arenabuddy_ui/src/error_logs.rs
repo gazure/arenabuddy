@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+
 use crate::service::command_error_logs;
 
 async fn get_error_logs() -> Option<Vec<String>> {

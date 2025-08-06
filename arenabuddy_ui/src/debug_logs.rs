@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
-use crate::service::{command_set_debug_logs, command_get_debug_logs};
+
+use crate::service::{command_get_debug_logs, command_set_debug_logs};
 
 async fn set_debug_logs_dir(directory: &str) -> Result<(), String> {
     command_set_debug_logs(directory.to_string())
@@ -8,19 +9,17 @@ async fn set_debug_logs_dir(directory: &str) -> Result<(), String> {
 }
 
 async fn get_debug_logs_dir() -> Result<Option<Vec<String>>, String> {
-    command_get_debug_logs()
-        .await
-        .map_err(|e| e.to_string())
+    command_get_debug_logs().await.map_err(|e| e.to_string())
 }
 
 async fn select_directory() -> Result<String, String> {
     use rfd::AsyncFileDialog;
-    
+
     let folder = AsyncFileDialog::new()
         .set_title("Select Debug Logs Directory")
         .pick_folder()
         .await;
-        
+
     match folder {
         Some(path) => Ok(path.path().to_string_lossy().to_string()),
         None => Err("No directory selected".to_string()),
@@ -43,8 +42,7 @@ pub fn DebugLogs() -> Element {
                     status_message.set(Some("Loaded current debug logs".to_string()));
                 }
                 Ok(None) => {
-                    status_message
-                        .set(Some("No debug logs directory configured yet".to_string()));
+                    status_message.set(Some("No debug logs directory configured yet".to_string()));
                 }
                 Err(err) => {
                     status_message.set(Some(format!("Error loading debug logs: {err}")));
@@ -72,10 +70,13 @@ pub fn DebugLogs() -> Element {
                                     ));
                                 }
                                 Ok(None) => {
-                                    status_message.set(Some("Directory set but no logs found".to_string()));
+                                    status_message
+                                        .set(Some("Directory set but no logs found".to_string()));
                                 }
                                 Err(err) => {
-                                    status_message.set(Some(format!("Directory set but error loading logs: {err}")));
+                                    status_message.set(Some(format!(
+                                        "Directory set but error loading logs: {err}"
+                                    )));
                                 }
                             }
                         }

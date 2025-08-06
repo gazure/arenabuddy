@@ -11,7 +11,7 @@ use arenabuddy_core::{
     models::MTGAMatch,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB};
-use dioxus::{prelude::*};
+use dioxus::prelude::*;
 #[cfg(feature = "server")]
 use tokio::sync::Mutex;
 use tracing::{error, info};

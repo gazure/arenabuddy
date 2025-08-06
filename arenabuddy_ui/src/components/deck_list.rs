@@ -106,10 +106,7 @@ fn render_non_land_cards(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -
 }
 
 fn render_lands(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -> Element {
-    if let Some(lands) = main_deck
-        .get(&CardType::Land)
-        .filter(|l| !l.is_empty())
-    {
+    if let Some(lands) = main_deck.get(&CardType::Land).filter(|l| !l.is_empty()) {
         rsx! {
             div {
                 h3 { class: "text-lg font-semibold text-gray-800 border-b pb-2",

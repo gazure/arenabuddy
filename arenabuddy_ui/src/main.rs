@@ -208,8 +208,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let data_dir = get_app_data_dir()?;
         let resource_dir = get_resource_dir()?;
 
-        let service = tokio::runtime::Runtime::new()?
-            .block_on(create_app_service())?;
+        let service = tokio::runtime::Runtime::new()?.block_on(create_app_service())?;
 
         LaunchBuilder::server()
             .with_cfg(
@@ -224,8 +223,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     #[cfg(not(feature = "server"))]
     {
-        LaunchBuilder::desktop()
-            .launch(App);
+        LaunchBuilder::desktop().launch(App);
     }
 
     Ok(())

@@ -8,7 +8,6 @@ use serde::Serialize;
 use tracing::{debug, info, warn};
 
 use crate::{
-    Error, Result,
     cards::CardsDatabase,
     events::{Event, EventRef},
     models::{Deck, Mulligan, MulliganBuilder},
@@ -26,6 +25,7 @@ use crate::{
         primitives::ZoneType,
     },
     processor::ParseOutput,
+    Error, Result,
 };
 
 const DEFAULT_HAND_SIZE: i32 = 7;

@@ -13,9 +13,9 @@ use std::{error::Error, fmt::Display, path::Path, sync::Arc};
 use arenabuddy_core::cards::CardsDatabase;
 use arenabuddy_data::{DirectoryStorage, MatchDB};
 use serde::{Deserialize, Serialize};
-use tauri::{App, Manager, path::BaseDirectory};
+use tauri::{path::BaseDirectory, App, Manager};
 use tokio::sync::Mutex;
-use tracing::{Level, info};
+use tracing::{info, Level};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{
     fmt::{self, writer::MakeWriterExt},
