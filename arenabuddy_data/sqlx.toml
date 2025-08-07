@@ -1,0 +1,3 @@
+
+[common]
+database-url-var = "ARENABUDDY_DATABASE_URL"

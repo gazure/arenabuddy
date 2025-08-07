@@ -160,7 +160,7 @@ async fn setup_backend(
     info!("cards_db path: {:?}", cards_path);
     let cards_db = CardsDatabase::new(cards_path).map_err(|_| ArenaBuddyError::NoCardsDatabase)?;
 
-    let url = std::env::var("DATABASE_URL").ok();
+    let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
     info!("using matches db: {:?}", url);
     let mut db = MatchDB::new(url.as_deref(), cards_db).await?;
     db.init().await?;
@@ -181,16 +181,22 @@ async fn setup_backend(
     let log_collector = Arc::new(tokio::sync::Mutex::new(Vec::<String>::new()));
     let debug_backend = Arc::new(tokio::sync::Mutex::new(None::<DirectoryStorage>));
 
-    // Initialize global service
-    let service = AppService::new(db_arc.clone(), log_collector.clone(), debug_backend.clone());
 
-    // Start ingest process
-    ingest::start(
+    // Initialize global service
+    let service = AppService::new(
         db_arc.clone(),
+        log_collector.clone(),
         debug_backend.clone(),
-        log_collector,
-        player_log_path,
     );
+    // Start ingest process
+    tokio::task::spawn(async move {
+        ingest::start(
+            db_arc.clone(),
+            debug_backend.clone(),
+            log_collector.clone(),
+            player_log_path,
+        ).await
+    });
 
     Ok(service)
 }
@@ -207,8 +213,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let data_dir = get_app_data_dir()?;
         let resource_dir = get_resource_dir()?;
+        let runtime = tokio::runtime::Runtime::new()?;
 
-        let service = tokio::runtime::Runtime::new()?.block_on(create_app_service())?;
+        let service = runtime.block_on(create_app_service())?;
 
         LaunchBuilder::server()
             .with_cfg(

@@ -13,8 +13,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::models::Cost;
 
-#[allow(clippy::all)]
 mod arenabuddy {
+    #![allow(clippy::all, clippy::pedantic)]
     // Include the generated code from the build script
     include!(concat!(env!("OUT_DIR"), "/arenabuddy.rs"));
 }

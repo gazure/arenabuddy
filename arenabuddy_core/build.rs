@@ -8,7 +8,6 @@ fn main() -> Result<()> {
     // Tell Cargo to rerun this script if any .proto files change
     println!("cargo:rerun-if-changed=protos/");
 
-    // Find all proto files
     let proto_dir = "protos";
     let proto_files = find_proto_files(proto_dir)?;
 
@@ -22,13 +21,8 @@ fn main() -> Result<()> {
 
     // Compile the proto files with prost-build
     let mut config = prost_build::Config::new();
-
-    // Add clippy allow attributes to generated code
-    config.type_attribute(
-        ".",
-        "#[allow(clippy::derive_partial_eq_without_eq, clippy::pedantic, clippy::nursery)]",
-    );
-    config.field_attribute(".", "#[allow(clippy::pedantic, clippy::nursery)]");
+    config.btree_map(&["."]);
+    config.format(true);
 
     // Compile the protos
     config.compile_protos(&proto_paths, &[proto_dir])?;

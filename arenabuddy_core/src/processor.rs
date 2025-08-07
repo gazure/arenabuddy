@@ -1,8 +1,11 @@
 use std::{
     collections::VecDeque,
-    fs::File,
-    io::{BufRead, BufReader},
     path::Path,
+};
+
+use tokio::{
+    fs::File,
+    io::{AsyncBufReadExt, BufReader},
 };
 
 use tracing::{debug, error};
@@ -16,12 +19,6 @@ use crate::{
     Result,
 };
 
-pub trait EventSource {
-    /// # Errors
-    ///
-    /// Errors when json events that look parseable do not parse, or when no events are found
-    fn get_next_event(&mut self) -> Result<ParseOutput>;
-}
 
 #[derive(Debug)]
 pub struct PlayerLogProcessor {
@@ -35,9 +32,9 @@ impl PlayerLogProcessor {
     /// # Errors
     ///
     /// Will return an error if the player log file cannot be opened
-    pub fn try_new(player_log_path: &Path) -> Result<Self> {
+    pub async fn try_new(player_log_path: &Path) -> Result<Self> {
         Ok(Self {
-            player_log_reader: BufReader::new(File::open(player_log_path)?),
+            player_log_reader: BufReader::new(File::open(player_log_path).await?),
             json_events: VecDeque::new(),
             current_json_str: None,
             bracket_depth: 0,
@@ -79,11 +76,11 @@ impl PlayerLogProcessor {
         completed_json_strings
     }
 
-    fn process_lines(&mut self) {
+    async fn process_lines(&mut self) {
         let mut lines = Vec::new();
         loop {
             let mut line = String::new();
-            match self.player_log_reader.read_line(&mut line) {
+            match self.player_log_reader.read_line(&mut line).await {
                 Ok(0) => break,
                 Ok(_) => lines.push(line),
                 Err(e) => {
@@ -97,11 +94,12 @@ impl PlayerLogProcessor {
             self.json_events.extend(json_strings);
         }
     }
-}
 
-impl EventSource for PlayerLogProcessor {
-    fn get_next_event(&mut self) -> Result<ParseOutput> {
-        self.process_lines();
+    /// # Errors
+    ///
+    /// Errors when json events that look parseable do not parse, or when no events are found
+    pub async fn get_next_event(&mut self) -> Result<ParseOutput> {
+        self.process_lines().await;
         let event = self.json_events.pop_front().ok_or(ParseError::NoEvent)?;
         parse(&event).map_err(|e| {
             error!("Error parsing event: {}", e);

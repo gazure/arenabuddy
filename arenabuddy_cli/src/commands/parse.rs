@@ -6,7 +6,7 @@ use std::{
 use anyhow::Result;
 use arenabuddy_core::{
     cards::CardsDatabase,
-    processor::{EventSource, PlayerLogProcessor},
+    processor::PlayerLogProcessor,
     replay::MatchReplayBuilder,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
@@ -24,7 +24,7 @@ async fn process_events(
     db: &mut Option<MatchDB>,
     follow: bool,
 ) -> Result<Option<MatchReplayBuilder>> {
-    while let Ok(event) = processor.get_next_event() {
+    while let Ok(event) = processor.get_next_event().await {
         if match_replay_builder.ingest(event) {
             match match_replay_builder.build() {
                 Ok(match_replay) => {
@@ -66,7 +66,7 @@ pub async fn execute(
     cards_db_path: Option<&PathBuf>,
     follow: bool,
 ) -> Result<()> {
-    let mut processor = PlayerLogProcessor::try_new(player_log)?;
+    let mut processor = PlayerLogProcessor::try_new(player_log).await?;
     let mut match_replay_builder = MatchReplayBuilder::new();
     let default_cards_db = PathBuf::from("data/cards-full.pb");
     let cards_db = CardsDatabase::new(cards_db_path.unwrap_or(&default_cards_db))?;

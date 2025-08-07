@@ -125,93 +125,44 @@ impl Deck {
         Self::new(name, game_number, mainboard, sideboard)
     }
 
-    /// Returns the name of the deck
     pub fn name(&self) -> &str {
         &self.name
     }
 
-    /// Returns the game number
     pub fn game_number(&self) -> i32 {
         self.game_number
     }
 
-    /// Sets the game number
     pub fn set_game_number(&mut self, game_number: i32) {
         self.game_number = game_number;
     }
 
-    /// Returns a reference to the mainboard cards
     pub fn mainboard(&self) -> &[i32] {
         &self.mainboard
     }
 
-    /// Returns a reference to the sideboard cards
     pub fn sideboard(&self) -> &[i32] {
         &self.sideboard
     }
 
-    /// Returns a map of card IDs to their quantities in the mainboard
     pub fn quantities(&self) -> Quantities {
         quantities(&self.mainboard)
     }
 
-    /// Returns a map of card IDs to their quantities in the sideboard
     pub fn sideboard_quantities(&self) -> Quantities {
         quantities(&self.sideboard)
     }
 
-    /// Returns the total number of cards in the mainboard
-    pub fn mainboard_size(&self) -> usize {
+    fn mainboard_size(&self) -> usize {
         self.mainboard.len()
     }
 
-    /// Returns the total number of cards in the sideboard
-    pub fn sideboard_size(&self) -> usize {
+    fn sideboard_size(&self) -> usize {
         self.sideboard.len()
-    }
-
-    /// Returns the number of unique cards in the mainboard
-    pub fn unique_mainboard_cards(&self) -> usize {
-        self.quantities().len()
-    }
-
-    /// Returns the number of unique cards in the sideboard
-    pub fn unique_sideboard_cards(&self) -> usize {
-        self.sideboard_quantities().len()
-    }
-
-    /// Adds a card to the mainboard
-    pub fn add_to_mainboard(&mut self, card_id: i32) {
-        self.mainboard.push(card_id);
-    }
-
-    /// Adds a card to the sideboard
-    pub fn add_to_sideboard(&mut self, card_id: i32) {
-        self.sideboard.push(card_id);
-    }
-
-    /// Adds multiple copies of a card to the mainboard
-    pub fn add_copies_to_mainboard(&mut self, card_id: i32, count: usize) {
-        self.mainboard.extend(std::iter::repeat_n(card_id, count));
-    }
-
-    /// Adds multiple copies of a card to the sideboard
-    pub fn add_copies_to_sideboard(&mut self, card_id: i32, count: usize) {
-        self.sideboard.extend(std::iter::repeat_n(card_id, count));
-    }
-
-    /// Returns whether the mainboard contains at least one copy of the specified card
-    pub fn mainboard_contains(&self, card_id: i32) -> bool {
-        self.mainboard.contains(&card_id)
-    }
-
-    /// Returns whether the sideboard contains at least one copy of the specified card
-    pub fn sideboard_contains(&self, card_id: i32) -> bool {
-        self.sideboard.contains(&card_id)
     }
 }
 
-pub fn quantities(deck: &[i32]) -> Quantities {
+fn quantities(deck: &[i32]) -> Quantities {
     deck.iter()
         .unique()
         .copied()

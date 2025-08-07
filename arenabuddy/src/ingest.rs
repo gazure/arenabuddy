@@ -2,7 +2,7 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use arenabuddy_core::{
     errors::ParseError,
-    processor::{EventSource, PlayerLogProcessor},
+    processor::{PlayerLogProcessor},
     replay::MatchReplayBuilder,
     Error,
 };

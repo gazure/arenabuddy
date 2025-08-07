@@ -4,27 +4,44 @@ package arenabuddy;
 
 // Card represents a Magic: The Gathering card
 message Card {
-  int64 id = 1;              // Unique card identifier
-  string set = 2;            // Set code (e.g., "pio", "lci")
-  string name = 3;           // Card name
-  string lang = 4;           // Language code (e.g., "en")
-  string image_uri = 5;      // URL to card image
-  string mana_cost = 6;      // Mana cost string (e.g., "{1}{W}")
-  int32 cmc = 7;             // Converted mana cost
-  string type_line = 8;      // Card type (e.g., "Instant", "Creature — Otter Wizard")
-  string layout = 9;         // Card layout type (e.g., "normal", "split")
-  repeated string colors = 10;       // Color array (e.g., ["R"], ["B", "W"])
-  repeated string color_identity = 11; // Color identity array
-  repeated CardFace card_faces = 12; // Card faces for multi-faced cards
+  // Unique card identifier, set by MtG: Arena
+  int64 id = 1;
+  // Set code (e.g., "pio", "lci")
+  string set = 2;
+  // Card name
+  string name = 3;
+  // Language code (e.g., "en")
+  string lang = 4;
+  // URL to card image
+  string image_uri = 5;
+  // Mana cost string (e.g., "{1}{W}")
+  string mana_cost = 6;
+  // Converted mana cost
+  int32 cmc = 7;
+  // Card type (e.g., "Instant", "Creature — Otter Wizard")
+  string type_line = 8;
+  // Card layout type (e.g., "normal", "split")
+  string layout = 9;
+  // Color array (e.g., ["R"], ["B", "W"])
+  repeated string colors = 10;
+  // Color identity array
+  repeated string color_identity = 11;
+  // Card faces for multi-faced cards
+  repeated CardFace card_faces = 12;
 }
 
 // CardFace represents one face of a split card or other multi-face cards
 message CardFace {
-  string name = 1;           // Face name
-  string type_line = 2;      // Face type
-  string mana_cost = 3;      // Face mana cost
-  optional string image_uri = 4; // Optional face-specific image
-  repeated string colors = 5;    // Face colors
+  // Face name
+  string name = 1;
+  // Face type
+  string type_line = 2;
+  // Face mana cost
+  string mana_cost = 3;
+  // Optional face-specific image
+  optional string image_uri = 4;
+  // Face colors
+  repeated string colors = 5;
 }
 
 // CardCollection represents a collection of MTG cards
