@@ -16,13 +16,13 @@ use dioxus::{
 };
 use serde::{Deserialize, Serialize};
 use start::AppMeta;
-use tracing::{debug, info, Level};
+use tracing::{Level, debug, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{
+    EnvFilter, Layer,
     fmt::{self, writer::MakeWriterExt},
     layer::SubscriberExt,
     util::SubscriberInitExt,
-    EnvFilter, Layer,
 };
 
 mod app;
