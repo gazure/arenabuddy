@@ -14,17 +14,17 @@ license.workspace = true
 anyhow = { workspace = true }
 arenabuddy_core = { path = "../arenabuddy_core/" }
 arenabuddy_data = { path = "../arenabuddy_data" }
-axum = { workspace = true, optional = true}
+axum = { workspace = true, optional = true }
 chrono = { workspace = true }
 dioxus = { workspace = true, features = ["router", "desktop", "fullstack"] }
 itertools = { workspace = true }
 notify = { workspace = true }
-open = "5.3"
+open = { workspace = true }
 postgresql_embedded = { workspace = true, features = ["bundled"] }
-rfd = "0.14"
+rfd = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-start = { path = "../../lib/start"}
+start = { path = "../../lib/start" }
 tokio = { workspace = true, optional = true, features = ["full"] }
 tracing = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
