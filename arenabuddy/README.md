@@ -67,8 +67,6 @@ dx serve --hot-reload
 - `dioxus`: Main framework (v0.7.0-alpha.3)
 - `dioxus-router`: Routing (v0.7.0-alpha.3)
 - `console_error_panic_hook`: Better error messages in WASM
-- `wasm-bindgen`: WASM bindings
-- `serde` & `serde-wasm-bindgen`: Serialization for JS interop
 
 ## Features
 
