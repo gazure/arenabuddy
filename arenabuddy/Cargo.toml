@@ -19,7 +19,7 @@ chrono = { workspace = true }
 dioxus = { workspace = true, features = ["router", "desktop", "fullstack"] }
 itertools = { workspace = true }
 notify = { workspace = true }
-open = "5.0"
+open = "5.3"
 postgresql_embedded = { workspace = true, features = ["bundled"] }
 rfd = "0.14"
 serde = { workspace = true, features = ["derive"] }
