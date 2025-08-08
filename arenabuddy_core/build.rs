@@ -21,7 +21,7 @@ fn main() -> Result<()> {
 
     // Compile the proto files with prost-build
     let mut config = prost_build::Config::new();
-    config.btree_map(&["."]);
+    config.btree_map(["."]);
     config.format(true);
 
     // Compile the protos

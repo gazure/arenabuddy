@@ -1,4 +1,3 @@
-#![expect(clippy::too_many_lines)]
 #![expect(clippy::needless_pass_by_value)]
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
@@ -93,9 +92,10 @@ fn get_resource_dir() -> Result<std::path::PathBuf, Box<dyn Error>> {
         exe_dir.join("resources"),
         exe_dir.join("data"),
         exe_dir.parent().unwrap().join("Resources"), // macOS app bundle
-        std::env::var("CARGO_MANIFEST_DIR")
-            .map(|dir| std::path::PathBuf::from(dir).join("data"))
-            .unwrap_or_else(|_| std::env::current_dir().unwrap().join("./data")), /* Development mode */
+        std::env::var("CARGO_MANIFEST_DIR").map_or_else(
+            |_| std::env::current_dir().unwrap().join("./data"),
+            |dir| std::path::PathBuf::from(dir).join("data"),
+        ), // Development mode
     ];
 
     for path in possible_paths {
@@ -205,7 +205,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 service2.debug_storage.clone(),
                 service2.log_collector.clone(),
                 player_log_path,
-            ).await
+            )
+            .await;
         });
 
         LaunchBuilder::server()

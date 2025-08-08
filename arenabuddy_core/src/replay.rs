@@ -356,7 +356,7 @@ impl MatchReplay {
             .and_then(|message| message.event_id.clone())
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = EventRef> {
+    pub fn iter(&self) -> impl Iterator<Item = EventRef<'_>> {
         self.into_iter()
     }
 }

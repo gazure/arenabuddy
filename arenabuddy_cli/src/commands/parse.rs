@@ -5,9 +5,7 @@ use std::{
 
 use anyhow::Result;
 use arenabuddy_core::{
-    cards::CardsDatabase,
-    processor::PlayerLogProcessor,
-    replay::MatchReplayBuilder,
+    cards::CardsDatabase, processor::PlayerLogProcessor, replay::MatchReplayBuilder,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use tokio::{sync::mpsc, time::sleep};

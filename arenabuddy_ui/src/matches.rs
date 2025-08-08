@@ -2,7 +2,7 @@ use arenabuddy_core::models::MTGAMatch;
 use dioxus::prelude::*;
 use dioxus_router::Link;
 
-use crate::{service::command_matches, app::Route};
+use crate::{app::Route, service::command_matches};
 
 async fn retrieve_matches() -> Vec<MTGAMatch> {
     command_matches().await.unwrap_or_default()
@@ -39,8 +39,8 @@ pub(crate) fn Matches() -> Element {
     });
 
     let refresh_matches = {
-        let mut loading = loading.clone();
-        let mut matches = matches.clone();
+        let mut loading = loading;
+        let mut matches = matches;
         move |_| {
             loading.set(true);
             spawn(async move {

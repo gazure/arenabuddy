@@ -2,7 +2,10 @@ use arenabuddy_core::display::match_details::MatchDetails as MatchDetailsData;
 use dioxus::prelude::*;
 
 use crate::{
-    app::Route, components::{DeckList, MatchInfo, MulliganDisplay}, service::command_match_details, state::AsyncState
+    app::Route,
+    components::{DeckList, MatchInfo, MulliganDisplay},
+    service::command_match_details,
+    state::AsyncState,
 };
 
 async fn get_match_details(id: &str) -> Option<MatchDetailsData> {
@@ -14,7 +17,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
     let state = use_signal(|| AsyncState::Loading);
 
     let mut load_data = {
-        let mut state = state.clone();
+        let mut state = state;
         let id = id.clone();
         move || {
             state.set(AsyncState::Loading);
@@ -31,7 +34,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
     };
 
     let refresh_load = {
-        let mut state = state.clone();
+        let mut state = state;
         let id = id.clone();
         move |_| {
             state.set(AsyncState::Loading);

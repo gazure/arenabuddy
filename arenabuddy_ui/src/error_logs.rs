@@ -8,7 +8,7 @@ async fn get_error_logs() -> Option<Vec<String>> {
 
 #[component]
 pub fn ErrorLogs() -> Element {
-    let mut error_logs = use_signal(|| Vec::<String>::new());
+    let mut error_logs = use_signal(Vec::<String>::new);
     let mut is_loading = use_signal(|| true);
     let mut has_error = use_signal(|| false);
 

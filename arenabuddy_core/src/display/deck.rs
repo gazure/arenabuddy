@@ -44,7 +44,10 @@ impl DeckDisplayRecord {
                     acc
                 },
             );
-        main_cards.values_mut().for_each(|cards| cards.sort());
+
+        for cards in main_cards.values_mut() {
+            cards.sort();
+        }
 
         let sideboard_cards = sideboard_quantities
             .keys()

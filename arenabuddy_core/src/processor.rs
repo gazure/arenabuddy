@@ -1,13 +1,9 @@
-use std::{
-    collections::VecDeque,
-    path::Path,
-};
+use std::{collections::VecDeque, path::Path};
 
 use tokio::{
     fs::File,
     io::{AsyncBufReadExt, BufReader},
 };
-
 use tracing::{debug, error};
 
 use crate::{
@@ -18,7 +14,6 @@ use crate::{
     },
     Result,
 };
-
 
 #[derive(Debug)]
 pub struct PlayerLogProcessor {

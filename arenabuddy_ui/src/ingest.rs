@@ -5,15 +5,18 @@ use arenabuddy_core::{
     errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder, Error,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
-use notify::{Event, FsEventWatcher, RecursiveMode, Watcher};
+use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
+// #[cfg(all(target_os = "macos"))]
+// use notify::FsEventWatcher;
+// #[cfg(all(target_os = "linux"))]
+// use notify::INotifyWatcher;
 use tokio::sync::{
     mpsc::{channel, Receiver},
     Mutex,
 };
 use tracing::{error, info};
 
-
-fn watcher() -> Result<(FsEventWatcher, Receiver<Event>)> {
+fn watcher() -> Result<(RecommendedWatcher, Receiver<Event>)> {
     let (tx, rx) = channel(100);
 
     info!("building watcher!");
@@ -23,7 +26,7 @@ fn watcher() -> Result<(FsEventWatcher, Receiver<Event>)> {
             Ok(event) => {
                 tokio::runtime::Runtime::new().unwrap().block_on(async {
                     info!("found event!");
-                    let _ = tx.send(event).await.expect("channel crashed");
+                    let () = tx.send(event).await.expect("channel crashed");
                 });
             }
             Err(e) => {
@@ -53,15 +56,12 @@ async fn log_process_start(
     loop {
         tokio::select! {
             rotation = rx.recv() => {
-                match rotation {
-                    Some(event) => {
-                        info!("log file rotated!, {:?}", event);
-                        processor = PlayerLogProcessor::try_new(&player_log_path).await?;
-                    }
-                    None => {
-                        error!("disconnected rotation channel");
-                        return Err(anyhow!("disconnected rotation channel"));
-                    }
+                if let Some(event) = rotation {
+                    info!("log file rotated!, {:?}", event);
+                    processor = PlayerLogProcessor::try_new(&player_log_path).await?;
+                } else {
+                    error!("disconnected rotation channel");
+                    return Err(anyhow!("disconnected rotation channel"));
                 }
             }
             _ = interval.tick() => {
@@ -111,8 +111,8 @@ pub async fn start(
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
 ) {
-        let res = log_process_start(db, debug_dir, log_collector, player_log_path).await;
-        if let Err(e) = res {
-            error!("Log processing failed: {}", e);
-        }
+    let res = log_process_start(db, debug_dir, log_collector, player_log_path).await;
+    if let Err(e) = res {
+        error!("Log processing failed: {}", e);
+    }
 }
