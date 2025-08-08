@@ -52,11 +52,7 @@ impl MatchResult {
     /// # Returns
     ///
     /// A new `MatchResult` instance with "Game" scope
-    pub fn new_game_result(
-        match_id: impl Into<String>,
-        game_number: i32,
-        winning_team_id: i32,
-    ) -> Self {
+    pub fn new_game_result(match_id: impl Into<String>, game_number: i32, winning_team_id: i32) -> Self {
         Self::new(match_id, game_number, winning_team_id, "Game")
     }
 

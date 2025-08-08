@@ -9,16 +9,12 @@ To get started with the ArenaBuddy development environment, follow these steps:
 1. Install Prerequisites:
 
    - Rust toolchain
-   - Required platform-specific dependencies for Tauri development
+   - Required platform-specific dependencies for dioxus development
 
 2. Development Commands:
 
    ```bash
-   # Run development server
-   cargo tauri dev
-
-   # Build production version
-   cargo tauri build
+   dx serve --platform desktop
    ```
 
 3. CLI Tool:
@@ -38,7 +34,6 @@ To get started with the ArenaBuddy development environment, follow these steps:
 4. Project Structure:
 
    - `/arenabuddy_core` - common modules
-   - `/public` - Static assets
    - `/arenabuddy_cli` - Consolidated command line tool for log parsing and card scraping
-   - `/src` - Frontend source code
-   - `/arenabuddy` - Backend code
+   - `/arenabuddy_data` - data layer
+   - `/arenabuddy` - Frontend code

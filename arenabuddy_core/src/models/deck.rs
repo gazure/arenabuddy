@@ -167,8 +167,7 @@ fn quantities(deck: &[i32]) -> Quantities {
         .unique()
         .copied()
         .map(|card_id| {
-            let quantity =
-                u16::try_from(deck.iter().filter(|&id| *id == card_id).count()).unwrap_or(0);
+            let quantity = u16::try_from(deck.iter().filter(|&id| *id == card_id).count()).unwrap_or(0);
             (card_id, quantity)
         })
         .collect()

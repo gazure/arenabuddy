@@ -155,17 +155,11 @@ impl FromStr for CostSymbol {
             },
 
             // Phyrexian mana
-            "W/P" => Ok(CostSymbol::Phyrexian {
-                color: Color::White,
-            }),
+            "W/P" => Ok(CostSymbol::Phyrexian { color: Color::White }),
             "U/P" => Ok(CostSymbol::Phyrexian { color: Color::Blue }),
-            "B/P" => Ok(CostSymbol::Phyrexian {
-                color: Color::Black,
-            }),
+            "B/P" => Ok(CostSymbol::Phyrexian { color: Color::Black }),
             "R/P" => Ok(CostSymbol::Phyrexian { color: Color::Red }),
-            "G/P" => Ok(CostSymbol::Phyrexian {
-                color: Color::Green,
-            }),
+            "G/P" => Ok(CostSymbol::Phyrexian { color: Color::Green }),
 
             // Hybrid/fuse mana
             s if s.contains('/') && !s.contains("/P") => {
@@ -240,42 +234,12 @@ mod test {
 
     #[test]
     fn test_parse_simple_costs() {
-        assert_eq!(
-            "{1}",
-            Cost::from_str("{1}")
-                .expect("Failed to parse {1}")
-                .to_string()
-        );
-        assert_eq!(
-            "{W}",
-            Cost::from_str("{W}")
-                .expect("Failed to parse {W}")
-                .to_string()
-        );
-        assert_eq!(
-            "{U}",
-            Cost::from_str("{U}")
-                .expect("Failed to parse {U}")
-                .to_string()
-        );
-        assert_eq!(
-            "{B}",
-            Cost::from_str("{B}")
-                .expect("Failed to parse {B}")
-                .to_string()
-        );
-        assert_eq!(
-            "{R}",
-            Cost::from_str("{R}")
-                .expect("Failed to parse {R}")
-                .to_string()
-        );
-        assert_eq!(
-            "{G}",
-            Cost::from_str("{G}")
-                .expect("Failed to parse {G}")
-                .to_string()
-        );
+        assert_eq!("{1}", Cost::from_str("{1}").expect("Failed to parse {1}").to_string());
+        assert_eq!("{W}", Cost::from_str("{W}").expect("Failed to parse {W}").to_string());
+        assert_eq!("{U}", Cost::from_str("{U}").expect("Failed to parse {U}").to_string());
+        assert_eq!("{B}", Cost::from_str("{B}").expect("Failed to parse {B}").to_string());
+        assert_eq!("{R}", Cost::from_str("{R}").expect("Failed to parse {R}").to_string());
+        assert_eq!("{G}", Cost::from_str("{G}").expect("Failed to parse {G}").to_string());
     }
 
     #[test]
@@ -311,29 +275,15 @@ mod test {
     #[test]
     fn test_parse_colorless_costs() {
         // Test various colorless amounts
-        assert_eq!(
-            "{0}",
-            Cost::from_str("{0}")
-                .expect("Failed to parse {0}")
-                .to_string()
-        );
-        assert_eq!(
-            "{1}",
-            Cost::from_str("{1}")
-                .expect("Failed to parse {1}")
-                .to_string()
-        );
+        assert_eq!("{0}", Cost::from_str("{0}").expect("Failed to parse {0}").to_string());
+        assert_eq!("{1}", Cost::from_str("{1}").expect("Failed to parse {1}").to_string());
         assert_eq!(
             "{10}",
-            Cost::from_str("{10}")
-                .expect("Failed to parse {10}")
-                .to_string()
+            Cost::from_str("{10}").expect("Failed to parse {10}").to_string()
         );
         assert_eq!(
             "{15}",
-            Cost::from_str("{15}")
-                .expect("Failed to parse {15}")
-                .to_string()
+            Cost::from_str("{15}").expect("Failed to parse {15}").to_string()
         );
     }
 
@@ -341,33 +291,23 @@ mod test {
     fn test_parse_all_phyrexian_costs() {
         assert_eq!(
             "{W/P}",
-            Cost::from_str("{W/P}")
-                .expect("Failed to parse {W/P}")
-                .to_string()
+            Cost::from_str("{W/P}").expect("Failed to parse {W/P}").to_string()
         );
         assert_eq!(
             "{U/P}",
-            Cost::from_str("{U/P}")
-                .expect("Failed to parse {U/P}")
-                .to_string()
+            Cost::from_str("{U/P}").expect("Failed to parse {U/P}").to_string()
         );
         assert_eq!(
             "{B/P}",
-            Cost::from_str("{B/P}")
-                .expect("Failed to parse {B/P}")
-                .to_string()
+            Cost::from_str("{B/P}").expect("Failed to parse {B/P}").to_string()
         );
         assert_eq!(
             "{R/P}",
-            Cost::from_str("{R/P}")
-                .expect("Failed to parse {R/P}")
-                .to_string()
+            Cost::from_str("{R/P}").expect("Failed to parse {R/P}").to_string()
         );
         assert_eq!(
             "{G/P}",
-            Cost::from_str("{G/P}")
-                .expect("Failed to parse {G/P}")
-                .to_string()
+            Cost::from_str("{G/P}").expect("Failed to parse {G/P}").to_string()
         );
     }
 
@@ -501,19 +441,12 @@ mod test {
             };
 
             let serialized = cost.to_string();
-            assert_eq!(
-                *cost_str, serialized,
-                "Round-trip parsing failed for {cost_str}"
-            );
+            assert_eq!(*cost_str, serialized, "Round-trip parsing failed for {cost_str}");
 
             // Parse it again to ensure we can re-parse our output
             let reparsed = Cost::from_str(&serialized)
                 .unwrap_or_else(|_| panic!("Failed to re-parse serialized cost: {serialized}"));
-            assert_eq!(
-                serialized,
-                reparsed.to_string(),
-                "Re-parsing failed for {serialized}"
-            );
+            assert_eq!(serialized, reparsed.to_string(), "Re-parsing failed for {serialized}");
         }
     }
 }

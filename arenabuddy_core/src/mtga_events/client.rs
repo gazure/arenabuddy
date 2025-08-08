@@ -107,26 +107,14 @@ pub enum ClientMessage {
     UndoReq(UndoReqWrapper),
 }
 
-wrapper!(
-    AssignDamageRespWrapper,
-    AssignDamageResp,
-    assign_damage_resp
-);
+wrapper!(AssignDamageRespWrapper, AssignDamageResp, assign_damage_resp);
 wrapper!(SetSettingsReqWrapper, SetSettingsReq, set_settings_req);
 wrapper!(SubmitDeckRespWrapper, SubmitDeckResp, submit_deck_resp);
 wrapper!(MulliganRespWrapper, MulliganResp, mulligan_resp);
-wrapper!(
-    PerformActionRespWrapper,
-    PerformActionResp,
-    perform_action_resp
-);
+wrapper!(PerformActionRespWrapper, PerformActionResp, perform_action_resp);
 wrapper!(UIMessageWrapper, UIMessage, ui_message);
 wrapper!(SelectNRespWrapper, SelectNResp, select_n_resp);
-wrapper!(
-    SelectTargetsRespWrapper,
-    SelectTargetsResp,
-    select_targets_resp
-);
+wrapper!(SelectTargetsRespWrapper, SelectTargetsResp, select_targets_resp);
 wrapper!(
     DeclareAttackersRespWrapper,
     DeclareAttackersResp,

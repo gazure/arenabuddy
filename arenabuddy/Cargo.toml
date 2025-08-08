@@ -1,5 +1,5 @@
 [package]
-name = "arenabuddy_ui"
+name = "arenabuddy"
 description = "UI for arenabuddy"
 authors.workspace = true
 categories.workspace = true

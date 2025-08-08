@@ -66,8 +66,7 @@ impl AppService {
             controller_player_name: mtga_match.controller_player_name().to_string(),
             opponent_player_name: mtga_match.opponent_player_name().to_string(),
             created_at: mtga_match.created_at(),
-            did_controller_win: result
-                .is_some_and(|r| r.is_winner(mtga_match.controller_seat_id())),
+            did_controller_win: result.is_some_and(|r| r.is_winner(mtga_match.controller_seat_id())),
             ..Default::default()
         };
 
@@ -81,10 +80,7 @@ impl AppService {
         match_details.decklists.windows(2).for_each(|pair| {
             if let [prev, next] = pair {
                 let diff = Difference::diff(prev, next, &db.cards);
-                match_details
-                    .differences
-                    .get_or_insert_with(Vec::new)
-                    .push(diff);
+                match_details.differences.get_or_insert_with(Vec::new).push(diff);
             }
         });
 

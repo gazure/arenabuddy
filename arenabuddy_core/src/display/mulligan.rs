@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    cards::CardsDatabase, display::card::CardDisplayRecord, models::Mulligan as ModelMulligan,
-};
+use crate::{cards::CardsDatabase, display::card::CardDisplayRecord, models::Mulligan as ModelMulligan};
 
 #[derive(Debug, Deserialize, Serialize, Default, Clone)]
 pub struct Mulligan {
@@ -50,10 +48,9 @@ impl Mulligan {
             .split(',')
             .filter_map(|card_id_str| card_id_str.parse::<i32>().ok())
             .map(|card_id| -> CardDisplayRecord {
-                cards_database.get(&card_id).map_or_else(
-                    || CardDisplayRecord::new(card_id.to_string()),
-                    std::convert::Into::into,
-                )
+                cards_database
+                    .get(&card_id)
+                    .map_or_else(|| CardDisplayRecord::new(card_id.to_string()), std::convert::Into::into)
             })
             .collect();
 

@@ -32,11 +32,8 @@ impl<'de> Deserialize<'de> for RequestTypeBusinessEvent {
     {
         let v: Value = Deserialize::deserialize(deserializer)?;
         let id = v["id"].as_str().ok_or(Error::missing_field("id"))?;
-        let request = v["request"]
-            .as_str()
-            .ok_or(Error::missing_field("request"))?;
-        let business_event =
-            serde_json::from_str(request).map_err(|e| Error::custom(e.to_string()))?;
+        let request = v["request"].as_str().ok_or(Error::missing_field("request"))?;
+        let business_event = serde_json::from_str(request).map_err(|e| Error::custom(e.to_string()))?;
         Ok(RequestTypeBusinessEvent {
             id: id.to_string(),
             request: business_event,

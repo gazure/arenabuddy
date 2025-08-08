@@ -20,11 +20,7 @@ impl PostgresMatchDB {
     pub async fn new(url: Option<&str>, cards: CardsDatabase) -> Result<Self> {
         if let Some(url) = url {
             let pool = PgPool::connect(url).await?;
-            Ok(Self {
-                pool,
-                _db: None,
-                cards,
-            })
+            Ok(Self { pool, _db: None, cards })
         } else {
             let mut db = PostgreSQL::default();
             db.setup().await?;
@@ -41,8 +37,7 @@ impl PostgresMatchDB {
     }
 
     pub async fn init(&mut self) -> Result<()> {
-        let migrations_path =
-            std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("migrations/postgres");
+        let migrations_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("migrations/postgres");
         sqlx::migrate::Migrator::new(migrations_path)
             .await?
             .run(&self.pool)
@@ -61,11 +56,7 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    async fn insert_match(
-        match_id: &Uuid,
-        mtga_match: &MTGAMatch,
-        tx: &mut Transaction<'_, Postgres>,
-    ) -> Result<()> {
+    async fn insert_match(match_id: &Uuid, mtga_match: &MTGAMatch, tx: &mut Transaction<'_, Postgres>) -> Result<()> {
         sqlx::query!(
             r#"INSERT INTO match
             (id, controller_seat_id, controller_player_name, opponent_player_name, created_at)
@@ -84,11 +75,7 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    async fn insert_deck(
-        match_id: &Uuid,
-        deck: &Deck,
-        tx: &mut Transaction<'_, Postgres>,
-    ) -> Result<()> {
+    async fn insert_deck(match_id: &Uuid, deck: &Deck, tx: &mut Transaction<'_, Postgres>) -> Result<()> {
         let deck_string = serde_json::to_string(deck.mainboard())?;
         let sideboard_string = serde_json::to_string(deck.sideboard())?;
 
@@ -147,7 +134,7 @@ impl PostgresMatchDB {
              VALUES ($1, $2, $3, $4)
              ON CONFLICT (match_id, game_number)
              DO UPDATE SET winning_team_id = excluded.winning_team_id, result_scope = excluded.result_scope"#,
-             match_id,
+            match_id,
             match_result.game_number(),
             match_result.winning_team_id(),
             match_result.result_scope()

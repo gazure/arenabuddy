@@ -9,10 +9,7 @@ use dioxus::prelude::*;
 use crate::components::ManaCost;
 
 #[component]
-pub fn DeckList(
-    deck: DeckDisplayRecord,
-    #[props(optional)] title: Option<&'static str>,
-) -> Element {
+pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'static str>) -> Element {
     let title = title.unwrap_or("Your Deck");
     let main_deck = deck.main_deck;
     let sideboard = deck.sideboard;

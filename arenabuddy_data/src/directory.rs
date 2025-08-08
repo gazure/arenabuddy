@@ -30,8 +30,7 @@ impl Storage for DirectoryStorage {
         let file = File::create(&path).await?;
         let mut writer = tokio::io::BufWriter::new(file);
 
-        tokio::io::AsyncWriteExt::write_all(&mut writer, &serde_json::to_vec_pretty(match_replay)?)
-            .await?;
+        tokio::io::AsyncWriteExt::write_all(&mut writer, &serde_json::to_vec_pretty(match_replay)?).await?;
 
         info!("Match replay written to file");
         Ok(())

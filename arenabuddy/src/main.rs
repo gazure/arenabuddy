@@ -144,10 +144,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<(), Box<dyn Error>> {
 }
 
 #[cfg(feature = "server")]
-async fn build_service(
-    app_data_dir: PathBuf,
-    resource_dir: PathBuf,
-) -> Result<AppService, Box<dyn Error>> {
+async fn build_service(app_data_dir: PathBuf, resource_dir: PathBuf) -> Result<AppService, Box<dyn Error>> {
     setup_logging(&app_data_dir)?;
     let app_meta = AppMeta::from_env().with_app_name("arenabuddy");
     let root_span = tracing::info_span!("app", app = %app_meta.app);
@@ -191,10 +188,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "windows" => Ok(home.join("AppData/LocalLow/Wizards of the Coast/MTGA/Player.log")),
             _ => Err(ArenaBuddyError::UnsupportedOS),
         }?;
-        info!(
-            "Processing logs from : {}",
-            player_log_path.to_string_lossy()
-        );
+        info!("Processing logs from : {}", player_log_path.to_string_lossy());
 
         let background = tokio::runtime::Runtime::new()?;
         let service = background.block_on(create_app_service())?;

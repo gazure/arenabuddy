@@ -1,10 +1,5 @@
 /dist/
-/target/
 /.zed/
 /.idea
 /.ropeproject
 /scrape_data/
-/node_modules/
-/arenabuddy/logs
-package.json
-package-lock.json

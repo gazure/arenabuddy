@@ -10,10 +10,9 @@ use crate::{
 };
 
 fn get_card(db: &CardsDatabase, quantities: &Quantities, card_id: i32) -> CardDisplayRecord {
-    let mut card: CardDisplayRecord = db.get(&card_id).map_or_else(
-        || CardDisplayRecord::new(card_id.to_string()),
-        std::convert::Into::into,
-    );
+    let mut card: CardDisplayRecord = db
+        .get(&card_id)
+        .map_or_else(|| CardDisplayRecord::new(card_id.to_string()), std::convert::Into::into);
     card.quantity = *quantities.get(&card_id).unwrap_or(&0u16);
     card
 }
@@ -90,17 +89,13 @@ impl Difference {
         quantities(&missing)
     }
 
-    fn aggregate(
-        collection: &HashMap<i32, u16>,
-        cards_database: &CardsDatabase,
-    ) -> Vec<CardDisplayRecord> {
+    fn aggregate(collection: &HashMap<i32, u16>, cards_database: &CardsDatabase) -> Vec<CardDisplayRecord> {
         collection
             .iter()
             .map(|(card_id, quantity)| -> CardDisplayRecord {
-                let mut card = cards_database.get(&card_id).map_or_else(
-                    || CardDisplayRecord::new(card_id.to_string()),
-                    std::convert::Into::into,
-                );
+                let mut card = cards_database
+                    .get(&card_id)
+                    .map_or_else(|| CardDisplayRecord::new(card_id.to_string()), std::convert::Into::into);
                 card.quantity = *quantity;
                 card
             })
@@ -127,8 +122,7 @@ fn quantities(deck: &[i32]) -> HashMap<i32, u16> {
     let deck_quantities: HashMap<i32, u16> = unique
         .iter()
         .map(|ent_id| {
-            let quantity =
-                u16::try_from(deck.iter().filter(|&id| id == ent_id).count()).unwrap_or_default();
+            let quantity = u16::try_from(deck.iter().filter(|&id| id == ent_id).count()).unwrap_or_default();
             (*ent_id, quantity)
         })
         .collect();

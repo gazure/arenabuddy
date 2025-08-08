@@ -37,11 +37,7 @@ pub enum Commands {
         #[arg(long, help = "17Lands data base URL", default_value = SEVENTEEN_LANDS_HOST_DEFAULT)]
         seventeen_lands_host: String,
 
-        #[arg(
-            long,
-            help = "Output directory for scraped data",
-            default_value = "scrape_data"
-        )]
+        #[arg(long, help = "Output directory for scraped data", default_value = "scrape_data")]
         output_dir: PathBuf,
     },
 

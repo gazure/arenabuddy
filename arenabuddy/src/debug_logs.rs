@@ -65,18 +65,13 @@ pub fn DebugLogs() -> Element {
                             match get_debug_logs_dir().await {
                                 Ok(Some(logs)) => {
                                     selected_dir.set(Some(logs));
-                                    status_message.set(Some(
-                                        "Debug logs directory updated successfully!".to_string(),
-                                    ));
+                                    status_message.set(Some("Debug logs directory updated successfully!".to_string()));
                                 }
                                 Ok(None) => {
-                                    status_message
-                                        .set(Some("Directory set but no logs found".to_string()));
+                                    status_message.set(Some("Directory set but no logs found".to_string()));
                                 }
                                 Err(err) => {
-                                    status_message.set(Some(format!(
-                                        "Directory set but error loading logs: {err}"
-                                    )));
+                                    status_message.set(Some(format!("Directory set but error loading logs: {err}")));
                                 }
                             }
                         }

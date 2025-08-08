@@ -65,9 +65,7 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                     "help" => {
                         println!("Available commands:");
                         println!("  find <arena_id> - Find a card by Arena ID");
-                        println!(
-                            "  count [set_code] - Count cards, optionally filtered by set code"
-                        );
+                        println!("  count [set_code] - Count cards, optionally filtered by set code");
                         println!("  sets - List all set codes");
                         println!("  info <file> - Display information about a card data file");
                         println!("  help - Show this help message");

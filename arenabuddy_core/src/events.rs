@@ -1,8 +1,8 @@
 use serde::{Serialize, Serializer};
 
 use crate::mtga_events::{
-    business::BusinessEvent, client::RequestTypeClientToMatchServiceMessage,
-    gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
+    business::BusinessEvent, client::RequestTypeClientToMatchServiceMessage, gre::RequestTypeGREToClientEvent,
+    mgrsc::RequestTypeMGRSCEvent,
 };
 
 #[derive(Debug, Clone)]

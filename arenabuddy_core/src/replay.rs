@@ -14,10 +14,7 @@ use crate::{
     models::{Deck, Mulligan, MulliganBuilder},
     mtga_events::{
         business::BusinessEvent,
-        client::{
-            ClientMessage, MulliganOption, MulliganRespWrapper,
-            RequestTypeClientToMatchServiceMessage,
-        },
+        client::{ClientMessage, MulliganOption, MulliganRespWrapper, RequestTypeClientToMatchServiceMessage},
         gre::{
             DeckMessage, GREToClientMessage, GameObjectType, GameStateMessage, MulliganReqWrapper,
             RequestTypeGREToClientEvent,
@@ -42,12 +39,10 @@ pub struct MatchReplay {
 
 impl MatchReplay {
     fn gre_events_iter(&self) -> impl Iterator<Item = &RequestTypeGREToClientEvent> {
-        self.client_server_messages
-            .iter()
-            .filter_map(|mre| match mre {
-                Event::GRE(message) => Some(message),
-                _ => None,
-            })
+        self.client_server_messages.iter().filter_map(|mre| match mre {
+            Event::GRE(message) => Some(message),
+            _ => None,
+        })
     }
 
     fn gre_messages_iter(&self) -> impl Iterator<Item = &GREToClientMessage> {
@@ -56,22 +51,17 @@ impl MatchReplay {
     }
 
     fn game_state_messages_iter(&self) -> impl Iterator<Item = &GameStateMessage> {
-        self.gre_messages_iter()
-            .filter_map(|gre_message| match gre_message {
-                GREToClientMessage::GameStateMessage(wrapper) => Some(&wrapper.game_state_message),
-                _ => None,
-            })
+        self.gre_messages_iter().filter_map(|gre_message| match gre_message {
+            GREToClientMessage::GameStateMessage(wrapper) => Some(&wrapper.game_state_message),
+            _ => None,
+        })
     }
 
-    fn client_messages_iter(
-        &self,
-    ) -> impl Iterator<Item = &RequestTypeClientToMatchServiceMessage> {
-        self.client_server_messages
-            .iter()
-            .filter_map(|mre| match mre {
-                Event::Client(message) => Some(message),
-                _ => None,
-            })
+    fn client_messages_iter(&self) -> impl Iterator<Item = &RequestTypeClientToMatchServiceMessage> {
+        self.client_server_messages.iter().filter_map(|mre| match mre {
+            Event::Client(message) => Some(message),
+            _ => None,
+        })
     }
 
     /// # Errors
@@ -86,12 +76,8 @@ impl MatchReplay {
     /// Returns an error if the player names are not found
     pub fn get_player_names(&self, seat_id: i32) -> Result<(String, String)> {
         if let Some(players) = &self.match_start_message.mgrsc_event.game_room_info.players {
-            let controller = players
-                .iter()
-                .find(|player| player.system_seat_id == seat_id);
-            let opponent = players
-                .iter()
-                .find(|player| player.system_seat_id != seat_id);
+            let controller = players.iter().find(|player| player.system_seat_id == seat_id);
+            let opponent = players.iter().find(|player| player.system_seat_id != seat_id);
             if let Some(controller) = controller
                 && let Some(opponent) = opponent
             {
@@ -106,10 +92,7 @@ impl MatchReplay {
             .flat_map(|gsm| &gsm.game_objects)
             .filter(|game_object| {
                 game_object.owner_seat_id != self.controller_seat_id
-                    && matches!(
-                        game_object.type_field,
-                        GameObjectType::Card | GameObjectType::MDFCBack
-                    )
+                    && matches!(game_object.type_field, GameObjectType::Card | GameObjectType::MDFCBack)
             })
             .map(|game_object| game_object.grp_id)
             .collect()
@@ -207,8 +190,7 @@ impl MatchReplay {
 
                     if gsm.players.len() == 2
                         && gsm.players.iter().all(|player| {
-                            player.pending_message_type
-                                == Some("ClientMessageType_MulliganResp".to_string())
+                            player.pending_message_type == Some("ClientMessageType_MulliganResp".to_string())
                         })
                         && let Some(turn_info) = &gsm.turn_info
                         && let Some(decision_player) = turn_info.decision_player
@@ -224,16 +206,12 @@ impl MatchReplay {
 
                     if gsm.players.iter().any(|player| {
                         player.controller_seat_id == controller_id
-                            && player.pending_message_type
-                                == Some("ClientMessageType_MulliganResp".to_string())
+                            && player.pending_message_type == Some("ClientMessageType_MulliganResp".to_string())
                     }) {
                         let controller_hand_zone_id = gsm
                             .zones
                             .iter()
-                            .find(|zone| {
-                                zone.type_field == ZoneType::Hand
-                                    && zone.owner_seat_id == Some(controller_id)
-                            })
+                            .find(|zone| zone.type_field == ZoneType::Hand && zone.owner_seat_id == Some(controller_id))
                             .ok_or(Error::NotFound("Controller hand zone".to_owned()))?
                             .zone_id;
                         let game_objects_in_hand: Vec<i32> = gsm
@@ -243,8 +221,7 @@ impl MatchReplay {
                                 let Some(zone_id) = go.zone_id else {
                                     return false;
                                 };
-                                zone_id == controller_hand_zone_id
-                                    && go.type_field == GameObjectType::Card
+                                zone_id == controller_hand_zone_id && go.type_field == GameObjectType::Card
                             })
                             .map(|go| go.grp_id)
                             .collect();
@@ -269,9 +246,7 @@ impl MatchReplay {
         let mulligan_responses: BTreeMap<i32, &MulliganRespWrapper> = self
             .client_messages_iter()
             .filter_map(|client_message| match &client_message.payload {
-                ClientMessage::MulliganResp(wrapper) => {
-                    Some((wrapper.meta.game_state_id?, wrapper))
-                }
+                ClientMessage::MulliganResp(wrapper) => Some((wrapper.meta.game_state_id?, wrapper)),
                 _ => None,
             })
             .collect();
@@ -295,10 +270,7 @@ impl MatchReplay {
                     return None;
                 }
 
-                let play_draw = play_or_draw
-                    .get(&game_number)
-                    .cloned()
-                    .unwrap_or("Unknown".to_string());
+                let play_draw = play_or_draw.get(&game_number).cloned().unwrap_or("Unknown".to_string());
 
                 let hand_string = hand
                     .iter()
@@ -310,8 +282,7 @@ impl MatchReplay {
                     warn!("No game state ID found for mulligan request");
                     return None;
                 };
-                let number_to_keep =
-                    DEFAULT_HAND_SIZE - mulligan_request.mulligan_req.mulligan_count;
+                let number_to_keep = DEFAULT_HAND_SIZE - mulligan_request.mulligan_req.mulligan_count;
                 let decision = match mulligan_responses.get(&game_state_id) {
                     Some(mulligan_response) => match mulligan_response.mulligan_resp.decision {
                         MulliganOption::AcceptHand => "Keep",
@@ -428,9 +399,9 @@ impl MatchReplayBuilder {
             ParseOutput::GREMessage(gre_message) => {
                 self.client_server_messages.push(Event::GRE(gre_message));
             }
-            ParseOutput::ClientMessage(client_message) => self
-                .client_server_messages
-                .push(Event::Client(client_message)),
+            ParseOutput::ClientMessage(client_message) => {
+                self.client_server_messages.push(Event::Client(client_message));
+            }
             ParseOutput::MGRSCMessage(mgrsc_event) => {
                 return self.ingest_mgrc_event(mgrsc_event);
             }
@@ -446,12 +417,7 @@ impl MatchReplayBuilder {
 
     fn ingest_mgrc_event(&mut self, mgrsc_event: RequestTypeMGRSCEvent) -> bool {
         let state_type = mgrsc_event.mgrsc_event.game_room_info.state_type.clone();
-        let match_id = mgrsc_event
-            .mgrsc_event
-            .game_room_info
-            .game_room_config
-            .match_id
-            .clone();
+        let match_id = mgrsc_event.mgrsc_event.game_room_info.game_room_config.match_id.clone();
         match state_type {
             StateType::MatchCompleted => {
                 // match is over
@@ -472,9 +438,7 @@ impl MatchReplayBuilder {
     /// Returns an error if the builder is missing key information
     /// except it doesn't right now, so don't worry about it
     pub fn build(self) -> Result<MatchReplay> {
-        let match_id = self
-            .match_id
-            .ok_or(MatchReplayBuilderError::MissingMatchId)?;
+        let match_id = self.match_id.ok_or(MatchReplayBuilderError::MissingMatchId)?;
         let match_start_message = self
             .match_start_message
             .ok_or(MatchReplayBuilderError::MissingMatchStartMessage)?;
@@ -483,16 +447,13 @@ impl MatchReplayBuilder {
             .ok_or(MatchReplayBuilderError::MissingMatchEndMessage)?;
         let Some(controller_seat_id) = self.client_server_messages.iter().find_map(|e| {
             if let Event::GRE(r) = e {
-                r.gre_to_client_event
-                    .gre_to_client_messages
-                    .iter()
-                    .find_map(|e| {
-                        if let GREToClientMessage::ConnectResp(w) = e {
-                            w.meta.system_seat_ids.first().copied()
-                        } else {
-                            None
-                        }
-                    })
+                r.gre_to_client_event.gre_to_client_messages.iter().find_map(|e| {
+                    if let GREToClientMessage::ConnectResp(w) = e {
+                        w.meta.system_seat_ids.first().copied()
+                    } else {
+                        None
+                    }
+                })
             } else {
                 None
             }

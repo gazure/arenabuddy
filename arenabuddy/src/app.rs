@@ -1,9 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_router::{Link, Outlet, Routable};
 
-use crate::{
-    debug_logs::DebugLogs, error_logs::ErrorLogs, match_details::MatchDetails, matches::Matches,
-};
+use crate::{debug_logs::DebugLogs, error_logs::ErrorLogs, match_details::MatchDetails, matches::Matches};
 
 fn open_github() {
     if let Err(e) = open::that("https://github.com/gazure/arenabuddy") {

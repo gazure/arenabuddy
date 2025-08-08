@@ -6,11 +6,7 @@ use reqwest::Url;
 use tracing::{debug, info, warn};
 
 /// Execute the Scrape command
-pub async fn execute(
-    scryfall_host: &str,
-    seventeen_lands_host: &str,
-    output_dir: &Path,
-) -> Result<()> {
+pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output_dir: &Path) -> Result<()> {
     // Scrape data from both sources
 
     info!("Scraping 17Lands data...");
@@ -45,9 +41,7 @@ pub async fn execute(
 
 /// Scrape card data from Scryfall API
 async fn scrape_scryfall(base_url: &str) -> Result<serde_json::Value> {
-    let client = reqwest::Client::builder()
-        .user_agent("arenabuddy/1.0")
-        .build()?;
+    let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
 
     // Get bulk data endpoint
     let response = client.get(format!("{base_url}/bulk-data")).send().await?;
@@ -81,9 +75,7 @@ async fn scrape_scryfall(base_url: &str) -> Result<serde_json::Value> {
 
 /// Scrape card data from 17Lands
 async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, String>>> {
-    let client = reqwest::Client::builder()
-        .user_agent("arenabuddy/1.0")
-        .build()?;
+    let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
     let url = format!("{base_url}/analysis_data/cards/cards.csv");
 
     let response = client.get(&url).send().await?;
@@ -100,10 +92,7 @@ async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, St
 }
 
 /// Save a collection of cards to a binary protobuf file
-pub async fn save_card_collection_to_file(
-    cards: &CardCollection,
-    output_path: impl AsRef<Path>,
-) -> Result<()> {
+pub async fn save_card_collection_to_file(cards: &CardCollection, output_path: impl AsRef<Path>) -> Result<()> {
     let data = cards.encode_to_vec();
     tokio::fs::write(output_path.as_ref(), &data).await?;
     Ok(())
@@ -111,9 +100,7 @@ pub async fn save_card_collection_to_file(
 
 /// Search for a card by name using Scryfall API with rate limiting
 async fn search_card_by_name(base_url: &str, card_name: &str) -> Result<Option<Card>> {
-    let client = reqwest::Client::builder()
-        .user_agent("arenabuddy/1.0")
-        .build()?;
+    let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
 
     // Rate limit: 1 request per second
     tokio::time::sleep(Duration::from_millis(1000)).await;
@@ -148,8 +135,7 @@ async fn merge(
     seventeen_lands_cards: &Vec<HashMap<String, String>>,
     scryfall_host: &str,
 ) -> Result<Vec<Card>> {
-    let cards_by_name: HashMap<String, &Card> =
-        arena_cards.iter().map(|c| (c.name.clone(), c)).collect();
+    let cards_by_name: HashMap<String, &Card> = arena_cards.iter().map(|c| (c.name.clone(), c)).collect();
 
     let cards_by_id: HashMap<i64, &Card> = arena_cards.iter().map(|c| (c.id, c)).collect();
     // Create map of two-faced cards
@@ -188,20 +174,12 @@ async fn merge(
                     new_cards.push(new_card);
                 } else {
                     // Card not found in existing data, search Scryfall
-                    warn!(
-                        "Card '{}' not found in Scryfall data, searching...",
-                        card_name
-                    );
-                    if let Ok(Some(found_card)) =
-                        search_card_by_name(scryfall_host, card_name).await
-                    {
+                    warn!("Card '{}' not found in Scryfall data, searching...", card_name);
+                    if let Ok(Some(found_card)) = search_card_by_name(scryfall_host, card_name).await {
                         let mut new_card = found_card;
                         new_card.id = card_id;
                         new_cards.push(new_card);
-                        debug!(
-                            "Found and added card '{}' with arena_id {}",
-                            card_name, card_id
-                        );
+                        debug!("Found and added card '{}' with arena_id {}", card_name, card_id);
                     } else {
                         warn!("Could not find card '{}' via Scryfall search", card_name);
                     }

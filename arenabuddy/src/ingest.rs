@@ -1,9 +1,7 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use anyhow::{Result, anyhow};
-use arenabuddy_core::{
-    Error, errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder,
-};
+use arenabuddy_core::{Error, errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder};
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 // #[cfg(all(target_os = "macos"))]

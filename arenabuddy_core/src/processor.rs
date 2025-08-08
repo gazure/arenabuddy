@@ -118,8 +118,7 @@ pub enum ParseOutput {
 /// Errors if event appears to be a relevant json string, but does not decode properly
 pub fn parse(event: &str) -> Result<ParseOutput> {
     if event.contains("clientToMatchServiceMessage") {
-        let client_to_match_service_message: RequestTypeClientToMatchServiceMessage =
-            serde_json::from_str(event)?;
+        let client_to_match_service_message: RequestTypeClientToMatchServiceMessage = serde_json::from_str(event)?;
         Ok(ParseOutput::ClientMessage(client_to_match_service_message))
     } else if event.contains("matchGameRoomStateChangedEvent") {
         let mgrsc_event: RequestTypeMGRSCEvent = serde_json::from_str(event)?;

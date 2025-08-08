@@ -1,11 +1,7 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn MatchInfo(
-    controller_player_name: String,
-    opponent_player_name: String,
-    did_controller_win: bool,
-) -> Element {
+pub fn MatchInfo(controller_player_name: String, opponent_player_name: String, did_controller_win: bool) -> Element {
     rsx! {
         div { class: "bg-white rounded-lg shadow-md overflow-hidden",
             div { class: "bg-gradient-to-r from-blue-500 to-blue-600 py-4 px-6",
