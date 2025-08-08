@@ -8,6 +8,7 @@ use serde::Serialize;
 use tracing::{debug, info, warn};
 
 use crate::{
+    Error, Result,
     cards::CardsDatabase,
     events::{Event, EventRef},
     models::{Deck, Mulligan, MulliganBuilder},
@@ -25,7 +26,6 @@ use crate::{
         primitives::ZoneType,
     },
     processor::ParseOutput,
-    Error, Result,
 };
 
 const DEFAULT_HAND_SIZE: i32 = 7;
@@ -92,10 +92,10 @@ impl MatchReplay {
             let opponent = players
                 .iter()
                 .find(|player| player.system_seat_id != seat_id);
-            if let Some(controller) = controller {
-                if let Some(opponent) = opponent {
-                    return Ok((controller.player_name.clone(), opponent.player_name.clone()));
-                }
+            if let Some(controller) = controller
+                && let Some(opponent) = opponent
+            {
+                return Ok((controller.player_name.clone(), opponent.player_name.clone()));
             }
         }
         Err(Error::NotFound("Player names".to_owned()))
@@ -210,18 +210,16 @@ impl MatchReplay {
                             player.pending_message_type
                                 == Some("ClientMessageType_MulliganResp".to_string())
                         })
+                        && let Some(turn_info) = &gsm.turn_info
+                        && let Some(decision_player) = turn_info.decision_player
                     {
-                        if let Some(turn_info) = &gsm.turn_info {
-                            if let Some(decision_player) = turn_info.decision_player {
-                                let pd = if decision_player == controller_id {
-                                    "Play"
-                                } else {
-                                    "Draw"
-                                };
-                                info!("game_number: {}, play_or_draw: {}", game_number, pd);
-                                play_or_draw.insert(game_number, pd.to_string());
-                            }
-                        }
+                        let pd = if decision_player == controller_id {
+                            "Play"
+                        } else {
+                            "Draw"
+                        };
+                        info!("game_number: {}, play_or_draw: {}", game_number, pd);
+                        play_or_draw.insert(game_number, pd.to_string());
                     }
 
                     if gsm.players.iter().any(|player| {

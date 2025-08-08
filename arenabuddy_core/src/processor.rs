@@ -7,12 +7,12 @@ use tokio::{
 use tracing::{debug, error};
 
 use crate::{
+    Result,
     errors::ParseError,
     mtga_events::{
         business::RequestTypeBusinessEvent, client::RequestTypeClientToMatchServiceMessage,
         gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
     },
-    Result,
 };
 
 #[derive(Debug)]

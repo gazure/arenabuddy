@@ -62,18 +62,18 @@ async fn scrape_scryfall(base_url: &str) -> Result<serde_json::Value> {
         anyhow::bail!("Could not find all_cards data")
     };
     for item in bulk_data {
-        if item["type"] == "all_cards" {
-            if let Some(download_uri) = item["download_uri"].as_str() {
-                info!("Downloading {}", download_uri);
+        if item["type"] == "all_cards"
+            && let Some(download_uri) = item["download_uri"].as_str()
+        {
+            info!("Downloading {}", download_uri);
 
-                let cards_response = client.get(download_uri).send().await?;
-                cards_response.error_for_status_ref()?;
+            let cards_response = client.get(download_uri).send().await?;
+            cards_response.error_for_status_ref()?;
 
-                let response_text = cards_response.text().await?;
+            let response_text = cards_response.text().await?;
 
-                // Parse the saved text as JSON for the return value
-                return Ok(serde_json::from_str(&response_text)?);
-            }
+            // Parse the saved text as JSON for the return value
+            return Ok(serde_json::from_str(&response_text)?);
         }
     }
     anyhow::bail!("No bulk cards found")
@@ -133,10 +133,10 @@ async fn search_card_by_name(base_url: &str, card_name: &str) -> Result<Option<C
     let data: serde_json::Value = response.json().await?;
 
     // Get the first card from search results
-    if let Some(cards_array) = data.get("data").and_then(|d| d.as_array()) {
-        if let Some(first_card) = cards_array.first() {
-            return Ok(Some(Card::from_json(first_card)));
-        }
+    if let Some(cards_array) = data.get("data").and_then(|d| d.as_array())
+        && let Some(first_card) = cards_array.first()
+    {
+        return Ok(Some(Card::from_json(first_card)));
     }
 
     Ok(None)
@@ -177,32 +177,33 @@ async fn merge(
             if let Ok(card_id) = card_id_str
                 .parse::<i64>()
                 .with_context(|| format!("Failed to parse card ID: {card_id_str}"))
+                && card_id != 0
+                && !cards_by_id.contains_key(&card_id)
+                && set != "ANA"
             {
-                if card_id != 0 && !cards_by_id.contains_key(&card_id) && set != "ANA" {
-                    if let Some(card_by_name) = cards_by_name.get(card_name) {
-                        // Found existing card by name, create new card with 17Lands arena_id
-                        let mut new_card = (*card_by_name).clone();
+                if let Some(card_by_name) = cards_by_name.get(card_name) {
+                    // Found existing card by name, create new card with 17Lands arena_id
+                    let mut new_card = (*card_by_name).clone();
+                    new_card.id = card_id;
+                    new_cards.push(new_card);
+                } else {
+                    // Card not found in existing data, search Scryfall
+                    warn!(
+                        "Card '{}' not found in Scryfall data, searching...",
+                        card_name
+                    );
+                    if let Ok(Some(found_card)) =
+                        search_card_by_name(scryfall_host, card_name).await
+                    {
+                        let mut new_card = found_card;
                         new_card.id = card_id;
                         new_cards.push(new_card);
-                    } else {
-                        // Card not found in existing data, search Scryfall
-                        warn!(
-                            "Card '{}' not found in Scryfall data, searching...",
-                            card_name
+                        debug!(
+                            "Found and added card '{}' with arena_id {}",
+                            card_name, card_id
                         );
-                        if let Ok(Some(found_card)) =
-                            search_card_by_name(scryfall_host, card_name).await
-                        {
-                            let mut new_card = found_card;
-                            new_card.id = card_id;
-                            new_cards.push(new_card);
-                            debug!(
-                                "Found and added card '{}' with arena_id {}",
-                                card_name, card_id
-                            );
-                        } else {
-                            warn!("Could not find card '{}' via Scryfall search", card_name);
-                        }
+                    } else {
+                        warn!("Could not find card '{}' via Scryfall search", card_name);
                     }
                 }
             }

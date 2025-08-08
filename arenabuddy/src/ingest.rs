@@ -1,8 +1,8 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use arenabuddy_core::{
-    errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder, Error,
+    Error, errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
@@ -11,8 +11,8 @@ use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 // #[cfg(all(target_os = "linux"))]
 // use notify::INotifyWatcher;
 use tokio::sync::{
-    mpsc::{channel, Receiver},
     Mutex,
+    mpsc::{Receiver, channel},
 };
 use tracing::{error, info};
 
@@ -78,11 +78,10 @@ async fn log_process_start(
                                         }
 
                                         let mut debug_dir = debug_dir.lock().await;
-                                        if let Some(dir) = debug_dir.as_mut() {
-                                            if let Err(e) = dir.write(&mr).await {
+                                        if let Some(dir) = debug_dir.as_mut()
+                                            && let Err(e) = dir.write(&mr).await {
                                                 error!("Error writing match to debug dir: {}", e);
                                             }
-                                        }
                                     }
                                     Err(e) => {
                                         error!("Error building match replay: {}", e);
