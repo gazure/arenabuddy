@@ -2,9 +2,7 @@ use arenabuddy_core::display::match_details::MatchDetails as MatchDetailsData;
 use dioxus::prelude::*;
 
 use crate::{
-    components::{DeckList, MatchInfo, MulliganDisplay},
-    service::command_match_details,
-    state::AsyncState,
+    app::Route, components::{DeckList, MatchInfo, MulliganDisplay}, service::command_match_details, state::AsyncState
 };
 
 async fn get_match_details(id: &str) -> Option<MatchDetailsData> {
@@ -65,8 +63,8 @@ pub(crate) fn MatchDetails(id: String) -> Element {
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-8xl",
             div { class: "mb-4",
-                a {
-                    href: "/matches",
+                Link {
+                    to: Route::Matches{},
                     class: "inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-sm hover:shadow-md",
                     svg {
                         xmlns: "http://www.w3.org/2000/svg",

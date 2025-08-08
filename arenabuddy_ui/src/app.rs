@@ -15,7 +15,7 @@ const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 #[derive(Clone, Routable, Debug, PartialEq)]
 #[rustfmt::skip]
-enum Route {
+pub enum Route {
     #[layout(Layout)]
         #[route("/")]
         Home {},
@@ -26,7 +26,7 @@ enum Route {
         #[route("/contact")]
         Contact {},
         #[route("/match/:id")]
-        MatchDetails { id: String },
+        MatchDetails{ id: String },
         #[route("/debug")]
         DebugLogs {},
     #[end_layout]

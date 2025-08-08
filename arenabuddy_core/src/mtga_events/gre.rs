@@ -476,6 +476,8 @@ pub enum GameObjectType {
     SplitLeft,
     #[serde(rename = "GameObjectType_Omen")]
     Omen,
+    #[serde(rename = "GameObjectType_Emblem")]
+    Emblem,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

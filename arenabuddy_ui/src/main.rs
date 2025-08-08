@@ -124,14 +124,12 @@ fn setup_logging(app_data_dir: &Path) -> Result<(), Box<dyn Error>> {
         .with_writer(file_appender)
         .with_ansi(false)
         .with_target(false)
-        .with_thread_ids(true)
         .with_line_number(true)
         .with_file(true)
         .with_level(true);
 
     let console_layer = fmt::Layer::new()
         .with_target(true)
-        .with_thread_ids(true)
         .with_line_number(true)
         .with_file(true)
         .with_level(true);
@@ -146,7 +144,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<(), Box<dyn Error>> {
 }
 
 #[cfg(feature = "server")]
-async fn setup_backend(
+async fn build_service(
     app_data_dir: PathBuf,
     resource_dir: PathBuf,
 ) -> Result<AppService, Box<dyn Error>> {
@@ -166,37 +164,11 @@ async fn setup_backend(
     db.init().await?;
     let db_arc = Arc::new(tokio::sync::Mutex::new(db));
 
-    let home = std::env::home_dir().ok_or(ArenaBuddyError::NoHomeDir)?;
-    let player_log_path = match std::env::consts::OS {
-        "macos" => Ok(home.join("Library/Logs/Wizards of the Coast/MTGA/Player.log")),
-        "windows" => Ok(home.join("AppData/LocalLow/Wizards of the Coast/MTGA/Player.log")),
-        _ => Err(ArenaBuddyError::UnsupportedOS),
-    }?;
-
-    info!(
-        "Processing logs from : {}",
-        player_log_path.to_string_lossy()
-    );
-
     let log_collector = Arc::new(tokio::sync::Mutex::new(Vec::<String>::new()));
     let debug_backend = Arc::new(tokio::sync::Mutex::new(None::<DirectoryStorage>));
 
-
     // Initialize global service
-    let service = AppService::new(
-        db_arc.clone(),
-        log_collector.clone(),
-        debug_backend.clone(),
-    );
-    // Start ingest process
-    tokio::task::spawn(async move {
-        ingest::start(
-            db_arc.clone(),
-            debug_backend.clone(),
-            log_collector.clone(),
-            player_log_path,
-        ).await
-    });
+    let service = AppService::new(db_arc.clone(), log_collector.clone(), debug_backend.clone());
 
     Ok(service)
 }
@@ -205,7 +177,7 @@ async fn setup_backend(
 async fn create_app_service() -> Result<AppService, Box<dyn std::error::Error>> {
     let data_dir = get_app_data_dir()?;
     let resource_dir = get_resource_dir()?;
-    setup_backend(data_dir, resource_dir).await
+    build_service(data_dir, resource_dir).await
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -213,9 +185,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         let data_dir = get_app_data_dir()?;
         let resource_dir = get_resource_dir()?;
-        let runtime = tokio::runtime::Runtime::new()?;
+        let home = std::env::home_dir().ok_or(ArenaBuddyError::NoHomeDir)?;
+        let player_log_path = match std::env::consts::OS {
+            "macos" => Ok(home.join("Library/Logs/Wizards of the Coast/MTGA/Player.log")),
+            "windows" => Ok(home.join("AppData/LocalLow/Wizards of the Coast/MTGA/Player.log")),
+            _ => Err(ArenaBuddyError::UnsupportedOS),
+        }?;
+        info!(
+            "Processing logs from : {}",
+            player_log_path.to_string_lossy()
+        );
 
-        let service = runtime.block_on(create_app_service())?;
+        let background = tokio::runtime::Runtime::new()?;
+        let service = background.block_on(create_app_service())?;
+        let service2 = service.clone();
+        background.spawn(async move {
+            ingest::start(
+                service2.db.clone(),
+                service2.debug_storage.clone(),
+                service2.log_collector.clone(),
+                player_log_path,
+            ).await
+        });
 
         LaunchBuilder::server()
             .with_cfg(

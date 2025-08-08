@@ -12,6 +12,7 @@ use tokio::sync::{
 };
 use tracing::{error, info};
 
+
 fn watcher() -> Result<(FsEventWatcher, Receiver<Event>)> {
     let (tx, rx) = channel(100);
 
@@ -46,6 +47,7 @@ async fn log_process_start(
     let (mut watcher, mut rx) = watcher()?;
 
     watcher.watch(plp.as_ref(), RecursiveMode::Recursive)?;
+    info!("starting to ingest logs!");
 
     let mut interval = tokio::time::interval(Duration::from_secs(1));
     loop {
