@@ -21,7 +21,7 @@ use tracing::{error, info};
 pub struct AppService {
     pub db: Arc<Mutex<MatchDB>>,
     pub log_collector: Arc<Mutex<Vec<String>>>,
-    pub debug_backend: Arc<Mutex<Option<DirectoryStorage>>>,
+    pub debug_storage: Arc<Mutex<Option<DirectoryStorage>>>,
 }
 
 #[cfg(feature = "server")]
@@ -45,7 +45,7 @@ impl AppService {
         Self {
             db,
             log_collector,
-            debug_backend,
+            debug_storage: debug_backend,
         }
     }
 
@@ -128,13 +128,13 @@ impl AppService {
 
     pub async fn set_debug_logs(&self, path: String) -> Result<()> {
         let storage = DirectoryStorage::new(path.into());
-        let mut debug_backend = self.debug_backend.lock().await;
+        let mut debug_backend = self.debug_storage.lock().await;
         *debug_backend = Some(storage);
         Ok(())
     }
 
     pub async fn get_debug_logs(&self) -> Result<Option<Vec<String>>> {
-        let debug_backend = self.debug_backend.lock().await;
+        let debug_backend = self.debug_storage.lock().await;
         if let Some(_storage) = &*debug_backend {
             // Implementation depends on DirectoryStorage interface
             // This is a placeholder - adjust based on actual interface

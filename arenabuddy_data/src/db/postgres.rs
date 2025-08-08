@@ -251,7 +251,7 @@ impl PostgresMatchDB {
         .fetch_all(&self.pool)
         .await?;
 
-        let matches = results
+        let matches: Vec<_> = results
             .into_iter()
             .map(|row| {
                 MTGAMatch::new_with_timestamp(
@@ -266,6 +266,7 @@ impl PostgresMatchDB {
             })
             .collect();
 
+        info!("found {} matches", matches.len());
         Ok(matches)
     }
 
