@@ -60,11 +60,14 @@ impl PartialOrd for CardDisplayRecord {
 
 impl From<&Card> for CardDisplayRecord {
     fn from(value: &Card) -> Self {
-        let name = if value.card_faces.is_empty() {
-            value.name.clone()
+        let (name, uri) = if value.card_faces.is_empty() {
+            (value.name.clone(), value.image_uri.clone())
         } else {
             let front_face = &value.card_faces[0];
-            front_face.name.clone()
+            (
+                front_face.name.clone(),
+                front_face.image_uri.clone().unwrap_or(value.image_uri.clone()),
+            )
         };
 
         Self {
@@ -73,7 +76,7 @@ impl From<&Card> for CardDisplayRecord {
             mana_value: value.mana_value(),
             mana: value.mana_cost.clone(),
             quantity: 1,
-            image_uri: value.image_uri.clone(),
+            image_uri: uri,
         }
     }
 }
