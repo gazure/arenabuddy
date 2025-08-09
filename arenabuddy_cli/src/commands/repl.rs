@@ -1,8 +1,9 @@
 use std::{collections::HashMap, path::Path};
 
-use crate::Result;
 use arenabuddy_core::cards::CardsDatabase;
 use rustyline::DefaultEditor;
+
+use crate::Result;
 
 /// Execute the REPL command
 ///
@@ -18,6 +19,7 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
     println!("Arenabuddy REPL");
     println!("Available commands:");
     println!("  find <arena_id> - Find a card by Arena ID");
+    println!("  search <name_prefix> - Search cards by name prefix");
     println!("  count [set_code] - Count cards, optionally filtered by set code");
     println!("  sets - List all set codes");
     println!("  info - Display information about the loaded db file");
@@ -51,6 +53,13 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                             }
                         }
                     }
+                    "search" => {
+                        if parts.len() < 2 {
+                            println!("Usage: search <name_prefix>");
+                            continue;
+                        }
+                        search_cards_by_name(&cards_db, parts[1]);
+                    }
                     "count" => {
                         if parts.len() > 1 {
                             count_cards_by_set(&cards_db, Some(parts[1]));
@@ -65,6 +74,7 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                     "help" => {
                         println!("Available commands:");
                         println!("  find <arena_id> - Find a card by Arena ID");
+                        println!("  search <name_prefix> - Search cards by name prefix");
                         println!("  count [set_code] - Count cards, optionally filtered by set code");
                         println!("  sets - List all set codes");
                         println!("  info <file> - Display information about a card data file");
@@ -173,4 +183,42 @@ fn list_sets(cards_db: &CardsDatabase) {
 fn display_file_info(db: &CardsDatabase) {
     // Display information about the card data
     println!("Number of cards: {}", db.len());
+}
+
+fn search_cards_by_name(cards_db: &CardsDatabase, name_prefix: &str) {
+    let prefix_lower = name_prefix.to_lowercase();
+    let mut matches = Vec::new();
+
+    for card in cards_db.db.values() {
+        if card.name.to_lowercase().starts_with(&prefix_lower) {
+            matches.push(card);
+        }
+    }
+
+    if matches.is_empty() {
+        println!("No cards found with name prefix: {name_prefix}");
+        return;
+    }
+
+    matches.sort_by(|a, b| a.name.cmp(&b.name));
+
+    println!("Found {} card(s) matching '{name_prefix}':", matches.len());
+    for card in matches {
+        println!("  {} (ID: {})", card.name, card.id);
+        println!("    Set: {}, Type: {}", card.set, card.type_line);
+        if !card.card_faces.is_empty() {
+            println!("    Card Faces:");
+            for face in &card.card_faces {
+                if let Some(image_uri) = &face.image_uri {
+                    println!("      Face '{}': {}", face.name, image_uri);
+                }
+            }
+        }
+        if card.mana_cost.is_empty() {
+            println!("    CMC: {}", card.cmc);
+        } else {
+            println!("    Mana Cost: {}, CMC: {}", card.mana_cost, card.cmc);
+        }
+        println!();
+    }
 }

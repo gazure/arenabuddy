@@ -161,8 +161,7 @@ async fn merge(
                 .get(card_name.split("//").next().unwrap_or("").trim())
                 .unwrap_or(card_name);
 
-            if let Ok(card_id) = card_id_str
-                .parse::<i64>()
+            if let Ok(card_id) = card_id_str.parse::<i64>()
                 && card_id != 0
                 && !cards_by_id.contains_key(&card_id)
                 && set != "ANA"
@@ -172,7 +171,7 @@ async fn merge(
                     let mut new_card = (*card_by_name).clone();
                     new_card.id = card_id;
                     new_cards.push(new_card);
-                } else if ["FIN", "EOE"].contains(&set.as_str()){
+                } else if ["FIN", "EOE"].contains(&set.as_str()) {
                     // Card not found in existing data, search Scryfall
                     info!("Card '{}' not found in Scryfall data, searching...", card_name);
                     if let Ok(Some(found_card)) = search_card_by_name(scryfall_host, card_name).await {
@@ -183,8 +182,7 @@ async fn merge(
                     } else {
                         warn!("Could not find card '{}' via Scryfall search", card_name);
                     }
-                }
-                else {
+                } else {
                     debug!("Opting to not search for {}", card_name);
                 }
             }

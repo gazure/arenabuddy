@@ -3,11 +3,12 @@ use std::{
     time::Duration,
 };
 
-use crate::Result;
 use arenabuddy_core::{cards::CardsDatabase, processor::PlayerLogProcessor, replay::MatchReplayBuilder};
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use tokio::{sync::mpsc, time::sleep};
 use tracing::error;
+
+use crate::Result;
 
 // Constants
 const PLAYER_LOG_POLLING_INTERVAL: Duration = Duration::from_secs(1);
