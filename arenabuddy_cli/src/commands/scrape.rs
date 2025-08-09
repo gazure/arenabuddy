@@ -1,9 +1,10 @@
 use std::{collections::HashMap, path::Path, time::Duration};
 
-use anyhow::{Context, Result};
 use arenabuddy_core::models::{Card, CardCollection};
 use reqwest::Url;
 use tracing::{debug, info, warn};
+
+use crate::{Error, Result, errors::ParseError};
 
 /// Execute the Scrape command
 pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output_dir: &Path) -> Result<()> {
@@ -17,7 +18,7 @@ pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output_dir
 
     // Extract cards with Arena IDs
     let Some(cards_array) = scryfall_data.as_array() else {
-        anyhow::bail!("Could not find cards array");
+        return Err(Error::Invalid("Could not find cards array in scryfall data".to_owned()));
     };
 
     let cards: Vec<Card> = cards_array
@@ -53,7 +54,7 @@ async fn scrape_scryfall(base_url: &str) -> Result<serde_json::Value> {
 
     // Find and download all_cards data
     let Some(bulk_data) = data.get("data").and_then(|d| d.as_array()) else {
-        anyhow::bail!("Could not find all_cards data")
+        return Err(Error::Invalid("Could not find all_cards data from scryfall".to_owned()));
     };
     for item in bulk_data {
         if item["type"] == "all_cards"
@@ -67,10 +68,10 @@ async fn scrape_scryfall(base_url: &str) -> Result<serde_json::Value> {
             let response_text = cards_response.text().await?;
 
             // Parse the saved text as JSON for the return value
-            return Ok(serde_json::from_str(&response_text)?);
+            return Ok(serde_json::from_str(&response_text).map_err(ParseError::from)?);
         }
     }
-    anyhow::bail!("No bulk cards found")
+    Err(Error::Invalid("No bulk cards found".to_owned()))
 }
 
 /// Scrape card data from 17Lands
@@ -87,8 +88,8 @@ async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, St
     let mut reader = csv::Reader::from_reader(value.as_bytes());
     reader
         .deserialize()
-        .collect::<std::result::Result<_, _>>()
-        .with_context(|| "Failed to parse CSV records")
+        .map(|result| result.map_err(ParseError::from).map_err(Error::from))
+        .collect()
 }
 
 /// Save a collection of cards to a binary protobuf file
@@ -98,14 +99,14 @@ pub async fn save_card_collection_to_file(cards: &CardCollection, output_path: i
     Ok(())
 }
 
-/// Search for a card by name using Scryfall API with rate limiting
+/// Search for a card by name using Scryfall API with basic rate limiting
 async fn search_card_by_name(base_url: &str, card_name: &str) -> Result<Option<Card>> {
     let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
 
-    // Rate limit: 1 request per second
     tokio::time::sleep(Duration::from_millis(1000)).await;
 
-    let url = Url::parse_with_params(&format!("{base_url}/cards/search"), &[("q", card_name)])?;
+    let url = Url::parse_with_params(&format!("{base_url}/cards/search"), &[("q", card_name)])
+        .map_err(|e| Error::Url(e.to_string()))?;
 
     debug!("Searching for card: {} at: {}", card_name, url);
 
@@ -162,7 +163,6 @@ async fn merge(
 
             if let Ok(card_id) = card_id_str
                 .parse::<i64>()
-                .with_context(|| format!("Failed to parse card ID: {card_id_str}"))
                 && card_id != 0
                 && !cards_by_id.contains_key(&card_id)
                 && set != "ANA"
@@ -172,9 +172,9 @@ async fn merge(
                     let mut new_card = (*card_by_name).clone();
                     new_card.id = card_id;
                     new_cards.push(new_card);
-                } else {
+                } else if ["FIN", "EOE"].contains(&set.as_str()){
                     // Card not found in existing data, search Scryfall
-                    warn!("Card '{}' not found in Scryfall data, searching...", card_name);
+                    info!("Card '{}' not found in Scryfall data, searching...", card_name);
                     if let Ok(Some(found_card)) = search_card_by_name(scryfall_host, card_name).await {
                         let mut new_card = found_card;
                         new_card.id = card_id;
@@ -183,6 +183,9 @@ async fn merge(
                     } else {
                         warn!("Could not find card '{}' via Scryfall search", card_name);
                     }
+                }
+                else {
+                    debug!("Opting to not search for {}", card_name);
                 }
             }
         }

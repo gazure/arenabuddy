@@ -1,6 +1,6 @@
 use std::{collections::HashMap, path::Path};
 
-use anyhow::Result;
+use crate::Result;
 use arenabuddy_core::cards::CardsDatabase;
 use rustyline::DefaultEditor;
 

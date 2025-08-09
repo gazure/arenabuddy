@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use anyhow::Result;
+use crate::Result;
 use arenabuddy_core::{cards::CardsDatabase, processor::PlayerLogProcessor, replay::MatchReplayBuilder};
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use tokio::{sync::mpsc, time::sleep};
@@ -46,7 +46,7 @@ async fn process_events(
 }
 
 /// Creates a channel that receives a signal when Ctrl+C is pressed</parameter>
-pub fn ctrl_c_channel() -> Result<mpsc::UnboundedReceiver<()>> {
+fn ctrl_c_channel() -> Result<mpsc::UnboundedReceiver<()>> {
     let (ctrl_c_tx, ctrl_c_rx) = mpsc::unbounded_channel();
     ctrlc::set_handler(move || {
         let _ = ctrl_c_tx.send(());
