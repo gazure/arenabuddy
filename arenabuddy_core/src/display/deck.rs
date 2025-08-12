@@ -61,6 +61,14 @@ impl DeckDisplayRecord {
             sideboard: sideboard_cards,
         }
     }
+
+    /// Returns the total number of cards in the main deck and sideboard.
+    pub fn totals(&self) -> (usize, usize) {
+        (
+            self.main_deck.values().map(std::vec::Vec::len).sum(),
+            self.sideboard.len(),
+        )
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

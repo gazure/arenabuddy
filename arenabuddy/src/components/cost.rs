@@ -1,4 +1,4 @@
-use arenabuddy_core::models::Cost;
+use arenabuddy_core::models::{Color, Cost, CostSymbol};
 use dioxus::prelude::*;
 
 // Asset constants for all mana symbols
@@ -35,7 +35,6 @@ const MANA_G: Asset = asset!("/assets/mana/G.svg");
 const MANA_C: Asset = asset!("/assets/mana/C.svg");
 const MANA_X: Asset = asset!("/assets/mana/X.svg");
 const MANA_S: Asset = asset!("/assets/mana/S.svg");
-const MANA_INVERTED_S: Asset = asset!("/assets/mana/InvertedS.svg");
 
 // Hybrid mana
 const MANA_WU: Asset = asset!("/assets/mana/WU.svg");
@@ -82,74 +81,89 @@ const MANA_CB: Asset = asset!("/assets/mana/CB.svg");
 const MANA_CR: Asset = asset!("/assets/mana/CR.svg");
 const MANA_CG: Asset = asset!("/assets/mana/CG.svg");
 
-fn get_mana_asset(filename: &str) -> Option<Asset> {
-    match filename {
-        "0.svg" => Some(MANA_0),
-        "1.svg" => Some(MANA_1),
-        "2.svg" => Some(MANA_2),
-        "3.svg" => Some(MANA_3),
-        "4.svg" => Some(MANA_4),
-        "5.svg" => Some(MANA_5),
-        "6.svg" => Some(MANA_6),
-        "7.svg" => Some(MANA_7),
-        "8.svg" => Some(MANA_8),
-        "9.svg" => Some(MANA_9),
-        "10.svg" => Some(MANA_10),
-        "11.svg" => Some(MANA_11),
-        "12.svg" => Some(MANA_12),
-        "13.svg" => Some(MANA_13),
-        "14.svg" => Some(MANA_14),
-        "15.svg" => Some(MANA_15),
-        "16.svg" => Some(MANA_16),
-        "17.svg" => Some(MANA_17),
-        "18.svg" => Some(MANA_18),
-        "19.svg" => Some(MANA_19),
-        "20.svg" => Some(MANA_20),
-        "W.svg" => Some(MANA_W),
-        "U.svg" => Some(MANA_U),
-        "B.svg" => Some(MANA_B),
-        "R.svg" => Some(MANA_R),
-        "G.svg" => Some(MANA_G),
-        "C.svg" => Some(MANA_C),
-        "X.svg" => Some(MANA_X),
-        "S.svg" => Some(MANA_S),
-        "InvertedS.svg" => Some(MANA_INVERTED_S),
-        "WU.svg" => Some(MANA_WU),
-        "WB.svg" => Some(MANA_WB),
-        "UR.svg" => Some(MANA_UR),
-        "UB.svg" => Some(MANA_UB),
-        "BR.svg" => Some(MANA_BR),
-        "BG.svg" => Some(MANA_BG),
-        "RG.svg" => Some(MANA_RG),
-        "RW.svg" => Some(MANA_RW),
-        "GW.svg" => Some(MANA_GW),
-        "GU.svg" => Some(MANA_GU),
-        "WP.svg" => Some(MANA_WP),
-        "UP.svg" => Some(MANA_UP),
-        "BP.svg" => Some(MANA_BP),
-        "RP.svg" => Some(MANA_RP),
-        "GP.svg" => Some(MANA_GP),
-        "WUP.svg" => Some(MANA_WUP),
-        "WBP.svg" => Some(MANA_WBP),
-        "URP.svg" => Some(MANA_URP),
-        "UBP.svg" => Some(MANA_UBP),
-        "BRP.svg" => Some(MANA_BRP),
-        "BGP.svg" => Some(MANA_BGP),
-        "RGP.svg" => Some(MANA_RGP),
-        "RWP.svg" => Some(MANA_RWP),
-        "GWP.svg" => Some(MANA_GWP),
-        "GUP.svg" => Some(MANA_GUP),
-        "2W.svg" => Some(MANA_2W),
-        "2U.svg" => Some(MANA_2U),
-        "2B.svg" => Some(MANA_2B),
-        "2R.svg" => Some(MANA_2R),
-        "2G.svg" => Some(MANA_2G),
-        "CW.svg" => Some(MANA_CW),
-        "CU.svg" => Some(MANA_CU),
-        "CB.svg" => Some(MANA_CB),
-        "CR.svg" => Some(MANA_CR),
-        "CG.svg" => Some(MANA_CG),
-        _ => None,
+fn get_mana_asset(symbol: CostSymbol) -> Option<Asset> {
+    match symbol {
+        CostSymbol::Generic { n } => match n {
+            0 => Some(MANA_0),
+            1 => Some(MANA_1),
+            2 => Some(MANA_2),
+            3 => Some(MANA_3),
+            4 => Some(MANA_4),
+            5 => Some(MANA_5),
+            6 => Some(MANA_6),
+            7 => Some(MANA_7),
+            8 => Some(MANA_8),
+            9 => Some(MANA_9),
+            10 => Some(MANA_10),
+            11 => Some(MANA_11),
+            12 => Some(MANA_12),
+            13 => Some(MANA_13),
+            14 => Some(MANA_14),
+            15 => Some(MANA_15),
+            16 => Some(MANA_16),
+            17 => Some(MANA_17),
+            18 => Some(MANA_18),
+            19 => Some(MANA_19),
+            20 => Some(MANA_20),
+            _ => None, // For numbers > 20, no assets available
+        },
+        CostSymbol::Color { color } => match color {
+            Color::White => Some(MANA_W),
+            Color::Blue => Some(MANA_U),
+            Color::Black => Some(MANA_B),
+            Color::Red => Some(MANA_R),
+            Color::Green => Some(MANA_G),
+        },
+        CostSymbol::Phyrexian { color } => match color {
+            Color::White => Some(MANA_WP),
+            Color::Blue => Some(MANA_UP),
+            Color::Black => Some(MANA_BP),
+            Color::Red => Some(MANA_RP),
+            Color::Green => Some(MANA_GP),
+        },
+        CostSymbol::PhyrexianFuse { color1, color2 } => match (color1, color2) {
+            (Color::White, Color::Blue) => Some(MANA_WUP),
+            (Color::White, Color::Black) => Some(MANA_WBP),
+            (Color::Blue, Color::Red) => Some(MANA_URP),
+            (Color::Blue, Color::Black) => Some(MANA_UBP),
+            (Color::Black, Color::Red) => Some(MANA_BRP),
+            (Color::Black, Color::Green) => Some(MANA_BGP),
+            (Color::Red, Color::Green) => Some(MANA_RGP),
+            (Color::Red, Color::White) => Some(MANA_RWP),
+            (Color::Green, Color::White) => Some(MANA_GWP),
+            (Color::Green, Color::Blue) => Some(MANA_GUP),
+            _ => None, // Shouldn't happen with standard color pairs
+        },
+        CostSymbol::Fuse { color1, color2 } => match (color1, color2) {
+            (Color::White, Color::Blue) => Some(MANA_WU),
+            (Color::White, Color::Black) => Some(MANA_WB),
+            (Color::Blue, Color::Red) => Some(MANA_UR),
+            (Color::Blue, Color::Black) => Some(MANA_UB),
+            (Color::Black, Color::Red) => Some(MANA_BR),
+            (Color::Black, Color::Green) => Some(MANA_BG),
+            (Color::Red, Color::Green) => Some(MANA_RG),
+            (Color::Red, Color::White) => Some(MANA_RW),
+            (Color::Green, Color::White) => Some(MANA_GW),
+            (Color::Green, Color::Blue) => Some(MANA_GU),
+            _ => None, // Shouldn't happen with standard color pairs
+        },
+        CostSymbol::Variable => Some(MANA_X),
+        CostSymbol::Snow => Some(MANA_S),
+        CostSymbol::Colorless => Some(MANA_C),
+        CostSymbol::ColorlessHybrid { color } => match color {
+            Color::White => Some(MANA_CW),
+            Color::Blue => Some(MANA_CU),
+            Color::Black => Some(MANA_CB),
+            Color::Red => Some(MANA_CR),
+            Color::Green => Some(MANA_CG),
+        },
+        CostSymbol::TwoBird { color } => match color {
+            Color::White => Some(MANA_2W),
+            Color::Blue => Some(MANA_2U),
+            Color::Black => Some(MANA_2B),
+            Color::Red => Some(MANA_2R),
+            Color::Green => Some(MANA_2G),
+        },
     }
 }
 
@@ -158,7 +172,7 @@ pub fn ManaCost(cost: Cost) -> Element {
     rsx! {
         div { class: "flex items-center",
             for symbol in cost {
-                if let Some(asset) = get_mana_asset(symbol.svg_file()) {
+                if let Some(asset) = get_mana_asset(symbol) {
                     img {
                         src: asset,
                         alt: "{symbol}",

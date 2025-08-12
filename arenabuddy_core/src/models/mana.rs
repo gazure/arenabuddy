@@ -54,84 +54,34 @@ impl Display for Color {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum CostSymbol {
-    Colorless { n: u8 },
+    Generic { n: u8 },
+    Colorless,
+    ColorlessHybrid { color: Color },
+    TwoBird { color: Color },
     Color { color: Color },
     Phyrexian { color: Color },
     Fuse { color1: Color, color2: Color },
+    PhyrexianFuse { color1: Color, color2: Color },
     Variable,
     Snow,
-}
-
-impl CostSymbol {
-    pub fn svg_file(&self) -> &'static str {
-        match self {
-            CostSymbol::Colorless { n } => match n {
-                0 => "0.svg",
-                1 => "1.svg",
-                2 => "2.svg",
-                3 => "3.svg",
-                4 => "4.svg",
-                5 => "5.svg",
-                6 => "6.svg",
-                7 => "7.svg",
-                8 => "8.svg",
-                9 => "9.svg",
-                10 => "10.svg",
-                11 => "11.svg",
-                12 => "12.svg",
-                13 => "13.svg",
-                14 => "14.svg",
-                15 => "15.svg",
-                16 => "16.svg",
-                17 => "17.svg",
-                18 => "18.svg",
-                19 => "19.svg",
-                20 => "20.svg",
-                _ => "X.svg",
-            },
-            CostSymbol::Color { color } => match color {
-                Color::White => "W.svg",
-                Color::Blue => "U.svg",
-                Color::Black => "B.svg",
-                Color::Red => "R.svg",
-                Color::Green => "G.svg",
-            },
-            CostSymbol::Phyrexian { color } => color.svg_file(),
-            CostSymbol::Fuse { color1, color2 } => match (color1, color2) {
-                (Color::White, Color::White) => "W.svg",
-                (Color::Red, Color::Red) => "R.svg",
-                (Color::Blue, Color::Blue) => "U.svg",
-                (Color::Green, Color::Green) => "G.svg",
-                (Color::Black, Color::Black) => "B.svg",
-                (Color::White, Color::Blue) | (Color::Blue, Color::White) => "UW.svg",
-                (Color::White, Color::Green) | (Color::Green, Color::White) => "GW.svg",
-                (Color::Blue, Color::Black) | (Color::Black, Color::Blue) => "UB.svg",
-                (Color::Blue, Color::Red) | (Color::Red, Color::Blue) => "UR.svg",
-                (Color::Black, Color::White) | (Color::White, Color::Black) => "WB.svg",
-                (Color::Black, Color::Red) | (Color::Red, Color::Black) => "BR.svg",
-                (Color::White, Color::Red) | (Color::Red, Color::White) => "RW.svg",
-                (Color::Red, Color::Green) | (Color::Green, Color::Red) => "RG.svg",
-                (Color::Green, Color::Blue) | (Color::Blue, Color::Green) => "GU.svg",
-                (Color::Green, Color::Black) | (Color::Black, Color::Green) => "BG.svg",
-            },
-            CostSymbol::Variable => "X.svg",
-            CostSymbol::Snow => "S.svg",
-        }
-    }
 }
 
 impl Display for CostSymbol {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{{")?;
         match self {
-            CostSymbol::Colorless { n } => write!(f, "{n}"),
+            CostSymbol::Generic { n } => write!(f, "{n}"),
             CostSymbol::Color { color } => write!(f, "{color}"),
+            CostSymbol::Colorless => write!(f, "C"),
+            CostSymbol::ColorlessHybrid { color } => write!(f, "C/{color}"),
+            CostSymbol::TwoBird { color } => write!(f, "2/{color}"),
             CostSymbol::Phyrexian { color } => write!(f, "{color}/P"),
             CostSymbol::Fuse { color1, color2 } => write!(f, "{color1}/{color2}"),
             CostSymbol::Variable => write!(f, "X"),
             CostSymbol::Snow => write!(f, "S"),
+            CostSymbol::PhyrexianFuse { color1, color2 } => write!(f, "{color1}/{color2}/P"),
         }?;
         write!(f, "}}")
     }
@@ -140,6 +90,7 @@ impl Display for CostSymbol {
 impl FromStr for CostSymbol {
     type Err = String;
 
+    #[expect(clippy::too_many_lines)]
     fn from_str(s: &str) -> Result<CostSymbol, String> {
         match s {
             // Variable costs
@@ -148,9 +99,12 @@ impl FromStr for CostSymbol {
             // Snow mana
             "S" => Ok(CostSymbol::Snow),
 
-            // Colorless mana
+            // Colorless Mana
+            "C" => Ok(CostSymbol::Colorless),
+
+            // Generic mana
             s if s.chars().all(|c| c.is_ascii_digit()) => match s.parse::<u8>() {
-                Ok(n) => Ok(CostSymbol::Colorless { n }),
+                Ok(n) => Ok(CostSymbol::Generic { n }),
                 Err(_) => Err(format!("Invalid colorless mana symbol: {s}")),
             },
 
@@ -161,18 +115,184 @@ impl FromStr for CostSymbol {
             "R/P" => Ok(CostSymbol::Phyrexian { color: Color::Red }),
             "G/P" => Ok(CostSymbol::Phyrexian { color: Color::Green }),
 
-            // Hybrid/fuse mana
-            s if s.contains('/') && !s.contains("/P") => {
-                let parts: Vec<&str> = s.split('/').collect();
-                if parts.len() != 2 {
-                    return Err(format!("Invalid hybrid mana symbol: {s}"));
-                }
+            // Phyrexian fuse
+            "U/W/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Blue,
+                color2: Color::White,
+            }),
+            "W/U/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::White,
+                color2: Color::Blue,
+            }),
+            "W/B/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::White,
+                color2: Color::Black,
+            }),
+            "B/W/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Black,
+                color2: Color::White,
+            }),
+            "B/R/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Black,
+                color2: Color::Red,
+            }),
+            "R/B/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Red,
+                color2: Color::Black,
+            }),
+            "R/G/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Red,
+                color2: Color::Green,
+            }),
+            "G/R/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Green,
+                color2: Color::Red,
+            }),
+            "G/U/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Green,
+                color2: Color::Blue,
+            }),
+            "U/G/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Blue,
+                color2: Color::Green,
+            }),
+            "U/B/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Blue,
+                color2: Color::Black,
+            }),
+            "B/U/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Black,
+                color2: Color::Blue,
+            }),
+            "U/R/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Blue,
+                color2: Color::Red,
+            }),
+            "R/U/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Red,
+                color2: Color::Blue,
+            }),
+            "B/G/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Black,
+                color2: Color::Green,
+            }),
+            "G/B/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Green,
+                color2: Color::Black,
+            }),
+            "G/W/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Green,
+                color2: Color::White,
+            }),
+            "W/G/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::White,
+                color2: Color::Green,
+            }),
+            "W/R/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::White,
+                color2: Color::Red,
+            }),
+            "R/W/P" => Ok(CostSymbol::PhyrexianFuse {
+                color1: Color::Red,
+                color2: Color::White,
+            }),
 
-                Ok(CostSymbol::Fuse {
-                    color1: parts[0].parse()?,
-                    color2: parts[1].parse()?,
-                })
-            }
+            // Colorless Hybrid
+            "C/W" => Ok(CostSymbol::ColorlessHybrid { color: Color::White }),
+            "C/U" => Ok(CostSymbol::ColorlessHybrid { color: Color::Blue }),
+            "C/B" => Ok(CostSymbol::ColorlessHybrid { color: Color::Black }),
+            "C/R" => Ok(CostSymbol::ColorlessHybrid { color: Color::Red }),
+            "C/G" => Ok(CostSymbol::ColorlessHybrid { color: Color::Green }),
+
+            // Two bird
+            "2/W" => Ok(CostSymbol::TwoBird { color: Color::White }),
+            "2/U" => Ok(CostSymbol::TwoBird { color: Color::Blue }),
+            "2/B" => Ok(CostSymbol::TwoBird { color: Color::Black }),
+            "2/R" => Ok(CostSymbol::TwoBird { color: Color::Red }),
+            "2/G" => Ok(CostSymbol::TwoBird { color: Color::Green }),
+
+            // regular fuse
+            "W/U" => Ok(CostSymbol::Fuse {
+                color1: Color::White,
+                color2: Color::Blue,
+            }),
+            "U/W" => Ok(CostSymbol::Fuse {
+                color1: Color::Blue,
+                color2: Color::White,
+            }),
+            "U/B" => Ok(CostSymbol::Fuse {
+                color1: Color::Blue,
+                color2: Color::Black,
+            }),
+            "B/U" => Ok(CostSymbol::Fuse {
+                color1: Color::Black,
+                color2: Color::Blue,
+            }),
+            "B/R" => Ok(CostSymbol::Fuse {
+                color1: Color::Black,
+                color2: Color::Red,
+            }),
+            "R/B" => Ok(CostSymbol::Fuse {
+                color1: Color::Red,
+                color2: Color::Black,
+            }),
+            "R/G" => Ok(CostSymbol::Fuse {
+                color1: Color::Red,
+                color2: Color::Green,
+            }),
+            "G/R" => Ok(CostSymbol::Fuse {
+                color1: Color::Green,
+                color2: Color::Red,
+            }),
+            "G/W" => Ok(CostSymbol::Fuse {
+                color1: Color::Green,
+                color2: Color::White,
+            }),
+            "W/G" => Ok(CostSymbol::Fuse {
+                color1: Color::White,
+                color2: Color::Green,
+            }),
+
+            "W/B" => Ok(CostSymbol::Fuse {
+                color1: Color::White,
+                color2: Color::Black,
+            }),
+            "B/W" => Ok(CostSymbol::Fuse {
+                color1: Color::Black,
+                color2: Color::White,
+            }),
+            "B/G" => Ok(CostSymbol::Fuse {
+                color1: Color::Black,
+                color2: Color::Green,
+            }),
+            "G/B" => Ok(CostSymbol::Fuse {
+                color1: Color::Green,
+                color2: Color::Black,
+            }),
+            "G/U" => Ok(CostSymbol::Fuse {
+                color1: Color::Green,
+                color2: Color::Blue,
+            }),
+            "U/G" => Ok(CostSymbol::Fuse {
+                color1: Color::Blue,
+                color2: Color::Green,
+            }),
+            "R/W" => Ok(CostSymbol::Fuse {
+                color1: Color::Red,
+                color2: Color::White,
+            }),
+            "W/R" => Ok(CostSymbol::Fuse {
+                color1: Color::White,
+                color2: Color::Red,
+            }),
+            "U/R" => Ok(CostSymbol::Fuse {
+                color1: Color::Blue,
+                color2: Color::Red,
+            }),
+            "R/U" => Ok(CostSymbol::Fuse {
+                color1: Color::Red,
+                color2: Color::Blue,
+            }),
 
             s => Ok(CostSymbol::Color { color: s.parse()? }),
         }
@@ -213,7 +333,10 @@ impl FromStr for Cost {
 
 impl Display for Cost {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.inner.iter().try_fold((), |(), c| c.fmt(f))
+        for symbol in &self.inner {
+            write!(f, "{symbol}")?;
+        }
+        Ok(())
     }
 }
 
@@ -312,7 +435,7 @@ mod test {
     }
 
     #[test]
-    fn test_parse_all_hybrid_costs() {
+    fn test_parse_costs() {
         // Test all color combinations
         let pairs = [
             ("W/U", "W/U"),
@@ -325,6 +448,21 @@ mod test {
             ("B/R", "B/R"),
             ("B/G", "B/G"),
             ("R/G", "R/G"),
+            ("W/U/P", "W/U/P"),
+            ("W/B/P", "W/B/P"),
+            ("W/R/P", "W/R/P"),
+            ("W/G/P", "W/G/P"),
+            ("U/B/P", "U/B/P"),
+            ("U/R/P", "U/R/P"),
+            ("U/G/P", "U/G/P"),
+            ("B/R/P", "B/R/P"),
+            ("B/G/P", "B/G/P"),
+            ("R/G/P", "R/G/P"),
+            ("C/W", "C/W"),
+            ("C/U", "C/U"),
+            ("C/B", "C/B"),
+            ("C/R", "C/R"),
+            ("C/G", "C/G"),
         ];
 
         for (input, expected) in pairs {
@@ -337,6 +475,12 @@ mod test {
                     .to_string()
             );
         }
+    }
+
+    #[test]
+    fn test_phyrexian_hybrid_fuse() {
+        let cost = Cost::from_str("{R/G/P}").expect("failed to parse phyrexian hybrid");
+        assert_eq!("{R/G/P}", cost.to_string());
     }
 
     #[test]
@@ -412,6 +556,14 @@ mod test {
             "{5}{W}{U}{B}",
             Cost::from_str("{5}{W}{U}{B}")
                 .expect("Failed to parse Sphinx cost {5}{W}{U}{B}")
+                .to_string()
+        );
+
+        // Lukka: Bound to Ruin: {2}{R}{R/G/P}{G}
+        assert_eq!(
+            "{2}{R}{R/G/P}{G}",
+            Cost::from_str("{2}{R}{R/G/P}{G}")
+                .expect("Failed to parse Lukka cost {2}{R}{R/G/P}{G}")
                 .to_string()
         );
     }

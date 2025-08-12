@@ -11,16 +11,7 @@ use crate::components::ManaCost;
 #[component]
 pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'static str>) -> Element {
     let title = title.unwrap_or("Your Deck");
-    let main_deck = deck.main_deck;
-    let sideboard = deck.sideboard;
-
-    let main_total: u16 = main_deck
-        .values()
-        .flat_map(|cards| cards.iter())
-        .map(|c| c.quantity)
-        .sum();
-    let sideboard_total: u16 = sideboard.iter().map(|c| c.quantity).sum();
-    let total_count = main_total + sideboard_total;
+    let (main_total, sideboard_total) = deck.totals();
 
     rsx! {
         div { class: "bg-white rounded-lg shadow-md overflow-hidden",
@@ -30,16 +21,16 @@ pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'stat
             div { class: "p-6",
                 div { class: "deck-content",
                     div { class: "mb-4 text-right text-sm text-gray-500",
-                        "Total cards: {total_count} (Main: {main_total}, Sideboard: {sideboard_total})"
+                        "Main: {main_total}, Sideboard: {sideboard_total}"
                     }
 
                     div { class: "grid grid-cols-2 gap-6",
                         div { class: "space-y-6",
-                            {render_non_land_cards(main_deck.clone())}
+                            {render_non_land_cards(&deck.main_deck)}
                         }
                         div { class: "space-y-6",
-                            {render_lands(main_deck.clone())}
-                            {render_sideboard(sideboard)}
+                            {render_lands(&deck.main_deck)}
+                            {render_sideboard(&deck.sideboard)}
                         }
                     }
                 }
@@ -70,7 +61,7 @@ pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'stat
     }
 }
 
-fn render_non_land_cards(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -> Element {
+fn render_non_land_cards(main_deck: &HashMap<CardType, Vec<CardDisplayRecord>>) -> Element {
     let ordered_types = vec![
         CardType::Creature,
         CardType::Planeswalker,
@@ -92,7 +83,7 @@ fn render_non_land_cards(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -
                         }
                         div { class: "space-y-1",
                             for card in cards {
-                                {render_card_row(card.clone())}
+                                {render_card_row(card)}
                             }
                         }
                     }
@@ -102,7 +93,7 @@ fn render_non_land_cards(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -
     }
 }
 
-fn render_lands(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -> Element {
+fn render_lands(main_deck: &HashMap<CardType, Vec<CardDisplayRecord>>) -> Element {
     if let Some(lands) = main_deck.get(&CardType::Land).filter(|l| !l.is_empty()) {
         rsx! {
             div {
@@ -111,7 +102,7 @@ fn render_lands(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -> Element
                 }
                 div { class: "space-y-1 mt-2",
                     for land in lands {
-                        {render_card_row(land.clone())}
+                        {render_card_row(land)}
                     }
                 }
             }
@@ -121,7 +112,7 @@ fn render_lands(main_deck: HashMap<CardType, Vec<CardDisplayRecord>>) -> Element
     }
 }
 
-fn render_sideboard(sideboard: Vec<CardDisplayRecord>) -> Element {
+fn render_sideboard(sideboard: &[CardDisplayRecord]) -> Element {
     if sideboard.is_empty() {
         rsx! { div {} }
     } else {
@@ -140,14 +131,14 @@ fn render_sideboard(sideboard: Vec<CardDisplayRecord>) -> Element {
     }
 }
 
-fn render_card_row(card: CardDisplayRecord) -> Element {
+fn render_card_row(card: &CardDisplayRecord) -> Element {
     rsx! {
         div { class: "flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm",
             div { class: "flex items-center space-x-2",
                 span { class: "font-medium text-gray-600 w-6 text-center",
                     "{card.quantity}"
                 }
-                span { class: "truncate", "{card.name}" }
+                span { class: "truncate", "{card.name.clone()}" }
             }
             div { class: "flex-shrink-0 ml-2",
                 ManaCost { cost: card.cost() }
