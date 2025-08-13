@@ -1,18 +1,17 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
-use anyhow::{Result, anyhow};
-use arenabuddy_core::{Error, errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder};
+use arenabuddy_core::{
+    Error as CoreError, errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder,
+};
 use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
-// #[cfg(all(target_os = "macos"))]
-// use notify::FsEventWatcher;
-// #[cfg(all(target_os = "linux"))]
-// use notify::INotifyWatcher;
 use tokio::sync::{
     Mutex,
     mpsc::{Receiver, channel},
 };
 use tracing::{error, info};
+
+use crate::{Error, Result};
 
 fn watcher() -> Result<(RecommendedWatcher, Receiver<Event>)> {
     let (tx, rx) = channel(100);
@@ -31,7 +30,8 @@ fn watcher() -> Result<(RecommendedWatcher, Receiver<Event>)> {
                 error!("watch error: {:?}", e);
             }
         }
-    })?;
+    })
+    .map_err(|e| Error::IoError(e.to_string()))?;
     Ok((watcher, rx))
 }
 
@@ -47,7 +47,9 @@ async fn log_process_start(
 
     let (mut watcher, mut rx) = watcher()?;
 
-    watcher.watch(plp.as_ref(), RecursiveMode::Recursive)?;
+    watcher
+        .watch(plp.as_ref(), RecursiveMode::Recursive)
+        .map_err(|e| Error::IoError(e.to_string()))?;
     info!("starting to ingest logs!");
 
     let mut interval = tokio::time::interval(Duration::from_secs(1));
@@ -59,7 +61,7 @@ async fn log_process_start(
                     processor = PlayerLogProcessor::try_new(&player_log_path).await?;
                 } else {
                     error!("disconnected rotation channel");
-                    return Err(anyhow!("disconnected rotation channel"));
+                    return Err(Error::IoError("disconnected rotation channel".to_string()));
                 }
             }
             _ = interval.tick() => {
@@ -89,7 +91,7 @@ async fn log_process_start(
                             }
                         }
                         Err(parse_error) => {
-                            if let Error::Parse(ParseError::Error(s)) = parse_error {
+                            if let CoreError::Parse(ParseError::Error(s)) = parse_error {
                                 log_collector.lock().await.push(s);
                             } else {
                                 break;

@@ -20,9 +20,10 @@ pub enum Error {
     NoMatchesDatabase,
     #[error("Unsupported operating system")]
     UnsupportedOS,
-    #[cfg(feature = "server")]
     #[error("Db error: {0}")]
     DbError(String),
+    #[error("Core error: {0}")]
+    CoreError(String),
     #[error("Io error: {0}")]
     IoError(String),
 }
@@ -36,5 +37,11 @@ impl From<std::io::Error> for Error {
 impl From<arenabuddy_data::MatchDBError> for Error {
     fn from(err: arenabuddy_data::MatchDBError) -> Self {
         Error::DbError(err.to_string())
+    }
+}
+
+impl From<arenabuddy_core::Error> for Error {
+    fn from(err: arenabuddy_core::Error) -> Self {
+        Error::IoError(err.to_string())
     }
 }

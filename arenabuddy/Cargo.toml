@@ -11,7 +11,6 @@ license.workspace = true
 
 
 [dependencies]
-anyhow = { workspace = true }
 arenabuddy_core = { path = "../arenabuddy_core/" }
 arenabuddy_data = { path = "../arenabuddy_data" }
 axum = { workspace = true, optional = true }
