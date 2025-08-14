@@ -1,7 +1,7 @@
 use arenabuddy_core::replay::MatchReplay;
 
 #[expect(async_fn_in_trait)]
-pub trait Storage {
+pub trait ReplayStorage {
     /// # Errors
     ///
     /// Will return an error if the match replay cannot be written to the storage backend

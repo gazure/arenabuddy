@@ -1,8 +1,10 @@
 use arenabuddy_core::models::{MTGAMatchBuilderError, MatchResultBuilderError};
 use sqlx::types::uuid;
 
+pub type Result<T, E = Error> = core::result::Result<T, E>;
+
 #[derive(Debug, thiserror::Error)]
-pub enum MatchDBError {
+pub enum Error {
     #[error("Io error: {0}")]
     IoError(#[from] std::io::Error),
     #[error("Db error: {0}")]

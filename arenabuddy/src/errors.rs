@@ -34,8 +34,8 @@ impl From<std::io::Error> for Error {
     }
 }
 
-impl From<arenabuddy_data::MatchDBError> for Error {
-    fn from(err: arenabuddy_data::MatchDBError) -> Self {
+impl From<arenabuddy_data::Error> for Error {
+    fn from(err: arenabuddy_data::Error) -> Self {
         Error::DbError(err.to_string())
     }
 }

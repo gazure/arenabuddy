@@ -4,7 +4,7 @@ use arenabuddy_core::replay::MatchReplay;
 use tokio::fs::File;
 use tracing::info;
 
-use crate::{Result, Storage};
+use crate::{ReplayStorage, Result};
 
 pub struct DirectoryStorage {
     path: PathBuf,
@@ -20,7 +20,7 @@ impl DirectoryStorage {
     }
 }
 
-impl Storage for DirectoryStorage {
+impl ReplayStorage for DirectoryStorage {
     async fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
         let path = self.path.join(format!("{}.json", match_replay.match_id));
         info!(

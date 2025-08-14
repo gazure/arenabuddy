@@ -3,7 +3,7 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 use arenabuddy_core::{
     Error as CoreError, errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder,
 };
-use arenabuddy_data::{DirectoryStorage, MatchDB, Storage};
+use arenabuddy_data::{DirectoryStorage, MatchDB, ReplayStorage};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use tokio::sync::{
     Mutex,
