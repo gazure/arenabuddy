@@ -150,7 +150,7 @@ impl AppService {
     }
 }
 
-pub fn server_start() -> Result<()> {
+pub fn launch_server() -> Result<()> {
     use dioxus::LaunchBuilder;
 
     use crate::app::App;

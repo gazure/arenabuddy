@@ -3,11 +3,11 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(feature = "server")]
     {
-        arenabuddy::server_start()?;
+        arenabuddy::launch_server()?;
     }
     #[cfg(not(feature = "server"))]
     {
-        arenabuddy::launch_frontend()?;
+        arenabuddy::launch_frontend();
     }
     Ok(())
 }

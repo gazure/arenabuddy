@@ -12,10 +12,10 @@ mod state;
 
 pub use errors::{Error, Result};
 #[cfg(feature = "server")]
-pub use service::server_start;
+pub use service::launch_server;
 
 #[cfg(not(feature = "server"))]
-pub fn launch_frontend() -> Result<(), Box<dyn Error>> {
-    LaunchBuilder::desktop().launch(App);
-    Ok(())
+pub fn launch_frontend() {
+    use crate::app::App;
+    dioxus::LaunchBuilder::desktop().launch(App);
 }

@@ -4,5 +4,5 @@ mod functions;
 mod app;
 
 #[cfg(feature = "server")]
-pub use app::{AppService, server_start};
+pub use app::{AppService, launch_server};
 pub use functions::*;
