@@ -39,4 +39,4 @@ workspace = true
 default = ["desktop"]
 desktop = ["dioxus/desktop"]
 server = ["dioxus/server", "dep:tokio"]
-serverdebug = ["server", "dep:console-subscriber"]
+serverdebug = ["dep:console-subscriber"]

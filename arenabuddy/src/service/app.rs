@@ -268,21 +268,35 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
 
     let console_filter = EnvFilter::new("info");
 
-    registry
+    let registry = registry
         .with(file_layer)
-        .with(console_layer.with_filter(console_filter))
-        .init();
+        .with(console_layer.with_filter(console_filter));
+
+    #[cfg(feature = "serverdebug")]
+    {
+        let (console_layer, server) = console_subscriber::ConsoleLayer::builder().with_default_env().build();
+        tokio::spawn(async { server.serve().await });
+        registry
+            .with(console_layer.with_filter(EnvFilter::new("tokio=trace,runtime=trace")))
+            .init();
+    }
+    #[cfg(not(feature = "serverdebug"))]
+    {
+        registry.init();
+    }
+
     Ok(())
 }
 
 async fn create_app_service() -> Result<Service> {
     let data_dir = get_app_data_dir()?;
     let resource_dir = get_resource_dir()?;
+    setup_logging(&data_dir)?;
+
     build_service(data_dir, resource_dir).await
 }
 
-async fn build_service(app_data_dir: PathBuf, resource_dir: PathBuf) -> Result<Service> {
-    setup_logging(&app_data_dir)?;
+async fn build_service(_app_data_dir: PathBuf, resource_dir: PathBuf) -> Result<Service> {
     let app_meta = AppMeta::from_env().with_app_name("arenabuddy");
     let root_span = tracing::info_span!("app", app = %app_meta.app);
     let _span = root_span.enter();
