@@ -17,18 +17,14 @@ fn watcher() -> Result<(RecommendedWatcher, Receiver<Event>)> {
     let (tx, rx) = channel(100);
 
     info!("building watcher!");
-    let watcher = notify::recommended_watcher(move |res: notify::Result<Event>| {
-        info!("found event!");
-        match res {
-            Ok(event) => {
-                tokio::runtime::Runtime::new().unwrap().block_on(async {
-                    info!("found event!");
-                    let () = tx.send(event).await.expect("channel crashed");
-                });
-            }
-            Err(e) => {
-                error!("watch error: {:?}", e);
-            }
+    let watcher = notify::recommended_watcher(move |res: notify::Result<Event>| match res {
+        Ok(event) => {
+            tokio::runtime::Runtime::new().unwrap().block_on(async {
+                let () = tx.send(event).await.expect("channel crashed");
+            });
+        }
+        Err(e) => {
+            error!("watch error: {:?}", e);
         }
     })
     .map_err(|e| Error::IoError(e.to_string()))?;
