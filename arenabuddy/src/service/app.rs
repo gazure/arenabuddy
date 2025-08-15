@@ -1,6 +1,7 @@
-#[cfg(feature = "server")]
-use std::path::PathBuf;
-use std::{path::Path, sync::Arc};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use arenabuddy_core::{
     cards::CardsDatabase,
@@ -13,7 +14,10 @@ use arenabuddy_core::{
     models::MTGAMatch,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB};
-use dioxus::desktop::{Config, WindowBuilder};
+use dioxus::{
+    LaunchBuilder,
+    desktop::{Config, WindowBuilder},
+};
 use start::AppMeta;
 use tokio::sync::Mutex;
 use tracing::{Level, debug, error, info};
@@ -25,7 +29,7 @@ use tracing_subscriber::{
     util::SubscriberInitExt,
 };
 
-use crate::{Error, Result};
+use crate::{Error, Result, app::App};
 
 #[derive(Clone)]
 pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
@@ -162,10 +166,6 @@ where
 }
 
 pub fn launch_server() -> Result<()> {
-    use dioxus::LaunchBuilder;
-
-    use crate::app::App;
-
     let data_dir = get_app_data_dir()?;
     let resource_dir = get_resource_dir()?;
     let home = std::env::home_dir().ok_or(Error::NoHomeDir)?;
