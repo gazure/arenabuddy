@@ -1,32 +1,30 @@
-use arenabuddy_core::display::match_details::MatchDetails as MatchDetailsData;
 use dioxus::prelude::*;
 
 use crate::{
     app::Route,
     components::{DeckList, MatchInfo, MulliganDisplay},
-    service::command_match_details,
+    service::Service,
     state::AsyncState,
 };
 
-async fn get_match_details(id: &str) -> Option<MatchDetailsData> {
-    command_match_details(id.to_string()).await.ok()
-}
-
 #[component]
 pub(crate) fn MatchDetails(id: String) -> Element {
+    let service = use_context::<Service>();
     let state = use_signal(|| AsyncState::Loading);
 
     let mut load_data = {
+        let service = service.clone();
         let mut state = state;
         let id = id.clone();
         move || {
             state.set(AsyncState::Loading);
+            let service = service.clone();
             let id_clone = id.clone();
             spawn(async move {
-                match get_match_details(&id_clone).await {
-                    Some(details) => state.set(AsyncState::Success(details)),
-                    None => state.set(AsyncState::Error(format!(
-                        "Could not find match details for ID: {id_clone}"
+                match service.get_match_details(id_clone.clone()).await {
+                    Ok(details) => state.set(AsyncState::Success(details)),
+                    Err(e) => state.set(AsyncState::Error(format!(
+                        "Could not find match details for ID: {id_clone}: {e}"
                     ))),
                 }
             });
@@ -34,16 +32,18 @@ pub(crate) fn MatchDetails(id: String) -> Element {
     };
 
     let refresh_load = {
+        let service = service.clone();
         let mut state = state;
         let id = id.clone();
         move |_| {
             state.set(AsyncState::Loading);
+            let service = service.clone();
             let id_clone = id.clone();
             spawn(async move {
-                match get_match_details(&id_clone).await {
-                    Some(details) => state.set(AsyncState::Success(details)),
-                    None => state.set(AsyncState::Error(format!(
-                        "Could not find match details for ID: {id_clone}"
+                match service.get_match_details(id_clone.clone()).await {
+                    Ok(details) => state.set(AsyncState::Success(details)),
+                    Err(e) => state.set(AsyncState::Error(format!(
+                        "Could not find match details for ID: {id_clone}: {e}"
                     ))),
                 }
             });

@@ -40,7 +40,6 @@ pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
 }
 pub type Service = AppService<MatchDB>;
 
-#[cfg(feature = "server")]
 impl<D> std::fmt::Debug for AppService<D>
 where
     D: arenabuddy_data::ArenabuddyRepository,
@@ -165,7 +164,7 @@ where
     }
 }
 
-pub fn launch_server() -> Result<()> {
+pub fn launch_app() -> Result<()> {
     let data_dir = get_app_data_dir()?;
     let resource_dir = get_resource_dir()?;
     let home = std::env::home_dir().ok_or(Error::NoHomeDir)?;
@@ -189,7 +188,7 @@ pub fn launch_server() -> Result<()> {
         .await;
     });
 
-    LaunchBuilder::server()
+    LaunchBuilder::desktop()
         .with_cfg(
             Config::new()
                 .with_data_directory(data_dir.clone())
@@ -272,7 +271,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
         .with(file_layer)
         .with(console_layer.with_filter(console_filter));
 
-    #[cfg(feature = "serverdebug")]
+    #[cfg(feature = "debug")]
     {
         let (console_layer, server) = console_subscriber::ConsoleLayer::builder().with_default_env().build();
         tokio::spawn(async { server.serve().await });
@@ -280,7 +279,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
             .with(console_layer.with_filter(EnvFilter::new("tokio=trace,runtime=trace")))
             .init();
     }
-    #[cfg(not(feature = "serverdebug"))]
+    #[cfg(not(feature = "debug"))]
     {
         registry.init();
     }

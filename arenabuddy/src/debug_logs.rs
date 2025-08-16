@@ -1,16 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::service::{command_get_debug_logs, command_set_debug_logs};
-
-async fn set_debug_logs_dir(directory: &str) -> Result<(), String> {
-    command_set_debug_logs(directory.to_string())
-        .await
-        .map_err(|e| e.to_string())
-}
-
-async fn get_debug_logs_dir() -> Result<Option<Vec<String>>, String> {
-    command_get_debug_logs().await.map_err(|e| e.to_string())
-}
+use crate::service::Service;
 
 async fn select_directory() -> Result<String, String> {
     use rfd::AsyncFileDialog;
@@ -28,64 +18,74 @@ async fn select_directory() -> Result<String, String> {
 
 #[component]
 pub fn DebugLogs() -> Element {
+    let service = use_context::<Service>();
     let mut selected_dir = use_signal(|| Option::<Vec<String>>::None);
     let mut status_message = use_signal(|| Option::<String>::None);
     let mut is_loading = use_signal(|| false);
     let mut is_initial_load = use_signal(|| true);
 
     // Load current debug logs directory on startup
-    use_effect(move || {
-        spawn(async move {
-            match get_debug_logs_dir().await {
-                Ok(Some(logs)) => {
-                    selected_dir.set(Some(logs));
-                    status_message.set(Some("Loaded current debug logs".to_string()));
-                }
-                Ok(None) => {
-                    status_message.set(Some("No debug logs directory configured yet".to_string()));
-                }
-                Err(err) => {
-                    status_message.set(Some(format!("Error loading debug logs: {err}")));
-                }
-            }
-            is_initial_load.set(false);
-        });
-    });
-
-    let on_select_directory = move |_| {
-        is_loading.set(true);
-        status_message.set(None);
-
-        spawn(async move {
-            match select_directory().await {
-                Ok(dir) => {
-                    match set_debug_logs_dir(&dir).await {
-                        Ok(()) => {
-                            // Reload the logs after setting directory
-                            match get_debug_logs_dir().await {
-                                Ok(Some(logs)) => {
-                                    selected_dir.set(Some(logs));
-                                    status_message.set(Some("Debug logs directory updated successfully!".to_string()));
-                                }
-                                Ok(None) => {
-                                    status_message.set(Some("Directory set but no logs found".to_string()));
-                                }
-                                Err(err) => {
-                                    status_message.set(Some(format!("Directory set but error loading logs: {err}")));
-                                }
-                            }
-                        }
-                        Err(err) => {
-                            status_message.set(Some(format!("Error setting directory: {err}")));
-                        }
+    let service2 = service.clone();
+    use_effect({
+        move || {
+            let service2 = service2.clone();
+            spawn(async move {
+                match service2.get_debug_logs().await {
+                    Ok(Some(logs)) => {
+                        selected_dir.set(Some(logs));
+                        status_message.set(Some("Loaded current debug logs".to_string()));
+                    }
+                    Ok(None) => {
+                        status_message.set(Some("No debug logs directory configured yet".to_string()));
+                    }
+                    Err(err) => {
+                        status_message.set(Some(format!("Error loading debug logs: {err}")));
                     }
                 }
-                Err(err) => {
-                    status_message.set(Some(format!("Error selecting directory: {err}")));
+                is_initial_load.set(false);
+            });
+        }
+    });
+
+    let on_select_directory = {
+        move |_| {
+            is_loading.set(true);
+            status_message.set(None);
+            let service = service.clone();
+
+            spawn(async move {
+                match select_directory().await {
+                    Ok(dir) => {
+                        match service.set_debug_logs(dir.clone()).await {
+                            Ok(()) => {
+                                // Reload the logs after setting directory
+                                match service.get_debug_logs().await {
+                                    Ok(Some(logs)) => {
+                                        selected_dir.set(Some(logs));
+                                        status_message
+                                            .set(Some("Debug logs directory updated successfully!".to_string()));
+                                    }
+                                    Ok(None) => {
+                                        status_message.set(Some("Directory set but no logs found".to_string()));
+                                    }
+                                    Err(err) => {
+                                        status_message
+                                            .set(Some(format!("Directory set but error loading logs: {err}")));
+                                    }
+                                }
+                            }
+                            Err(err) => {
+                                status_message.set(Some(format!("Error setting directory: {err}")));
+                            }
+                        }
+                    }
+                    Err(err) => {
+                        status_message.set(Some(format!("Error selecting directory: {err}")));
+                    }
                 }
-            }
-            is_loading.set(false);
-        });
+                is_loading.set(false);
+            });
+        }
     };
 
     rsx! {

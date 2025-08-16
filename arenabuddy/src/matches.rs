@@ -2,11 +2,7 @@ use arenabuddy_core::models::MTGAMatch;
 use dioxus::prelude::*;
 use dioxus_router::Link;
 
-use crate::{app::Route, service::command_matches};
-
-async fn retrieve_matches() -> Vec<MTGAMatch> {
-    command_matches().await.unwrap_or_default()
-}
+use crate::{app::Route, service::Service};
 
 #[component]
 fn MatchRow(m: MTGAMatch) -> Element {
@@ -25,27 +21,54 @@ fn MatchRow(m: MTGAMatch) -> Element {
     }
 }
 
-// Component for Matches page
 #[component]
 pub(crate) fn Matches() -> Element {
+    let service = use_context::<Service>();
     let mut matches = use_signal(|| None::<Vec<MTGAMatch>>);
     let mut loading = use_signal(|| true);
+    let mut error = use_signal(|| None::<String>);
 
-    // Load matches immediately on component mount
-    use_future(move || async move {
-        let data = retrieve_matches().await;
-        matches.set(Some(data));
-        loading.set(false);
+    let service2 = service.clone();
+    // Load matches on component mount
+    use_future({
+        move || {
+            let service2 = service2.clone();
+            async move {
+                match service2.get_matches().await {
+                    Ok(data) => {
+                        matches.set(Some(data));
+                        error.set(None);
+                    }
+                    Err(e) => {
+                        error.set(Some(format!("Failed to load matches: {e}")));
+                        matches.set(None);
+                    }
+                }
+                loading.set(false);
+            }
+        }
     });
 
     let refresh_matches = {
+        let service = service.clone();
         let mut loading = loading;
         let mut matches = matches;
+        let mut error = error;
         move |_| {
             loading.set(true);
+            error.set(None);
+            let service = service.clone();
             spawn(async move {
-                let data = retrieve_matches().await;
-                matches.set(Some(data));
+                match service.get_matches().await {
+                    Ok(data) => {
+                        matches.set(Some(data));
+                        error.set(None);
+                    }
+                    Err(e) => {
+                        error.set(Some(format!("Failed to refresh matches: {e}")));
+                        matches.set(None);
+                    }
+                }
                 loading.set(false);
             });
         }
@@ -58,19 +81,31 @@ pub(crate) fn Matches() -> Element {
                 button {
                     onclick: refresh_matches,
                     class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow transition-colors duration-150 flex items-center",
-                    "Refresh Matches"
+                    disabled: loading(),
+                    if loading() {
+                        "Loading..."
+                    } else {
+                        "Refresh Matches"
+                    }
+                }
+            }
+
+            if let Some(err) = error() {
+                div { class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4",
+                    p { "{err}" }
                 }
             }
 
             div { class: "bg-white rounded-lg shadow-md overflow-hidden",
-                if loading() {
+                if loading() && matches().is_none() {
                     div { class: "p-12 text-center text-gray-500",
                         div { class: "animate-pulse", "Loading match data..." }
                     }
                 } else if let Some(matches_data) = matches.read().as_ref() {
                     div { class: "p-4 border-b bg-gray-50",
                         p { class: "text-gray-600",
-                            span { class: "font-medium", "{matches_data.len()}" }
+                            span { class: "font-medium", "{matches_data.len
+    ()}" }
                             " matches found"
                         }
                     }

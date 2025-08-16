@@ -13,10 +13,9 @@ license.workspace = true
 [dependencies]
 arenabuddy_core = { path = "../arenabuddy_core/" }
 arenabuddy_data = { path = "../arenabuddy_data" }
-axum = { workspace = true, optional = true }
 chrono = { workspace = true }
 console-subscriber = { workspace = true, optional = true }
-dioxus = { workspace = true, features = ["router", "desktop", "fullstack"] }
+dioxus = { workspace = true, features = ["desktop"] }
 itertools = { workspace = true }
 notify = { workspace = true }
 open = { workspace = true }
@@ -26,7 +25,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 start = { path = "../../lib/start" }
 thiserror = { workspace = true }
-tokio = { workspace = true, optional = true, features = ["full", "tracing"] }
+tokio = { workspace = true, features = ["full", "tracing"] }
 tracing = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
 tracing-subscriber = { workspace = true }
@@ -38,5 +37,5 @@ workspace = true
 [features]
 default = ["desktop"]
 desktop = ["dioxus/desktop"]
-server = ["dioxus/server", "dep:tokio"]
-serverdebug = ["dep:console-subscriber"]
+# server = ["dioxus/server", "dep:tokio"]
+debug = ["dep:console-subscriber"]

@@ -1,36 +1,44 @@
 use dioxus::prelude::*;
 
-use crate::service::command_error_logs;
-
-async fn get_error_logs() -> Option<Vec<String>> {
-    command_error_logs().await.ok()
-}
+use crate::service::Service;
 
 #[component]
 pub fn ErrorLogs() -> Element {
-    let mut error_logs = use_signal(Vec::<String>::new);
-    let mut is_loading = use_signal(|| true);
-    let mut has_error = use_signal(|| false);
+    let service = use_context::<Service>();
+    let error_logs = use_signal(Vec::<String>::new);
+    let is_loading = use_signal(|| true);
+    let has_error = use_signal(|| false);
 
     // Function to load logs
-    let mut load_logs = move || {
-        is_loading.set(true);
-        has_error.set(false);
+    let mut load_logs = {
+        let service = service.clone();
+        let mut error_logs = error_logs;
+        let mut is_loading = is_loading;
+        let mut has_error = has_error;
+        move || {
+            is_loading.set(true);
+            has_error.set(false);
+            let service = service.clone();
 
-        spawn(async move {
-            if let Some(logs) = get_error_logs().await {
-                error_logs.set(logs);
+            spawn(async move {
+                if let Ok(logs) = service.get_error_logs().await {
+                    error_logs.set(logs);
+                    has_error.set(false);
+                } else {
+                    has_error.set(true);
+                    error_logs.set(Vec::new());
+                }
                 is_loading.set(false);
-            } else {
-                has_error.set(true);
-                is_loading.set(false);
-            }
-        });
+            });
+        }
     };
 
     // Load logs when component mounts
-    use_effect(move || {
-        load_logs();
+    use_effect({
+        let mut load_logs = load_logs.clone();
+        move || {
+            load_logs();
+        }
     });
 
     rsx! {
@@ -70,7 +78,7 @@ pub fn ErrorLogs() -> Element {
                         div {
                             textarea {
                                 readonly: true,
-                                class: "border border-gray-300 rounded-md bg-gray-50 font-mono text-sm leading-relaxed text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full",
+                                class: "border border-gray-300 rounded-md bg-gray-50 font-mono text-sm leading-relaxed text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full h-96 p-4",
                                 value: "{error_logs().join(\"\\n\")}"
                             }
                         }

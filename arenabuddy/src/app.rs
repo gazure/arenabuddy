@@ -33,6 +33,14 @@ pub enum Route {
 }
 
 #[component]
+pub fn App() -> Element {
+    rsx! {
+        document::Stylesheet { href: TAILWIND_CSS }
+        Router::<Route> {}
+    }
+}
+
+#[component]
 fn Home() -> Element {
     rsx! {
         div { class: "bg-white rounded-lg shadow-md p-6",
@@ -68,14 +76,6 @@ fn PageNotFound(route: Vec<String>) -> Element {
                 "The page you're looking for doesn't exist."
             }
         }
-    }
-}
-
-#[component]
-pub fn App() -> Element {
-    rsx! {
-        document::Stylesheet { href: TAILWIND_CSS }
-        Router::<Route> {}
     }
 }
 
