@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 mod app;
 mod components;
 mod debug_logs;

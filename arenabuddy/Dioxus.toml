@@ -5,3 +5,4 @@ title = "Arenabuddy"
 [bundle]
 identifier = "com.gazure.arenabuddy.dev"
 publisher = "Grant Azure"
+icon = ["arenabuddy/assets/icon.png"]
