@@ -1,8 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 pub type Result<T, E = Error> = core::result::Result<T, E>;
 
-#[derive(Debug, thiserror::Error, Deserialize, Serialize)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Invalid input")]
     InvalidInput,
@@ -20,28 +18,16 @@ pub enum Error {
     NoMatchesDatabase,
     #[error("Unsupported operating system")]
     UnsupportedOS,
-    #[error("Db error: {0}")]
-    DbError(String),
-    #[error("Core error: {0}")]
-    CoreError(String),
+    #[error(transparent)]
+    DbError(#[from] arenabuddy_data::Error),
+    #[error(transparent)]
+    CoreError(#[from] arenabuddy_core::Error),
     #[error("Io error: {0}")]
     IoError(String),
 }
 
 impl From<std::io::Error> for Error {
     fn from(err: std::io::Error) -> Self {
-        Error::IoError(err.to_string())
-    }
-}
-
-impl From<arenabuddy_data::Error> for Error {
-    fn from(err: arenabuddy_data::Error) -> Self {
-        Error::DbError(err.to_string())
-    }
-}
-
-impl From<arenabuddy_core::Error> for Error {
-    fn from(err: arenabuddy_core::Error) -> Self {
         Error::IoError(err.to_string())
     }
 }

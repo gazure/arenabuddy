@@ -1,5 +1,5 @@
 #[derive(Clone, Debug)]
-pub(crate) enum AsyncState<T, E = String> {
+pub enum AsyncState<T, E = String> {
     Loading,
     Error(E),
     Success(T),

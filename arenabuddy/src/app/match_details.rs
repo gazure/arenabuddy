@@ -2,9 +2,8 @@ use dioxus::prelude::*;
 
 use crate::{
     app::Route,
-    components::{DeckList, MatchInfo, MulliganDisplay},
+    components::{AsyncState, DeckList, MatchInfo, MulliganDisplay},
     service::Service,
-    state::AsyncState,
 };
 
 #[component]

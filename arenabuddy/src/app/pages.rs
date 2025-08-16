@@ -1,15 +1,13 @@
 use dioxus::prelude::*;
 use dioxus_router::{Link, Outlet, Routable};
 
-use crate::{debug_logs::DebugLogs, error_logs::ErrorLogs, match_details::MatchDetails, matches::Matches};
+use crate::app::{debug_logs::DebugLogs, error_logs::ErrorLogs, match_details::MatchDetails, matches::Matches};
 
 fn open_github() {
     if let Err(e) = open::that("https://github.com/gazure/monorepo") {
         tracing::error!("Failed to open URL: {}", e);
     }
 }
-
-const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");
 
 #[derive(Clone, Routable, Debug, PartialEq)]
 #[rustfmt::skip]
@@ -30,14 +28,6 @@ pub enum Route {
     #[end_layout]
     #[route("/:..route")]
     PageNotFound { route: Vec<String> },
-}
-
-#[component]
-pub fn App() -> Element {
-    rsx! {
-        document::Stylesheet { href: TAILWIND_CSS }
-        Router::<Route> {}
-    }
 }
 
 #[component]
