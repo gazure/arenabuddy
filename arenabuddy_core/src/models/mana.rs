@@ -66,6 +66,7 @@ pub enum CostSymbol {
     PhyrexianFuse { color1: Color, color2: Color },
     Variable,
     Snow,
+    Break,
 }
 
 impl Display for CostSymbol {
@@ -82,6 +83,7 @@ impl Display for CostSymbol {
             CostSymbol::Variable => write!(f, "X"),
             CostSymbol::Snow => write!(f, "S"),
             CostSymbol::PhyrexianFuse { color1, color2 } => write!(f, "{color1}/{color2}/P"),
+            CostSymbol::Break => write!(f, " // "),
         }?;
         write!(f, "}}")
     }
@@ -301,7 +303,8 @@ impl FromStr for CostSymbol {
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Cost {
-    inner: Vec<CostSymbol>,
+    primary: Vec<CostSymbol>,
+    secondary: Option<Vec<CostSymbol>>,
 }
 
 impl FromStr for Cost {
@@ -309,32 +312,55 @@ impl FromStr for Cost {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.is_empty() {
-            return Ok(Cost { inner: Vec::new() });
+            return Ok(Cost {
+                primary: Vec::new(),
+                secondary: None,
+            });
         }
 
-        // Use regex to find all patterns like "{X}" where X is any sequence of chars
-        let mut symbols = Vec::new();
+        // Check if there's a "//" separator for split cards
+        let parts: Vec<&str> = s.split("//").collect();
 
-        // Extract and parse each symbol
-        let re = Regex::new(r"\{([^{}]+)\}").expect("invalid regex");
+        let parse_cost_part = |part: &str| -> Result<Vec<CostSymbol>, String> {
+            let mut symbols = Vec::new();
 
-        for cap in re.captures_iter(s) {
-            let symbol_str = &cap[1]; // Extract what's inside the braces
-            symbols.push(symbol_str.parse()?);
-        }
+            // Use regex to find all patterns like "{X}" where X is any sequence of chars
+            let re = Regex::new(r"\{([^{}]+)\}").expect("invalid regex");
 
-        if symbols.is_empty() {
+            for cap in re.captures_iter(part) {
+                let symbol_str = &cap[1]; // Extract what's inside the braces
+                symbols.push(symbol_str.parse()?);
+            }
+
+            Ok(symbols)
+        };
+
+        let primary = parse_cost_part(parts[0])?;
+
+        let secondary = if parts.len() > 1 {
+            Some(parse_cost_part(parts[1])?)
+        } else {
+            None
+        };
+
+        if primary.is_empty() && secondary.is_none() {
             return Err(format!("Invalid mana cost: {s}"));
         }
 
-        Ok(Cost { inner: symbols })
+        Ok(Cost { primary, secondary })
     }
 }
 
 impl Display for Cost {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for symbol in &self.inner {
+        for symbol in &self.primary {
             write!(f, "{symbol}")?;
+        }
+        if let Some(secondary) = &self.secondary {
+            write!(f, " // ")?;
+            for symbol in secondary {
+                write!(f, "{symbol}")?;
+            }
         }
         Ok(())
     }
@@ -345,7 +371,12 @@ impl IntoIterator for Cost {
     type Item = CostSymbol;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.inner.into_iter()
+        let mut symbols = self.primary;
+        if let Some(secondary) = self.secondary {
+            symbols.push(CostSymbol::Break);
+            symbols.extend(secondary);
+        }
+        symbols.into_iter()
     }
 }
 
@@ -600,5 +631,56 @@ mod test {
                 .unwrap_or_else(|_| panic!("Failed to re-parse serialized cost: {serialized}"));
             assert_eq!(serialized, reparsed.to_string(), "Re-parsing failed for {serialized}");
         }
+    }
+
+    #[test]
+    fn test_double_faced_card_mana_costs() {
+        assert_eq!(
+            "{4}{U}{U} // {3}{U}",
+            Cost::from_str("{4}{U}{U} // {3}{U}")
+                .expect("Failed to parse {4}{U}{U} // {3}{U}")
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn test_2_bird_cost_cards() {
+        // Test two-brid mana costs (2/color)
+        assert_eq!(
+            "{2/W}",
+            Cost::from_str("{2/W}").expect("Failed to parse {2/W}").to_string()
+        );
+        assert_eq!(
+            "{2/U}",
+            Cost::from_str("{2/U}").expect("Failed to parse {2/U}").to_string()
+        );
+        assert_eq!(
+            "{2/B}",
+            Cost::from_str("{2/B}").expect("Failed to parse {2/B}").to_string()
+        );
+        assert_eq!(
+            "{2/R}",
+            Cost::from_str("{2/R}").expect("Failed to parse {2/R}").to_string()
+        );
+        assert_eq!(
+            "{2/G}",
+            Cost::from_str("{2/G}").expect("Failed to parse {2/G}").to_string()
+        );
+
+        // Test cards with multiple two-brid symbols
+        assert_eq!(
+            "{2/W}{2/W}",
+            Cost::from_str("{2/W}{2/W}")
+                .expect("Failed to parse {2/W}{2/W}")
+                .to_string()
+        );
+
+        // Test mixed costs with two-brid
+        assert_eq!(
+            "{1}{2/U}{B}",
+            Cost::from_str("{1}{2/U}{B}")
+                .expect("Failed to parse {1}{2/U}{B}")
+                .to_string()
+        );
     }
 }

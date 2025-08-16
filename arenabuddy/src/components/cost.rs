@@ -81,6 +81,8 @@ const MANA_CB: Asset = asset!("/assets/mana/CB.svg");
 const MANA_CR: Asset = asset!("/assets/mana/CR.svg");
 const MANA_CG: Asset = asset!("/assets/mana/CG.svg");
 
+const MANA_BREAK: Asset = asset!("/assets/mana/BREAK.svg");
+
 fn get_mana_asset(symbol: CostSymbol) -> Option<Asset> {
     match symbol {
         CostSymbol::Generic { n } => match n {
@@ -164,6 +166,7 @@ fn get_mana_asset(symbol: CostSymbol) -> Option<Asset> {
             Color::Red => Some(MANA_2R),
             Color::Green => Some(MANA_2G),
         },
+        CostSymbol::Break => Some(MANA_BREAK),
     }
 }
 
