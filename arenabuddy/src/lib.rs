@@ -5,7 +5,6 @@ mod components;
 mod debug_logs;
 mod error_logs;
 mod errors;
-mod ingest;
 mod match_details;
 mod matches;
 mod service;

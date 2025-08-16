@@ -179,7 +179,7 @@ pub fn launch_app() -> Result<()> {
     let service = background.block_on(create_app_service())?;
     let service2 = service.clone();
     background.spawn(async move {
-        crate::ingest::start(
+        crate::service::ingest::start(
             service2.db.clone(),
             service2.debug_storage.clone(),
             service2.log_collector.clone(),
