@@ -4,11 +4,9 @@ use prost::Message;
 
 use crate::models::{Card, CardCollection};
 
-pub type ArenaId = String;
-
 #[derive(Debug, Default)]
 pub struct CardsDatabase {
-    pub db: BTreeMap<ArenaId, Card>,
+    pub db: BTreeMap<String, Card>,
 }
 
 impl CardsDatabase {
@@ -21,7 +19,7 @@ impl CardsDatabase {
         let mut buffer = Vec::new();
         cards_db_file.read_to_end(&mut buffer)?;
         let card_collection = CardCollection::decode(buffer.as_slice())?;
-        let cards_db: BTreeMap<ArenaId, Card> = card_collection
+        let cards_db: BTreeMap<String, Card> = card_collection
             .cards
             .into_iter()
             .map(|card| (card.id.to_string(), card))

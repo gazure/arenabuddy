@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::mtga_events::primitives::{
-    Action, Annotation, MulliganType, OptionPrompt, Player, PlayerDieRoll, Power, Prompt, ResultListEntry, Skin, Stop,
-    Target, Timer, Toughness, TurnInfo, Zone,
+    Action, Annotation, ArenaId, MulliganType, OptionPrompt, Player, PlayerDieRoll, Power, Prompt, ResultListEntry,
+    Skin, Stop, Target, Timer, Toughness, TurnInfo, Zone,
 };
 
 // GRE refers to the server-side MTGA engine
@@ -410,7 +410,7 @@ pub struct GameObject {
     #[serde(default)]
     pub color: Vec<String>,
     pub controller_seat_id: Option<i32>,
-    pub grp_id: i32,
+    pub grp_id: ArenaId,
     pub instance_id: i32,
     pub name: Option<i32>,
     pub overlay_grp_id: Option<i32>,

@@ -20,7 +20,7 @@ use crate::{
             RequestTypeGREToClientEvent,
         },
         mgrsc::{FinalMatchResult, RequestTypeMGRSCEvent, StateType},
-        primitives::ZoneType,
+        primitives::{ArenaId, ZoneType},
     },
     processor::ParseOutput,
 };
@@ -87,7 +87,7 @@ impl MatchReplay {
         Err(Error::NotFound("Player names".to_owned()))
     }
 
-    fn get_opponent_cards(&self) -> Vec<i32> {
+    fn get_opponent_cards(&self) -> Vec<ArenaId> {
         self.game_state_messages_iter()
             .flat_map(|gsm| &gsm.game_objects)
             .filter(|game_object| {
@@ -178,7 +178,7 @@ impl MatchReplay {
         let controller_id = self.get_controller_seat_id();
 
         let mut game_number = 1;
-        let mut opening_hands = Vec::<(i32, Vec<i32>)>::new();
+        let mut opening_hands = Vec::<(i32, Vec<ArenaId>)>::new();
         let mut mulligan_requests = Vec::<(i32, &MulliganReqWrapper)>::new();
         let mut play_or_draw: BTreeMap<i32, String> = BTreeMap::new();
         let opponent_color_identity = self.get_opponent_color_identity(cards_db);
@@ -214,7 +214,7 @@ impl MatchReplay {
                             .find(|zone| zone.type_field == ZoneType::Hand && zone.owner_seat_id == Some(controller_id))
                             .ok_or(Error::NotFound("Controller hand zone".to_owned()))?
                             .zone_id;
-                        let game_objects_in_hand: Vec<i32> = gsm
+                        let game_objects_in_hand: Vec<ArenaId> = gsm
                             .game_objects
                             .iter()
                             .filter(|go| {
