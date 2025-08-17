@@ -1,3 +1,4 @@
+mod components;
 mod debug_logs;
 mod error_logs;
 mod match_details;

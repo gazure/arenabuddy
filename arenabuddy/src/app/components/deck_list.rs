@@ -6,7 +6,7 @@ use arenabuddy_core::{
 };
 use dioxus::prelude::*;
 
-use crate::components::ManaCost;
+use crate::app::components::ManaCost;
 
 #[component]
 pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'static str>) -> Element {

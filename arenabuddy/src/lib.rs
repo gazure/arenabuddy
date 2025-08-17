@@ -1,7 +1,6 @@
 #![allow(non_snake_case)]
 
 mod app;
-mod components;
 mod errors;
 mod service;
 
