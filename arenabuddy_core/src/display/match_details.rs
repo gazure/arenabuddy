@@ -22,5 +22,6 @@ pub struct MatchDetails {
     pub differences: Option<Vec<Difference>>,
     pub game_results: Vec<GameResultDisplay>,
     pub decklists: Vec<Deck>,
+    pub opponent_deck: Option<DeckDisplayRecord>,
     pub mulligans: Vec<Mulligan>,
 }

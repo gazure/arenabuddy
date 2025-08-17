@@ -64,6 +64,14 @@ pub(crate) fn MatchDetails(id: String) -> Element {
             .unwrap_or_default()
     };
 
+    let opponent_deck_display = move || {
+        state
+            .read()
+            .details()
+            .and_then(|details| details.opponent_deck.as_ref())
+            .cloned()
+            .unwrap_or_default()
+    };
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-8xl",
             div { class: "mb-4",
@@ -146,6 +154,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                     }
 
                     DeckList { deck: deck_display() }
+                    DeckList { deck: opponent_deck_display() }
 
                     div { class: "mt-8 col-span-full",
                         MulliganDisplay { mulligans: details.mulligans.clone() }

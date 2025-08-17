@@ -3,6 +3,7 @@ use std::sync::Arc;
 use arenabuddy_core::{
     cards::CardsDatabase,
     models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
+    mtga_events::primitives::ArenaId,
     replay::MatchReplay,
 };
 use chrono::{NaiveDateTime, Utc};
@@ -142,6 +143,37 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
+    async fn insert_opponent_deck(
+        match_id: &Uuid,
+        opponent_cards: &[ArenaId],
+        tx: &mut Transaction<'_, Postgres>,
+    ) -> Result<()> {
+        let mut unique_cards = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for card in opponent_cards {
+            if seen.insert(card) {
+                unique_cards.push(*card);
+            }
+        }
+        let opponent_cards_string = serde_json::to_string(&unique_cards)?;
+
+        sqlx::query!(
+            r#"INSERT INTO opponent_deck
+            (match_id, cards)
+            VALUES ($1, $2)
+            ON CONFLICT (match_id)
+            DO UPDATE SET cards = excluded.cards"#,
+            match_id,
+            opponent_cards_string
+        )
+        .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
+    /// # Errors
+    ///
+    /// will return an error if the database cannot be contacted for some reason
     pub async fn get_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
@@ -191,6 +223,15 @@ impl PostgresMatchDB {
             .collect();
 
         Ok(decks)
+    }
+
+    pub async fn do_get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
+        let match_id = Uuid::parse_str(match_id)?;
+        let result = sqlx::query!("SELECT cards FROM opponent_deck WHERE match_id = $1", match_id)
+            .fetch_one(&self.pool)
+            .await?;
+
+        Ok(Deck::from_raw("Opponent_deck".to_string(), 0, &result.cards, ""))
     }
 
     /// # Errors
@@ -343,6 +384,8 @@ impl PostgresMatchDB {
             Self::insert_match_result(&match_id, &match_result, &mut tx).await?;
         }
 
+        Self::insert_opponent_deck(&match_id, &match_replay.get_opponent_cards(), &mut tx).await?;
+
         tx.commit().await?;
         Ok(())
     }
@@ -375,5 +418,9 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
     fn list_match_results(&mut self, match_id: &str) -> impl Future<Output = Result<Vec<MatchResult>>> + Send {
         self.get_match_results(match_id)
+    }
+
+    fn get_opponent_deck(&mut self, match_id: &str) -> impl Future<Output = Result<Deck>> + Send {
+        self.do_get_opponent_deck(match_id)
     }
 }

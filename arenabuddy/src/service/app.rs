@@ -137,6 +137,12 @@ where
             })
             .collect();
 
+        match_details.opponent_deck = db
+            .get_opponent_deck(&id)
+            .await
+            .map(|deck| DeckDisplayRecord::from_decklist(&deck, &self.cards))
+            .ok();
+
         Ok(match_details)
     }
 

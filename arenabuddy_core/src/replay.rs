@@ -87,7 +87,7 @@ impl MatchReplay {
         Err(Error::NotFound("Player names".to_owned()))
     }
 
-    fn get_opponent_cards(&self) -> Vec<ArenaId> {
+    pub fn get_opponent_cards(&self) -> Vec<ArenaId> {
         self.game_state_messages_iter()
             .flat_map(|gsm| &gsm.game_objects)
             .filter(|game_object| {
