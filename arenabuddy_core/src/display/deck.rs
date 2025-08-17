@@ -63,11 +63,21 @@ impl DeckDisplayRecord {
     }
 
     /// Returns the total number of cards in the main deck and sideboard.
-    pub fn totals(&self) -> (usize, usize) {
+    pub fn totals(&self) -> (u16, u16) {
         (
-            self.main_deck.values().map(std::vec::Vec::len).sum(),
-            self.sideboard.len(),
+            self.main_deck
+                .values()
+                .map(|c| c.iter().fold(0, |acc, card| acc + card.quantity))
+                .sum(),
+            self.sideboard.iter().fold(0, |acc, card| acc + card.quantity),
         )
+    }
+
+    pub fn total_by_type(&self, card_type: CardType) -> u16 {
+        let Some(cards) = self.main_deck.get(&card_type) else {
+            return 0;
+        };
+        cards.iter().fold(0, |acc, card| acc + card.quantity)
     }
 }
 

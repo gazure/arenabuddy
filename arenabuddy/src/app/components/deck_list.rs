@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use arenabuddy_core::{
     display::{card::CardDisplayRecord, deck::DeckDisplayRecord},
     models::CardType,
@@ -26,11 +24,11 @@ pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'stat
 
                     div { class: "grid grid-cols-2 gap-6",
                         div { class: "space-y-6",
-                            {render_non_land_cards(&deck.main_deck)}
+                            {render_non_land_cards(&deck)}
                         }
                         div { class: "space-y-6",
-                            {render_lands(&deck.main_deck)}
-                            {render_sideboard(&deck.sideboard)}
+                            {render_lands(&deck)}
+                            {render_sideboard(&deck)}
                         }
                     }
                 }
@@ -61,7 +59,8 @@ pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'stat
     }
 }
 
-fn render_non_land_cards(main_deck: &HashMap<CardType, Vec<CardDisplayRecord>>) -> Element {
+fn render_non_land_cards(deck: &DeckDisplayRecord) -> Element {
+    let main_deck = &deck.main_deck;
     let ordered_types = vec![
         CardType::Creature,
         CardType::Planeswalker,
@@ -79,7 +78,7 @@ fn render_non_land_cards(main_deck: &HashMap<CardType, Vec<CardDisplayRecord>>) 
                 if !cards.is_empty() {
                     div { class: "mb-4",
                         h4 { class: "text-md font-medium text-gray-700 mb-2",
-                            "{card_type} ({cards.len()})"
+                            "{card_type} ({deck.total_by_type(card_type)})"
                         }
                         div { class: "space-y-1",
                             for card in cards {
@@ -93,12 +92,13 @@ fn render_non_land_cards(main_deck: &HashMap<CardType, Vec<CardDisplayRecord>>) 
     }
 }
 
-fn render_lands(main_deck: &HashMap<CardType, Vec<CardDisplayRecord>>) -> Element {
+fn render_lands(deck: &DeckDisplayRecord) -> Element {
+    let main_deck = &deck.main_deck;
     if let Some(lands) = main_deck.get(&CardType::Land).filter(|l| !l.is_empty()) {
         rsx! {
             div {
                 h3 { class: "text-lg font-semibold text-gray-800 border-b pb-2",
-                    "Lands ({lands.len()})"
+                    "Lands ({deck.total_by_type(CardType::Land)})"
                 }
                 div { class: "space-y-1 mt-2",
                     for land in lands {
@@ -112,7 +112,8 @@ fn render_lands(main_deck: &HashMap<CardType, Vec<CardDisplayRecord>>) -> Elemen
     }
 }
 
-fn render_sideboard(sideboard: &[CardDisplayRecord]) -> Element {
+fn render_sideboard(deck: &DeckDisplayRecord) -> Element {
+    let sideboard = &deck.sideboard;
     if sideboard.is_empty() {
         rsx! { div {} }
     } else {
