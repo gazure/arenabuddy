@@ -153,8 +153,8 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                         did_controller_win: details.did_controller_win
                     }
 
-                    DeckList { deck: deck_display() }
-                    DeckList { deck: opponent_deck_display() }
+                    DeckList {title: "Your deck", deck: deck_display() }
+                    DeckList {title: "Opponent's cards", deck: opponent_deck_display() }
 
                     div { class: "mt-8 col-span-full",
                         MulliganDisplay { mulligans: details.mulligans.clone() }
