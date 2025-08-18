@@ -11,7 +11,7 @@ jobs:
   check-clippy:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
@@ -42,7 +42,7 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install nightly toolchain
         uses: actions-rs/toolchain@v1
