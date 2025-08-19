@@ -170,7 +170,7 @@ impl Card {
                     };
 
                     // Optional fields
-                    if let Some(image) = face["image_uris"]["small"].as_str() {
+                    if let Some(image) = face["image_uris"]["normal"].as_str() {
                         card_face.image_uri = Some(image.to_string());
                     }
 
