@@ -43,9 +43,9 @@ pub async fn run() -> Result<()> {
         Commands::Scrape {
             scryfall_host,
             seventeen_lands_host,
-            output_dir,
+            output,
         } => {
-            commands::scrape::execute(scryfall_host, seventeen_lands_host, output_dir).await?;
+            commands::scrape::execute(scryfall_host, seventeen_lands_host, output).await?;
         }
 
         Commands::Repl { cards_db } => {

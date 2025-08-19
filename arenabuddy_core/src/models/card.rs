@@ -117,7 +117,7 @@ impl Card {
             card.lang = lang.to_string();
         }
 
-        if let Some(image_uri) = card_json["image_uris"]["small"].as_str() {
+        if let Some(image_uri) = card_json["image_uris"]["normal"].as_str() {
             card.image_uri = image_uri.to_string();
         }
 

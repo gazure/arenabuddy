@@ -37,12 +37,8 @@ pub enum Commands {
         #[arg(long, help = "17Lands data base URL", default_value = SEVENTEEN_LANDS_HOST_DEFAULT)]
         seventeen_lands_host: String,
 
-        #[arg(
-            long,
-            help = "Output directory for scraped data",
-            default_value = "arenabuddy/scrape_data"
-        )]
-        output_dir: PathBuf,
+        #[arg(long, help = "Output directory for scraped data", default_value = "./cards.pb")]
+        output: PathBuf,
     },
 
     /// Start an interactive REPL for card searches, analytics, and file info

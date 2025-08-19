@@ -7,7 +7,7 @@ use tracing::{debug, info, warn};
 use crate::{Error, Result, errors::ParseError};
 
 /// Execute the Scrape command
-pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output_dir: &Path) -> Result<()> {
+pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output: &Path) -> Result<()> {
     // Scrape data from both sources
 
     info!("Scraping 17Lands data...");
@@ -36,7 +36,7 @@ pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output_dir
     info!("Scraping completed successfully");
 
     // Save the card collection to a binary protobuf file
-    save_card_collection_to_file(&collection, output_dir.join("cards.pb")).await?;
+    save_card_collection_to_file(&collection, output).await?;
     Ok(())
 }
 
@@ -93,7 +93,7 @@ async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, St
 }
 
 /// Save a collection of cards to a binary protobuf file
-pub async fn save_card_collection_to_file(cards: &CardCollection, output_path: impl AsRef<Path>) -> Result<()> {
+async fn save_card_collection_to_file(cards: &CardCollection, output_path: impl AsRef<Path>) -> Result<()> {
     let data = cards.encode_to_vec();
     tokio::fs::write(output_path.as_ref(), &data).await?;
     Ok(())
@@ -103,7 +103,7 @@ pub async fn save_card_collection_to_file(cards: &CardCollection, output_path: i
 async fn search_card_by_name(base_url: &str, card_name: &str) -> Result<Option<Card>> {
     let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
 
-    tokio::time::sleep(Duration::from_millis(1000)).await;
+    tokio::time::sleep(Duration::from_millis(750)).await;
 
     let url = Url::parse_with_params(&format!("{base_url}/cards/search"), &[("q", card_name)])
         .map_err(|e| Error::Url(e.to_string()))?;
