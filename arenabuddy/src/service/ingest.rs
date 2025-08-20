@@ -1,7 +1,11 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use arenabuddy_core::{
-    Error as CoreError, errors::ParseError, processor::PlayerLogProcessor, replay::MatchReplayBuilder,
+    Error as CoreError,
+    errors::ParseError,
+    mtga_events::business::{BusinessEvent, RequestTypeBusinessEvent},
+    processor::{ParseOutput, PlayerLogProcessor},
+    replay::MatchReplayBuilder,
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB, ReplayStorage};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
@@ -64,6 +68,19 @@ async fn log_process_start(
                 loop {
                     match processor.get_next_event().await {
                         Ok(parse_output) => {
+                            if let ParseOutput::DraftNotify(event) = &parse_output {
+                                // Process the draft event
+                                info!("found notify event {:?}", event);
+                            }
+                            if let ParseOutput::BusinessMessage(RequestTypeBusinessEvent{id: _, request: BusinessEvent::Draft(event)}) = &parse_output {
+                                // Process the draft event
+                                info!("found pack info event {:?}", event);
+                            }
+                            if let ParseOutput::BusinessMessage(RequestTypeBusinessEvent{id: _, request: BusinessEvent::Pick(event)}) = &parse_output {
+                                // Process the draft event
+                                info!("found pick event {:?}", event);
+                            }
+
                             if match_replay_builder.ingest(parse_output) {
                                 let match_replay = match_replay_builder.build();
                                 match match_replay {

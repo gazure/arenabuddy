@@ -7,22 +7,59 @@ use serde_json::Value;
 #[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RequestTypeBusinessEvent {
-    id: String,
+    pub id: String,
     pub request: BusinessEvent,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum BusinessEvent {
+    Game(GameBusinessEvent),
+    Draft(DraftPackInfoEvent),
+    Pick(DraftPickEvent),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "PascalCase")]
-pub struct BusinessEvent {
-    pub event_id: Option<String>,
-    pub event_type: Option<i32>,
-    pub event_time: Option<chrono::DateTime<Utc>>,
-    pub match_id: Option<String>,
-    pub seat_id: Option<i32>,
-    pub team_id: Option<i32>,
-    pub game_number: Option<i32>,
+pub struct GameBusinessEvent {
+    pub event_id: String,
+    pub event_type: i32,
+    pub event_time: chrono::DateTime<Utc>,
+    pub match_id: String,
+    pub seat_id: i32,
+    pub team_id: i32,
+    pub game_number: i32,
     #[serde(flatten)]
-    extra: std::collections::HashMap<String, serde_json::Value>,
+    pub extra: std::collections::HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct DraftPackInfoEvent {
+    pub player_id: Option<String>,
+    pub client_platform: Option<String>,
+    pub draft_id: String,
+    pub event_id: String,
+    pub seat_number: i32,
+    pub pack_number: i32,
+    pub pick_number: i32,
+    pub pick_grp_id: i32,
+    pub cards_in_pack: Vec<i32>,
+    pub auto_pick: bool,
+    pub time_remaining_on_pick: f64,
+    pub event_type: i32,
+    pub event_time: chrono::DateTime<Utc>,
+    #[serde(flatten)]
+    pub extra: std::collections::HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct DraftPickEvent {
+    pub draft_id: String,
+    pub grp_ids: Vec<u32>,
+    pub pack: u8,
+    pub pick: u8,
 }
 
 impl<'de> Deserialize<'de> for RequestTypeBusinessEvent {
@@ -49,12 +86,37 @@ impl RequestTypeBusinessEvent {
 
 impl BusinessEvent {
     pub fn is_relevant(&self) -> bool {
-        self.event_id.is_some()
-            && self.event_type.is_some()
-            && self.event_time.is_some()
-            && self.match_id.is_some()
-            && self.seat_id.is_some()
-            && self.team_id.is_some()
-            && self.game_number.is_some()
+        match self {
+            BusinessEvent::Game(event) => event.is_relevant(),
+            _ => false,
+        }
+    }
+
+    pub fn as_game(&self) -> Option<&GameBusinessEvent> {
+        match self {
+            BusinessEvent::Game(event) => Some(event),
+            _ => None,
+        }
+    }
+
+    pub fn as_draft(&self) -> Option<&DraftPackInfoEvent> {
+        match self {
+            BusinessEvent::Draft(event) => Some(event),
+            _ => None,
+        }
+    }
+}
+
+impl GameBusinessEvent {
+    pub fn is_relevant(&self) -> bool {
+        // All required fields are non-optional now, so if it deserializes, it's relevant
+        true
+    }
+}
+
+impl DraftPackInfoEvent {
+    pub fn is_relevant(&self) -> bool {
+        // Check that we have the essential draft information
+        !self.cards_in_pack.is_empty()
     }
 }

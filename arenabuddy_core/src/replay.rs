@@ -312,17 +312,21 @@ impl MatchReplay {
             .collect())
     }
 
+    /// Returns the approximate match start time
     pub fn match_start_time(&self) -> Option<DateTime<Utc>> {
-        self.business_messages.iter().find_map(|bm| bm.event_time)
+        self.business_messages.iter().find_map(|bm| match bm {
+            BusinessEvent::Game(gbe) => Some(gbe.event_time),
+            _ => None,
+        })
     }
 
     /// Gets the format for this match if found (e.g. "`Traditional_Explorer_Ranked`")
     /// MTGA usually underscore-spaces format names
     pub fn match_format(&self) -> Option<String> {
-        self.business_messages
-            .iter()
-            .find(|message| message.event_id.is_some())
-            .and_then(|message| message.event_id.clone())
+        self.business_messages.iter().find_map(|message| match message {
+            BusinessEvent::Game(game_business_event) => Some(game_business_event.event_id.clone()),
+            _ => None,
+        })
     }
 
     pub fn iter(&self) -> impl Iterator<Item = EventRef<'_>> {
@@ -410,7 +414,7 @@ impl MatchReplayBuilder {
                     self.business_messages.push(business_message.request);
                 }
             }
-            ParseOutput::NoEvent => {}
+            ParseOutput::DraftNotify(_) | ParseOutput::NoEvent => {}
         }
         false
     }

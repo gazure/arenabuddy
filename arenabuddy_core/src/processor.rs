@@ -11,7 +11,7 @@ use crate::{
     errors::ParseError,
     mtga_events::{
         business::RequestTypeBusinessEvent, client::RequestTypeClientToMatchServiceMessage,
-        gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
+        draft::RequestTypeDraftNotify, gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
     },
 };
 
@@ -110,6 +110,7 @@ pub enum ParseOutput {
     ClientMessage(RequestTypeClientToMatchServiceMessage),
     MGRSCMessage(RequestTypeMGRSCEvent),
     BusinessMessage(RequestTypeBusinessEvent),
+    DraftNotify(RequestTypeDraftNotify),
     NoEvent,
 }
 
@@ -128,6 +129,8 @@ pub fn parse(event: &str) -> Result<ParseOutput> {
         Ok(ParseOutput::GREMessage(request_gre_to_client_event))
     } else if let Ok(business_event) = serde_json::from_str::<RequestTypeBusinessEvent>(event) {
         Ok(ParseOutput::BusinessMessage(business_event))
+    } else if let Ok(draft_event) = serde_json::from_str::<RequestTypeDraftNotify>(event) {
+        Ok(ParseOutput::DraftNotify(draft_event))
     } else {
         Ok(ParseOutput::NoEvent)
     }
