@@ -16,7 +16,7 @@ clap = { workspace = true }
 csv = { workspace = true }
 ctrlc = { workspace = true }
 prost = { workspace = true }
-reqwest = { workspace = true, features = ["json", "stream"] }
+reqwest = { workspace = true, features = ["json", "stream", "rustls-tls"] }
 rustyline = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
