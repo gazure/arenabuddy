@@ -4,7 +4,9 @@ use prost::Message;
 
 use crate::models::{Card, CardCollection};
 
-#[derive(Debug, Default)]
+const CARDS: &[u8] = include_bytes!("../data/cards-full.pb");
+
+#[derive(Debug)]
 pub struct CardsDatabase {
     pub db: BTreeMap<String, Card>,
 }
@@ -18,14 +20,19 @@ impl CardsDatabase {
         let mut cards_db_file = File::open(path)?;
         let mut buffer = Vec::new();
         cards_db_file.read_to_end(&mut buffer)?;
-        let card_collection = CardCollection::decode(buffer.as_slice())?;
-        let cards_db: BTreeMap<String, Card> = card_collection
+        Self::from_bytes(buffer.as_slice())
+    }
+
+    /// # Errors
+    ///
+    /// Will error if the provided bytes do not contain a `CardsCollection` proto
+    pub fn from_bytes(cards: &[u8]) -> crate::Result<Self> {
+        let cards_db: BTreeMap<String, Card> = CardCollection::decode(cards)?
             .cards
             .into_iter()
             .map(|card| (card.id.to_string(), card))
             .collect();
-        tracing::debug!("loaded cards: {}", cards_db.len());
-
+        tracing::debug!("loaded {} cards", cards_db.len());
         Ok(Self { db: cards_db })
     }
 
@@ -53,5 +60,11 @@ impl CardsDatabase {
 
     pub fn is_empty(&self) -> bool {
         self.db.is_empty()
+    }
+}
+
+impl Default for CardsDatabase {
+    fn default() -> Self {
+        Self::from_bytes(CARDS).expect("library should ship with correct cards database")
     }
 }
