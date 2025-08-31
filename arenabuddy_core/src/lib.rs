@@ -8,6 +8,7 @@ pub mod cards;
 pub mod display;
 pub mod errors;
 pub mod events;
+pub mod ingest;
 pub mod models;
 pub mod mtga_events;
 pub mod processor;

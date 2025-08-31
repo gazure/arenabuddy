@@ -15,7 +15,9 @@ license.workspace = true
 prost-build = { workspace = true , features = ["format"]}
 
 [dependencies]
+async-trait = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
+ctrlc = { workspace = true }
 derive_builder = { workspace = true }
 indoc = { workspace = true }
 itertools = { workspace = true }
@@ -27,6 +29,10 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
+notify = { workspace = true}
+
+[features]
+default = []
 
 [lints]
 workspace = true

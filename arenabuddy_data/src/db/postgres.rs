@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
+    ingest::ReplayWriter,
     models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     mtga_events::primitives::ArenaId,
     replay::MatchReplay,
@@ -422,5 +423,15 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
     fn get_opponent_deck(&mut self, match_id: &str) -> impl Future<Output = Result<Deck>> + Send {
         self.do_get_opponent_deck(match_id)
+    }
+}
+
+#[async_trait::async_trait]
+impl ReplayWriter for PostgresMatchDB {
+    async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
+        self.write_replay(replay).await.map_err(|e| {
+            error!("Failed to write replay: {}", e);
+            arenabuddy_core::Error::Io(e.to_string())
+        })
     }
 }

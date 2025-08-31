@@ -1,10 +1,9 @@
 use std::path::PathBuf;
 
-use arenabuddy_core::replay::MatchReplay;
+use arenabuddy_core::{Result, ingest::ReplayWriter, replay::MatchReplay};
+use async_trait::async_trait;
 use tokio::fs::File;
 use tracing::info;
-
-use crate::{ReplayStorage, Result};
 
 pub struct DirectoryStorage {
     path: PathBuf,
@@ -20,7 +19,8 @@ impl DirectoryStorage {
     }
 }
 
-impl ReplayStorage for DirectoryStorage {
+#[async_trait]
+impl ReplayWriter for DirectoryStorage {
     async fn write(&mut self, match_replay: &MatchReplay) -> Result<()> {
         let path = self.path.join(format!("{}.json", match_replay.match_id));
         info!(

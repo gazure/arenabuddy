@@ -12,6 +12,7 @@ license.workspace = true
 
 [dependencies]
 arenabuddy_core = { path = "../arenabuddy_core/" }
+async-trait = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 indoc = { workspace = true }
 postgresql_embedded = { workspace = true, features = ["bundled"] }

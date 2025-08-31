@@ -21,6 +21,8 @@ pub enum ParseError {
 pub enum Error {
     #[error("Database file not found")]
     DatabaseNotFound,
+    #[error("IO error: {0}")]
+    Io(String),
     #[error("proto decoding error")]
     ProtoEncodeError(#[from] prost::EncodeError),
     #[error("proto decoding error")]
