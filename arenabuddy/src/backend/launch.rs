@@ -7,13 +7,11 @@ use dioxus::{
     desktop::{Config, WindowBuilder},
 };
 use start::AppMeta;
-use tracing::{Level, debug, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
-use tracing_subscriber::{
-    EnvFilter, Layer,
+use tracingx::{
+    EnvFilter, Layer, Level, SubscriberExt, SubscriberInitExt, debug,
     fmt::{self, writer::MakeWriterExt},
-    layer::SubscriberExt,
-    util::SubscriberInitExt,
+    info,
 };
 
 use crate::{
@@ -98,7 +96,7 @@ fn get_resource_dir() -> Result<std::path::PathBuf> {
 }
 
 fn setup_logging(app_data_dir: &Path) -> Result<()> {
-    let registry = tracing_subscriber::registry();
+    let registry = tracingx::registry();
     let log_dir = app_data_dir.join("logs");
     std::fs::create_dir_all(&log_dir).map_err(|_| Error::CorruptedAppData)?;
 
@@ -151,7 +149,7 @@ async fn create_app_service() -> Result<Service> {
     setup_logging(&data_dir)?;
 
     let app_meta = AppMeta::from_env().with_app_name("arenabuddy");
-    let root_span = tracing::info_span!("app", app = %app_meta.app);
+    let root_span = tracingx::info_span!("app", app = %app_meta.app);
     let _span = root_span.enter();
     info!("resource dir: {:?}", resource_dir);
     let cards_path = resource_dir.join("cards-full.pb");

@@ -6,7 +6,7 @@ use arenabuddy_core::{
 };
 use arenabuddy_data::{ArenabuddyRepository, DirectoryStorage, MatchDB};
 use tokio::sync::Mutex;
-use tracing::{error, info};
+use tracingx::{error, info};
 
 /// Adapter that wraps an Arc<Mutex<MatchDB>> for the `ReplayWriter` trait
 struct ArcMatchDBAdapter {

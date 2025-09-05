@@ -5,7 +5,7 @@ use crate::app::{debug_logs::DebugLogs, error_logs::ErrorLogs, match_details::Ma
 
 fn open_github() {
     if let Err(e) = open::that("https://github.com/gazure/monorepo") {
-        tracing::error!("Failed to open URL: {}", e);
+        tracingx::error!("Failed to open URL: {}", e);
     }
 }
 

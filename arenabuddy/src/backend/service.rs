@@ -12,7 +12,7 @@ use arenabuddy_core::{
 };
 use arenabuddy_data::DirectoryStorage;
 use tokio::sync::Mutex;
-use tracing::{error, info};
+use tracingx::{error, info};
 
 use crate::Result;
 
