@@ -4,7 +4,7 @@ use tokio::{
     fs::File,
     io::{AsyncBufReadExt, BufReader},
 };
-use tracing::{debug, error};
+use tracingx::{debug, error};
 
 use crate::{
     Result,

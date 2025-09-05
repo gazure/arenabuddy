@@ -5,7 +5,7 @@ use std::{
 
 use chrono::{DateTime, Utc};
 use serde::Serialize;
-use tracing::{debug, info, warn};
+use tracingx::{debug, info, warn};
 
 use crate::{
     Error, Result,

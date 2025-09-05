@@ -1,6 +1,7 @@
 use std::{collections::BTreeMap, fmt::Display, fs::File, io::Read, path::Path};
 
 use prost::Message;
+use tracingx::debug;
 
 use crate::models::{Card, CardCollection};
 
@@ -32,7 +33,7 @@ impl CardsDatabase {
             .into_iter()
             .map(|card| (card.id.to_string(), card))
             .collect();
-        tracing::debug!("loaded {} cards", cards_db.len());
+        debug!("loaded {} cards", cards_db.len());
         Ok(Self { db: cards_db })
     }
 

@@ -8,7 +8,7 @@ use tokio::{
     sync::mpsc::{self},
     time::interval,
 };
-use tracing::{debug, error, info};
+use tracingx::{debug, error, info};
 
 use crate::{
     Error, Result,
