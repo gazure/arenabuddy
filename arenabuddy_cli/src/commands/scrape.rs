@@ -2,7 +2,7 @@ use std::{collections::HashMap, path::Path, time::Duration};
 
 use arenabuddy_core::models::{Card, CardCollection};
 use reqwest::Url;
-use tracing::{debug, info, warn};
+use tracingx::{debug, info, warn};
 
 use crate::{Error, Result, errors::ParseError};
 

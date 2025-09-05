@@ -1,5 +1,4 @@
 use clap::Parser;
-use tracing::Level;
 
 mod commands;
 mod errors;
@@ -19,9 +18,7 @@ struct Cli {
 
 pub async fn run() -> Result<()> {
     let cli = Cli::parse();
-    tracing_subscriber::fmt()
-        .with_max_level(if cli.debug { Level::DEBUG } else { Level::INFO })
-        .init();
+    tracingx::init_once();
 
     match &cli.command {
         Commands::Parse {

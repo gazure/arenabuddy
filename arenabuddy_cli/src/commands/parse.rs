@@ -8,7 +8,7 @@ use arenabuddy_core::{
     ingest::{IngestionConfig, LogIngestionService},
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB};
-use tracing::info;
+use tracingx::info;
 
 use crate::Result;
 
