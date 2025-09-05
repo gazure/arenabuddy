@@ -199,7 +199,7 @@ pub fn launch_app() -> Result<()> {
             Config::new()
                 .with_data_directory(data_dir.clone())
                 .with_resource_directory(resource_dir.clone())
-                .with_window(WindowBuilder::new().with_resizable(true)),
+                .with_window(WindowBuilder::new().with_title("Arenabuddy").with_resizable(true)),
         )
         .with_context(service)
         .launch(App);
@@ -309,7 +309,7 @@ async fn build_service(_app_data_dir: PathBuf, resource_dir: PathBuf) -> Result<
     info!("resource dir: {:?}", resource_dir);
     let cards_path = resource_dir.join("cards-full.pb");
     info!("cards_db path: {:?}", cards_path);
-    let cards_db = Arc::new(CardsDatabase::new(cards_path).map_err(|_| Error::NoCardsDatabase)?);
+    let cards_db = Arc::new(CardsDatabase::new(cards_path).unwrap_or_default());
 
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
     info!("using matches db: {:?}", url);
