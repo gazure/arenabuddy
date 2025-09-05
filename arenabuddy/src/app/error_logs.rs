@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::service::Service;
+use crate::backend::Service;
 
 #[component]
 pub fn ErrorLogs() -> Element {

@@ -2,7 +2,7 @@ use arenabuddy_core::models::MTGAMatch;
 use dioxus::prelude::*;
 use dioxus_router::Link;
 
-use crate::{app::Route, service::Service};
+use crate::{app::Route, backend::Service};
 
 #[component]
 fn MatchRow(m: MTGAMatch) -> Element {

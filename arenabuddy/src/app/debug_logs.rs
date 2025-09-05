@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::service::Service;
+use crate::backend::Service;
 
 async fn select_directory() -> Result<String, String> {
     use rfd::AsyncFileDialog;

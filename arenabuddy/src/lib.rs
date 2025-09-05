@@ -1,8 +1,8 @@
 #![allow(non_snake_case)]
 
 mod app;
+mod backend;
 mod errors;
-mod service;
 
+pub use backend::launch;
 pub use errors::{Error, Result};
-pub use service::launch_app;

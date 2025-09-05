@@ -5,7 +5,7 @@ use crate::{
         Route,
         components::{AsyncState, DeckList, MatchInfo, MulliganDisplay},
     },
-    service::Service,
+    backend::Service,
 };
 
 #[component]
