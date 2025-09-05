@@ -20,7 +20,7 @@ serde_json = { workspace = true }
 sqlx = { workspace = true, features = ["chrono", "uuid", "postgres", "sqlx-toml"] }
 tokio = { workspace = true, features = ["full"] }
 thiserror = { workspace = true }
-tracing = { workspace = true }
+tracingx = { path = "../../lib/tracingx" }
 
 [lints]
 workspace = true

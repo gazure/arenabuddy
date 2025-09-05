@@ -10,7 +10,7 @@ use arenabuddy_core::{
 use chrono::{NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
 use sqlx::{PgPool, Postgres, Transaction, types::Uuid};
-use tracing::{debug, error, info};
+use tracingx::{debug, error, info};
 
 use crate::{Error, Result, db::repository::ArenabuddyRepository};
 

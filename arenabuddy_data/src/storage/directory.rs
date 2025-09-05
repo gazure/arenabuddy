@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use arenabuddy_core::{Result, ingest::ReplayWriter, replay::MatchReplay};
 use async_trait::async_trait;
 use tokio::fs::File;
-use tracing::info;
+use tracingx::info;
 
 pub struct DirectoryStorage {
     path: PathBuf,
