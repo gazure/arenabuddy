@@ -16,7 +16,7 @@ arenabuddy_data = { path = "../arenabuddy_data" }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 console-subscriber = { workspace = true, optional = true }
-dioxus = { workspace = true, features = ["desktop"] }
+dioxus = { workspace = true, features = ["desktop", "router"] }
 itertools = { workspace = true }
 notify = { workspace = true }
 open = { workspace = true }

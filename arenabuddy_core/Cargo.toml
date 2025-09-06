@@ -21,6 +21,7 @@ ctrlc = { workspace = true }
 derive_builder = { workspace = true }
 indoc = { workspace = true }
 itertools = { workspace = true }
+notify = { workspace = true}
 prost = { workspace = true }
 prost-types = { workspace = true }
 regex = { workspace = true }
@@ -29,7 +30,7 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracingx = { path = "../../lib/tracingx"}
-notify = { workspace = true}
+uuid = { workspace = true }
 
 [features]
 default = []
