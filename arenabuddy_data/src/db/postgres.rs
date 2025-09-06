@@ -175,7 +175,7 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    pub async fn get_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
+    async fn get_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
             "SELECT game_number, winning_team_id, result_scope FROM match_result WHERE match_id = $1 AND game_number > 0",
@@ -202,7 +202,7 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    pub async fn get_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
+    async fn get_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
             "SELECT game_number, deck_cards, sideboard_cards FROM deck WHERE match_id = $1",
@@ -226,7 +226,7 @@ impl PostgresMatchDB {
         Ok(decks)
     }
 
-    pub async fn do_get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
+    async fn do_get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
         let match_id = Uuid::parse_str(match_id)?;
         let result = sqlx::query!("SELECT cards FROM opponent_deck WHERE match_id = $1", match_id)
             .fetch_one(&self.pool)
@@ -236,9 +236,8 @@ impl PostgresMatchDB {
     }
 
     /// # Errors
-    ///
-    /// will return an error if the database cannot be contacted for some reason
-    pub async fn get_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>> {
+    // will return an error if the database cannot be contacted for some reason
+    async fn get_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
             "SELECT game_number, number_to_keep, hand, play_draw, opponent_identity, decision FROM mulligan WHERE match_id = $1",
@@ -268,7 +267,7 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    pub async fn get_matches(&self) -> Result<Vec<MTGAMatch>> {
+    async fn get_matches(&self) -> Result<Vec<MTGAMatch>> {
         let results = sqlx::query!(
             "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match"
         )
@@ -297,7 +296,7 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// Errors if underlying data is malformed
-    pub async fn retrieve_match(&self, match_id: &str) -> Result<(MTGAMatch, Option<MatchResult>)> {
+    async fn retrieve_match(&self, match_id: &str) -> Result<(MTGAMatch, Option<MatchResult>)> {
         info!("Getting match details for match_id: {}", match_id);
         let match_id = Uuid::parse_str(match_id)?;
 
