@@ -7,11 +7,11 @@ use crate::{app::Route, backend::Service};
 #[component]
 fn MatchRow(m: MTGAMatch) -> Element {
     rsx! {
-        tr { class: "hover:bg-gray-100 transition-colors duration-150",
+        Link {
+            to: Route::MatchDetails { id: m.id().to_string() },
+            class: "table-row hover:bg-gray-100 transition-colors duration-150 cursor-pointer",
             td { class: "py-3 px-4 border-b",
-                Link {
-                    to: Route::MatchDetails { id: m.id().to_string() },
-                    class: "text-blue-600 hover:text-blue-800 hover:underline font-medium",
+                span { class: "text-blue-600 font-medium",
                     "{m.controller_player_name()}"
                 }
             }

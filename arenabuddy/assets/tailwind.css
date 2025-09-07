@@ -315,6 +315,9 @@
   .table {
     display: table;
   }
+  .table-row {
+    display: table-row;
+  }
   .h-4 {
     height: calc(var(--spacing) * 4);
   }
@@ -835,13 +838,6 @@
     &:hover {
       @media (hover: hover) {
         color: var(--color-blue-800);
-      }
-    }
-  }
-  .hover\:underline {
-    &:hover {
-      @media (hover: hover) {
-        text-decoration-line: underline;
       }
     }
   }

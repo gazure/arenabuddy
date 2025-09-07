@@ -154,7 +154,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                     }
 
                     DeckList {title: "Your deck", deck: deck_display() }
-                    DeckList {title: "Opponent's cards", deck: opponent_deck_display() }
+                    DeckList {title: "Opponent's cards", deck: opponent_deck_display() , show_quantities: false}
 
                     div { class: "mt-8 col-span-full",
                         MulliganDisplay { mulligans: details.mulligans.clone() }

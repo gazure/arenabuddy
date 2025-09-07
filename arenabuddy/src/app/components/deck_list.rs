@@ -7,7 +7,11 @@ use dioxus::prelude::*;
 use crate::app::components::ManaCost;
 
 #[component]
-pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'static str>) -> Element {
+pub fn DeckList(
+    deck: DeckDisplayRecord,
+    #[props(optional)] title: Option<&'static str>,
+    #[props(default = true)] show_quantities: bool,
+) -> Element {
     let title = title.unwrap_or("Your Deck");
     let (main_total, sideboard_total) = deck.totals();
     let mut hovered_card = use_signal(|| None::<(CardDisplayRecord, (f64, f64))>);
@@ -19,17 +23,19 @@ pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'stat
             }
             div { class: "p-6",
                 div { class: "deck-content",
-                    div { class: "mb-4 text-right text-sm text-gray-500",
-                        "Main: {main_total}, Sideboard: {sideboard_total}"
+                    if show_quantities {
+                        div { class: "mb-4 text-right text-sm text-gray-500",
+                            "Main: {main_total}, Sideboard: {sideboard_total}"
+                        }
                     }
 
                     div { class: "grid grid-cols-2 gap-6",
                         div { class: "space-y-6",
-                            {render_non_land_cards(&deck, &mut hovered_card)}
+                            {render_non_land_cards(&deck, &mut hovered_card, show_quantities)}
                         }
                         div { class: "space-y-6",
-                            {render_lands(&deck, &mut hovered_card)}
-                            {render_sideboard(&deck, &mut hovered_card)}
+                            {render_lands(&deck, &mut hovered_card, show_quantities)}
+                            {render_sideboard(&deck, &mut hovered_card, show_quantities)}
                         }
                     }
                 }
@@ -79,6 +85,7 @@ pub fn DeckList(deck: DeckDisplayRecord, #[props(optional)] title: Option<&'stat
 fn render_non_land_cards(
     deck: &DeckDisplayRecord,
     hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    show_quantities: bool,
 ) -> Element {
     let main_deck = &deck.main_deck;
     let ordered_types = vec![
@@ -98,11 +105,15 @@ fn render_non_land_cards(
                 if !cards.is_empty() {
                     div { class: "mb-4",
                         h4 { class: "text-md font-medium text-gray-700 mb-2",
-                            "{card_type} ({deck.total_by_type(card_type)})"
+                            if show_quantities {
+                                "{card_type} ({deck.total_by_type(card_type)})"
+                            } else {
+                                "{card_type}"
+                            }
                         }
                         div { class: "space-y-1",
                             for card in cards {
-                                {render_card_row(card, hovered_card)}
+                                {render_card_row(card, hovered_card, show_quantities)}
                             }
                         }
                     }
@@ -115,17 +126,22 @@ fn render_non_land_cards(
 fn render_lands(
     deck: &DeckDisplayRecord,
     hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    show_quantities: bool,
 ) -> Element {
     let main_deck = &deck.main_deck;
     if let Some(lands) = main_deck.get(&CardType::Land).filter(|l| !l.is_empty()) {
         rsx! {
             div {
                 h3 { class: "text-lg font-semibold text-gray-800 border-b pb-2",
-                    "Lands ({deck.total_by_type(CardType::Land)})"
+                    if show_quantities {
+                        "Lands ({deck.total_by_type(CardType::Land)})"
+                    } else {
+                        "Lands"
+                    }
                 }
                 div { class: "space-y-1 mt-2",
                     for land in lands {
-                        {render_card_row(land, hovered_card)}
+                        {render_card_row(land, hovered_card, show_quantities)}
                     }
                 }
             }
@@ -138,6 +154,7 @@ fn render_lands(
 fn render_sideboard(
     deck: &DeckDisplayRecord,
     hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    show_quantities: bool,
 ) -> Element {
     let sideboard = &deck.sideboard;
     if sideboard.is_empty() {
@@ -146,11 +163,15 @@ fn render_sideboard(
         rsx! {
             div {
                 h3 { class: "text-lg font-semibold text-gray-800 border-b pb-2",
-                    "Sideboard ({sideboard.len()})"
+                    if show_quantities {
+                        "Sideboard ({sideboard.len()})"
+                    } else {
+                        "Sideboard"
+                    }
                 }
                 div { class: "space-y-1 mt-2",
                     for card in sideboard {
-                        {render_card_row(card, hovered_card)}
+                        {render_card_row(card, hovered_card, show_quantities)}
                     }
                 }
             }
@@ -161,6 +182,7 @@ fn render_sideboard(
 fn render_card_row(
     card: &CardDisplayRecord,
     hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    show_quantities: bool,
 ) -> Element {
     let card_clone = card.clone();
     let mut hovered_card_enter = *hovered_card;
@@ -177,8 +199,10 @@ fn render_card_row(
                 hovered_card_leave.set(None);
             },
             div { class: "flex items-center space-x-2",
-                span { class: "font-medium text-gray-600 w-6 text-center",
-                    "{card.quantity}"
+                if show_quantities {
+                    span { class: "font-medium text-gray-600 w-6 text-center",
+                        "{card.quantity}"
+                    }
                 }
                 span { class: "truncate", "{card.name.clone()}" }
             }
