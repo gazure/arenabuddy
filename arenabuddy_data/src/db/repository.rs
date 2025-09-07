@@ -1,5 +1,5 @@
 use arenabuddy_core::{
-    models::{Deck, MTGAMatch, MatchResult, Mulligan},
+    models::{Deck, Draft, MTGAMatch, MatchResult, Mulligan},
     replay::MatchReplay,
 };
 
@@ -14,6 +14,7 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
     fn list_decklists(&mut self, match_id: &str) -> impl Future<Output = Result<Vec<Deck>>> + Send;
     fn list_mulligans(&mut self, match_id: &str) -> impl Future<Output = Result<Vec<Mulligan>>> + Send;
     fn list_match_results(&mut self, match_id: &str) -> impl Future<Output = Result<Vec<MatchResult>>> + Send;
+    fn list_drafts(&mut self) -> impl Future<Output = Result<Vec<Draft>>> + Send;
 }
 
 impl<AR> ReplayStorage for AR

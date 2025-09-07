@@ -12,11 +12,9 @@ use tracingx::{debug, error, info};
 
 use crate::{
     Error, Result,
+    draft::DraftBuilder,
     errors::ParseError,
-    mtga_events::{
-        business::{BusinessEvent, RequestTypeBusinessEvent},
-        draft::RequestTypeDraftNotify,
-    },
+    mtga_events::{business::BusinessEvent, draft::RequestTypeDraftNotify},
     processor::{ParseOutput, PlayerLogProcessor},
     replay::{MatchReplay, MatchReplayBuilder},
 };
@@ -74,10 +72,8 @@ impl IngestionConfig {
 pub enum IngestionEvent {
     /// A draft notify event was found
     DraftNotify(RequestTypeDraftNotify),
-    /// A draft pack event was found
-    DraftPack(Box<BusinessEvent>),
-    /// A draft pick event was found
-    DraftPick(Box<BusinessEvent>),
+    /// An MTGA Business Event
+    Business(Box<BusinessEvent>),
     /// A match replay was completed
     MatchCompleted(Box<MatchReplay>),
     /// An error occurred while parsing
@@ -94,6 +90,7 @@ pub struct LogIngestionService {
     config: IngestionConfig,
     processor: PlayerLogProcessor,
     match_replay_builder: MatchReplayBuilder,
+    draft_builder: DraftBuilder,
     writers: Vec<Box<dyn ReplayWriter>>,
     event_callback: Option<EventCallback>,
     shutdown_rx: Option<mpsc::UnboundedReceiver<()>>,
@@ -111,6 +108,7 @@ impl LogIngestionService {
             config,
             processor,
             match_replay_builder: MatchReplayBuilder::new(),
+            draft_builder: DraftBuilder::new(),
             writers: Vec::new(),
             event_callback: None,
             shutdown_rx: None,
@@ -153,22 +151,12 @@ impl LogIngestionService {
         // Emit draft events
         match &output {
             ParseOutput::DraftNotify(event) => {
-                info!("Found draft notify event");
                 self.emit_event(IngestionEvent::DraftNotify(event.clone()));
+                self.draft_builder.process_notify_event(event);
             }
-            ParseOutput::BusinessMessage(RequestTypeBusinessEvent {
-                id: _,
-                request: BusinessEvent::Draft(event),
-            }) => {
-                info!("Found draft pack event");
-                self.emit_event(IngestionEvent::DraftPack(Box::new(BusinessEvent::Draft(event.clone()))));
-            }
-            ParseOutput::BusinessMessage(RequestTypeBusinessEvent {
-                id: _,
-                request: BusinessEvent::Pick(event),
-            }) => {
-                info!("Found draft pick event");
-                self.emit_event(IngestionEvent::DraftPick(Box::new(BusinessEvent::Pick(event.clone()))));
+            ParseOutput::BusinessMessage(event) => {
+                self.emit_event(IngestionEvent::Business(Box::new(event.request.clone())));
+                self.draft_builder.process_business_event(&event.request);
             }
             _ => {}
         }

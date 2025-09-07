@@ -2,6 +2,8 @@ use chrono::Utc;
 use serde::{Deserialize, Deserializer, Serialize, de::Error};
 use serde_json::Value;
 
+use crate::mtga_events::primitives::ArenaId;
+
 /// Structs for MTGA "Business" events
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -41,10 +43,10 @@ pub struct DraftPackInfoEvent {
     pub draft_id: String,
     pub event_id: String,
     pub seat_number: i32,
-    pub pack_number: i32,
-    pub pick_number: i32,
-    pub pick_grp_id: i32,
-    pub cards_in_pack: Vec<i32>,
+    pub pack_number: u8,
+    pub pick_number: u8,
+    pub pick_grp_id: ArenaId,
+    pub cards_in_pack: Vec<ArenaId>,
     pub auto_pick: bool,
     pub time_remaining_on_pick: f64,
     pub event_type: i32,
@@ -57,7 +59,7 @@ pub struct DraftPackInfoEvent {
 #[serde(rename_all = "PascalCase")]
 pub struct DraftPickEvent {
     pub draft_id: String,
-    pub grp_ids: Vec<u32>,
+    pub grp_ids: Vec<ArenaId>,
     pub pack: u8,
     pub pick: u8,
 }

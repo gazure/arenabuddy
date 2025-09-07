@@ -6,6 +6,7 @@
 
 pub mod cards;
 pub mod display;
+pub mod draft;
 pub mod errors;
 pub mod events;
 pub mod ingest;

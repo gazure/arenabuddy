@@ -3,7 +3,7 @@ use std::sync::Arc;
 use arenabuddy_core::{
     cards::CardsDatabase,
     ingest::ReplayWriter,
-    models::{Deck, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
+    models::{Deck, Draft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     mtga_events::primitives::ArenaId,
     replay::MatchReplay,
 };
@@ -389,6 +389,30 @@ impl PostgresMatchDB {
         tx.commit().await?;
         Ok(())
     }
+
+    async fn do_list_drafts(&mut self) -> Result<Vec<Draft>> {
+        let result = sqlx::query!(
+            r#"
+                SELECT id, set_code, draft_format, status, created_at
+                FROM draft
+            "#
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(result
+            .into_iter()
+            .map(|row| {
+                Draft::new(
+                    row.id,
+                    row.set_code,
+                    row.status.unwrap_or_default(),
+                    row.draft_format.unwrap_or_default(),
+                    row.created_at.unwrap_or_default().and_utc(),
+                )
+            })
+            .collect())
+    }
 }
 
 impl ArenabuddyRepository for PostgresMatchDB {
@@ -422,6 +446,10 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
     fn get_opponent_deck(&mut self, match_id: &str) -> impl Future<Output = Result<Deck>> + Send {
         self.do_get_opponent_deck(match_id)
+    }
+
+    fn list_drafts(&mut self) -> impl Future<Output = Result<Vec<Draft>>> + Send {
+        self.do_list_drafts()
     }
 }
 
