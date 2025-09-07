@@ -7,6 +7,12 @@ use crate::mtga_events::gre::Reference;
 #[derive(Default, Debug, Clone, PartialEq, PartialOrd, Copy, Eq, Ord)]
 pub struct ArenaId(i32);
 
+impl ArenaId {
+    pub fn inner(&self) -> i32 {
+        self.0
+    }
+}
+
 impl Serialize for ArenaId {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where

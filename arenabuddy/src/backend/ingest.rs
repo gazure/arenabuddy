@@ -2,6 +2,7 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use arenabuddy_core::{
     ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
+    models::MTGADraft,
     replay::MatchReplay,
 };
 use arenabuddy_data::{ArenabuddyRepository, DirectoryStorage, MatchDB};
@@ -9,6 +10,7 @@ use tokio::sync::Mutex;
 use tracingx::{error, info};
 
 /// Adapter that wraps an Arc<Mutex<MatchDB>> for the `ReplayWriter` trait
+#[derive(Clone)]
 struct ArcMatchDBAdapter {
     db: Arc<Mutex<MatchDB>>,
 }
@@ -24,6 +26,16 @@ impl arenabuddy_core::ingest::ReplayWriter for ArcMatchDBAdapter {
     async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
         let mut db = self.db.lock().await;
         db.write_replay(replay)
+            .await
+            .map_err(|e| arenabuddy_core::Error::StorageError(e.to_string()))
+    }
+}
+
+#[async_trait::async_trait]
+impl arenabuddy_core::ingest::DraftWriter for ArcMatchDBAdapter {
+    async fn write(&mut self, draft: &MTGADraft) -> arenabuddy_core::Result<()> {
+        let mut db = self.db.lock().await;
+        db.write_draft(draft)
             .await
             .map_err(|e| arenabuddy_core::Error::StorageError(e.to_string()))
     }
@@ -79,7 +91,9 @@ pub async fn start(
 
     // Add database writer
     let db_adapter = ArcMatchDBAdapter::new(db.clone());
-    let service = service.add_writer(Box::new(db_adapter));
+    let service = service
+        .add_writer(Box::new(db_adapter.clone()))
+        .add_draft_writer(Box::new(db_adapter));
 
     // Add directory storage writer
     let dir_adapter = ArcDirectoryStorageAdapter::new(debug_dir.clone());

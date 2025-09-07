@@ -14,6 +14,7 @@ use crate::{
     Error, Result,
     draft::DraftBuilder,
     errors::ParseError,
+    models::MTGADraft,
     mtga_events::{business::BusinessEvent, draft::RequestTypeDraftNotify},
     processor::{ParseOutput, PlayerLogProcessor},
     replay::{MatchReplay, MatchReplayBuilder},
@@ -23,6 +24,12 @@ use crate::{
 #[async_trait::async_trait]
 pub trait ReplayWriter: Send + Sync {
     async fn write(&mut self, replay: &MatchReplay) -> Result<()>;
+}
+
+/// Storage trait for writing draft pod results
+#[async_trait::async_trait]
+pub trait DraftWriter: Send + Sync {
+    async fn write(&mut self, draft: &MTGADraft) -> Result<()>;
 }
 
 /// Configuration for the log ingestion service
@@ -122,6 +129,13 @@ impl LogIngestionService {
         self
     }
 
+    /// Add a draft writer
+    #[must_use]
+    pub fn add_draft_writer(mut self, writer: Box<dyn DraftWriter>) -> Self {
+        self.draft_builder.add_writer(writer);
+        self
+    }
+
     /// Set an event callback for handling ingestion events
     #[must_use]
     pub fn with_event_callback(mut self, callback: EventCallback) -> Self {
@@ -152,11 +166,10 @@ impl LogIngestionService {
         match &output {
             ParseOutput::DraftNotify(event) => {
                 self.emit_event(IngestionEvent::DraftNotify(event.clone()));
-                self.draft_builder.process_notify_event(event);
             }
             ParseOutput::BusinessMessage(event) => {
                 self.emit_event(IngestionEvent::Business(Box::new(event.request.clone())));
-                self.draft_builder.process_business_event(&event.request);
+                self.draft_builder.process_business_event(&event.request).await?;
             }
             _ => {}
         }

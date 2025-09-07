@@ -1,9 +1,10 @@
+#![expect(clippy::similar_names)]
 use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
-    ingest::ReplayWriter,
-    models::{Deck, Draft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
+    ingest::{DraftWriter, ReplayWriter},
+    models::{Deck, Draft, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
     mtga_events::primitives::ArenaId,
     replay::MatchReplay,
 };
@@ -390,6 +391,77 @@ impl PostgresMatchDB {
         Ok(())
     }
 
+    async fn insert_draft(draft: &Draft, tx: &mut Transaction<'_, Postgres>) -> Result<()> {
+        sqlx::query!(
+            r#"
+            INSERT INTO draft(id, set_code, draft_format, status, created_at)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (id)
+            DO UPDATE SET set_code = excluded.set_code, draft_format = excluded.draft_format, status = excluded.status, created_at = excluded.created_at
+            "#,
+            draft.id(),
+            draft.set_code(),
+            draft.format(),
+            draft.status(),
+            draft.created_at().naive_utc()
+        )
+        .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
+    async fn insert_draft_pack(
+        draft_id: &Uuid,
+        pack_number: i32,
+        pick_number: i32,
+        picked_card_id: ArenaId,
+        cards: &[ArenaId],
+        tx: &mut Transaction<'_, Postgres>,
+    ) -> Result<()> {
+        let cards_json = serde_json::to_string(cards)?;
+
+        sqlx::query!(
+            r#"
+            INSERT INTO draft_pack(draft_id, pack_number, pick_number, cards, card_id, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            ON CONFLICT (draft_id, pack_number, pick_number)
+            DO UPDATE SET cards = excluded.cards, card_id = excluded.card_id
+            "#,
+            draft_id,
+            pack_number,
+            pick_number,
+            cards_json,
+            picked_card_id.inner(),
+            Utc::now().naive_utc()
+        )
+        .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn write_draft(&mut self, draft: &MTGADraft) -> Result<()> {
+        info!("Writing draft to database!");
+
+        let mut tx = self.pool.begin().await.map_err(Error::from)?;
+
+        Self::insert_draft(draft.draft(), &mut tx).await?;
+
+        for pack in draft.packs() {
+            Self::insert_draft_pack(
+                &draft.draft().id(),
+                pack.pack_number().into(),
+                pack.pick_number().into(),
+                pack.picked_card(),
+                pack.cards(),
+                &mut tx,
+            )
+            .await?;
+        }
+
+        tx.commit().await?;
+        Ok(())
+    }
+
     async fn do_list_drafts(&mut self) -> Result<Vec<Draft>> {
         let result = sqlx::query!(
             r#"
@@ -408,8 +480,8 @@ impl PostgresMatchDB {
                     row.set_code,
                     row.status.unwrap_or_default(),
                     row.draft_format.unwrap_or_default(),
-                    row.created_at.unwrap_or_default().and_utc(),
                 )
+                .with_created_at(row.created_at.unwrap_or_default().and_utc())
             })
             .collect())
     }
@@ -458,6 +530,16 @@ impl ReplayWriter for PostgresMatchDB {
     async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
         self.write_replay(replay).await.map_err(|e| {
             error!("Failed to write replay: {}", e);
+            arenabuddy_core::Error::Io(e.to_string())
+        })
+    }
+}
+
+#[async_trait::async_trait]
+impl DraftWriter for PostgresMatchDB {
+    async fn write(&mut self, draft: &MTGADraft) -> arenabuddy_core::Result<()> {
+        self.write_draft(draft).await.map_err(|e| {
+            error!("Failed to write draft: {}", e);
             arenabuddy_core::Error::Io(e.to_string())
         })
     }
