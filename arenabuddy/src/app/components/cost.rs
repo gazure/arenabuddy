@@ -179,7 +179,7 @@ pub fn ManaCost(cost: Cost) -> Element {
                     img {
                         src: asset,
                         alt: "{symbol}",
-                        class: "w-4 h-4 flex-shrink-0",
+                        class: "w-4 h-4 m-px flex-shrink-0",
                         style: "object-fit: contain; display: block;"
                     }
                 } else {
