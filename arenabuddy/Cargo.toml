@@ -21,7 +21,6 @@ itertools = { workspace = true }
 notify = { workspace = true }
 open = { workspace = true }
 postgresql_embedded = { workspace = true, features = ["bundled"] }
-rfd = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 start = { path = "../../lib/start" }
@@ -29,6 +28,12 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full", "tracing"] }
 tracingx = { path = "../../lib/tracingx" }
 tracing-appender = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rfd = { workspace = true, default_features = false, features = ["xdg-portal", "tokio"] }
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+rfd = { workspace = true }
 
 [lints]
 workspace = true
