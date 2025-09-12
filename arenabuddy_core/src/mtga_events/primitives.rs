@@ -8,8 +8,18 @@ use crate::mtga_events::gre::Reference;
 pub struct ArenaId(i32);
 
 impl ArenaId {
+    pub fn new(v: i32) -> Self {
+        Self(v)
+    }
+
     pub fn inner(&self) -> i32 {
         self.0
+    }
+}
+
+impl From<i32> for ArenaId {
+    fn from(v: i32) -> Self {
+        Self(v)
     }
 }
 

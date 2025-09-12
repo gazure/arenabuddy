@@ -1,7 +1,10 @@
 use dioxus::prelude::*;
 use dioxus_router::{Link, Outlet, Routable};
 
-use crate::app::{debug_logs::DebugLogs, error_logs::ErrorLogs, match_details::MatchDetails, matches::Matches};
+use crate::app::{
+    debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
+    match_details::MatchDetails, matches::Matches,
+};
 
 fn open_github() {
     if let Err(e) = open::that("https://github.com/gazure/monorepo") {
@@ -23,6 +26,10 @@ pub enum Route {
         Contact {},
         #[route("/match/:id")]
         MatchDetails{ id: String },
+        #[route("/drafts")]
+        Drafts {},
+        #[route("/drafts/:id")]
+        DraftDetails { id: String },
         #[route("/debug")]
         DebugLogs {},
     #[end_layout]
@@ -87,6 +94,13 @@ fn Layout() -> Element {
                             to: Route::Matches {},
                             class: "hover:text-blue-400 transition-colors duration-200",
                             "Matches"
+                        }
+                    }
+                    li {
+                        Link {
+                            to: Route::Drafts { },
+                            class: "hover:text-blue-400 transition-colors duration-200",
+                            "Drafts"
                         }
                     }
                     li {

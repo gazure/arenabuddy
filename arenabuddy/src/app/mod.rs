@@ -1,5 +1,7 @@
 mod components;
 mod debug_logs;
+mod draft_details;
+mod drafts;
 mod error_logs;
 mod match_details;
 mod matches;

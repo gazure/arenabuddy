@@ -1,10 +1,14 @@
+#![expect(clippy::cast_possible_truncation)]
+#![expect(clippy::cast_sign_loss)]
 #![expect(clippy::similar_names)]
 use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
     ingest::{DraftWriter, ReplayWriter},
-    models::{Deck, Draft, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan},
+    models::{
+        Deck, Draft, DraftPack, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan,
+    },
     mtga_events::primitives::ArenaId,
     replay::MatchReplay,
 };
@@ -485,6 +489,60 @@ impl PostgresMatchDB {
             })
             .collect())
     }
+
+    async fn do_get_draft(&mut self, draft_id: &str) -> Result<MTGADraft> {
+        let draft_id = Uuid::parse_str(draft_id)?;
+
+        // Get the draft details
+        let draft_row = sqlx::query!(
+            r#"
+            SELECT id, set_code, draft_format, status, created_at
+            FROM draft
+            WHERE id = $1
+            "#,
+            draft_id
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        // Get all packs for this draft
+        let pack_rows = sqlx::query!(
+            r#"
+            SELECT pack_number, pick_number, cards, card_id
+            FROM draft_pack
+            WHERE draft_id = $1
+            ORDER BY pack_number, pick_number
+            "#,
+            draft_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        // Construct the Draft model
+        let draft = Draft::new(
+            draft_row.id,
+            draft_row.set_code,
+            draft_row.status.unwrap_or_default(),
+            draft_row.draft_format.unwrap_or_default(),
+        )
+        .with_created_at(draft_row.created_at.unwrap_or_default().and_utc());
+
+        // Construct the packs
+        let mut packs = Vec::new();
+        for row in pack_rows {
+            let cards: Vec<ArenaId> = serde_json::from_str(&row.cards)?;
+            let pack = DraftPack::new(
+                draft.id(),
+                row.pack_number as u8,
+                row.pick_number as u8,
+                row.card_id.into(),
+                cards,
+            );
+            packs.push(pack);
+        }
+
+        Ok(MTGADraft::new(draft, packs))
+    }
 }
 
 impl ArenabuddyRepository for PostgresMatchDB {
@@ -522,6 +580,10 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
     fn list_drafts(&mut self) -> impl Future<Output = Result<Vec<Draft>>> + Send {
         self.do_list_drafts()
+    }
+
+    fn get_draft(&mut self, draft_id: &str) -> impl Future<Output = Result<MTGADraft>> + Send {
+        self.do_get_draft(draft_id)
     }
 }
 

@@ -23,6 +23,26 @@ impl MTGADraft {
     pub fn packs(&self) -> &[DraftPack] {
         &self.packs
     }
+
+    fn filter(&self, pack_num: u8) -> Vec<&DraftPack> {
+        self.packs().iter().filter(|p| p.pack_number() == pack_num).collect()
+    }
+
+    pub fn by_packs(&self) -> Vec<Vec<&DraftPack>> {
+        vec![self.first(), self.second(), self.third()]
+    }
+
+    pub fn first(&self) -> Vec<&DraftPack> {
+        self.filter(1)
+    }
+
+    pub fn second(&self) -> Vec<&DraftPack> {
+        self.filter(2)
+    }
+
+    pub fn third(&self) -> Vec<&DraftPack> {
+        self.filter(3)
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -69,6 +89,12 @@ impl Draft {
 
     pub fn created_at(&self) -> &DateTime<Utc> {
         &self.created_at
+    }
+}
+
+impl PartialEq for Draft {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
     }
 }
 

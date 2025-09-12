@@ -8,7 +8,7 @@ use arenabuddy_core::{
         match_details::MatchDetails,
         mulligan::Mulligan,
     },
-    models::MTGAMatch,
+    models::{Draft, MTGADraft, MTGAMatch},
 };
 use arenabuddy_data::DirectoryStorage;
 use tokio::sync::Mutex;
@@ -128,6 +128,18 @@ where
             .ok();
 
         Ok(match_details)
+    }
+
+    pub async fn get_drafts(&self) -> Result<Vec<Draft>> {
+        let mut db = self.db.lock().await;
+        Ok(db.list_drafts().await?)
+    }
+
+    pub async fn get_draft_details(&self, draft_id: String) -> Result<MTGADraft> {
+        let mut db = self.db.lock().await;
+        info!("looking for draft {draft_id}");
+
+        Ok(db.get_draft(&draft_id).await?)
     }
 
     pub async fn get_error_logs(&self) -> Result<Vec<String>> {
