@@ -10,9 +10,8 @@ use tracingx::{debug, info, warn};
 use crate::{
     Error, Result,
     cards::CardsDatabase,
-    events::{Event, EventRef},
-    models::{Deck, Mulligan, MulliganBuilder},
-    mtga_events::{
+    events::{
+        Event, EventRef,
         business::BusinessEvent,
         client::{ClientMessage, MulliganOption, MulliganRespWrapper, RequestTypeClientToMatchServiceMessage},
         gre::{
@@ -22,6 +21,7 @@ use crate::{
         mgrsc::{FinalMatchResult, RequestTypeMGRSCEvent, StateType},
         primitives::{ArenaId, ZoneType},
     },
+    models::{Deck, Mulligan, MulliganBuilder},
     processor::ParseOutput,
 };
 

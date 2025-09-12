@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::mtga_events::primitives::{
+use crate::events::primitives::{
     Action, Annotation, ArenaId, MulliganType, OptionPrompt, Player, PlayerDieRoll, Power, Prompt, ResultListEntry,
     Skin, Stop, Target, Timer, Toughness, TurnInfo, Zone,
 };

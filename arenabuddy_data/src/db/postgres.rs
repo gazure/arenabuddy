@@ -5,11 +5,11 @@ use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
+    events::primitives::ArenaId,
     ingest::{DraftWriter, ReplayWriter},
     models::{
         Deck, Draft, DraftPack, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan,
     },
-    mtga_events::primitives::ArenaId,
     replay::MatchReplay,
 };
 use chrono::{NaiveDateTime, Utc};

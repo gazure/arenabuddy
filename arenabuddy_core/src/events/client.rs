@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::mtga_events::{
+use crate::events::{
     gre::DeckMessage,
     primitives::{SubZoneType, Target, ZoneType},
 };

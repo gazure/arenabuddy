@@ -9,7 +9,7 @@ use tracingx::{debug, error};
 use crate::{
     Result,
     errors::ParseError,
-    mtga_events::{
+    events::{
         business::RequestTypeBusinessEvent, client::RequestTypeClientToMatchServiceMessage,
         draft::RequestTypeDraftNotify, gre::RequestTypeGREToClientEvent, mgrsc::RequestTypeMGRSCEvent,
     },

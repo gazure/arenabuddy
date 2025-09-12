@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::mtga_events::gre::DeckMessage;
+use crate::events::gre::DeckMessage;
 
 /// A mapping of card IDs to their quantities in a deck
 pub type Quantities = HashMap<i32, u16>;
@@ -216,7 +216,7 @@ mod tests {
 
     #[test]
     fn test_deck_from_deck_message() {
-        let deck_message = crate::mtga_events::gre::DeckMessage {
+        let deck_message = crate::events::gre::DeckMessage {
             deck_cards: vec![1, 2, 3],
             sideboard_cards: vec![4, 5, 6],
         };
@@ -229,7 +229,7 @@ mod tests {
 
     #[test]
     fn test_deck_from_deck_message_ref() {
-        let deck_message = crate::mtga_events::gre::DeckMessage {
+        let deck_message = crate::events::gre::DeckMessage {
             deck_cards: vec![1, 2, 3],
             sideboard_cards: vec![4, 5, 6],
         };

@@ -2,7 +2,7 @@ use chrono::Utc;
 use serde::{Deserialize, Deserializer, Serialize, de::Error};
 use serde_json::Value;
 
-use crate::mtga_events::primitives::ArenaId;
+use crate::events::primitives::ArenaId;
 
 /// Structs for MTGA "Business" events
 

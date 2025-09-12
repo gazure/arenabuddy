@@ -1,6 +1,13 @@
+pub mod business;
+pub mod client;
+pub mod draft;
+pub mod gre;
+pub mod mgrsc;
+pub mod primitives;
+
 use serde::{Serialize, Serializer};
 
-use crate::mtga_events::{
+use crate::events::{
     business::BusinessEvent, client::RequestTypeClientToMatchServiceMessage, gre::RequestTypeGREToClientEvent,
     mgrsc::RequestTypeMGRSCEvent,
 };

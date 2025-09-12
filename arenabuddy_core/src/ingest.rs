@@ -14,8 +14,8 @@ use crate::{
     Error, Result,
     draft::DraftBuilder,
     errors::ParseError,
+    events::{business::BusinessEvent, draft::RequestTypeDraftNotify},
     models::MTGADraft,
-    mtga_events::{business::BusinessEvent, draft::RequestTypeDraftNotify},
     processor::{ParseOutput, PlayerLogProcessor},
     replay::{MatchReplay, MatchReplayBuilder},
 };

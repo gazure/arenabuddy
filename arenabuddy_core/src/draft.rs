@@ -3,12 +3,12 @@ use uuid::Uuid;
 
 use crate::{
     Error, Result,
-    ingest::DraftWriter,
-    models::{Draft, DraftPack, MTGADraft},
-    mtga_events::{
+    events::{
         business::{BusinessEvent, DraftPackInfoEvent},
         primitives::ArenaId,
     },
+    ingest::DraftWriter,
+    models::{Draft, DraftPack, MTGADraft},
 };
 
 #[derive(Debug, Clone)]

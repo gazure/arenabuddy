@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 
 use serde::{Deserialize, Serialize};
 
-use crate::mtga_events::gre::Reference;
+use crate::events::gre::Reference;
 
 #[derive(Default, Debug, Clone, PartialEq, PartialOrd, Copy, Eq, Ord)]
 pub struct ArenaId(i32);

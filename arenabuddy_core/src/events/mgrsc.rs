@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::mtga_events::primitives::ResultListEntry;
+use crate::events::primitives::ResultListEntry;
 
 /// Every match should emit 2 of these logs to indicate the start and end of a match
 /// though the start of a match is usually after the `ConnectResp` GRE message with the
