@@ -98,7 +98,6 @@ pub struct LogIngestionService {
     processor: PlayerLogProcessor,
     match_replay_builder: MatchReplayBuilder,
     draft_builder: DraftBuilder,
-    writers: Vec<Box<dyn ReplayWriter>>,
     event_callback: Option<EventCallback>,
     shutdown_rx: Option<mpsc::UnboundedReceiver<()>>,
 }
@@ -116,7 +115,6 @@ impl LogIngestionService {
             processor,
             match_replay_builder: MatchReplayBuilder::new(),
             draft_builder: DraftBuilder::new(),
-            writers: Vec::new(),
             event_callback: None,
             shutdown_rx: None,
         })
@@ -125,7 +123,7 @@ impl LogIngestionService {
     /// Add a replay writer
     #[must_use]
     pub fn add_writer(mut self, writer: Box<dyn ReplayWriter>) -> Self {
-        self.writers.push(writer);
+        self.match_replay_builder.add_writer(writer);
         self
     }
 
@@ -175,22 +173,14 @@ impl LogIngestionService {
         }
 
         // Process match replay
-        if self.match_replay_builder.ingest(output) {
-            let builder = std::mem::replace(&mut self.match_replay_builder, MatchReplayBuilder::new());
-            match builder.build() {
-                Ok(match_replay) => {
-                    // Write to all configured writers
-                    for writer in &mut self.writers {
-                        if let Err(e) = writer.write(&match_replay).await {
-                            error!("Error writing match replay: {}", e);
-                        }
-                    }
-                    self.emit_event(IngestionEvent::MatchCompleted(Box::new(match_replay)));
-                }
-                Err(e) => {
-                    error!("Error building match replay: {}", e);
-                }
+        match self.match_replay_builder.ingest(output).await {
+            Ok(Some(match_replay)) => {
+                self.emit_event(IngestionEvent::MatchCompleted(Box::new(match_replay)));
             }
+            Err(e) => {
+                error!("Error processing match replay: {}", e);
+            }
+            _ => {}
         }
 
         Ok(())

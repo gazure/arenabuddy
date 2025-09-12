@@ -21,6 +21,7 @@ use crate::{
         mgrsc::{FinalMatchResult, RequestTypeMGRSCEvent, StateType},
         primitives::{ArenaId, ZoneType},
     },
+    ingest::ReplayWriter,
     models::{Deck, Mulligan, MulliganBuilder},
     processor::ParseOutput,
 };
@@ -361,13 +362,14 @@ impl<'a> IntoIterator for &'a MatchReplay {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 pub struct MatchReplayBuilder {
     pub match_id: Option<String>,
     pub match_start_message: Option<RequestTypeMGRSCEvent>,
     pub match_end_message: Option<RequestTypeMGRSCEvent>,
     pub client_server_messages: Vec<Event>,
     pub business_messages: Vec<BusinessEvent>,
+    writers: Vec<Box<dyn ReplayWriter>>,
 }
 
 #[derive(Debug)]
@@ -398,25 +400,42 @@ impl MatchReplayBuilder {
         Self::default()
     }
 
-    pub fn ingest(&mut self, event: ParseOutput) -> bool {
-        match event {
+    pub fn add_writer(&mut self, writer: Box<dyn ReplayWriter>) {
+        self.writers.push(writer);
+    }
+
+    /// Ingests a parse output event. Returns Some(MatchReplay) if a match replay was completed
+    /// and written to the configured writers, otherwise None.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if there was an issue writing the replay to storage
+    pub async fn ingest(&mut self, event: ParseOutput) -> Result<Option<MatchReplay>> {
+        let should_complete = match event {
             ParseOutput::GREMessage(gre_message) => {
                 self.client_server_messages.push(Event::GRE(gre_message));
+                false
             }
             ParseOutput::ClientMessage(client_message) => {
                 self.client_server_messages.push(Event::Client(client_message));
+                false
             }
-            ParseOutput::MGRSCMessage(mgrsc_event) => {
-                return self.ingest_mgrc_event(mgrsc_event);
-            }
+            ParseOutput::MGRSCMessage(mgrsc_event) => self.ingest_mgrc_event(mgrsc_event),
             ParseOutput::BusinessMessage(business_message) => {
                 if business_message.is_relevant() {
                     self.business_messages.push(business_message.request);
                 }
+                false
             }
-            ParseOutput::DraftNotify(_) | ParseOutput::NoEvent => {}
+            ParseOutput::DraftNotify(_) | ParseOutput::NoEvent => false,
+        };
+
+        if should_complete {
+            let replay = self.write_replay().await?;
+            return Ok(Some(replay));
         }
-        false
+
+        Ok(None)
     }
 
     fn ingest_mgrc_event(&mut self, mgrsc_event: RequestTypeMGRSCEvent) -> bool {
@@ -437,17 +456,40 @@ impl MatchReplayBuilder {
         false
     }
 
+    async fn write_replay(&mut self) -> Result<MatchReplay> {
+        let replay = self.build_replay()?;
+
+        for writer in &mut self.writers {
+            if let Err(e) = writer.write(&replay).await {
+                warn!("Error writing match replay: {}", e);
+            }
+        }
+
+        self.reset();
+        Ok(replay)
+    }
+
+    fn reset(&mut self) {
+        self.match_id = None;
+        self.match_start_message = None;
+        self.match_end_message = None;
+        self.client_server_messages.clear();
+        self.business_messages.clear();
+    }
+
     /// # Errors
     ///
     /// Returns an error if the builder is missing key information
     /// except it doesn't right now, so don't worry about it
-    pub fn build(self) -> Result<MatchReplay> {
-        let match_id = self.match_id.ok_or(MatchReplayBuilderError::MissingMatchId)?;
+    fn build_replay(&self) -> Result<MatchReplay> {
+        let match_id = self.match_id.clone().ok_or(MatchReplayBuilderError::MissingMatchId)?;
         let match_start_message = self
             .match_start_message
+            .clone()
             .ok_or(MatchReplayBuilderError::MissingMatchStartMessage)?;
         let match_end_message = self
             .match_end_message
+            .clone()
             .ok_or(MatchReplayBuilderError::MissingMatchEndMessage)?;
         let Some(controller_seat_id) = self.client_server_messages.iter().find_map(|e| {
             if let Event::GRE(r) = e {
@@ -470,8 +512,8 @@ impl MatchReplayBuilder {
             controller_seat_id,
             match_start_message,
             match_end_message,
-            client_server_messages: self.client_server_messages,
-            business_messages: self.business_messages,
+            client_server_messages: self.client_server_messages.clone(),
+            business_messages: self.business_messages.clone(),
         };
         Ok(match_replay)
     }
