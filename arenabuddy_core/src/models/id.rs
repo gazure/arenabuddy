@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Clone, PartialEq, PartialOrd, Copy, Eq, Ord)]
+#[derive(Default, Debug, Clone, PartialEq, PartialOrd, Copy, Hash, Eq, Ord)]
 pub struct ArenaId(i32);
 
 impl ArenaId {

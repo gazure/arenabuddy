@@ -5,7 +5,7 @@ use uuid::Uuid;
 
 use crate::models::ArenaId;
 
-#[derive(Debug)]
+#[derive(Debug, Default, Clone)]
 pub struct MTGADraft {
     draft: Draft,
     packs: Vec<DraftPack>,
@@ -43,9 +43,13 @@ impl MTGADraft {
     pub fn third(&self) -> Vec<&DraftPack> {
         self.filter(3)
     }
+
+    pub fn cards(&self) -> impl Iterator<Item = ArenaId> {
+        self.packs().iter().flat_map(DraftPack::cards).copied()
+    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct Draft {
     id: Uuid,
     set_code: String,

@@ -1,5 +1,4 @@
 use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
 
 use crate::{
     display::{
@@ -10,7 +9,7 @@ use crate::{
     models::Deck,
 };
 
-#[derive(Debug, Deserialize, Serialize, Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct MatchDetails {
     pub id: String,
     pub did_controller_win: bool,

@@ -1,4 +1,7 @@
-use arenabuddy_core::models::MTGADraft;
+use arenabuddy_core::{
+    display::draft::{DraftDetailsDisplay, EnrichedDraftPack},
+    models::Card,
+};
 use dioxus::prelude::*;
 
 use crate::{app::pages::Route, backend::Service};
@@ -6,7 +9,7 @@ use crate::{app::pages::Route, backend::Service};
 #[component]
 pub fn DraftDetails(id: String) -> Element {
     let service = use_context::<Service>();
-    let mut draft = use_signal(|| None::<MTGADraft>);
+    let mut draft = use_signal(|| None::<DraftDetailsDisplay>);
     let mut loading = use_signal(|| true);
     let mut error = use_signal(|| None::<String>);
 
@@ -35,7 +38,7 @@ pub fn DraftDetails(id: String) -> Element {
     });
 
     rsx! {
-        div { class: "container mx-auto px-4 py-8 max-w-6xl",
+        div { class: "container mx-auto px-4 py-8 max-w-7xl",
             // Back button
             div { class: "mb-6",
                 Link {
@@ -54,6 +57,7 @@ pub fn DraftDetails(id: String) -> Element {
                             d: "M10 19l-7-7m0 0l7-7m-7 7h18"
                         }
                     }
+                    "Back to Drafts"
                 }
             }
 
@@ -69,86 +73,186 @@ pub fn DraftDetails(id: String) -> Element {
                 }
             } else if let Some(draft_data) = draft.read().as_ref() {
                 // Draft Header
-                div { class: "bg-white rounded-lg shadow-md p-6 mb-6",
-                    h1 { class: "text-2xl font-bold text-gray-800 mb-4",
-                        "{draft_data.draft().set_code()} Draft"
-                    }
+                DraftHeader { draft: draft_data.clone() }
 
-                    div { class: "grid grid-cols-2 md:grid-cols-4 gap-4",
-                        div {
-                            p { class: "text-sm text-gray-600", "Format" }
-                            p { class: "font-semibold", "{draft_data.draft().format()}" }
-                        }
-                        div {
-                            p { class: "text-sm text-gray-600", "Status" }
-                            p {
-                                class: "font-semibold",
-                                class: if draft_data.draft().status() == "DraftStatus_Complete" { "text-green-600" } else { "text-yellow-600" },
-                                "COMPLETE"
-                            }
-                        }
-                        div {
-                            p { class: "text-sm text-gray-600", "Date" }
-                            p { class: "font-semibold", "{draft_data.draft().created_at()}" }
-                        }
-                        div {
-                            p { class: "text-sm text-gray-600", "Total Picks" }
-                            p { class: "font-semibold", "{draft_data.packs().len()}" }
-                        }
-                    }
-                }
-
-                // Packs and Picks
-                div { class: "bg-white rounded-lg shadow-md p-6",
-                    h2 { class: "text-xl font-bold text-gray-800 mb-4", "Draft Picks" }
-
-                    if draft_data.packs().is_empty() {
-                        div { class: "text-center text-gray-500 py-8",
-                            "No picks recorded for this draft"
-                        }
-                    } else {
-                        div { class: "space-y-6",
-                            for (pack_index, pack_picks) in draft_data.by_packs().into_iter().enumerate() {
-                                if !pack_picks.is_empty() {
-                                    div {
-                                        class: "border-b pb-4 mb-4 last:border-b-0",
-                                        h3 { class: "text-lg font-semibold mb-3",
-                                            "Pack {pack_index + 1}"
-                                        }
-                                        div { class: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3",
-                                            for pick in pack_picks {
-                                                {
-                                                    let picked_card_name = service.cards.get(&pick.picked_card()).map_or_else(|| format!("Card #{}", pick.picked_card().inner()), |c| c.name.clone());
-
-                                                    let available_count = pick.cards().len();
-
-                                                    rsx! {
-                                                        div { class: "bg-gray-50 rounded p-3",
-                                                            div { class: "flex justify-between items-start mb-1",
-                                                                span { class: "text-sm text-gray-600",
-                                                                    "Pick {pick.pick_number()}"
-                                                                }
-                                                                span { class: "text-xs text-gray-500",
-                                                                    "{available_count} cards"
-                                                                }
-                                                            }
-                                                            p { class: "font-medium text-blue-600",
-                                                                "{picked_card_name}"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                // Draft Packs
+                DraftPacksSection { draft: draft_data.clone() }
             } else {
                 div { class: "bg-white rounded-lg shadow-md p-12 text-center text-gray-500",
                     "Draft not found"
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn DraftHeader(draft: DraftDetailsDisplay) -> Element {
+    rsx! {
+        div { class: "bg-white rounded-lg shadow-md p-6 mb-6",
+            h1 { class: "text-2xl font-bold text-gray-800 mb-4",
+                "{draft.metadata().set_code()} Draft"
+            }
+
+            div { class: "grid grid-cols-2 md:grid-cols-4 gap-4",
+                div {
+                    p { class: "text-sm text-gray-600", "Format" }
+                    p { class: "font-semibold", "{draft.metadata().format()}" }
+                }
+                div {
+                    p { class: "text-sm text-gray-600", "Status" }
+                    p {
+                        class: "font-semibold",
+                        class: if draft.metadata().status() == "DraftStatus_Complete" { "text-green-600" } else { "text-yellow-600" },
+                        if draft.metadata().status() == "DraftStatus_Complete" { "COMPLETE" } else { "IN PROGRESS" }
+                    }
+                }
+                div {
+                    p { class: "text-sm text-gray-600", "Date" }
+                    p { class: "font-semibold", "{draft.metadata().created_at()}" }
+                }
+                div {
+                    p { class: "text-sm text-gray-600", "Total Picks" }
+                    p { class: "font-semibold", "{draft.total_picks()}" }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn DraftPacksSection(draft: DraftDetailsDisplay) -> Element {
+    rsx! {
+        div { class: "bg-white rounded-lg shadow-md p-6",
+            h2 { class: "text-xl font-bold text-gray-800 mb-4", "Draft Picks" }
+
+            if draft.packs().is_empty() {
+                div { class: "text-center text-gray-500 py-8",
+                    "No picks recorded for this draft"
+                }
+            } else {
+                div { class: "space-y-8",
+                    // Group packs by pack number
+                    for (pack_num, packs) in draft.by_packs().into_iter().enumerate() {
+                        if !packs.is_empty() {
+                            PackSection {
+                                pack_number: pack_num + 1,
+                                packs: packs.into_iter().cloned().collect()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn PackSection(pack_number: usize, packs: Vec<EnrichedDraftPack>) -> Element {
+    rsx! {
+        div { class: "border-b pb-6 last:border-b-0",
+            h3 { class: "text-lg font-semibold text-gray-800 mb-4 flex items-center",
+                span { class: "bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm mr-2",
+                    "Pack {pack_number}"
+                }
+                span { class: "text-sm text-gray-500 font-normal",
+                    "{packs.len()} picks"
+                }
+            }
+
+            div { class: "space-y-4",
+                for pack in packs {
+                    DraftPackRow { pack: pack }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
+    let mut show_available = use_signal(|| false);
+
+    rsx! {
+        div { class: "border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors",
+            // Pack header with pick info
+            div { class: "flex justify-between items-start mb-3",
+                div { class: "flex items-center gap-2",
+                    span { class: "text-sm font-medium text-gray-700",
+                        "Pick {pack.pick_number}"
+                    }
+                    span { class: "text-xs text-gray-500",
+                        "({pack.available_count()} cards available)"
+                    }
+                }
+
+                button {
+                    class: "text-xs text-blue-600 hover:text-blue-800 font-medium",
+                    onclick: move |_| show_available.set(!show_available()),
+                    if show_available() { "Hide Cards" } else { "Show Cards" }
+                }
+            }
+
+            // Picked card
+            div { class: "mb-2",
+                p { class: "text-xs text-gray-500 mb-1", "Picked:" }
+                if let Some(picked) = pack.picked() {
+                    CardDisplay { card: picked.clone(), is_picked: true }
+                } else {
+                    div { class: "text-gray-400 italic", "No card picked" }
+                }
+            }
+
+            // Available cards (collapsible)
+            if show_available() {
+                div { class: "mt-4 pt-4 border-t border-gray-200",
+                    p { class: "text-xs text-gray-500 mb-2", "Available cards:" }
+                    div { class: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2",
+                        for card in pack.available() {
+                            CardDisplay { card: card.clone(), is_picked: false }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn CardDisplay(card: Card, is_picked: bool) -> Element {
+    let bg_class = if is_picked {
+        "bg-blue-100 border-blue-300"
+    } else {
+        "bg-white border-gray-200"
+    };
+
+    let text_class = if is_picked {
+        "text-blue-700 font-semibold"
+    } else {
+        "text-gray-700"
+    };
+
+    rsx! {
+        div {
+            class: "p-2 rounded border {bg_class} hover:shadow-sm transition-shadow",
+            title: "{card.name()}",
+
+            div { class: "flex flex-col",
+                // Card name
+                p { class: "{text_class} text-sm truncate",
+                    "{card.name()}"
+                }
+
+                // Card details
+                div { class: "flex justify-between items-center mt-1",
+                    span { class: "text-xs text-gray-500 truncate",
+                        "{card.type_line()}"
+                    }
+                    if !card.mana_cost_str().is_empty() {
+                        span { class: "text-xs text-gray-600 font-mono",
+                            "{card.mana_cost_str()}"
+                        }
+                    }
                 }
             }
         }

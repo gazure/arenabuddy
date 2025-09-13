@@ -4,11 +4,12 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     display::{
         deck::{DeckDisplayRecord, Difference},
+        draft::DraftDetailsDisplay,
         game::GameResultDisplay,
         match_details::MatchDetails,
         mulligan::Mulligan,
     },
-    models::{Draft, MTGADraft, MTGAMatch},
+    models::{Draft, MTGAMatch},
 };
 use arenabuddy_data::DirectoryStorage;
 use tokio::sync::Mutex;
@@ -135,11 +136,12 @@ where
         Ok(db.list_drafts().await?)
     }
 
-    pub async fn get_draft_details(&self, draft_id: String) -> Result<MTGADraft> {
+    pub async fn get_draft_details(&self, draft_id: String) -> Result<DraftDetailsDisplay> {
         let mut db = self.db.lock().await;
         info!("looking for draft {draft_id}");
 
-        Ok(db.get_draft(&draft_id).await?)
+        let draft = db.get_draft(&draft_id).await?;
+        Ok(DraftDetailsDisplay::new(draft, &self.cards))
     }
 
     pub async fn get_error_logs(&self) -> Result<Vec<String>> {
