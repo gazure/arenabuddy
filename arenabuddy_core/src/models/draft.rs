@@ -3,7 +3,7 @@
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-use crate::events::primitives::ArenaId;
+use crate::models::ArenaId;
 
 #[derive(Debug)]
 pub struct MTGADraft {

@@ -1,6 +1,6 @@
 use arenabuddy_core::{
     models::{Deck, Draft, MTGADraft, MTGAMatch, MatchResult, Mulligan},
-    replay::MatchReplay,
+    player_log::replay::MatchReplay,
 };
 
 use crate::{ReplayStorage, Result};

@@ -3,9 +3,12 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::events::primitives::{
-    Action, Annotation, ArenaId, MulliganType, OptionPrompt, Player, PlayerDieRoll, Power, Prompt, ResultListEntry,
-    Skin, Stop, Target, Timer, Toughness, TurnInfo, Zone,
+use crate::{
+    events::primitives::{
+        Action, Annotation, MulliganType, OptionPrompt, Player, PlayerDieRoll, Power, Prompt, ResultListEntry, Skin,
+        Stop, Target, Timer, Toughness, TurnInfo, Zone,
+    },
+    models::ArenaId,
 };
 
 // GRE refers to the server-side MTGA engine

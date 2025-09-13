@@ -1,9 +1,11 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use arenabuddy_core::{
-    ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
     models::MTGADraft,
-    replay::MatchReplay,
+    player_log::{
+        ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
+        replay::MatchReplay,
+    },
 };
 use arenabuddy_data::{ArenabuddyRepository, DirectoryStorage, MatchDB};
 use tokio::sync::Mutex;
@@ -22,7 +24,7 @@ impl ArcMatchDBAdapter {
 }
 
 #[async_trait::async_trait]
-impl arenabuddy_core::ingest::ReplayWriter for ArcMatchDBAdapter {
+impl arenabuddy_core::player_log::ingest::ReplayWriter for ArcMatchDBAdapter {
     async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
         let mut db = self.db.lock().await;
         db.write_replay(replay)
@@ -32,7 +34,7 @@ impl arenabuddy_core::ingest::ReplayWriter for ArcMatchDBAdapter {
 }
 
 #[async_trait::async_trait]
-impl arenabuddy_core::ingest::DraftWriter for ArcMatchDBAdapter {
+impl arenabuddy_core::player_log::ingest::DraftWriter for ArcMatchDBAdapter {
     async fn write(&mut self, draft: &MTGADraft) -> arenabuddy_core::Result<()> {
         let mut db = self.db.lock().await;
         db.write_draft(draft)
@@ -53,7 +55,7 @@ impl ArcDirectoryStorageAdapter {
 }
 
 #[async_trait::async_trait]
-impl arenabuddy_core::ingest::ReplayWriter for ArcDirectoryStorageAdapter {
+impl arenabuddy_core::player_log::ingest::ReplayWriter for ArcDirectoryStorageAdapter {
     async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
         let mut storage = self.storage.lock().await;
         if let Some(dir) = storage.as_mut() {

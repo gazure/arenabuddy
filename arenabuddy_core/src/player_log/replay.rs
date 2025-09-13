@@ -19,11 +19,10 @@ use crate::{
             RequestTypeGREToClientEvent,
         },
         mgrsc::{FinalMatchResult, RequestTypeMGRSCEvent, StateType},
-        primitives::{ArenaId, ZoneType},
+        primitives::ZoneType,
     },
-    ingest::ReplayWriter,
-    models::{Deck, Mulligan, MulliganBuilder},
-    processor::ParseOutput,
+    models::{ArenaId, Deck, Mulligan, MulliganBuilder},
+    player_log::{ingest::ReplayWriter, processor::ParseOutput},
 };
 
 const DEFAULT_HAND_SIZE: i32 = 7;

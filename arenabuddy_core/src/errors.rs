@@ -1,6 +1,6 @@
 use crate::{
     models::{MTGAMatchBuilderError, MatchResultBuilderError},
-    replay::MatchReplayBuilderError,
+    player_log::replay::MatchReplayBuilderError,
 };
 
 /// A specialized Result type for `ArenaBuddy` operations.

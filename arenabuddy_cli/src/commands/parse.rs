@@ -5,7 +5,7 @@ use std::{
 
 use arenabuddy_core::{
     cards::CardsDatabase,
-    ingest::{IngestionConfig, LogIngestionService},
+    player_log::ingest::{IngestionConfig, LogIngestionService},
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB};
 use tracingx::info;

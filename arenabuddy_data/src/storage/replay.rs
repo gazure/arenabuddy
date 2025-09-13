@@ -1,4 +1,4 @@
-use arenabuddy_core::replay::MatchReplay;
+use arenabuddy_core::player_log::replay::MatchReplay;
 
 #[expect(async_fn_in_trait)]
 pub trait ReplayStorage {

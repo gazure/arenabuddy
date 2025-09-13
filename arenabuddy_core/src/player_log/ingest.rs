@@ -12,12 +12,14 @@ use tracingx::{debug, error, info};
 
 use crate::{
     Error, Result,
-    draft::DraftBuilder,
     errors::ParseError,
     events::{business::BusinessEvent, draft::RequestTypeDraftNotify},
     models::MTGADraft,
-    processor::{ParseOutput, PlayerLogProcessor},
-    replay::{MatchReplay, MatchReplayBuilder},
+    player_log::{
+        draft::DraftBuilder,
+        processor::{ParseOutput, PlayerLogProcessor},
+        replay::{MatchReplay, MatchReplayBuilder},
+    },
 };
 
 /// Storage trait for writing match replays

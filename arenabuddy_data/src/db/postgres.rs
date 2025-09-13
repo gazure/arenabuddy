@@ -5,12 +5,14 @@ use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
-    events::primitives::ArenaId,
-    ingest::{DraftWriter, ReplayWriter},
     models::{
-        Deck, Draft, DraftPack, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder, Mulligan,
+        ArenaId, Deck, Draft, DraftPack, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder,
+        Mulligan,
     },
-    replay::MatchReplay,
+    player_log::{
+        ingest::{DraftWriter, ReplayWriter},
+        replay::MatchReplay,
+    },
 };
 use chrono::{NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
