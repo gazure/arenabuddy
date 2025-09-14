@@ -1,6 +1,6 @@
-use arenabuddy_core::{
-    display::draft::{DraftDetailsDisplay, EnrichedDraftPack},
-    models::Card,
+use arenabuddy_core::display::{
+    card::CardDisplayRecord,
+    draft::{DraftDetailsDisplay, EnrichedDraftPack},
 };
 use dioxus::prelude::*;
 
@@ -174,42 +174,47 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
     let mut show_available = use_signal(|| false);
 
     rsx! {
-        div { class: "border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors",
-            // Pack header with pick info
-            div { class: "flex justify-between items-start mb-3",
-                div { class: "flex items-center gap-2",
-                    span { class: "text-sm font-medium text-gray-700",
-                        "Pick {pack.pick_number}"
+        div { class: "border rounded-lg p-3 bg-gray-50 hover:bg-gray-100 transition-colors",
+            // Pack header with pick info and picked card inline
+            div { class: "flex justify-between items-start gap-3",
+                div { class: "flex items-start gap-3 flex-1",
+                    // Pick info
+                    div { class: "flex-shrink-0",
+                        div { class: "flex items-center gap-2 mb-1",
+                            span { class: "text-sm font-medium text-gray-700",
+                                "Pick {pack.pick_number}"
+                            }
+                            span { class: "text-xs text-gray-500",
+                                "({pack.available_count()} cards)"
+                            }
+                        }
+                        if let Some(picked_name) = pack.picked_card_name() {
+                            p { class: "text-xs text-blue-600 font-medium truncate max-w-[150px]",
+                                "{picked_name}"
+                            }
+                        }
                     }
-                    span { class: "text-xs text-gray-500",
-                        "({pack.available_count()} cards available)"
+
+                    // Picked card image (small)
+                    if let Some(picked) = pack.picked() {
+                        CardDisplay { card: picked.clone(), is_picked: true, size: "medium" }
                     }
                 }
 
                 button {
-                    class: "text-xs text-blue-600 hover:text-blue-800 font-medium",
+                    class: "text-xs text-blue-600 hover:text-blue-800 font-medium flex-shrink-0",
                     onclick: move |_| show_available.set(!show_available()),
-                    if show_available() { "Hide Cards" } else { "Show Cards" }
-                }
-            }
-
-            // Picked card
-            div { class: "mb-2",
-                p { class: "text-xs text-gray-500 mb-1", "Picked:" }
-                if let Some(picked) = pack.picked() {
-                    CardDisplay { card: picked.clone(), is_picked: true }
-                } else {
-                    div { class: "text-gray-400 italic", "No card picked" }
+                    if show_available() { "Hide" } else { "Show all" }
                 }
             }
 
             // Available cards (collapsible)
             if show_available() {
                 div { class: "mt-4 pt-4 border-t border-gray-200",
-                    p { class: "text-xs text-gray-500 mb-2", "Available cards:" }
-                    div { class: "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2",
+                    p { class: "text-xs text-gray-500 mb-3", "Available cards:" }
+                    div { class: "grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2",
                         for card in pack.available() {
-                            CardDisplay { card: card.clone(), is_picked: false }
+                            CardDisplay { card: card.clone(), is_picked: false, size: "small" }
                         }
                     }
                 }
@@ -219,7 +224,7 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
 }
 
 #[component]
-fn CardDisplay(card: Card, is_picked: bool) -> Element {
+fn CardDisplay(card: CardDisplayRecord, is_picked: bool, size: String) -> Element {
     let bg_class = if is_picked {
         "bg-blue-100 border-blue-300"
     } else {
@@ -232,25 +237,51 @@ fn CardDisplay(card: Card, is_picked: bool) -> Element {
         "text-gray-700"
     };
 
+    let size_class = match size.as_str() {
+        "small" => "w-[120px]",
+        "medium" => "w-[160px]",
+        _ => "w-[180px]",
+    };
+
     rsx! {
         div {
-            class: "p-2 rounded border {bg_class} hover:shadow-sm transition-shadow",
-            title: "{card.name()}",
+            class: "rounded-lg border-2 {bg_class} hover:shadow-lg transition-all cursor-pointer overflow-hidden {size_class}",
+            title: "{card.name}",
 
             div { class: "flex flex-col",
-                // Card name
-                p { class: "{text_class} text-sm truncate",
-                    "{card.name()}"
-                }
-
-                // Card details
-                div { class: "flex justify-between items-center mt-1",
-                    span { class: "text-xs text-gray-500 truncate",
-                        "{card.type_line()}"
+                // Card image
+                if !card.image_uri.is_empty() {
+                    div { class: "relative",
+                        img {
+                            src: "{card.image_uri}",
+                            alt: "{card.name}",
+                            class: "w-full h-auto object-cover",
+                            loading: "lazy"
+                        }
+                        if is_picked && size != "small" {
+                            div { class: "absolute top-1 right-1 bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full shadow font-semibold",
+                                "✓"
+                            }
+                        }
                     }
-                    if !card.mana_cost_str().is_empty() {
-                        span { class: "text-xs text-gray-600 font-mono",
-                            "{card.mana_cost_str()}"
+                } else {
+                    // Fallback when no image
+                    div { class: "p-3 bg-gray-100",
+                        // Card name
+                        p { class: "{text_class} text-sm font-medium",
+                            "{card.name}"
+                        }
+
+                        // Card details
+                        div { class: "flex justify-between items-center mt-1",
+                            span { class: "text-xs text-gray-600",
+                                "{card.type_field}"
+                            }
+                            if !card.mana.is_empty() {
+                                span { class: "text-xs text-gray-700 font-mono",
+                                    "{card.mana}"
+                                }
+                            }
                         }
                     }
                 }

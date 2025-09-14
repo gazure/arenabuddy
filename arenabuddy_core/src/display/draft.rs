@@ -28,7 +28,8 @@
 
 use crate::{
     cards::CardsDatabase,
-    models::{Card, Draft, DraftPack, MTGADraft},
+    display::card::CardDisplayRecord,
+    models::{Draft, DraftPack, MTGADraft},
 };
 
 /// Represents a draft pack with enriched card details
@@ -36,8 +37,8 @@ use crate::{
 pub struct EnrichedDraftPack {
     pub pack_number: u8,
     pub pick_number: u8,
-    pub picked_card: Option<Card>,
-    pub available_cards: Vec<Card>,
+    pub picked_card: Option<CardDisplayRecord>,
+    pub available_cards: Vec<CardDisplayRecord>,
 }
 
 impl PartialEq for EnrichedDraftPack {
@@ -53,8 +54,12 @@ impl PartialEq for EnrichedDraftPack {
 impl EnrichedDraftPack {
     /// Creates a new enriched draft pack from a regular draft pack and cards database
     pub fn from_draft_pack(pack: &DraftPack, cards: &CardsDatabase) -> Self {
-        let picked_card = cards.get(&pack.picked_card()).cloned();
-        let available_cards = pack.cards().iter().filter_map(|id| cards.get(id).cloned()).collect();
+        let picked_card = cards.get(&pack.picked_card()).map(CardDisplayRecord::from);
+        let available_cards = pack
+            .cards()
+            .iter()
+            .filter_map(|id| cards.get(id).map(CardDisplayRecord::from))
+            .collect();
 
         Self {
             pack_number: pack.pack_number(),
@@ -66,7 +71,7 @@ impl EnrichedDraftPack {
 
     /// Returns the name of the picked card, or None if no card was picked
     pub fn picked_card_name(&self) -> Option<&str> {
-        self.picked_card.as_ref().map(Card::name)
+        self.picked_card.as_ref().map(|c| c.name.as_str())
     }
 
     /// Returns true if a card was picked
@@ -81,22 +86,22 @@ impl EnrichedDraftPack {
 
     /// Returns the names of all available cards
     pub fn available_card_names(&self) -> Vec<&str> {
-        self.available_cards.iter().map(Card::name).collect()
+        self.available_cards.iter().map(|c| c.name.as_str()).collect()
     }
 
     /// Returns the picked card if it exists
-    pub fn picked(&self) -> Option<&Card> {
+    pub fn picked(&self) -> Option<&CardDisplayRecord> {
         self.picked_card.as_ref()
     }
 
     /// Returns all available cards
-    pub fn available(&self) -> &[Card] {
+    pub fn available(&self) -> &[CardDisplayRecord] {
         &self.available_cards
     }
 
     /// Finds a card by name in the available cards
-    pub fn find_available_by_name(&self, name: &str) -> Option<&Card> {
-        self.available_cards.iter().find(|c| c.name() == name)
+    pub fn find_available_by_name(&self, name: &str) -> Option<&CardDisplayRecord> {
+        self.available_cards.iter().find(|c| c.name == name)
     }
 }
 
@@ -171,7 +176,7 @@ impl DraftDetailsDisplay {
     }
 
     /// Returns all picked cards in order
-    pub fn picked_cards(&self) -> Vec<&Card> {
+    pub fn picked_cards(&self) -> Vec<&CardDisplayRecord> {
         self.enriched_packs
             .iter()
             .filter_map(|pack| pack.picked_card.as_ref())
