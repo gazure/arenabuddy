@@ -92,7 +92,8 @@ pub enum IngestionEvent {
 }
 
 /// Callback for handling ingestion events
-pub type EventCallback = Arc<dyn Fn(IngestionEvent) + Send + Sync>;
+pub type EventCallback =
+    Arc<dyn Fn(IngestionEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> + Send + Sync>;
 
 /// Service for ingesting and processing MTGA player logs
 pub struct LogIngestionService {
@@ -151,9 +152,9 @@ impl LogIngestionService {
     }
 
     /// Emit an event to the callback if one is set
-    fn emit_event(&self, event: IngestionEvent) {
+    async fn emit_event(&self, event: IngestionEvent) {
         if let Some(callback) = &self.event_callback {
-            callback(event);
+            callback(event).await;
         }
     }
 
@@ -165,10 +166,11 @@ impl LogIngestionService {
         // Emit draft events
         match &output {
             ParseOutput::DraftNotify(event) => {
-                self.emit_event(IngestionEvent::DraftNotify(event.clone()));
+                self.emit_event(IngestionEvent::DraftNotify(event.clone())).await;
             }
             ParseOutput::BusinessMessage(event) => {
-                self.emit_event(IngestionEvent::Business(Box::new(event.request.clone())));
+                self.emit_event(IngestionEvent::Business(Box::new(event.request.clone())))
+                    .await;
                 self.draft_builder.process_business_event(&event.request).await?;
             }
             _ => {}
@@ -177,7 +179,8 @@ impl LogIngestionService {
         // Process match replay
         match self.match_replay_builder.ingest(output).await {
             Ok(Some(match_replay)) => {
-                self.emit_event(IngestionEvent::MatchCompleted(Box::new(match_replay)));
+                self.emit_event(IngestionEvent::MatchCompleted(Box::new(match_replay)))
+                    .await;
             }
             Err(e) => {
                 error!("Error processing match replay: {}", e);
@@ -202,7 +205,7 @@ impl LogIngestionService {
                     Error::Parse(ParseError::NoEvent) => break,
                     Error::Parse(ParseError::Error(s)) => {
                         debug!("Parse error: {}", s);
-                        self.emit_event(IngestionEvent::ParseError(s));
+                        self.emit_event(IngestionEvent::ParseError(s)).await;
                     }
                     _ => return Err(e),
                 },
@@ -216,7 +219,7 @@ impl LogIngestionService {
     async fn handle_rotation(&mut self) -> Result<()> {
         info!("Log file rotated, reinitializing processor");
         self.processor = PlayerLogProcessor::try_new(&self.config.player_log_path).await?;
-        self.emit_event(IngestionEvent::LogRotated);
+        self.emit_event(IngestionEvent::LogRotated).await;
         Ok(())
     }
 

@@ -34,6 +34,19 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for DirectoryStorageAdapt
     }
 }
 
+/// Type alias for cleaner async callback syntax
+type PinnedFuture = std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>;
+
+/// Helper function to handle ingestion events
+fn handle_ingestion_event(event: IngestionEvent, log_collector: Arc<Mutex<Vec<String>>>) -> PinnedFuture {
+    Box::pin(async move {
+        if let IngestionEvent::ParseError(error) = event {
+            let mut collector = log_collector.lock().await;
+            collector.push(error);
+        }
+    })
+}
+
 pub async fn start(
     db: MatchDB,
     debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
@@ -64,15 +77,8 @@ pub async fn start(
     let dir_adapter = DirectoryStorageAdapter::new(debug_dir.clone());
     let service = service.add_writer(Box::new(dir_adapter));
 
-    // Set up event callback to handle draft events and collect errors
-    let log_collector_clone = log_collector.clone();
-    let event_callback = Arc::new(move |event: IngestionEvent| {
-        if let IngestionEvent::ParseError(error) = event {
-            // Collect parse errors like the original implementation
-            let mut collector = log_collector_clone.blocking_lock();
-            collector.push(error);
-        }
-    });
+    // Set up event callback to handle ingestion events
+    let event_callback = Arc::new(move |event: IngestionEvent| handle_ingestion_event(event, log_collector.clone()));
 
     let service = service.with_event_callback(event_callback);
 
