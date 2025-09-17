@@ -33,7 +33,7 @@ To get started with the ArenaBuddy development environment, follow these steps:
 
 4. Project Structure:
 
-   - `/arenabuddy_core` - common modules
-   - `/arenabuddy_cli` - Consolidated command line tool for log parsing and card scraping
-   - `/arenabuddy_data` - data layer
-   - `/arenabuddy` - Frontend code
+   - `/core` - common modules
+   - `/cli` - Consolidated command line tool for log parsing and card scraping
+   - `/data` - data layer
+   - `/arenabuddy` - Dioxus app
