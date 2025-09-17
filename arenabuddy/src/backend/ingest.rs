@@ -1,47 +1,12 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
-use arenabuddy_core::{
-    models::MTGADraft,
-    player_log::{
-        ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
-        replay::MatchReplay,
-    },
+use arenabuddy_core::player_log::{
+    ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
+    replay::MatchReplay,
 };
-use arenabuddy_data::{ArenabuddyRepository, DirectoryStorage, MatchDB};
+use arenabuddy_data::{DirectoryStorage, MatchDB};
 use tokio::sync::Mutex;
 use tracingx::{error, info};
-
-/// Adapter that wraps an Arc<Mutex<MatchDB>> for the `ReplayWriter` trait
-#[derive(Clone)]
-struct ArcMatchDBAdapter {
-    db: Arc<Mutex<MatchDB>>,
-}
-
-impl ArcMatchDBAdapter {
-    fn new(db: Arc<Mutex<MatchDB>>) -> Self {
-        Self { db }
-    }
-}
-
-#[async_trait::async_trait]
-impl arenabuddy_core::player_log::ingest::ReplayWriter for ArcMatchDBAdapter {
-    async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
-        let mut db = self.db.lock().await;
-        db.write_replay(replay)
-            .await
-            .map_err(|e| arenabuddy_core::Error::StorageError(e.to_string()))
-    }
-}
-
-#[async_trait::async_trait]
-impl arenabuddy_core::player_log::ingest::DraftWriter for ArcMatchDBAdapter {
-    async fn write(&mut self, draft: &MTGADraft) -> arenabuddy_core::Result<()> {
-        let mut db = self.db.lock().await;
-        db.write_draft(draft)
-            .await
-            .map_err(|e| arenabuddy_core::Error::StorageError(e.to_string()))
-    }
-}
 
 /// Adapter that wraps an Arc<Mutex<Option<DirectoryStorage>>> for the `ReplayWriter` trait
 /// TODO: rethink this
@@ -70,7 +35,7 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for DirectoryStorageAdapt
 }
 
 pub async fn start(
-    db: Arc<Mutex<MatchDB>>,
+    db: MatchDB,
     debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
@@ -93,10 +58,7 @@ pub async fn start(
     };
 
     // Add database writer
-    let db_adapter = ArcMatchDBAdapter::new(db.clone());
-    let service = service
-        .add_writer(Box::new(db_adapter.clone()))
-        .add_draft_writer(Box::new(db_adapter));
+    let service = service.add_writer(Box::new(db.clone())).add_draft_writer(Box::new(db));
 
     // Add directory storage writer
     let dir_adapter = DirectoryStorageAdapter::new(debug_dir.clone());

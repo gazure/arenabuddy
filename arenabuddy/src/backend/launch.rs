@@ -157,15 +157,9 @@ async fn create_app_service() -> Result<Service> {
     let cards_db = Arc::new(CardsDatabase::new(cards_path).unwrap_or_default());
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
     info!("using matches db: {:?}", url);
-    let mut db = MatchDB::new(url.as_deref(), cards_db.clone()).await?;
+    let db = MatchDB::new(url.as_deref(), cards_db.clone()).await?;
     db.initialize().await?;
-    let db_arc = Arc::new(tokio::sync::Mutex::new(db));
     let log_collector = Arc::new(tokio::sync::Mutex::new(Vec::<String>::new()));
     let debug_backend = Arc::new(tokio::sync::Mutex::new(None::<DirectoryStorage>));
-    Ok(AppService::new(
-        db_arc.clone(),
-        cards_db.clone(),
-        log_collector,
-        debug_backend,
-    ))
+    Ok(AppService::new(db, cards_db.clone(), log_collector, debug_backend))
 }

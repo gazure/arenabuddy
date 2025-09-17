@@ -48,7 +48,7 @@ impl PostgresMatchDB {
         }
     }
 
-    pub async fn initialize(&mut self) -> Result<()> {
+    pub async fn initialize(&self) -> Result<()> {
         let migrations_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("migrations/postgres");
         sqlx::migrate::Migrator::new(migrations_path)
             .await?
@@ -342,7 +342,7 @@ impl PostgresMatchDB {
     ///
     /// will return an error if if the match replay cannot be written to the database due to missing data
     /// or connection error
-    async fn write(&mut self, match_replay: &MatchReplay) -> crate::Result<()> {
+    async fn write(&self, match_replay: &MatchReplay) -> crate::Result<()> {
         info!("Writing match replay to database");
         let controller_seat_id = match_replay.get_controller_seat_id();
         let match_id = Uuid::parse_str(&match_replay.match_id)?;
@@ -468,7 +468,7 @@ impl PostgresMatchDB {
         Ok(())
     }
 
-    async fn do_list_drafts(&mut self) -> Result<Vec<Draft>> {
+    async fn do_list_drafts(&self) -> Result<Vec<Draft>> {
         let result = sqlx::query!(
             r#"
                 SELECT id, set_code, draft_format, status, created_at
@@ -492,7 +492,7 @@ impl PostgresMatchDB {
             .collect())
     }
 
-    async fn do_get_draft(&mut self, draft_id: &str) -> Result<MTGADraft> {
+    async fn do_get_draft(&self, draft_id: &str) -> Result<MTGADraft> {
         let draft_id = Uuid::parse_str(draft_id)?;
 
         // Get the draft details
@@ -548,43 +548,43 @@ impl PostgresMatchDB {
 }
 
 impl ArenabuddyRepository for PostgresMatchDB {
-    fn init(&mut self) -> impl Future<Output = Result<()>> + Send {
+    fn init(&self) -> impl Future<Output = Result<()>> + Send {
         self.initialize()
     }
 
-    fn write_replay(&mut self, replay: &MatchReplay) -> impl Future<Output = Result<()>> + Send {
+    fn write_replay(&self, replay: &MatchReplay) -> impl Future<Output = Result<()>> + Send {
         self.write(replay)
     }
 
-    fn get_match(&mut self, match_id: &str) -> impl Future<Output = Result<(MTGAMatch, Option<MatchResult>)>> + Send {
+    fn get_match(&self, match_id: &str) -> impl Future<Output = Result<(MTGAMatch, Option<MatchResult>)>> + Send {
         self.retrieve_match(match_id)
     }
 
-    fn list_matches(&mut self) -> impl Future<Output = Result<Vec<MTGAMatch>>> + Send {
+    fn list_matches(&self) -> impl Future<Output = Result<Vec<MTGAMatch>>> + Send {
         self.get_matches()
     }
 
-    fn list_decklists(&mut self, match_id: &str) -> impl Future<Output = Result<Vec<Deck>>> + Send {
+    fn list_decklists(&self, match_id: &str) -> impl Future<Output = Result<Vec<Deck>>> + Send {
         self.get_decklists(match_id)
     }
 
-    fn list_mulligans(&mut self, match_id: &str) -> impl Future<Output = Result<Vec<Mulligan>>> + Send {
+    fn list_mulligans(&self, match_id: &str) -> impl Future<Output = Result<Vec<Mulligan>>> + Send {
         self.get_mulligans(match_id)
     }
 
-    fn list_match_results(&mut self, match_id: &str) -> impl Future<Output = Result<Vec<MatchResult>>> + Send {
+    fn list_match_results(&self, match_id: &str) -> impl Future<Output = Result<Vec<MatchResult>>> + Send {
         self.get_match_results(match_id)
     }
 
-    fn get_opponent_deck(&mut self, match_id: &str) -> impl Future<Output = Result<Deck>> + Send {
+    fn get_opponent_deck(&self, match_id: &str) -> impl Future<Output = Result<Deck>> + Send {
         self.do_get_opponent_deck(match_id)
     }
 
-    fn list_drafts(&mut self) -> impl Future<Output = Result<Vec<Draft>>> + Send {
+    fn list_drafts(&self) -> impl Future<Output = Result<Vec<Draft>>> + Send {
         self.do_list_drafts()
     }
 
-    fn get_draft(&mut self, draft_id: &str) -> impl Future<Output = Result<MTGADraft>> + Send {
+    fn get_draft(&self, draft_id: &str) -> impl Future<Output = Result<MTGADraft>> + Send {
         self.do_get_draft(draft_id)
     }
 }

@@ -19,7 +19,7 @@ use crate::Result;
 
 #[derive(Clone)]
 pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
-    pub db: Arc<Mutex<D>>,
+    pub db: D,
     pub cards: Arc<CardsDatabase>,
     pub log_collector: Arc<Mutex<Vec<String>>>,
     pub debug_storage: Arc<Mutex<Option<DirectoryStorage>>>,
@@ -44,7 +44,7 @@ where
     D: arenabuddy_data::ArenabuddyRepository,
 {
     pub fn new(
-        db: Arc<Mutex<D>>,
+        db: D,
         cards: Arc<CardsDatabase>,
         log_collector: Arc<Mutex<Vec<String>>>,
         debug_backend: Arc<Mutex<Option<DirectoryStorage>>>,
@@ -58,15 +58,13 @@ where
     }
 
     pub async fn get_matches(&self) -> Result<Vec<MTGAMatch>> {
-        let mut db = self.db.lock().await;
-        Ok(db.list_matches().await?)
+        Ok(self.db.list_matches().await?)
     }
 
     pub async fn get_match_details(&self, id: String) -> Result<MatchDetails> {
-        let mut db = self.db.lock().await;
         info!("looking for match {id}");
 
-        let (mtga_match, result) = db.get_match(&id).await.unwrap_or_default();
+        let (mtga_match, result) = self.db.get_match(&id).await.unwrap_or_default();
 
         let mut match_details = MatchDetails {
             id: id.clone(),
@@ -78,7 +76,7 @@ where
             ..Default::default()
         };
 
-        match_details.decklists = db.list_decklists(&id).await.unwrap_or_default();
+        match_details.decklists = self.db.list_decklists(&id).await.unwrap_or_default();
 
         match_details.primary_decklist = match_details
             .decklists
@@ -92,7 +90,7 @@ where
             }
         });
 
-        let raw_mulligans = db.list_mulligans(&id).await.unwrap_or_else(|e| {
+        let raw_mulligans = self.db.list_mulligans(&id).await.unwrap_or_else(|e| {
             error!("Error retrieving Mulligans: {}", e);
             Vec::default()
         });
@@ -104,7 +102,8 @@ where
 
         match_details.mulligans.sort();
 
-        match_details.game_results = db
+        match_details.game_results = self
+            .db
             .list_match_results(&id)
             .await
             .unwrap_or_else(|e| {
@@ -122,7 +121,8 @@ where
             })
             .collect();
 
-        match_details.opponent_deck = db
+        match_details.opponent_deck = self
+            .db
             .get_opponent_deck(&id)
             .await
             .map(|deck| DeckDisplayRecord::from_decklist(&deck, &self.cards))
@@ -132,15 +132,13 @@ where
     }
 
     pub async fn get_drafts(&self) -> Result<Vec<Draft>> {
-        let mut db = self.db.lock().await;
-        Ok(db.list_drafts().await?)
+        Ok(self.db.list_drafts().await?)
     }
 
     pub async fn get_draft_details(&self, draft_id: String) -> Result<DraftDetailsDisplay> {
-        let mut db = self.db.lock().await;
         info!("looking for draft {draft_id}");
 
-        let draft = db.get_draft(&draft_id).await?;
+        let draft = self.db.get_draft(&draft_id).await?;
         Ok(DraftDetailsDisplay::new(draft, &self.cards))
     }
 
