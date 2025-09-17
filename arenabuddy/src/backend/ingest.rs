@@ -44,18 +44,19 @@ impl arenabuddy_core::player_log::ingest::DraftWriter for ArcMatchDBAdapter {
 }
 
 /// Adapter that wraps an Arc<Mutex<Option<DirectoryStorage>>> for the `ReplayWriter` trait
-struct ArcDirectoryStorageAdapter {
+/// TODO: rethink this
+struct DirectoryStorageAdapter {
     storage: Arc<Mutex<Option<DirectoryStorage>>>,
 }
 
-impl ArcDirectoryStorageAdapter {
+impl DirectoryStorageAdapter {
     fn new(storage: Arc<Mutex<Option<DirectoryStorage>>>) -> Self {
         Self { storage }
     }
 }
 
 #[async_trait::async_trait]
-impl arenabuddy_core::player_log::ingest::ReplayWriter for ArcDirectoryStorageAdapter {
+impl arenabuddy_core::player_log::ingest::ReplayWriter for DirectoryStorageAdapter {
     async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
         let mut storage = self.storage.lock().await;
         if let Some(dir) = storage.as_mut() {
@@ -98,7 +99,7 @@ pub async fn start(
         .add_draft_writer(Box::new(db_adapter));
 
     // Add directory storage writer
-    let dir_adapter = ArcDirectoryStorageAdapter::new(debug_dir.clone());
+    let dir_adapter = DirectoryStorageAdapter::new(debug_dir.clone());
     let service = service.add_writer(Box::new(dir_adapter));
 
     // Set up event callback to handle draft events and collect errors
