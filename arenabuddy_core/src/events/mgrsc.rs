@@ -14,7 +14,7 @@ pub struct RequestTypeMGRSCEvent {
     #[serde(default)]
     pub request_id: i32,
     pub timestamp: String,
-    pub transaction_id: String,
+    pub transaction_id: Option<String>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
