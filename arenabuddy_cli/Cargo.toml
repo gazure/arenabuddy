@@ -11,7 +11,7 @@ version.workspace = true
 
 [dependencies]
 arenabuddy_core = { path = "../core" }
-arenabuddy_data = { path = "../arenabuddy_data" }
+arenabuddy_data = { path = "../data" }
 clap = { workspace = true }
 csv = { workspace = true }
 ctrlc = { workspace = true }

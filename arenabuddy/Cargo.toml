@@ -12,7 +12,7 @@ license.workspace = true
 
 [dependencies]
 arenabuddy_core = { path = "../core/" }
-arenabuddy_data = { path = "../arenabuddy_data" }
+arenabuddy_data = { path = "../data" }
 async-trait = { workspace = true }
 chrono = { workspace = true }
 console-subscriber = { workspace = true, optional = true }
