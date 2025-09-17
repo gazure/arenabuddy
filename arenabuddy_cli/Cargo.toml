@@ -10,7 +10,7 @@ repository.workspace = true
 version.workspace = true
 
 [dependencies]
-arenabuddy_core = { path = "../arenabuddy_core" }
+arenabuddy_core = { path = "../core" }
 arenabuddy_data = { path = "../arenabuddy_data" }
 clap = { workspace = true }
 csv = { workspace = true }
