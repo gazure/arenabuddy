@@ -109,6 +109,9 @@ fn find_card(cards_db: &CardsDatabase, arena_id: i64) {
             println!("  Name: {}", card.name);
             println!("  Set: {}", card.set);
             println!("  Type: {}", card.type_line);
+            if let Some(uri) = card.primary_image_uri() {
+                println!("  Image: {uri}");
+            }
             if !card.mana_cost.is_empty() {
                 println!("  Mana Cost: {}", card.mana_cost);
             }

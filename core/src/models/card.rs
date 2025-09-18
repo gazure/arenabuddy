@@ -297,50 +297,6 @@ impl Card {
             Some(&self.image_uri)
         }
     }
-
-    /// Checks if the card matches the given color
-    ///
-    /// # Arguments
-    ///
-    /// * `color` - The color to check for
-    ///
-    /// # Returns
-    ///
-    /// true if the card contains the specified color, false otherwise
-    pub fn has_color(&self, color: &str) -> bool {
-        self.colors.iter().any(|c| c == color)
-    }
-
-    /// Checks if the card is multicolored
-    ///
-    /// # Returns
-    ///
-    /// true if the card has more than one color, false otherwise
-    pub fn is_multicolored(&self) -> bool {
-        self.colors.len() > 1
-    }
-
-    /// Checks if the card is colorless
-    ///
-    /// # Returns
-    ///
-    /// true if the card has no colors, false otherwise
-    pub fn is_colorless(&self) -> bool {
-        self.colors.is_empty()
-    }
-
-    /// Checks if this card is of the specified type
-    ///
-    /// # Arguments
-    ///
-    /// * `card_type` - The card type to check for
-    ///
-    /// # Returns
-    ///
-    /// true if the card's type line contains the specified type, false otherwise
-    pub fn is_type(&self, card_type: &str) -> bool {
-        self.type_line.contains(card_type)
-    }
 }
 
 impl Eq for Card {}
