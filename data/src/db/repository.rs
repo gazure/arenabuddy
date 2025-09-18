@@ -3,7 +3,7 @@ use arenabuddy_core::{
     player_log::replay::MatchReplay,
 };
 
-use crate::{ReplayStorage, Result};
+use crate::Result;
 
 pub trait ArenabuddyRepository: Send + Sync + 'static {
     fn init(&self) -> impl Future<Output = Result<()>> + Send;
@@ -16,13 +16,4 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
     fn list_mulligans(&self, match_id: &str) -> impl Future<Output = Result<Vec<Mulligan>>> + Send;
     fn list_match_results(&self, match_id: &str) -> impl Future<Output = Result<Vec<MatchResult>>> + Send;
     fn list_drafts(&self) -> impl Future<Output = Result<Vec<Draft>>> + Send;
-}
-
-impl<AR> ReplayStorage for AR
-where
-    AR: ArenabuddyRepository,
-{
-    async fn write(&mut self, match_replay: &MatchReplay) -> crate::Result<()> {
-        self.write_replay(match_replay).await
-    }
 }
