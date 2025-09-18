@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr, sync::LazyLock};
 
 use regex::Regex;
 
-const REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{([^{}]+)\}").expect("invalid regex"));
+static REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{([^{}]+)\}").expect("invalid regex"));
 
 #[derive(Debug, Clone, Copy, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum Color {
