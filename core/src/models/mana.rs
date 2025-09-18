@@ -1,6 +1,8 @@
-use std::{fmt::Display, str::FromStr};
+use std::{fmt::Display, str::FromStr, sync::LazyLock};
 
 use regex::Regex;
+
+const REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\{([^{}]+)\}").expect("invalid regex"));
 
 #[derive(Debug, Clone, Copy, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum Color {
@@ -325,9 +327,7 @@ impl FromStr for Cost {
             let mut symbols = Vec::new();
 
             // Use regex to find all patterns like "{X}" where X is any sequence of chars
-            let re = Regex::new(r"\{([^{}]+)\}").expect("invalid regex");
-
-            for cap in re.captures_iter(part) {
+            for cap in REGEX.captures_iter(part) {
                 let symbol_str = &cap[1]; // Extract what's inside the braces
                 symbols.push(symbol_str.parse()?);
             }
