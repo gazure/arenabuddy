@@ -182,7 +182,7 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
                     div { class: "flex-shrink-0",
                         div { class: "flex items-center gap-2 mb-1",
                             span { class: "text-sm font-medium text-gray-700",
-                                "Pick {pack.pick_number}"
+                                "Pick {pack.pick_number()}"
                             }
                             span { class: "text-xs text-gray-500",
                                 "({pack.available_count()} cards)"

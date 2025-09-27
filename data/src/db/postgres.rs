@@ -6,8 +6,8 @@ use std::sync::Arc;
 use arenabuddy_core::{
     cards::CardsDatabase,
     models::{
-        ArenaId, Deck, Draft, DraftPack, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult, MatchResultBuilder,
-        Mulligan,
+        ArenaId, Deck, Draft, DraftPack, Format, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult,
+        MatchResultBuilder, Mulligan,
     },
     player_log::{
         ingest::{DraftWriter, ReplayWriter},
@@ -407,7 +407,7 @@ impl PostgresMatchDB {
             "#,
             draft.id(),
             draft.set_code(),
-            draft.format(),
+            draft.format().to_string(),
             draft.status(),
             draft.created_at().naive_utc()
         )
@@ -420,6 +420,7 @@ impl PostgresMatchDB {
         draft_id: &Uuid,
         pack_number: i32,
         pick_number: i32,
+        selection_num: i32,
         picked_card_id: ArenaId,
         cards: &[ArenaId],
         tx: &mut Transaction<'_, Postgres>,
@@ -428,14 +429,15 @@ impl PostgresMatchDB {
 
         sqlx::query!(
             r#"
-            INSERT INTO draft_pack(draft_id, pack_number, pick_number, cards, card_id, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            ON CONFLICT (draft_id, pack_number, pick_number)
+            INSERT INTO draft_pack(draft_id, pack_number, pick_number, selection_number, cards, card_id, created_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            ON CONFLICT (draft_id, pack_number, pick_number, selection_number)
             DO UPDATE SET cards = excluded.cards, card_id = excluded.card_id
             "#,
             draft_id,
             pack_number,
             pick_number,
+            selection_num,
             cards_json,
             picked_card_id.inner(),
             Utc::now().naive_utc()
@@ -457,6 +459,7 @@ impl PostgresMatchDB {
                 &draft.draft().id(),
                 pack.pack_number().into(),
                 pack.pick_number().into(),
+                pack.selection_number().into(),
                 pack.picked_card(),
                 pack.cards(),
                 &mut tx,
@@ -484,7 +487,7 @@ impl PostgresMatchDB {
                 Draft::new(
                     row.id,
                     row.set_code,
-                    row.status.unwrap_or_default(),
+                    row.status.map(Format::from_str).unwrap_or_default(),
                     row.draft_format.unwrap_or_default(),
                 )
                 .with_created_at(row.created_at.unwrap_or_default().and_utc())
@@ -510,10 +513,10 @@ impl PostgresMatchDB {
         // Get all packs for this draft
         let pack_rows = sqlx::query!(
             r#"
-            SELECT pack_number, pick_number, cards, card_id
+            SELECT id, pack_number, pick_number, selection_number, cards, card_id
             FROM draft_pack
             WHERE draft_id = $1
-            ORDER BY pack_number, pick_number
+            ORDER BY pack_number, pick_number, selection_number
             "#,
             draft_id
         )
@@ -524,8 +527,8 @@ impl PostgresMatchDB {
         let draft = Draft::new(
             draft_row.id,
             draft_row.set_code,
+            draft_row.draft_format.map(Format::from_str).unwrap_or_default(),
             draft_row.status.unwrap_or_default(),
-            draft_row.draft_format.unwrap_or_default(),
         )
         .with_created_at(draft_row.created_at.unwrap_or_default().and_utc());
 
@@ -537,9 +540,11 @@ impl PostgresMatchDB {
                 draft.id(),
                 row.pack_number as u8,
                 row.pick_number as u8,
+                row.selection_number as u8,
                 row.card_id.into(),
                 cards,
-            );
+            )
+            .with_id(row.id as u64);
             packs.push(pack);
         }
 

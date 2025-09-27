@@ -35,10 +35,11 @@ use crate::{
 /// Represents a draft pack with enriched card details
 #[derive(Debug, Default, Clone)]
 pub struct EnrichedDraftPack {
-    pub pack_number: u8,
-    pub pick_number: u8,
-    pub picked_card: Option<CardDisplayRecord>,
-    pub available_cards: Vec<CardDisplayRecord>,
+    pack_number: u8,
+    pick_number: u8,
+    selection_nubmer: u8,
+    picked_card: Option<CardDisplayRecord>,
+    available_cards: Vec<CardDisplayRecord>,
 }
 
 impl PartialEq for EnrichedDraftPack {
@@ -46,6 +47,7 @@ impl PartialEq for EnrichedDraftPack {
         // Compare pack/pick numbers and card counts since Card doesn't implement PartialEq
         self.pack_number == other.pack_number
             && self.pick_number == other.pick_number
+            && self.selection_nubmer == other.selection_nubmer
             && self.picked_card.is_some() == other.picked_card.is_some()
             && self.available_cards.len() == other.available_cards.len()
     }
@@ -64,9 +66,20 @@ impl EnrichedDraftPack {
         Self {
             pack_number: pack.pack_number(),
             pick_number: pack.pick_number(),
+            selection_nubmer: pack.selection_number(),
             picked_card,
             available_cards,
         }
+    }
+
+    /// Returns the pack number
+    pub fn pack_number(&self) -> u8 {
+        self.pack_number
+    }
+
+    /// Returns the pick number
+    pub fn pick_number(&self) -> u8 {
+        self.pick_number
     }
 
     /// Returns the name of the picked card, or None if no card was picked
