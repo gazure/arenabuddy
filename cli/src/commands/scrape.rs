@@ -103,7 +103,7 @@ async fn save_card_collection_to_file(cards: &CardCollection, output_path: impl 
 async fn search_card_by_name(base_url: &str, card_name: &str) -> Result<Option<Card>> {
     let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
 
-    tokio::time::sleep(Duration::from_millis(750)).await;
+    tokio::time::sleep(Duration::from_millis(150)).await;
 
     let url = Url::parse_with_params(&format!("{base_url}/cards/search"), &[("q", card_name)])
         .map_err(|e| Error::Url(e.to_string()))?;
@@ -171,7 +171,7 @@ async fn merge(
                     let mut new_card = (*card_by_name).clone();
                     new_card.id = card_id;
                     new_cards.push(new_card);
-                } else if ["FIN", "EOE"].contains(&set.as_str()) {
+                } else if ["FIN", "EOE", "OM1"].contains(&set.as_str()) {
                     // Card not found in existing data, search Scryfall
                     info!("Card '{}' not found in Scryfall data, searching...", card_name);
                     if let Ok(Some(found_card)) = search_card_by_name(scryfall_host, card_name).await {
