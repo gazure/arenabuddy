@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use crate::{
     app::{
         Route,
-        components::{AsyncState, DeckList, MatchInfo, MulliganDisplay},
+        components::{DeckList, MatchInfo, MulliganDisplay},
     },
     backend::Service,
 };
@@ -11,67 +11,26 @@ use crate::{
 #[component]
 pub(crate) fn MatchDetails(id: String) -> Element {
     let service = use_context::<Service>();
-    let state = use_signal(|| AsyncState::Loading);
 
-    let mut load_data = {
+    let match_details = use_resource({
         let service = service.clone();
-        let mut state = state;
         let id = id.clone();
         move || {
-            state.set(AsyncState::Loading);
             let service = service.clone();
-            let id_clone = id.clone();
-            spawn(async move {
-                match service.get_match_details(id_clone.clone()).await {
-                    Ok(details) => state.set(AsyncState::Success(details)),
-                    Err(e) => state.set(AsyncState::Error(format!(
-                        "Could not find match details for ID: {id_clone}: {e}"
-                    ))),
-                }
-            });
+            let id = id.clone();
+            async move { service.get_match_details(id).await }
         }
-    };
-
-    let refresh_load = {
-        let service = service.clone();
-        let mut state = state;
-        let id = id.clone();
-        move |_| {
-            state.set(AsyncState::Loading);
-            let service = service.clone();
-            let id_clone = id.clone();
-            spawn(async move {
-                match service.get_match_details(id_clone.clone()).await {
-                    Ok(details) => state.set(AsyncState::Success(details)),
-                    Err(e) => state.set(AsyncState::Error(format!(
-                        "Could not find match details for ID: {id_clone}: {e}"
-                    ))),
-                }
-            });
-        }
-    };
-
-    use_effect(move || {
-        load_data();
     });
 
-    let deck_display = move || {
-        state
-            .read()
-            .details()
-            .and_then(|details| details.primary_decklist.as_ref())
-            .cloned()
-            .unwrap_or_default()
+    let mut match_details_clone = match_details.clone();
+    let refresh = move |_| {
+        match_details_clone.restart();
     };
 
-    let opponent_deck_display = move || {
-        state
-            .read()
-            .details()
-            .and_then(|details| details.opponent_deck.as_ref())
-            .cloned()
-            .unwrap_or_default()
-    };
+    // Read the resource value once to avoid multiple borrows
+    let resource_value = match_details.value();
+    let data = resource_value.read();
+
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-8xl",
             div { class: "mb-4",
@@ -98,11 +57,11 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                 div { class: "flex justify-between items-center",
                     h1 { class: "text-3xl font-bold", "Match Details" }
                     button {
-                        onclick: refresh_load,
+                        onclick: refresh,
                         class: "bg-black bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center",
-                        disabled: state.read().is_loading(),
+                        disabled: data.is_none(),
                         span { class: "mr-2",
-                            if state.read().is_loading() { "Loading..." } else { "Refresh" }
+                            if data.is_none() { "Loading..." } else { "Refresh" }
                         }
                         svg {
                             xmlns: "http://www.w3.org/2000/svg",
@@ -125,8 +84,8 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                 }
             }
 
-            match state.read().clone() {
-                AsyncState::Loading => rsx! {
+            match &*data {
+                None => rsx! {
                     div { class: "bg-white rounded-lg shadow-md p-8 text-center",
                         div { class: "animate-pulse flex flex-col items-center",
                             div { class: "w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" }
@@ -135,26 +94,38 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                     }
                 },
 
-                AsyncState::Error(err) => rsx! {
+                Some(Err(err)) => rsx! {
                     div { class: "bg-white rounded-lg shadow-md p-8",
                         div {
                             class: "bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded",
                             role: "alert",
                             p { class: "font-bold", "Error" }
-                            p { "{err}" }
+                            p { "Could not find match details for ID: {id}: {err}" }
                         }
                     }
                 },
 
-                AsyncState::Success(details) => rsx! {
+                Some(Ok(details)) => rsx! {
                     MatchInfo {
                         controller_player_name: details.controller_player_name.clone(),
                         opponent_player_name: details.opponent_player_name.clone(),
                         did_controller_win: details.did_controller_win
                     }
 
-                    DeckList {title: "Your deck", deck: deck_display() }
-                    DeckList {title: "Opponent's cards", deck: opponent_deck_display() , show_quantities: false}
+                    if let Some(ref deck) = details.primary_decklist {
+                        DeckList {
+                            title: "Your deck",
+                            deck: deck.clone()
+                        }
+                    }
+
+                    if let Some(ref opponent_deck) = details.opponent_deck {
+                        DeckList {
+                            title: "Opponent's cards",
+                            deck: opponent_deck.clone(),
+                            show_quantities: false
+                        }
+                    }
 
                     div { class: "mt-8 col-span-full",
                         MulliganDisplay { mulligans: details.mulligans.clone() }
