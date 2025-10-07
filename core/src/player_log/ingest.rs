@@ -171,7 +171,7 @@ impl LogIngestionService {
             ParseOutput::BusinessMessage(event) => {
                 self.emit_event(IngestionEvent::Business(Box::new(event.request.clone())))
                     .await;
-                self.draft_builder.process_business_event(&event.request).await?;
+                self.draft_builder.process_event(&event.request).await?;
             }
             _ => {}
         }

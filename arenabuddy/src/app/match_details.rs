@@ -12,7 +12,7 @@ use crate::{
 pub(crate) fn MatchDetails(id: String) -> Element {
     let service = use_context::<Service>();
 
-    let match_details = use_resource({
+    let mut match_details = use_resource({
         let service = service.clone();
         let id = id.clone();
         move || {
@@ -22,12 +22,10 @@ pub(crate) fn MatchDetails(id: String) -> Element {
         }
     });
 
-    let mut match_details_clone = match_details.clone();
     let refresh = move |_| {
-        match_details_clone.restart();
+        match_details.restart();
     };
 
-    // Read the resource value once to avoid multiple borrows
     let resource_value = match_details.value();
     let data = resource_value.read();
 

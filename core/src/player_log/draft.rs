@@ -1,6 +1,5 @@
 #![expect(clippy::similar_names)]
-use std::collections::BTreeMap;
-
+use multimap::MultiMap;
 use uuid::Uuid;
 
 use crate::{
@@ -25,7 +24,7 @@ struct PackPick(u8, u8);
 pub struct DraftBuilder {
     draft_id: Option<Uuid>,
     event_id: Option<String>,
-    packs: BTreeMap<PackPick, Vec<RawPack>>,
+    packs: MultiMap<PackPick, RawPack>,
 
     writers: Vec<Box<dyn DraftWriter>>,
 }
@@ -35,13 +34,18 @@ impl DraftBuilder {
         Self::default()
     }
 
+    /// Add a writer to the draft builder
+    pub fn add_writer(&mut self, writer: Box<dyn DraftWriter>) {
+        self.writers.push(writer);
+    }
+
     /// Consumes a business event and extracts relevant draft information
     /// If a draft is finished (i.e. after pack3-pick13) results will be written to any
     /// configured writers
     ///
     /// # Errors
     /// errors if there is an issue writing the draft results to storage
-    pub async fn process_business_event(&mut self, event: &BusinessEvent) -> Result<()> {
+    pub async fn process_event(&mut self, event: &BusinessEvent) -> Result<()> {
         if let BusinessEvent::Draft(e) = event {
             tracingx::debug!("Processing draft event: {e:?}");
             let format = parse_event_id(&e.event_id).0;
@@ -78,7 +82,7 @@ impl DraftBuilder {
             let draft = Draft::new(draft_id, set_code, format, String::new());
             let packs: Vec<_> = self
                 .packs
-                .values()
+                .vec_values()
                 .flat_map(|pp| {
                     pp.iter().enumerate().map(|(selection_num, pack)| {
                         DraftPack::new(
@@ -109,10 +113,6 @@ impl DraftBuilder {
         Err(Error::Io("can't locate draft_id or event_id".to_string()))
     }
 
-    pub fn add_writer(&mut self, writer: Box<dyn DraftWriter>) {
-        self.writers.push(writer);
-    }
-
     fn reset(&mut self) {
         self.packs.clear();
         self.draft_id = None;
@@ -121,8 +121,8 @@ impl DraftBuilder {
 
     fn finish_draft(&self, format: Format) -> bool {
         match format {
-            Format::PickTwoDraft => self.packs.get(&PackPick(3, 7)).is_some_and(|ps| ps.len() == 2),
-            _ => self.packs.get(&PackPick(3, 13)).is_some_and(|ps| !ps.is_empty()),
+            Format::PickTwoDraft => self.packs.get_all(&PackPick(3, 7)).is_some_and(|ps| ps.len() == 2),
+            _ => self.packs.get_all(&PackPick(3, 13)).is_some_and(|ps| !ps.is_empty()),
         }
     }
 }
