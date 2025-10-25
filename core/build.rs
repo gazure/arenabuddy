@@ -8,7 +8,7 @@ fn main() -> Result<()> {
     // Tell Cargo to rerun this script if any .proto files change
     println!("cargo:rerun-if-changed=protos/");
 
-    let proto_dir = "protos";
+    let proto_dir = "proto";
     let proto_files = find_proto_files(proto_dir)?;
 
     if proto_files.is_empty() {
@@ -20,12 +20,10 @@ fn main() -> Result<()> {
     let proto_paths: Vec<&str> = proto_files.iter().filter_map(|p| p.to_str()).collect();
 
     // Compile the proto files with prost-build
-    let mut config = prost_build::Config::new();
-    config.btree_map(["."]);
-    config.format(true);
-
-    // Compile the protos
-    config.compile_protos(&proto_paths, &[proto_dir])?;
+    prost_build::Config::new()
+        .btree_map(["."])
+        .format(true)
+        .compile_protos(&proto_paths, &[proto_dir])?;
 
     Ok(())
 }
