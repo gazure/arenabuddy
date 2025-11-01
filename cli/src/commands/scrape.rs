@@ -1,8 +1,7 @@
 use std::{collections::HashMap, path::Path, thread::sleep, time::Duration};
 
 use arenabuddy_core::models::{Card, CardCollection};
-use reqwest::Url;
-use tracingx::{debug, info, warn};
+use tracingx::{debug, info};
 
 use crate::{Error, Result, errors::ParseError};
 
@@ -34,9 +33,7 @@ pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output: &P
 
     debug!("Filtered to {} cards with Arena IDs", cards_array.len());
 
-    let collection = CardCollection {
-        cards: merge(cards, &seventeen_lands_data, extra_sets, scryfall_host).await?,
-    };
+    let collection = merge(cards, &seventeen_lands_data, &extra_sets);
 
     info!("Scraping completed successfully");
 
@@ -52,7 +49,7 @@ async fn scrape_sets(
     let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
     let mut ret: HashMap<String, HashMap<String, serde_json::Value>> = HashMap::new();
 
-    for set in extra_sets.to_owned() {
+    for set in extra_sets.iter().copied() {
         ret.insert(set.to_owned(), extract_set(base_url, &client, set).await?);
     }
     for (set_name, set_cards) in &ret {
@@ -177,46 +174,12 @@ async fn save_card_collection_to_file(cards: &CardCollection, output_path: impl 
     Ok(())
 }
 
-/// Search for a card by name using Scryfall API with basic rate limiting
-async fn search_card_by_name(base_url: &str, card_name: &str) -> Result<Option<Card>> {
-    let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
-
-    tokio::time::sleep(Duration::from_millis(150)).await;
-
-    let url = Url::parse_with_params(&format!("{base_url}/cards/search"), &[("q", card_name)])
-        .map_err(|e| Error::Url(e.to_string()))?;
-
-    debug!("Searching for card: {} at: {}", card_name, url);
-
-    let response = client.get(url).send().await?;
-
-    if response.status() == 404 {
-        warn!("Card not found: {}", card_name);
-        return Ok(None);
-    }
-
-    response.error_for_status_ref()?;
-    let data: serde_json::Value = response.json().await?;
-
-    // Get the first card from search results
-    if let Some(first_card) = data
-        .get("data")
-        .and_then(|d| d.as_array())
-        .and_then(|cards| cards.first())
-    {
-        return Ok(Some(Card::from_json(first_card)));
-    }
-
-    Ok(None)
-}
-
 /// Merge Arena cards with 17Lands data
-async fn merge(
+fn merge(
     mut arena_cards: Vec<Card>,
     seventeen_lands_cards: &Vec<HashMap<String, String>>,
-    extra_sets: HashMap<String, HashMap<String, serde_json::Value>>,
-    scryfall_host: &str,
-) -> Result<Vec<Card>> {
+    extra_sets: &HashMap<String, HashMap<String, serde_json::Value>>,
+) -> CardCollection {
     let cards_by_name: HashMap<String, &Card> = arena_cards.iter().map(|c| (c.name.clone(), c)).collect();
 
     let cards_by_id: HashMap<i64, &Card> = arena_cards.iter().map(|c| (c.id, c)).collect();
@@ -266,15 +229,6 @@ async fn merge(
                             "Found and added card in extra set data [card_name='{}' arena_id={}]",
                             card_name, card_id
                         );
-                    } else if let Ok(Some(mut new_card)) = search_card_by_name(scryfall_host, card_name).await {
-                        new_card.id = card_id;
-                        new_cards.push(new_card);
-                        debug!(
-                            "Found and added card from scryfall search [card_name='{}'  arena_id={}]",
-                            card_name, card_id
-                        );
-                    } else {
-                        warn!("Could not find card '{}' via Scryfall search", card_name);
                     }
                 } else {
                     debug!("Opting to not search for {}", card_name);
@@ -285,6 +239,5 @@ async fn merge(
 
     arena_cards.extend(new_cards);
     debug!("Merged arena cards with 17Lands data");
-
-    Ok(arena_cards)
+    CardCollection { cards: arena_cards }
 }
