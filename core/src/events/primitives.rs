@@ -326,6 +326,8 @@ pub enum AnnotationType {
     TextChange,
     #[serde(rename = "AnnotationType_ModifiedCost")]
     ModifiedCost,
+    #[serde(rename = "AnnotationType_ReferencedObjects")]
+    ReferencedObjects,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]

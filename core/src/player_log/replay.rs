@@ -94,7 +94,7 @@ impl MatchReplay {
                 game_object.owner_seat_id != self.controller_seat_id
                     && matches!(game_object.type_field, GameObjectType::Card | GameObjectType::MDFCBack)
             })
-            .map(|game_object| game_object.grp_id)
+            .filter_map(|game_object| game_object.grp_id)
             .collect()
     }
 
@@ -223,7 +223,7 @@ impl MatchReplay {
                                 };
                                 zone_id == controller_hand_zone_id && go.type_field == GameObjectType::Card
                             })
-                            .map(|go| go.grp_id)
+                            .filter_map(|go| go.grp_id)
                             .collect();
 
                         opening_hands.push((game_number, game_objects_in_hand));

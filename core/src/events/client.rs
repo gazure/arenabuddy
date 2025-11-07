@@ -534,4 +534,6 @@ pub enum ActionType {
     CastLeft,
     #[serde(rename = "ActionType_CastOmen")]
     CastOmen,
+    #[serde(rename = "ActionType_Spell_Payment")]
+    SpellPayment,
 }
