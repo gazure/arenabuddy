@@ -40,6 +40,7 @@ type PinnedFuture = std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Sen
 /// Helper function to handle ingestion events
 fn handle_ingestion_event(event: IngestionEvent, log_collector: Arc<Mutex<Vec<String>>>) -> PinnedFuture {
     Box::pin(async move {
+        tracingx::debug!("{event}");
         if let IngestionEvent::ParseError(error) = event {
             let mut collector = log_collector.lock().await;
             collector.push(error);

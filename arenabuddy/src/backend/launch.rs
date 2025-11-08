@@ -132,7 +132,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
         let (console_layer, server) = console_subscriber::ConsoleLayer::builder().with_default_env().build();
         tokio::spawn(async { server.serve().await });
         registry
-            .with(console_layer.with_filter(EnvFilter::new("tokio=trace,runtime=trace")))
+            .with(console_layer.with_filter(EnvFilter::new("tokio=warn,runtime=warn,console_subscriber=warn")))
             .init();
     }
     #[cfg(not(feature = "debug"))]

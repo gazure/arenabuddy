@@ -1,4 +1,5 @@
 use std::{
+    fmt::Display,
     path::{Path, PathBuf},
     sync::Arc,
     time::Duration,
@@ -89,6 +90,18 @@ pub enum IngestionEvent {
     ParseError(String),
     /// The log file was rotated
     LogRotated,
+}
+
+impl Display for IngestionEvent {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            IngestionEvent::DraftNotify(draft) => write!(f, "DraftNotify: {draft:?}"),
+            IngestionEvent::Business(business) => write!(f, "Business: {business:?}"),
+            IngestionEvent::MatchCompleted(match_replay) => write!(f, "MatchCompleted: {match_replay:?}"),
+            IngestionEvent::ParseError(error) => write!(f, "ParseError: {error}"),
+            IngestionEvent::LogRotated => write!(f, "LogRotated"),
+        }
+    }
 }
 
 /// Callback for handling ingestion events
