@@ -46,6 +46,9 @@ pub enum Error {
 
     #[error("Invalid command: {0}")]
     InvalidCommand(String),
+
+    #[error("{0}")]
+    Unknown(#[from] anyhow::Error),
 }
 
 pub type Result<T, E = Error> = core::result::Result<T, E>;

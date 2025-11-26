@@ -10,6 +10,7 @@ repository.workspace = true
 version.workspace = true
 
 [dependencies]
+anyhow = { workspace = true }
 arenabuddy_core = { path = "../core" }
 arenabuddy_data = { path = "../data" }
 clap = { workspace = true }

@@ -13,17 +13,18 @@ license.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [build-dependencies]
-prost-build = { workspace = true , features = ["format"]}
+prost-build = { workspace = true, features = ["format"] }
 
 [dependencies]
 async-trait = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 ctrlc = { workspace = true }
 derive_builder = { workspace = true }
+google-sheets4 = { workspace = true }
 indoc = { workspace = true }
 itertools = { workspace = true }
 multimap = { path = "../../lib/multimap" }
-notify = { workspace = true}
+notify = { workspace = true }
 prost = { workspace = true }
 prost-types = { workspace = true }
 regex = { workspace = true }
@@ -31,7 +32,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-tracingx = { path = "../../lib/tracingx"}
+tracingx = { path = "../../lib/tracingx" }
 uuid = { workspace = true }
 
 [features]

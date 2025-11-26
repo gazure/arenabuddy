@@ -45,10 +45,18 @@ pub enum Error {
     Parse(#[from] ParseError),
     #[error("Storage error: {0}")]
     StorageError(String),
+    #[error("Sheets error: {0}")]
+    GoogleSheetsError(String),
 }
 
 impl From<std::io::Error> for Error {
     fn from(_: std::io::Error) -> Self {
         Error::DatabaseNotFound
+    }
+}
+
+impl From<google_sheets4::Error> for Error {
+    fn from(value: google_sheets4::Error) -> Self {
+        Error::GoogleSheetsError(value.to_string())
     }
 }
