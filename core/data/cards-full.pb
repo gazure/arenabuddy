@@ -947,7 +947,7 @@ Naturalize"en*^https://cards.scryfall.io/normal/front/0/c/0c187d05-0df4-48b6-8e
 °Ÿ¬otjUnfortunate Accident"en*^https://cards.scryfall.io/normal/front/0/c/0c5a25d9-926e-4004-8830-2b2bf7bc0775.jpg?17128606152{B}8BInstantJnormalRBZB
 ≤‡œklrLifecraft Cavalry"en*^https://cards.scryfall.io/normal/front/0/c/0c60beae-9305-486a-8e39-3db76d96bc6a.jpg?16053287672{4}{G}8BCreature ‚Äî Elf WarriorJnormalRGZG
 ∏◊∑mkmIncinerator of the Guilty"en*^https://cards.scryfall.io/normal/front/0/c/0c6aca64-a554-45c1-9f23-4f7878abeda5.jpg?17087417292	{4}{R}{R}8BCreature ‚Äî DragonJnormalRRZR
-∞¯‚pioBrood Monitor"en*^https://cards.scryfall.io/normal/front/0/c/0c6de7f2-fcc2-4a08-b49c-b50bb195a252.jpg?17331798072	{4}{G}{G}8BCreature ‚Äî Eldrazi DroneJnormalZG
+∞¯‚pioBrood Monitor"en*^https://cards.scryfall.io/normal/front/0/c/0c6de7f2-fcc2-4a08-b49c-b50bb195a252.jpg?17645092862	{4}{G}{G}8BCreature ‚Äî Eldrazi DroneJnormalZG
 ≠¸úneoA-Akki Ronin"en*^https://cards.scryfall.io/normal/front/0/c/0c780e37-91b1-4fe1-85c9-7007d91209d5.jpg?16811582512{R}8BCreature ‚Äî Goblin SamuraiJnormalRRZR
 ±ª§eldMistford River Turtle"en*^https://cards.scryfall.io/normal/front/0/c/0c78c386-c64b-4fab-a718-f18b46360e20.jpg?15724899442{3}{U}8BCreature ‚Äî TurtleJnormalRUZU
 óµ‹afrTemple of the Dragon Queen"en*^https://cards.scryfall.io/normal/front/0/c/0c79b3c6-ccbe-48ae-a1f7-ddfd37ecdbf5.jpg?1627710370BLandJnormal
@@ -1316,7 +1316,7 @@ Bulwark Ox"en*^https://cards.scryfall.io/normal/front/1/0/106944b2-f3ae-4350-be
 ®˜üwarPlanewide Celebration"en*^https://cards.scryfall.io/normal/front/1/1/11016840-56b6-4759-bde6-3dc0e339e87e.jpg?15575769792	{5}{G}{G}8BSorceryJnormalRGZG
 § ‹fdnBlasphemous Edict"en*^https://cards.scryfall.io/normal/front/1/1/11040ecd-3153-4029-b42b-1441bc51ec34.jpg?17304887982	{3}{B}{B}8BSorceryJnormalRBZB
 ïë◊stxSwamp"en*^https://cards.scryfall.io/normal/front/1/1/11093e3f-092e-49d9-aef9-b9855b040bf2.jpg?1627837106BBasic Land ‚Äî SwampJnormalZB
-ªá¿ywoeTalion's Throneguard"en*^https://cards.scryfall.io/normal/front/1/1/1109fa53-1d2f-4e60-a91e-aa0e91c5c048.jpg?17315749952	{2}{U}{U}8BCreature ‚Äî Faerie WizardJnormalRUZU
+ªá¿ywoeTalion's Throneguard"en*^https://cards.scryfall.io/normal/front/1/1/1109fa53-1d2f-4e60-a91e-aa0e91c5c048.jpg?17641055082	{2}{U}{U}8BCreature ‚Äî Faerie WizardJnormalRUZU
 ¥õƒspgStoneforge Mystic"en*^https://cards.scryfall.io/normal/front/1/1/11130547-391b-4fe7-8821-ef9514f6073f.jpg?17141686212{1}{W}8BCreature ‚Äî Kor ArtificerJnormalRWZW
 ¥ƒŒklrAviary Mechanic"en*^https://cards.scryfall.io/normal/front/1/1/1113ad5c-4a63-4f88-94cd-459b815d976b.jpg?16053264512{1}{W}8BCreature ‚Äî Dwarf ArtificerJnormalRWZW
 ≤≠ºznrMerfolk Windrobber"en*^https://cards.scryfall.io/normal/front/1/1/112077b8-1514-4320-a70f-b23f3c7ce18a.jpg?16041945202{U}8BCreature ‚Äî Merfolk RogueJnormalRUZU
@@ -2556,7 +2556,6 @@ BCreature ‚Äî Eldrazi BoarJnormalZG
 Ã€¡akrNeheb, the Eternal"en*^https://cards.scryfall.io/normal/front/2/4/246239f2-dfa4-4a2a-8252-baf6ed8b87ad.jpg?15972504822	{3}{R}{R}8B.Legendary Creature ‚Äî Zombie Minotaur WarriorJnormalRRZR
 ÆÚ˙hbgGnoll Hunting Party"en*^https://cards.scryfall.io/normal/front/2/4/2467fb90-f812-47f7-a3cb-a215aa39c133.jpg?16809601382{5}{R}8BCreature ‚Äî GnollJnormalRRZR
 ØóúrnaLumbering Battlement"en*^https://cards.scryfall.io/normal/front/2/4/2469bc93-57ca-4077-bda2-160b4160adad.jpg?15848299422{4}{W}8BCreature ‚Äî BeastJnormalRWZW
-®Ä•eldA-Fires of Invention"en*^https://cards.scryfall.io/normal/front/2/4/24729f25-e900-4a71-a304-7346eb17990a.jpg?16811588082{4}{R}8BEnchantmentJnormalRRZR
 †ÔƒotpBedevil"en*^https://cards.scryfall.io/normal/front/2/4/2473bb43-4de4-402a-884b-42fd9fcadd7d.jpg?17123535422	{B}{B}{R}8BInstantJnormalRBRRZBZR
 ¡”ÛsncFleetfoot Dancer"en*^https://cards.scryfall.io/normal/front/2/4/2473d738-fe15-402a-ad24-0d6e5c4dfda3.jpg?16644130542{1}{R}{G}{W}8BCreature ‚Äî Elf DruidJnormalRGRRRWZGZRZW
 ≥ÅneoPeerless Samurai"en*^https://cards.scryfall.io/normal/front/2/4/247c362c-bf21-4bca-89d4-54eb60806f10.jpg?16545693242{2}{R}8BCreature ‚Äî Human SamuraiJnormalRRZR
@@ -3681,7 +3680,7 @@ Rabid Bite"en*^https://cards.scryfall.io/normal/front/3/3/3314a7b2-8150-4dd9-84
 ßÍßthbWoe Strider"en*^https://cards.scryfall.io/normal/front/3/4/3457b558-b35b-49fd-b499-b1ec755f86ce.jpg?15814800442{2}{B}8BCreature ‚Äî HorrorJnormalRBZB
 §‚⁄j25Savannah Lions"en*^https://cards.scryfall.io/normal/front/3/4/345920d9-b842-42a3-996f-457e737baab2.jpg?17304866052{W}8BCreature ‚Äî CatJnormalRWZW
 ¢≥ÖbroBitter Reunion"en*^https://cards.scryfall.io/normal/front/3/4/345a1c80-41d6-43b1-83ab-1aa56dd06b1b.jpg?16744210822{1}{R}8BEnchantmentJnormalRRZR
-ƒ»•eldOko, Thief of Crowns"en*^https://cards.scryfall.io/normal/front/3/4/3462a3d0-5552-49fa-9eb7-100960c55891.jpg?16505996982	{1}{G}{U}8BLegendary Planeswalker ‚Äî OkoJnormalRGRUZGZU
+ƒ»•eldOko, Thief of Crowns"en*^https://cards.scryfall.io/normal/front/3/4/3462a3d0-5552-49fa-9eb7-100960c55891.jpg?17634728712	{1}{G}{U}8BLegendary Planeswalker ‚Äî OkoJnormalRGRUZGZU
 ¢ÊŒklrCeremonious Rejection"en*^https://cards.scryfall.io/normal/front/3/4/3469b492-8907-49cd-8cde-b2ba6a26c422.jpg?16053269502{U}8BInstantJnormalRUZU
 úçdomSoul Salvage"en*^https://cards.scryfall.io/normal/front/3/4/347060c0-fef7-45da-b42e-8e11051b2c69.jpg?15627338602{2}{B}8BSorceryJnormalRBZB
 •Î§eldRevenge of Ravens"en*^https://cards.scryfall.io/normal/front/3/4/3474289a-193e-452d-b248-e53ee99e22c0.jpg?15724902352{3}{B}8BEnchantmentJnormalRBZB
@@ -3741,7 +3740,6 @@ Cacophodon"en*^https://cards.scryfall.io/normal/front/3/5/351b213e-b23e-4287-94
 ñ¯›staNegate"ja*^https://cards.scryfall.io/normal/front/3/5/35308c10-f8e9-4c35-a680-a3dfe16ac63a.jpg?16381120902{1}{U}8BInstantJnormalRUZU
 †≈¥jmpAgonizing Syphon"en*^https://cards.scryfall.io/normal/front/3/5/3532a279-b8e1-4124-bcd7-d7f4c71673eb.jpg?16007142062{3}{B}8BSorceryJnormalRBZB
 Æ∫•eldWildwood Tracker"en*^https://cards.scryfall.io/normal/front/3/5/3538eba1-475a-4388-8a72-55ab7cd1027e.jpg?15724907092{G}8BCreature ‚Äî Elf WarriorJnormalRGZG
-∏∞åmidA-The Meathook Massacre"en*^https://cards.scryfall.io/normal/front/3/5/353c37d7-1c20-43fe-b9d9-6336856c9ef4.jpg?16811594532	{X}{B}{B}8BLegendary EnchantmentJnormalRBZB
 ªØﬁha5Whirler Rogue"en*^https://cards.scryfall.io/normal/front/3/5/3547e067-97a9-4500-8a0b-3b0321cf2846.jpg?16233717022	{2}{U}{U}8B"Creature ‚Äî Human Rogue ArtificerJnormalRUZU
 ß–ñltrFall of Cair Andros"en*^https://cards.scryfall.io/normal/front/3/5/354b4623-50a0-41f1-ad1e-7dd6ac3852df.jpg?16869689032{2}{R}8BEnchantmentJnormalRRZR
 Ω…≤m21Watcher of the Spheres"en*^https://cards.scryfall.io/normal/front/3/5/354b9ea4-3d55-48cc-b426-c46b1d1bb397.jpg?15947374622{W}{U}8BCreature ‚Äî Bird WizardJnormalRURWZUZW
@@ -3989,7 +3987,7 @@ Bard Class"en*^https://cards.scryfall.io/normal/front/3/7/37d6343a-c514-4ca6-a4
 ´ÿ¥jmpChild of Night"en*^https://cards.scryfall.io/normal/front/3/8/3887af00-a87d-4396-b82b-38b88c084e8e.jpg?16006998712{1}{B}8BCreature ‚Äî VampireJnormalRBZB
 ô¶≤m21Life Goes On"en*^https://cards.scryfall.io/normal/front/3/8/3888197f-5da4-4413-9cad-b37a12ba1e60.jpg?15947370842{G}8BInstantJnormalRGZG
 ±â’stxStonerise Spirit"en*^https://cards.scryfall.io/normal/front/3/8/388f2e45-570f-4a35-b205-37e1345b5d06.jpg?16245898382{1}{W}8BCreature ‚Äî Spirit BirdJnormalRWZW
-©û khmBattlefield Raptor"en*^https://cards.scryfall.io/normal/front/3/8/389f0045-218d-41cd-bdca-8a9a0ab1b31b.jpg?16310454842{W}8BCreature ‚Äî BirdJnormalRWZW
+©û khmBattlefield Raptor"en*^https://cards.scryfall.io/normal/front/3/8/389f0045-218d-41cd-bdca-8a9a0ab1b31b.jpg?17628120482{W}8BCreature ‚Äî BirdJnormalRWZW
 ∞∫œdskSheltered by Ghosts"en*^https://cards.scryfall.io/normal/front/3/8/389f3f7b-be40-4a2d-b5cc-28471a577981.jpg?17262859712{1}{W}8BEnchantment ‚Äî AuraJnormalRWZW
 •Á•eldRoving Keep"en*^https://cards.scryfall.io/normal/front/3/8/38a0136e-a637-4a12-a38f-35f772b290a9.jpg?15924856582{7}8BArtifact Creature ‚Äî WallJnormal
 •˚Îj21Myr Enforcer"en*^https://cards.scryfall.io/normal/front/3/8/38a45c99-e258-434c-aa42-a09f6debffe2.jpg?16302524152{7}8BArtifact Creature ‚Äî MyrJnormal
@@ -4962,7 +4960,7 @@ Anticipate"en*^https://cards.scryfall.io/normal/front/4/6/46b6dfb2-ffe4-44fb-bf
 ™ì—dskDrag to the Roots"en*^https://cards.scryfall.io/normal/front/4/6/46f46095-6479-46b0-9e59-194d83f86a46.jpg?17262866612	{2}{B}{G}8BInstantJnormalRBRGZBZG
 ÕßòmulFirja, Judge of Valor"en*^https://cards.scryfall.io/normal/front/4/6/46f485c6-a2b2-4da3-8804-b2b816eba344.jpg?16827204882{2}{W}{B}{B}8B#Legendary Creature ‚Äî Angel ClericJnormalRBRWZBZW
 æÆÔneoBlade of the Oni"en*^https://cards.scryfall.io/normal/front/4/6/46f5c2f4-1690-4392-80d6-d99148bc8b13.jpg?16545699382{1}{B}8B%Artifact Creature ‚Äî Equipment DemonJnormalRBZB
-´òåznrA-Gnarlid Colony"en*^https://cards.scryfall.io/normal/front/4/6/46f644a6-9621-429e-a0a0-4c74d0ecff2e.jpg?17323707762{1}{G}8BCreature ‚Äî BeastJnormalRGZG
+´òåznrA-Gnarlid Colony"en*^https://cards.scryfall.io/normal/front/4/6/46f644a6-9621-429e-a0a0-4c74d0ecff2e.jpg?17634332442{1}{G}8BCreature ‚Äî BeastJnormalRGZG
 ¥ï®thbThe Binding of the Titans"en*^https://cards.scryfall.io/normal/front/4/6/46fb94ad-f9be-48b4-b65a-4e736e5ffdbb.jpg?15814805562{1}{G}8BEnchantment ‚Äî SagaJsagaRGZG
 ´º≤m21Wildwood Scourge"en*^https://cards.scryfall.io/normal/front/4/6/46ff0b33-d153-4b0e-ac48-7e5ed70dea09.jpg?15947373292{X}{G}8BCreature ‚Äî HydraJnormalRGZG
 ∫≠—dskSmoky Lounge // Misty Salon"en*^https://cards.scryfall.io/normal/front/4/7/4700987d-fc55-44eb-bc9f-0e0316ca65e2.jpg?17267807662{2}{R} // {3}{U}8B,Enchantment ‚Äî Room // Enchantment ‚Äî RoomJsplitRRRUZRZUb,
@@ -5085,7 +5083,7 @@ Iron Golem"en*^https://cards.scryfall.io/normal/front/4/7/47852cc6-a6de-4aed-96
 •ü®wotOversold Cemetery"en*^https://cards.scryfall.io/normal/front/4/8/48a6cfd3-20bb-431b-b3f5-bb32a26e5002.jpg?16929325162{1}{B}8BEnchantmentJnormalRBZB
 ØÈúrnaDagger Caster"en*^https://cards.scryfall.io/normal/front/4/8/48a7ac34-ec4a-4571-abb1-bff1fb67c78f.jpg?15848308372{3}{R}8BCreature ‚Äî Lizard RogueJnormalRRZR
 ∞éÇdmuMeria's Outrider"en*^https://cards.scryfall.io/normal/front/4/8/48aa964f-99b5-4b6b-b158-42f39514c910.jpg?16733074572{4}{R}8BCreature ‚Äî Elf ArcherJnormalRRZR
-ÆöÃblbHeartfire Hero"en*^https://cards.scryfall.io/normal/front/4/8/48ace959-66b2-40c8-9bff-fd7ed9c99a82.jpg?17520913392{R}8BCreature ‚Äî Mouse SoldierJnormalRRZR
+ÆöÃblbHeartfire Hero"en*^https://cards.scryfall.io/normal/front/4/8/48ace959-66b2-40c8-9bff-fd7ed9c99a82.jpg?17628832832{R}8BCreature ‚Äî Mouse SoldierJnormalRRZR
 ¥ì¥jmpDeparted Deckhand"en*^https://cards.scryfall.io/normal/front/4/8/48b3c3e3-151f-4f16-bb40-167978180bbc.jpg?16007248992{1}{U}8BCreature ‚Äî Spirit PirateJnormalRUZU
 Ø£«znrFearless Fledgling"en*^https://cards.scryfall.io/normal/front/4/8/48b8024d-a300-43cb-9dde-6b4cb1fa19f7.jpg?16042023152{1}{W}8BCreature ‚Äî GriffinJnormalRWZW
 ùˆ∂mkm
@@ -7157,7 +7155,7 @@ Chaos Wand"en*^https://cards.scryfall.io/normal/front/6/2/62ff0730-6dd9-42d2-be
 ±ÈªznrEmeria Captain"en*^https://cards.scryfall.io/normal/front/6/4/6490370e-fff5-4f17-b715-74ff8df5bc7c.jpg?16041956422{3}{W}8BCreature ‚Äî Angel WarriorJnormalRWZW
 ®∑°sirEmber-Eye Wolf"en*^https://cards.scryfall.io/normal/front/6/4/6492ed4a-e099-49dc-8510-4f5dde1e7ccc.jpg?16789451082{1}{R}8BCreature ‚Äî WolfJnormalRRZR
 òÇdmuRelic of Legends"en*^https://cards.scryfall.io/normal/front/6/4/64a2809e-c441-416c-90ff-6fb1e246dff3.jpg?16733082192{3}8BArtifactJnormal
-∂úÍtdmUgin, Eye of the Storms"en*^https://cards.scryfall.io/normal/front/6/4/64a5d494-efa1-446b-bebe-2ad36e154376.jpg?17441029462{7}8BLegendary Planeswalker ‚Äî UginJnormal
+∂úÍtdmUgin, Eye of the Storms"en*^https://cards.scryfall.io/normal/front/6/4/64a5d494-efa1-446b-bebe-2ad36e154376.jpg?17617701622{7}8BLegendary Planeswalker ‚Äî UginJnormal
 ≠—∆ktkArchers' Parapet"en*^https://cards.scryfall.io/normal/front/6/4/64ac0667-8ecc-4034-89bb-dce0af531014.jpg?15627877072{1}{G}8BCreature ‚Äî WallJnormalRGZBZG
 ØÍ´ikoCavern Whisperer"en*^https://cards.scryfall.io/normal/front/6/4/64ae7651-4a5c-41f3-b528-41b9b0f2e5d8.jpg?15912266632{4}{B}8BCreature ‚Äî NightmareJmutateRBZB
 πã¬akrRhonas the Indomitable"en*^https://cards.scryfall.io/normal/front/6/4/64b785af-44fb-41db-a00e-539a65f01af6.jpg?15970779972{2}{G}8BLegendary Creature ‚Äî GodJnormalRGZG
@@ -8444,7 +8442,7 @@ Root Snare"en*^https://cards.scryfall.io/normal/front/7/6/76b01fd2-139a-47ed-a8
 Hideous FleshwheelerCreature ‚Äî Phyrexian Rat"]https://cards.scryfall.io/normal/back/7/6/76b5e289-6bc4-48ee-8d5b-6989bab9f901.jpg?1682203898*B*W
 ßêÇdmuPhoenix Chick"en*^https://cards.scryfall.io/normal/front/7/6/76bdc912-61da-428d-b0d7-3a38676a402a.jpg?16733074722{R}8BCreature ‚Äî PhoenixJnormalRRZR
 ±·ÏneoSelfless Samurai"en*^https://cards.scryfall.io/normal/front/7/6/76c27ec5-5a9b-4080-9a53-00630335a915.jpg?16545664922{1}{W}8BCreature ‚Äî Fox SamuraiJnormalRWZW
-≠˛≈mh3Guide of Souls"en*^https://cards.scryfall.io/normal/front/7/6/76c3cad2-1e25-4abe-878d-9194de6fcc27.jpg?17493019772{W}8BCreature ‚Äî Human ClericJnormalRWZW
+≠˛≈mh3Guide of Souls"en*^https://cards.scryfall.io/normal/front/7/6/76c3cad2-1e25-4abe-878d-9194de6fcc27.jpg?17634728422{W}8BCreature ‚Äî Human ClericJnormalRWZW
 ∞âﬁfdnThousand-Year Storm"en*^https://cards.scryfall.io/normal/front/7/6/76c48a67-1410-40f1-9b93-0172d85e4688.jpg?17304895272	{4}{U}{R}8BEnchantmentJnormalRRRUZRZU
 ∞¬ìm19Druid of the Cowl"en*^https://cards.scryfall.io/normal/front/7/6/76ceff1d-9e83-41cc-b54b-8bf90d985da9.jpg?15623027342{1}{G}8BCreature ‚Äî Elf DruidJnormalRGZG
 ±˜≤m21Chandra's Firemaw"en*^https://cards.scryfall.io/normal/front/7/6/76cf0b50-155f-4e65-9e48-88b378ad93a1.jpg?15962501952	{3}{R}{R}8BCreature ‚Äî HellionJnormalRRZR
@@ -8781,7 +8779,7 @@ Bounce Off"en*^https://cards.scryfall.io/normal/front/7/b/7b3c8dda-2405-4879-8d
 °∆ådomGideon's Reproach"en*^https://cards.scryfall.io/normal/front/7/b/7b771f44-ce32-41a2-b219-738924b7f42d.jpg?15627382702{1}{W}8BInstantJnormalRWZW
 úÈ˛panaMountain"en*^https://cards.scryfall.io/normal/front/7/b/7b78cf0b-5f74-416b-916f-9ed851998db3.jpg?1576800419BBasic Land ‚Äî MountainJnormalZR
 π©Ÿj25Boldwyr Intimidator"en*^https://cards.scryfall.io/normal/front/7/b/7b81ab8b-94dd-4745-85f4-eceb0ca05c34.jpg?17304875992	{5}{R}{R}8BCreature ‚Äî Giant WarriorJnormalRRZR
-Ã˝…ymkmTajic, Legion's Valor"en*^https://cards.scryfall.io/normal/front/7/b/7b838cfc-e8fd-4258-aa5f-afbde461c37c.jpg?17493019702	{2}{R}{W}8B$Legendary Creature ‚Äî Human SoldierJnormalRRRWZRZW
+Ã˝…ymkmTajic, Legion's Valor"en*^https://cards.scryfall.io/normal/front/7/b/7b838cfc-e8fd-4258-aa5f-afbde461c37c.jpg?17634728902	{2}{R}{W}8B$Legendary Creature ‚Äî Human SoldierJnormalRRRWZRZW
 ∑¯≤m21Keral Keep Disciples"en*^https://cards.scryfall.io/normal/front/7/b/7b862e46-f5a2-4fce-98b5-2c5aa49ec648.jpg?15962501982	{2}{R}{R}8BCreature ‚Äî Human MonkJnormalRRZR
 û¸—spgNoxious Revival"en*^https://cards.scryfall.io/normal/front/7/b/7b8c04ad-9c81-48f6-85cc-ae30a80a7989.jpg?17273365902{G/P}8BInstantJnormalRGZG
 ¥π€afrChaos Channeler"en*^https://cards.scryfall.io/normal/front/7/b/7b9bb587-f732-42c9-a2a7-152629889997.jpg?16277060192	{2}{R}{R}8BCreature ‚Äî Human ShamanJnormalRRZR
@@ -9390,7 +9388,7 @@ Flame Lash"en*^https://cards.scryfall.io/normal/front/8/3/8383e698-0dd7-4f35-ae
 í»—dskGloomlake Verge"en*^https://cards.scryfall.io/normal/front/8/3/83f510b7-4cbd-4883-9c26-c8824bc668ac.jpg?1726286844BLandJnormalZBZU
 ™∫÷stxInfuse with Vitality"en*^https://cards.scryfall.io/normal/front/8/4/840600a9-3e78-48a6-b75b-860446b82c1b.jpg?16274292842{B}{G}8BInstantJnormalRBRGZBZG
 Ø—ùrnaRhythm of the Wild"en*^https://cards.scryfall.io/normal/front/8/4/84062ce2-fea2-4e06-b83b-7cc597fb2a1b.jpg?15848317732	{1}{R}{G}8BEnchantmentJnormalRGRRZGZR
-£ËƒotpPest Infestation"en*^https://cards.scryfall.io/normal/front/8/4/8407c498-b972-49fe-b30a-a864c39ddc7a.jpg?17123535142	{X}{X}{G}8BSorceryJnormalRGZG
+£ËƒotpPest Infestation"en*^https://cards.scryfall.io/normal/front/8/4/8407c498-b972-49fe-b30a-a864c39ddc7a.jpg?17644453712	{X}{X}{G}8BSorceryJnormalRGZG
 ∏ı˝hbgHag of Scoured Thoughts"en*^https://cards.scryfall.io/normal/front/8/4/840adce7-db06-4647-8f7a-a37d6ffdf3c7.jpg?16588667782{2}{B}8BCreature ‚Äî Hag WarlockJnormalRBZB
 ØŸ◊j25Spectral Sailor"en*^https://cards.scryfall.io/normal/front/8/4/840ec72e-9c20-4316-835e-1af26d05d9dd.jpg?17304870012{U}8BCreature ‚Äî Spirit PirateJnormalRUZU
 ™⁄ìm19Hungering Hydra"en*^https://cards.scryfall.io/normal/front/8/4/84127b83-e75a-4f12-92ca-46f50bb89699.jpg?15623029362{X}{G}8BCreature ‚Äî HydraJnormalRGZG
@@ -9517,7 +9515,7 @@ Chrome Cat"en*^https://cards.scryfall.io/normal/front/8/5/85da50ba-2061-40f0-b3
 •ëÂdftSpectral Interference"en*^https://cards.scryfall.io/normal/front/8/6/860cb8af-a5f6-47e7-a34b-7b9f11ddc8c6.jpg?17383562542{1}{U}8BInstantJnormalRUZU
 •˙ƒotpHindering Light"en*^https://cards.scryfall.io/normal/front/8/6/860f4304-38f1-4c2f-a122-2590619522fd.jpg?17123535832{W}{U}8BInstantJnormalRURWZUZW
 ¬’œdskEnduring Curiosity"en*^https://cards.scryfall.io/normal/front/8/6/8616629e-08f9-41ad-bfec-f86c8096f1cb.jpg?17262860442	{2}{U}{U}8B$Enchantment Creature ‚Äî Cat GlimmerJnormalRUZU
-úè„pioVoid Shatter"en*^https://cards.scryfall.io/normal/front/8/6/8619f6e5-057c-4252-b491-ce9577628ed7.jpg?17327059402	{1}{U}{U}8BInstantJnormalZU
+úè„pioVoid Shatter"en*^https://cards.scryfall.io/normal/front/8/6/8619f6e5-057c-4252-b491-ce9577628ed7.jpg?17645094002	{1}{U}{U}8BInstantJnormalZU
 ëı√otjBlooming Marsh"en*^https://cards.scryfall.io/normal/front/8/6/861caabb-0573-4e94-8b03-342f90465064.jpg?1723149884BLandJnormalZBZG
 µ√¡akrCartouche of Zeal"en*^https://cards.scryfall.io/normal/front/8/6/862bc1c6-08e5-467d-ade8-55365f802cf7.jpg?15972501372{R}8BEnchantment ‚Äî Aura CartoucheJnormalRRZR
 ≥∆èdomBlackblade Reforged"en*^https://cards.scryfall.io/normal/front/8/6/862d38d1-e3d0-47e1-a535-ff445b1c55c6.jpg?15627389202{2}8B Legendary Artifact ‚Äî EquipmentJnormal
@@ -9972,7 +9970,7 @@ Cloudshift"en*^https://cards.scryfall.io/normal/front/8/b/8bc7fdf0-3e1e-487c-83
 Ø·’stxBasic Conjuration"en*^https://cards.scryfall.io/normal/front/8/b/8be52d88-f430-4437-a0d3-590c2947c838.jpg?16370820922	{1}{G}{G}8BSorcery ‚Äî LessonJnormalRGZG
 ÿ¯ÙsncQueza, Augur of Agonies"en*^https://cards.scryfall.io/normal/front/8/b/8be62891-93fa-4642-ad44-8c8695a9c960.jpg?16645829932{1}{W}{U}{B}8B&Legendary Creature ‚Äî Octopus AdvisorJnormalRBRURWZBZUZW
 ¥©¢sirLupine Prototype"en*^https://cards.scryfall.io/normal/front/8/b/8bef359c-8235-4c38-8cd8-0138c9614790.jpg?16789452912{2}8B$Artifact Creature ‚Äî Wolf ConstructJnormal
-‹Î«mh3Breya, Etherium Shaper"en*^https://cards.scryfall.io/normal/front/8/b/8bf3929c-957f-4ea2-a27d-7d53979844af.jpg?17170137372{W}{U}{B}{R}8B%Legendary Artifact Creature ‚Äî HumanJnormalRBRRRURWZBZRZUZW
+‹Î«mh3Breya, Etherium Shaper"en*^https://cards.scryfall.io/normal/front/8/b/8bf3929c-957f-4ea2-a27d-7d53979844af.jpg?17639998882{W}{U}{B}{R}8B%Legendary Artifact Creature ‚Äî HumanJnormalRBRRRURWZBZRZUZW
 ßø•eldDrown in the Loch"en*^https://cards.scryfall.io/normal/front/8/b/8bf5df5b-164d-4ec2-a5e6-bbaea152e271.jpg?15724907392{U}{B}8BInstantJnormalRBRUZBZU
 ø©€j25Rev, Tithe Extractor"en*^https://cards.scryfall.io/normal/front/8/b/8bf88010-799d-4217-8e79-308bec7ad2ff.jpg?17304858592{3}{B}8B"Legendary Creature ‚Äî Human RogueJnormalRBZB
 ∞ˆ÷stxCogwork Archivist"en*^https://cards.scryfall.io/normal/front/8/c/8c024a2d-20fb-478b-a62e-e3590a1e3ac1.jpg?16247406142{6}8BArtifact Creature ‚Äî ConstructJnormal
@@ -10179,7 +10177,7 @@ Hammerhand"en*^https://cards.scryfall.io/normal/front/8/d/8d858e9e-452b-4281-93
 ≠ÎÕanbSavage Gorger"en*^https://cards.scryfall.io/normal/front/8/e/8ee2735e-05a8-4e3b-a44c-4e7532f1d312.jpg?15973770722	{1}{B}{B}8BCreature ‚Äî VampireJnormalRBZB
 ßΩ®wotUtopia Sprawl"en*^https://cards.scryfall.io/normal/front/8/e/8ee63809-729b-48b1-a06d-3edc2a26208f.jpg?16929329662{G}8BEnchantment ‚Äî AuraJnormalRGZG
 ÆêéonePlanar Disruption"en*^https://cards.scryfall.io/normal/front/8/e/8ee69a1f-aeed-4eb4-8987-fa720fc99715.jpg?16759569252{1}{W}8BEnchantment ‚Äî AuraJnormalRWZW
-»ÏËydskLurker in the Deep"en*^https://cards.scryfall.io/normal/front/8/e/8eeb02d2-cf6d-4896-94e9-73fe93683aa0.jpg?17290098592{3}{U}{U}{U}8B&Enchantment Creature ‚Äî Fish IllusionJnormalRUZU
+»ÏËydskLurker in the Deep"en*^https://cards.scryfall.io/normal/front/8/e/8eeb02d2-cf6d-4896-94e9-73fe93683aa0.jpg?17616494352{3}{U}{U}{U}8B&Enchantment Creature ‚Äî Fish IllusionJnormalRUZU
 ∑⁄ábrrPsychosis Crawler"en*^https://cards.scryfall.io/normal/front/8/e/8eef2dd7-adbd-4ebc-b0d8-ae91980f31a6.jpg?16740925872{5}8B&Artifact Creature ‚Äî Phyrexian HorrorJnormal
 Ø≤œdskOrphans of the Wheat"en*^https://cards.scryfall.io/normal/front/8/e/8ef4aab1-8bc0-4652-91d7-3e8b20b411ad.jpg?17262859412{1}{W}8BCreature ‚Äî HumanJnormalRWZW
 ìµáxlnDrowned Catacomb"en*^https://cards.scryfall.io/normal/front/8/e/8ef728f1-5153-47d6-8f9c-dfd473ee0750.jpg?1562559858BLandJnormalZBZU
@@ -10250,7 +10248,7 @@ Feral Roar"en*^https://cards.scryfall.io/normal/front/8/f/8f39c3fd-8ada-46e5-b2
 ∏ŸΩznrBrushfire Elemental"en*^https://cards.scryfall.io/normal/front/8/f/8fc448f6-a7fe-47c4-ac7c-385a77326469.jpg?16041999962{R}{G}8BCreature ‚Äî ElementalJnormalRGRRZGZR
 µ™´ikoHelica Glider"en*^https://cards.scryfall.io/normal/front/8/f/8fc88fe0-2424-49a7-9abf-4773a547d010.jpg?15912302682{2}{W}8BCreature ‚Äî Nightmare SquirrelJnormalRWZW
 ≈§«mh3The Necrobloom"en*^https://cards.scryfall.io/normal/front/8/f/8fcf68cf-0dac-4b29-90d5-c18c685182e6.jpg?17170127672{1}{W}{B}{G}8BLegendary Creature ‚Äî PlantJnormalRBRGRWZBZGZW
-¨„…broA-Visions of Phyrexia"en*^https://cards.scryfall.io/normal/front/8/f/8fd1af34-999a-4649-bc27-dc44a601095d.jpg?17051181982	{2}{R}{R}8BEnchantmentJnormalRRZR
+©„…broA-Visions of Phyrexia"en*^https://cards.scryfall.io/normal/front/8/f/8fd1af34-999a-4649-bc27-dc44a601095d.jpg?17632331062{3}{R}8BEnchantmentJnormalRRZR
 ûÅÊdftPoint the Way"en*^https://cards.scryfall.io/normal/front/8/f/8fd4c73d-0e9a-4ffe-8062-f2f4d0e601fe.jpg?17391949902{G}8BEnchantmentJnormalRGZG
 ÆßÎj21Manic Scribe"en*^https://cards.scryfall.io/normal/front/8/f/8fd59789-c80d-4a10-ac1b-856a3680d829.jpg?16302465472{1}{U}8BCreature ‚Äî Human WizardJnormalRUZU
 ó†£m20Plains"en*^https://cards.scryfall.io/normal/front/8/f/8fd675c7-7dac-4ad1-9243-6d1eda0fa30c.jpg?1592517931BBasic Land ‚Äî PlainsJnormalZW
@@ -10597,7 +10595,7 @@ Engine Rat"en*^https://cards.scryfall.io/normal/front/9/4/949d6137-98d3-4f46-ab
 µÓ‹fdnSearslicer Goblin"en*^https://cards.scryfall.io/normal/front/9/4/94ad0b97-a318-4e76-ac79-b3e83417c333.jpg?17304889382{1}{R}8BCreature ‚Äî Goblin WarriorJnormalRRZR
 ±˛ím19Goblin Motivator"en*^https://cards.scryfall.io/normal/front/9/4/94b3a4fb-9024-45ef-a54b-cf3a9fa5b9c2.jpg?15623033432{R}8BCreature ‚Äî Goblin WarriorJnormalRRZR
 •≥œklrDestructive Tampering"en*^https://cards.scryfall.io/normal/front/9/4/94b4a0a7-56f2-479a-94ab-cd64c054ff55.jpg?16053281142{2}{R}8BSorceryJnormalRRZR
-«£«mh3Nadu, Winged Wisdom"en*^https://cards.scryfall.io/normal/front/9/4/94b67489-5eb0-4406-9bf3-27e50dc632eb.jpg?17315747592	{1}{G}{U}8B"Legendary Creature ‚Äî Bird WizardJnormalRGRUZGZU
+«£«mh3Nadu, Winged Wisdom"en*^https://cards.scryfall.io/normal/front/9/4/94b67489-5eb0-4406-9bf3-27e50dc632eb.jpg?17639998812	{1}{G}{U}8B"Legendary Creature ‚Äî Bird WizardJnormalRGRUZGZU
 ≤ø´lciSubterranean Schooner"en*^https://cards.scryfall.io/normal/front/9/4/94b6881a-b00e-4e90-92e6-602ed8e0e090.jpg?16990439642{1}{U}8BArtifact ‚Äî VehicleJnormalRUZU
 õŸüwarSamut's Sprint"en*^https://cards.scryfall.io/normal/front/9/4/94bda699-2b5d-4f5b-bee5-792b99d2b64a.jpg?15575768002{R}8BInstantJnormalRRZR
 òä¥jmpBefuddle"en*^https://cards.scryfall.io/normal/front/9/4/94c1f80e-65b7-4534-bfd4-1ae88274945b.jpg?16007185152{2}{U}8BInstantJnormalRUZU
@@ -10640,7 +10638,7 @@ Spit Flame"en*^https://cards.scryfall.io/normal/front/9/4/94df6198-10c0-44e7-82
 π√˛hbgAncient Brass Dragon"en*^https://cards.scryfall.io/normal/front/9/5/952acfb9-41e1-4387-8dbd-746f52ae6395.jpg?16809999762	{5}{B}{B}8BCreature ‚Äî Elder DragonJnormalRBZB
 ≤’ÑxlnStorm Sculptor"en*^https://cards.scryfall.io/normal/front/9/5/9532b735-8390-4379-ae43-2bd00d281dd6.jpg?15625602702{3}{U}8BCreature ‚Äî Merfolk WizardJnormalRUZU
 ø⁄ΩznrCleric of Life's Bond"en*^https://cards.scryfall.io/normal/front/9/5/953db280-6999-4b91-bc40-c6e7f7dd13ef.jpg?16042000222{W}{B}8BCreature ‚Äî Vampire ClericJnormalRBRWZBZW
-™≥iha2Ancestral Mask"en*^https://cards.scryfall.io/normal/front/9/5/9540ee7d-3f23-45d1-92b7-f0195b2634e1.jpg?15840313332{2}{G}8BEnchantment ‚Äî AuraJnormalRGZG
+™≥iha2Ancestral Mask"en*^https://cards.scryfall.io/normal/front/9/5/9540ee7d-3f23-45d1-92b7-f0195b2634e1.jpg?17622580592{2}{G}8BEnchantment ‚Äî AuraJnormalRGZG
 µ–ÂmidHarvesttide Sentry"en*^https://cards.scryfall.io/normal/front/9/5/9543cf53-8cf5-49d0-9c60-8b11e21da953.jpg?16362243502{1}{G}8BCreature ‚Äî Human WarriorJnormalRGZG
 “õ∏mkmEzrim, Agency Chief"en*^https://cards.scryfall.io/normal/front/9/5/9554d5f2-7a33-4734-8cf3-dfae2ccc3596.jpg?17062421612{1}{W}{W}{U}{U}8B'Legendary Creature ‚Äî Archon DetectiveJnormalRURWZUZW
 ô ∂jmpBubbling Cauldron"en*^https://cards.scryfall.io/normal/front/9/5/955aa79b-448e-4752-8e36-0fe80c18280c.jpg?16010805922{2}8BArtifactJnormal
@@ -10904,7 +10902,7 @@ Lush Oasis"en*^https://cards.scryfall.io/normal/front/9/8/988e44c5-4632-4ebb-b6
 ©ê§eldFortifying Provisions"en*^https://cards.scryfall.io/normal/front/9/8/98ce113c-53da-4fab-b7c9-fc3df248b65e.jpg?15724896792{2}{W}8BEnchantmentJnormalRWZW
 íœ—dskRazortrap Gorge"en*^https://cards.scryfall.io/normal/front/9/8/98d0d067-b52d-47ec-ba7b-8cfcd716c0e5.jpg?1726286871BLandJnormalZBZR
 ≥≤°m20Inspiring Captain"en*^https://cards.scryfall.io/normal/front/9/8/98d14836-0ab4-4df3-a996-76b0dda23ff6.jpg?15925161132{3}{W}8BCreature ‚Äî Human KnightJnormalRWZW
-Æ≥ÍtdmSalt Road Packbeast"en*^https://cards.scryfall.io/normal/front/9/8/98d548c9-42bc-4155-8211-0aea801c3724.jpg?17432040432{5}{W}8BCreature ‚Äî BeastJnormalRWZW
+Æ≥ÍtdmSalt Road Packbeast"en*^https://cards.scryfall.io/normal/front/9/8/98d548c9-42bc-4155-8211-0aea801c3724.jpg?17634870672{5}{W}8BCreature ‚Äî BeastJnormalRWZW
 §±œklrChandra's Revolution"en*^https://cards.scryfall.io/normal/front/9/8/98dd0687-802c-4312-9bdd-6a65096b0f58.jpg?16053280922{3}{R}8BSorceryJnormalRRZR
 ™‚⁄afrBlue Dragon"en*^https://cards.scryfall.io/normal/front/9/8/98dea71b-2778-4374-8ea2-7fa82f0f6110.jpg?16277029682	{5}{U}{U}8BCreature ‚Äî DragonJnormalRUZU
 ´∂Úsnc	Sky Crier"en*^https://cards.scryfall.io/normal/front/9/8/98e01fa9-9127-4250-94f1-39e71cc3c2bc.jpg?16644099912{1}{W}8BCreature ‚Äî Bird CitizenJnormalRWZW
@@ -11477,7 +11475,7 @@ Mirrormade"en*^https://cards.scryfall.io/normal/front/a/1/a10c1407-d397-4caa-b7
 B,Enchantment ‚Äî Room // Enchantment ‚Äî RoomJsplitRRZRb-
 Charred FoyerEnchantment ‚Äî Room{3}{R}b/
 Warped SpaceEnchantment ‚Äî Room	{4}{R}{R}
-¶Ä•eldFires of Invention"en*^https://cards.scryfall.io/normal/front/a/1/a12b16b0-f75f-42d8-9b24-947c1908e0f7.jpg?16288017152{3}{R}8BEnchantmentJnormalRRZR
+¶Ä•eldFires of Invention"en*^https://cards.scryfall.io/normal/front/a/1/a12b16b0-f75f-42d8-9b24-947c1908e0f7.jpg?17626983342{3}{R}8BEnchantmentJnormalRRZR
 æ¬ÏneoCloudsteel Kirin"en*^https://cards.scryfall.io/normal/front/a/1/a13ddda7-da6e-415e-8886-295514f862d4.jpg?16545661992{2}{W}8B%Artifact Creature ‚Äî Equipment KirinJnormalRWZW
 æ˙©lciCurator of Sun's Creation"en*^https://cards.scryfall.io/normal/front/a/1/a144d0b3-678d-4f4c-a9b0-22af19f5cf9f.jpg?16990442532{3}{R}8BCreature ‚Äî Human ArtificerJnormalRRZR
 ƒ∏ìmomChandra, Hope's Beacon"en*^https://cards.scryfall.io/normal/front/a/1/a146ea07-ec1c-448d-b67a-dd9f9e27c2e0.jpg?16822040902	{4}{R}{R}8B"Legendary Planeswalker ‚Äî ChandraJnormalRRZR
@@ -12200,7 +12198,7 @@ Confiscate"en*^https://cards.scryfall.io/normal/front/a/9/a98a1553-e5f3-4c9c-83
 ®‰ÓneoSokenzan, Crucible of Defiance"en*^https://cards.scryfall.io/normal/front/a/a/aa548dcd-c1dd-492d-a69f-c65dfeef0633.jpg?1654569016BLegendary LandJnormalZR
 ¥îñltrPelargir Survivor"en*^https://cards.scryfall.io/normal/front/a/a/aa59141a-4645-4316-b714-bbf2c139786e.jpg?16869682362{1}{U}8BCreature ‚Äî Human PeasantJnormalRUZU
 î…ﬂfdnGilded Lotus"en*^https://cards.scryfall.io/normal/front/a/a/aa5e88f1-0ddf-45d7-bbd0-baa88d121867.jpg?17305727662{5}8BArtifactJnormal
-»Ü˚hbgTasha, Unholy Archmage"en*^https://cards.scryfall.io/normal/front/a/a/aa61e5c9-17da-4e75-9a69-a6d520d32646.jpg?17493019712	{2}{U}{B}8B Legendary Planeswalker ‚Äî TashaJnormalRBRUZBZU
+»Ü˚hbgTasha, Unholy Archmage"en*^https://cards.scryfall.io/normal/front/a/a/aa61e5c9-17da-4e75-9a69-a6d520d32646.jpg?17634728852	{2}{U}{B}8B Legendary Planeswalker ‚Äî TashaJnormalRBRUZBZU
 ¥˘éoneFurnace Strider"en*^https://cards.scryfall.io/normal/front/a/a/aa625ab0-1e79-4497-a5da-98fe1abfd024.jpg?16759570872{4}{R}8BCreature ‚Äî Phyrexian BeastJnormalRRZR
 ∂Í·pioAshen Rider"en*^https://cards.scryfall.io/normal/front/a/a/aa639982-a7ac-4719-b8f8-3988143764f0.jpg?17331799112{4}{W}{W}{B}{B}8BCreature ‚Äî ArchonJnormalRBRWZBZW
 †Å¨ikoUnexpected Fangs"en*^https://cards.scryfall.io/normal/front/a/a/aa6494ad-a35e-4b09-8623-7740f3c20b0b.jpg?15912269942{1}{B}8BInstantJnormalRBZB
@@ -12601,7 +12599,7 @@ Skyreaping"en*^https://cards.scryfall.io/normal/front/a/f/af235442-cc2b-4b79-b3
 §Ì˜j21Tropical Island"en*^https://cards.scryfall.io/normal/front/a/f/af57b2e6-75d8-4508-8f1c-36e1238d3d45.jpg?1630270105BLand ‚Äî Forest IslandJnormalZGZU
 ≠ãÎj21Bonescythe Sliver"en*^https://cards.scryfall.io/normal/front/a/f/af5833f2-a528-449d-a31c-9dd571cd7969.jpg?16302449652{3}{W}8BCreature ‚Äî SliverJnormalRWZW
 µ˚ÉxlnTerritorial Hammerskull"en*^https://cards.scryfall.io/normal/front/a/f/af5a237a-31e7-43ee-8d47-3eb12dd1a60c.jpg?15625621902{2}{W}8BCreature ‚Äî DinosaurJnormalRWZW
-¥ö∑mkmProft's Eidetic Memory"en*^https://cards.scryfall.io/normal/front/a/f/af5b29b3-974c-4200-8df8-b072c11e1600.jpg?17062416352{1}{U}8BLegendary EnchantmentJnormalRUZU
+¥ö∑mkmProft's Eidetic Memory"en*^https://cards.scryfall.io/normal/front/a/f/af5b29b3-974c-4200-8df8-b072c11e1600.jpg?17627730952{1}{U}8BLegendary EnchantmentJnormalRUZU
 ∏Ω≥jmpLightning Visionary"en*^https://cards.scryfall.io/normal/front/a/f/af648aaf-a8e0-4291-acf9-5f8533728f92.jpg?16322618352{1}{R}8BCreature ‚Äî Minotaur ShamanJnormalRRZR
 £ÃÓneoNinja's Kunai"en*^https://cards.scryfall.io/normal/front/a/f/af6ae567-c77a-416a-b609-4df3d0dd2e18.jpg?16545687732{1}8BArtifact ‚Äî EquipmentJnormal
 √›ΩznrKaza, Roil Chaser"en*^https://cards.scryfall.io/normal/front/a/f/af6bc333-79c0-4de8-9874-80f2254f9ad2.jpg?16042001472{U}{R}8B#Legendary Creature ‚Äî Human WizardJnormalRRRUZRZU
@@ -14092,7 +14090,7 @@ Deliberate"en*^https://cards.scryfall.io/normal/front/c/4/c41c0dd0-fef2-4f3c-8f
 Emeria's CallSorcery{4}{W}{W}{W}"^https://cards.scryfall.io/normal/front/c/4/c470539a-9cc7-4175-8f7c-c982b6072b6d.jpg?1604195709*WbÅ
 Emeria, Shattered SkyclaveLand"]https://cards.scryfall.io/normal/back/c/4/c470539a-9cc7-4175-8f7c-c982b6072b6d.jpg?1604195709
 ¶œÌneoExperimental Synthesizer"en*^https://cards.scryfall.io/normal/front/c/4/c47931c9-685d-4b83-8299-bc347224b4e8.jpg?16545675792{R}8BArtifactJnormalRRZR
-úÛ‚pioCrumble to Dust"en*^https://cards.scryfall.io/normal/front/c/4/c47e83be-e5f4-479f-a7ab-60f1d0ef9be9.jpg?17331795832{3}{R}8BSorceryJnormalZR
+úÛ‚pioCrumble to Dust"en*^https://cards.scryfall.io/normal/front/c/4/c47e83be-e5f4-479f-a7ab-60f1d0ef9be9.jpg?17645093552{3}{R}8BSorceryJnormalZR
 ôØ£sisTraveler's Amulet"en*^https://cards.scryfall.io/normal/front/c/4/c48e6f92-86ad-4b86-a410-9694757e240b.jpg?16796152882{1}8BArtifactJnormal
 ¢¸ÿj25Fireshrieker"en*^https://cards.scryfall.io/normal/front/c/4/c48f5d22-a06c-4e91-ba24-3d7cde68808e.jpg?17304884732{3}8BArtifact ‚Äî EquipmentJnormal
 µ“ÍvowSkulking Killer"en*^https://cards.scryfall.io/normal/front/c/4/c491af90-b224-4795-adb4-d7ea4c8464ce.jpg?16450548682{3}{B}8BCreature ‚Äî Vampire AssassinJnormalRBZB
@@ -14603,7 +14601,7 @@ Divination"en*^https://cards.scryfall.io/normal/front/c/b/cb3b35b8-f321-46d8-a4
 ™¨ßthbRiptide Turtle"en*^https://cards.scryfall.io/normal/front/c/c/cc4ba296-950c-4e39-ab5e-06be07e4a190.jpg?15923353592{1}{U}8BCreature ‚Äî TurtleJnormalRUZU
 ´û≠ikoZagoth Triome"en*^https://cards.scryfall.io/normal/front/c/c/cc520518-2063-4b57-a0d4-10cf62a7175e.jpg?1591228738BLand ‚Äî Swamp Forest IslandJnormalZBZGZU
 °ÄÃblbSeason of Loss"en*^https://cards.scryfall.io/normal/front/c/c/cc540652-916b-45c5-ae5a-0a0bc557cee1.jpg?17214265092	{3}{B}{B}8BSorceryJnormalRBZB
-ù®·pioKozilek's Return"en*^https://cards.scryfall.io/normal/front/c/c/cc54fabe-ed0b-41ad-89f2-8de20610d2af.jpg?17331796222{2}{R}8BInstantJnormalZR
+ù®·pioKozilek's Return"en*^https://cards.scryfall.io/normal/front/c/c/cc54fabe-ed0b-41ad-89f2-8de20610d2af.jpg?17645093732{2}{R}8BInstantJnormalZR
 ®ﬁ√otjLuxurious Locomotive"en*^https://cards.scryfall.io/normal/front/c/c/cc598338-eeba-4815-a0a6-ff2dc09790d2.jpg?17123562682{5}8BArtifact ‚Äî VehicleJnormal
 »àΩznrMoraug, Fury of Akoum"en*^https://cards.scryfall.io/normal/front/c/c/cc5eacd7-aaa7-4720-9794-52e7b098c82c.jpg?16041974642	{4}{R}{R}8B'Legendary Creature ‚Äî Minotaur WarriorJnormalRRZR
 ¶¥ògrnSonic Assault"en*^https://cards.scryfall.io/normal/front/c/c/cc61a398-cf16-415b-b3cf-897217dc7cc9.jpg?15728938132	{1}{U}{R}8BInstantJnormalRRRUZRZU
@@ -14734,7 +14732,7 @@ High Alert"en*^https://cards.scryfall.io/normal/front/c/e/ce124f6e-ef0c-4d01-a8
 «ˆ¸hbgGale, Holy Conduit"en*^https://cards.scryfall.io/normal/front/c/e/ce2f7090-10a9-401a-a125-c7fb805b518c.jpg?16572413332	{3}{W}{U}8B#Legendary Creature ‚Äî Human WizardJnormalRURWZUZW
 °íüwarTamiyo's Epiphany"en*^https://cards.scryfall.io/normal/front/c/e/ce338cf3-46dc-4c87-8df5-af27097c7dd4.jpg?15575763362{3}{U}8BSorceryJnormalRUZU
 ºπ khmShepherd of the Cosmos"en*^https://cards.scryfall.io/normal/front/c/e/ce33c84e-008c-48d8-a8e8-77cd19cc4f1f.jpg?16310462232	{4}{W}{W}8BCreature ‚Äî Angel WarriorJnormalRWZW
-≠”–dskScreaming Nemesis"en*^https://cards.scryfall.io/normal/front/c/e/ce35e6fb-ff54-44c4-a216-7ddd37f46882.jpg?17262864392{2}{R}8BCreature ‚Äî SpiritJnormalRRZR
+≠”–dskScreaming Nemesis"en*^https://cards.scryfall.io/normal/front/c/e/ce35e6fb-ff54-44c4-a216-7ddd37f46882.jpg?17627730712{2}{R}8BCreature ‚Äî SpiritJnormalRRZR
 ±ˆÚsncShakedown Heavy"en*^https://cards.scryfall.io/normal/front/c/e/ce418184-a672-46bc-a17d-c559614defb5.jpg?16644112722{2}{B}8BCreature ‚Äî Ogre WarriorJnormalRBZB
 £πﬁfdnStasis Snare"en*^https://cards.scryfall.io/normal/front/c/e/ce41e348-44c2-47f8-8e7d-da2e4d16d648.jpg?17304908062	{1}{W}{W}8BEnchantmentJnormalRWZW
 ´›ƒktkDazzling Ramparts"en*^https://cards.scryfall.io/normal/front/c/e/ce43a2df-4305-4ab1-ae45-96cca597650e.jpg?15627937472{4}{W}8BCreature ‚Äî WallJnormalRWZW
@@ -15212,7 +15210,7 @@ Mirror Box"en*^https://cards.scryfall.io/normal/front/d/5/d507daa3-3f16-4ab1-81
 ∂πúrnaSage's Row Savant"en*^https://cards.scryfall.io/normal/front/d/5/d573626b-e7fa-4c31-a3d4-b853adfe787e.jpg?15848303142{1}{U}8BCreature ‚Äî Vedalken WizardJnormalRUZU
 √ã–dskEnduring Tenacity"en*^https://cards.scryfall.io/normal/front/d/5/d5756d4b-3068-412c-8643-880d3459151e.jpg?17262862032	{2}{B}{B}8B&Enchantment Creature ‚Äî Snake GlimmerJnormalRBZB
 ®£ÂdftCursecloth Wrappings"en*^https://cards.scryfall.io/normal/front/d/5/d5803b32-4a81-46c2-9b10-3198a709611d.jpg?17383563002	{2}{B}{B}8BArtifactJnormalRBZB
-û óltrThe One Ring"en*^https://cards.scryfall.io/normal/front/d/5/d5806e68-1054-458e-866d-1f2470f682b2.jpg?17343503272{4}8BLegendary ArtifactJnormal
+û óltrThe One Ring"en*^https://cards.scryfall.io/normal/front/d/5/d5806e68-1054-458e-866d-1f2470f682b2.jpg?17634729002{4}8BLegendary ArtifactJnormal
 øï€j25Zada, Hedron Grinder"en*^https://cards.scryfall.io/normal/front/d/5/d582b933-adbe-4706-a3c9-c19b6c52fd72.jpg?17304859752{3}{R}8B"Legendary Creature ‚Äî Goblin AllyJnormalRRZR
 ØÔ€afrInstrument of the Bards"en*^https://cards.scryfall.io/normal/front/d/5/d58486dc-3e78-4649-89c7-46f6210ff80f.jpg?16277078282{G}8BLegendary ArtifactJnormalRGZG
 ≤ä◊j25Aether Channeler"en*^https://cards.scryfall.io/normal/front/d/5/d5859a42-5a82-47db-9f1d-ffe3f2b61a02.jpg?17304867282{2}{U}8BCreature ‚Äî Human WizardJnormalRUZU
@@ -15882,7 +15880,7 @@ Iron Bully"en*^https://cards.scryfall.io/normal/front/d/e/ded2c66e-402c-4d5c-b9
 ™¬ÓneoCircuit Mender"en*^https://cards.scryfall.io/normal/front/d/e/defaeb68-3f8a-4740-b13f-8c71c7e9c8b4.jpg?16545686622{3}8BArtifact Creature ‚Äî InsectJnormal
 ®Îêea2Ethereal Armor"en*^https://cards.scryfall.io/normal/front/d/f/df083031-acc0-49fd-aab8-8d799c1b530e.jpg?16796165762{W}8BEnchantment ‚Äî AuraJnormalRWZW
 õ…ºznrBlood Price"en*^https://cards.scryfall.io/normal/front/d/f/df14d32d-fe53-4370-8298-fab528ff12db.jpg?16041953242{3}{B}8BSorceryJnormalRBZB
-¥Å‡yblbFountainport Charmer"en*^https://cards.scryfall.io/normal/front/d/f/df1552c5-f812-4a55-ac70-e90e01c42036.jpg?17340964832{1}{G}8BCreature ‚Äî Frog BardJnormalRGZG
+¥Å‡yblbFountainport Charmer"en*^https://cards.scryfall.io/normal/front/d/f/df1552c5-f812-4a55-ac70-e90e01c42036.jpg?17616493242{1}{G}8BCreature ‚Äî Frog BardJnormalRGZG
 ó˜∏mkmIsland"en*^https://cards.scryfall.io/normal/front/d/f/df18762d-9980-4344-9d4f-e9d2cd8e0456.jpg?1706242396BBasic Land ‚Äî IslandJnormalZU
 õ·áxlnMountain"en*^https://cards.scryfall.io/normal/front/d/f/df190cfa-ebb6-48e8-9980-950a26d0f2d8.jpg?1562565316BBasic Land ‚Äî MountainJnormalZR
 –π˝hbgLukamina, Crocodile Form"en*^https://cards.scryfall.io/normal/front/d/f/df1f6be7-9aa0-42c5-b656-9f46e33af706.jpg?16572417332	{2}{G}{U}8B&Legendary Creature ‚Äî Crocodile DruidJnormalRGRUZGZU
@@ -15920,7 +15918,7 @@ Iron Bully"en*^https://cards.scryfall.io/normal/front/d/e/ded2c66e-402c-4d5c-b9
 ∞Û◊j25Wind Strider"en*^https://cards.scryfall.io/normal/front/d/f/df99ff00-b573-40ef-a885-028ee56e19d6.jpg?17304870982{4}{U}8BCreature ‚Äî Merfolk WizardJnormalRUZU
 ≠ÂòmatNahiri's Resolve"en*^https://cards.scryfall.io/normal/front/d/f/df9acf30-b4f4-4e99-9763-a3055e91fefb.jpg?16843407672	{3}{R}{W}8BEnchantmentJnormalRRRWZRZW
 ∞¬∆mh3Grim Servant"en*^https://cards.scryfall.io/normal/front/d/f/df9c275d-e8cc-40c2-8baf-7a0d154aa7cf.jpg?17170119912{3}{B}8BCreature ‚Äî Zombie WarlockJnormalRBZB
-¥ª∆mh3Emperor of Bones"en*^https://cards.scryfall.io/normal/front/d/f/df9d9075-2d1e-4848-b661-816d539e05eb.jpg?17493019742{1}{B}8BCreature ‚Äî Skeleton NobleJnormalRBZB
+¥ª∆mh3Emperor of Bones"en*^https://cards.scryfall.io/normal/front/d/f/df9d9075-2d1e-4848-b661-816d539e05eb.jpg?17634728482{1}{B}8BCreature ‚Äî Skeleton NobleJnormalRBZB
 ™…‹afrBlue Dragon"en*^https://cards.scryfall.io/normal/front/d/f/df9efd57-f894-4ce8-9fb0-6f06ec3da5a8.jpg?16277725952	{5}{U}{U}8BCreature ‚Äî DragonJnormalRUZU
 ó°£m20Plains"en*^https://cards.scryfall.io/normal/front/d/f/dfa01578-faf9-4694-86a0-c81f5b2a0dd8.jpg?1592517937BBasic Land ‚Äî PlainsJnormalZW
 ô—ârixImpale"en*^https://cards.scryfall.io/normal/front/d/f/dfa0c4f7-3497-467d-9453-104fb4b5a0f3.jpg?15550402522	{2}{B}{B}8BSorceryJnormalRBZB
@@ -17506,7 +17504,7 @@ Stone Rain"en*^https://cards.scryfall.io/normal/front/f/6/f60687e5-9384-4453-83
 ∂Á€afrElturgard Ranger"en*^https://cards.scryfall.io/normal/front/f/6/f6898737-957f-44a6-bef7-fb196658176f.jpg?16277074742{4}{G}8BCreature ‚Äî Human Elf RangerJnormalRGZG
 ‘û¢sirTamiyo, Field Researcher"en*^https://cards.scryfall.io/normal/front/f/6/f691787b-2f97-48d7-bf3a-4852377715ad.jpg?16789452572{1}{G}{W}{U}8B!Legendary Planeswalker ‚Äî TamiyoJnormalRGRURWZGZUZW
 ≠ª⁄j25Indomitable Will"en*^https://cards.scryfall.io/normal/front/f/6/f691ef14-1943-4a5f-ac6e-06a417bd7084.jpg?17304864662{1}{W}8BEnchantment ‚Äî AuraJnormalRWZW
-ßœÁea2World Breaker"en*^https://cards.scryfall.io/normal/front/f/6/f6a1cc1b-6c49-44f4-a69d-f898ae4222b9.jpg?16796168152{6}{G}8BCreature ‚Äî EldraziJnormalZG
+ßœÁea2World Breaker"en*^https://cards.scryfall.io/normal/front/f/6/f6a1cc1b-6c49-44f4-a69d-f898ae4222b9.jpg?17645091542{6}{G}8BCreature ‚Äî EldraziJnormalZG
 ª◊¨ikoGeneral's Enforcer"en*^https://cards.scryfall.io/normal/front/f/6/f6a45d0e-582a-4ec1-b83b-71b6a0ff6249.jpg?15912280392{W}{B}8BCreature ‚Äî Human SoldierJnormalRBRWZBZW
 «ù‹afrTrelasarra, Moon Dancer"en*^https://cards.scryfall.io/normal/front/f/6/f6a4b54c-a8fa-464e-a3dd-f3f3a08606f5.jpg?16277095532{G}{W}8B!Legendary Creature ‚Äî Elf ClericJnormalRGRWZGZW
 ´∞÷j25Doomed Dissenter"en*^https://cards.scryfall.io/normal/front/f/6/f6a99641-1796-4263-bbbb-b4bac0b07dd4.jpg?17304872312{1}{B}8BCreature ‚Äî HumanJnormalRBZB
@@ -17690,10 +17688,10 @@ Bladebrand"en*^https://cards.scryfall.io/normal/front/f/7/f738545d-5483-45ec-bb
 Drogskol ArmamentsEnchantment ‚Äî Aura"]https://cards.scryfall.io/normal/back/f/8/f88e269e-ff3d-4775-8520-5b7a6dddf23d.jpg?1643586120*W
 ∫òúmulInga Rune-Eyes"en*^https://cards.scryfall.io/normal/front/f/8/f88fda18-74eb-4de4-9430-ee4cbfa82fb0.jpg?16822011622{3}{U}8B#Legendary Creature ‚Äî Human WizardJnormalRUZU
 ì∆—dskEtched Cornfield"en*^https://cards.scryfall.io/normal/front/f/8/f8900b89-0e10-4602-bba2-da8d60ea5885.jpg?1726286836BLandJnormalZGZW
-»–Ítdm%Marang River Regent // Coil and Catch"en*^https://cards.scryfall.io/normal/front/f/8/f890bdc7-32e6-4492-bac7-7cabf54a8bfd.jpg?17445542712{4}{U}{U} // {3}{U}8B'Creature ‚Äî Dragon // Instant ‚Äî OmenJ	adventureRUZUb5
+»–Ítdm%Marang River Regent // Coil and Catch"en*^https://cards.scryfall.io/normal/front/f/8/f890bdc7-32e6-4492-bac7-7cabf54a8bfd.jpg?17640629942{4}{U}{U} // {3}{U}8B'Creature ‚Äî Dragon // Instant ‚Äî OmenJ	adventureRUZUb5
 Marang River RegentCreature ‚Äî Dragon	{4}{U}{U}b*
 Coil and CatchInstant ‚Äî Omen{3}{U}
-≠†ÍtdmClarion Conqueror"en*^https://cards.scryfall.io/normal/front/f/8/f892d156-371c-4391-8ae6-25513c5032b0.jpg?17432039732{2}{W}8BCreature ‚Äî DragonJnormalRWZW
+≠†ÍtdmClarion Conqueror"en*^https://cards.scryfall.io/normal/front/f/8/f892d156-371c-4391-8ae6-25513c5032b0.jpg?17617700582{2}{W}8BCreature ‚Äî DragonJnormalRWZW
 ´Ÿärix
 Polyraptor"en*^https://cards.scryfall.io/normal/front/f/8/f8965a3a-93fe-4021-a665-b6013bdc86f7.jpg?15550407282	{6}{G}{G}8BCreature ‚Äî DinosaurJnormalRGZG
 ∂ªüwarVraska's Finisher"en*^https://cards.scryfall.io/normal/front/f/8/f89fa379-7fae-4fbf-8e31-0ef3645353c5.jpg?15575765972{2}{B}8BCreature ‚Äî Gorgon AssassinJnormalRBZB
@@ -17976,7 +17974,7 @@ Sugar Coat"en*^https://cards.scryfall.io/normal/front/f/c/fcacbe71-efb0-49e1-b2
 ñœŸj25	Infuriate"en*^https://cards.scryfall.io/normal/front/f/c/fcf1c8b3-5504-477a-8cf0-5a30dbf54075.jpg?17304877572{R}8BInstantJnormalRRZR
 Ø∑⁄j25Herald of the Sun"en*^https://cards.scryfall.io/normal/front/f/c/fcf2e769-1b36-4a6c-8edc-7bd4076bf843.jpg?17304864522	{4}{W}{W}8BCreature ‚Äî AngelJnormalRWZW
 ö◊∆mh3Fanged Flames"en*^https://cards.scryfall.io/normal/front/f/c/fcfac301-55db-49a7-9a0d-918c907703da.jpg?17170121552{1}{R}8BSorceryJnormalZR
-µÚ·pioCatacomb Sifter"en*^https://cards.scryfall.io/normal/front/f/c/fcfb168b-86df-4e60-aee3-5e9976158edb.jpg?17331799502	{1}{B}{G}8BCreature ‚Äî Eldrazi DroneJnormalZBZG
+µÚ·pioCatacomb Sifter"en*^https://cards.scryfall.io/normal/front/f/c/fcfb168b-86df-4e60-aee3-5e9976158edb.jpg?17645093012	{1}{B}{G}8BCreature ‚Äî Eldrazi DroneJnormalZBZG
 ∑„‰dftInterface Ace"en*^https://cards.scryfall.io/normal/front/f/c/fcfd487a-a9e6-44e3-80af-bc384316106f.jpg?17383561432{1}{W}8B!Artifact Creature ‚Äî Robot PilotJnormalRWZW
 Ø®‹fdnSkyknight Squire"en*^https://cards.scryfall.io/normal/front/f/c/fcfe4e62-c153-47b8-8e09-cedaf91f53d8.jpg?17304886742{1}{W}8BCreature ‚Äî Cat ScoutJnormalRWZW
 ≤≈mh3Ulamog, the Defiler"en*^https://cards.scryfall.io/normal/front/f/d/fd00d56a-86bd-41d8-82b6-975404ef8067.jpg?17403091642{10}8
@@ -18668,7 +18666,6 @@ Akki Ronin"en*^https://cards.scryfall.io/normal/front/f/a/fa16ee8e-d33a-40e9-99
 …Ø˙warA-Teferi, Time Raveler"en*^https://cards.scryfall.io/normal/front/0/1/01091bfd-e9b8-4a9b-89a9-56da625a5d18.jpg?17317048682	{2}{W}{U}8B!Legendary Planeswalker ‚Äî TeferiJnormalRURWZUZW
 Œ±˙midA-Lier, Disciple of the Drowned"en*^https://cards.scryfall.io/normal/front/7/9/79a6bf25-4e94-4760-b4f5-69c78ac98fb5.jpg?16811589922	{3}{U}{U}8B#Legendary Creature ‚Äî Human WizardJnormalRUZU
 Œ≤˙midA-Lier, Disciple of the Drowned"en*^https://cards.scryfall.io/normal/front/7/9/79a6bf25-4e94-4760-b4f5-69c78ac98fb5.jpg?16811589922	{3}{U}{U}8B#Legendary Creature ‚Äî Human WizardJnormalRUZU
-®≥˙eldA-Fires of Invention"en*^https://cards.scryfall.io/normal/front/2/4/24729f25-e900-4a71-a304-7346eb17990a.jpg?16811588082{4}{R}8BEnchantmentJnormalRRZR
 ≤∏˙khmA-Cosmos Charger"en*^https://cards.scryfall.io/normal/front/4/d/4dfd73e2-1fad-46f6-90c5-ea35a380dbef.jpg?16811585102{2}{U}8BCreature ‚Äî Horse SpiritJnormalRUZU
 —π˙khmA-Narfi, Betrayer King"en*^https://cards.scryfall.io/normal/front/2/d/2d689fc6-c7b5-46f8-9ec2-2bc4b4af87c0.jpg?16811591412	{2}{U}{B}8B)Legendary Snow Creature ‚Äî Zombie WizardJnormalRBRUZBZU
 —∫˙khmA-Narfi, Betrayer King"en*^https://cards.scryfall.io/normal/front/2/d/2d689fc6-c7b5-46f8-9ec2-2bc4b4af87c0.jpg?16811591412	{2}{U}{B}8B)Legendary Snow Creature ‚Äî Zombie WizardJnormalRBRUZBZU
@@ -18839,7 +18836,7 @@ Doom Blade"ja*^https://cards.scryfall.io/normal/front/a/6/a6565f48-185f-4977-8e
 πáhbgAncient Brass Dragon"en*^https://cards.scryfall.io/normal/front/9/5/952acfb9-41e1-4387-8dbd-746f52ae6395.jpg?16809999762	{5}{B}{B}8BCreature ‚Äî Elder DragonJnormalRBZB
 ∫ÒáhbgAncient Copper Dragon"en*^https://cards.scryfall.io/normal/front/e/4/e4c0e755-ef3d-4001-8899-1f38ec43b274.jpg?16810002212	{4}{R}{R}8BCreature ‚Äî Elder DragonJnormalRRZR
 ∫ÚáhbgAncient Bronze Dragon"en*^https://cards.scryfall.io/normal/front/0/0/00c29e58-aafc-480c-9ad3-25a9b4bca8b5.jpg?16810004122	{5}{G}{G}8BCreature ‚Äî Elder DragonJnormalRGZG
-»ÙáhbgTasha, Unholy Archmage"en*^https://cards.scryfall.io/normal/front/a/a/aa61e5c9-17da-4e75-9a69-a6d520d32646.jpg?17493019712	{2}{U}{B}8B Legendary Planeswalker ‚Äî TashaJnormalRBRUZBZU
+»ÙáhbgTasha, Unholy Archmage"en*^https://cards.scryfall.io/normal/front/a/a/aa61e5c9-17da-4e75-9a69-a6d520d32646.jpg?17634728852	{2}{U}{B}8B Legendary Planeswalker ‚Äî TashaJnormalRBRUZBZU
 µıáhbgChampions of Tyr"en*^https://cards.scryfall.io/normal/front/1/9/19461956-6287-4ee5-9a90-96d2805fe636.jpg?17221185242	{2}{W}{W}8BCreature ‚Äî Angel KnightJnormalRWZW
 ™ˆáhbgSworn to the Legion"en*^https://cards.scryfall.io/normal/front/5/d/5d8dca69-d61e-46bb-9fb5-049b497e5f39.jpg?16809598662	{4}{W}{W}8BEnchantmentJnormalRWZW
 –˜áhbgA-Minsc & Boo, Timeless Heroes"en*^https://cards.scryfall.io/normal/front/b/2/b2e28dd8-77f0-40b1-ad03-0d5671d41f0e.jpg?16811590832	{3}{R}{G}8B Legendary Planeswalker ‚Äî MinscJnormalRGRRZGZR
@@ -19922,7 +19919,7 @@ BLegendary Creature ‚Äî EldraziJnormal
 ¨öŒmh3Psychic Frog"en*^https://cards.scryfall.io/normal/front/6/8/68924203-c3d9-41ce-8ca8-c6dd491eb3ca.jpg?17379174602{U}{B}8BCreature ‚Äî FrogJnormalRBRUZBZU
 ≤¢Œmh3Ulamog, the Defiler"en*^https://cards.scryfall.io/normal/front/f/d/fd00d56a-86bd-41d8-82b6-975404ef8067.jpg?17403091642{10}8
 BLegendary Creature ‚Äî EldraziJnormal
-‹√Œmh3Breya, Etherium Shaper"en*^https://cards.scryfall.io/normal/front/8/b/8bf3929c-957f-4ea2-a27d-7d53979844af.jpg?17170137372{W}{U}{B}{R}8B%Legendary Artifact Creature ‚Äî HumanJnormalRBRRRURWZBZRZUZW
+‹√Œmh3Breya, Etherium Shaper"en*^https://cards.scryfall.io/normal/front/8/b/8bf3929c-957f-4ea2-a27d-7d53979844af.jpg?17639998882{W}{U}{B}{R}8B%Legendary Artifact Creature ‚Äî HumanJnormalRBRRRURWZBZRZUZW
 •”Œmh3Flare of Fortitude"en*^https://cards.scryfall.io/normal/front/3/7/37b41b59-0296-443b-8a62-8d5c4641ef66.jpg?17174704692	{2}{W}{W}8BInstantJnormalRWZW
 πŒŒmh3Kozilek, the Broken Reality"en*^https://cards.scryfall.io/normal/front/0/4/04066abb-44d2-4730-9cc3-2584bc4c7d8c.jpg?17403081162{9}8	BLegendary Creature ‚Äî EldraziJnormal
 ôõŒmh3Emerald Medallion"en*^https://cards.scryfall.io/normal/front/5/d/5ddf44fe-9e4e-42a6-a6f8-11ada3ce8a94.jpg?17170137542{2}8BArtifactJnormal
@@ -19951,7 +19948,7 @@ BLegendary Creature ‚Äî EldraziJnormal
 ªéŒmh3Warren Soultrader"en*^https://cards.scryfall.io/normal/front/b/3/b334e4c6-d316-4141-8889-f95afcc04701.jpg?17170120942{2}{B}8B!Creature ‚Äî Zombie Goblin WizardJnormalRBZB
 ßèŒmh3Flare of Duplication"en*^https://cards.scryfall.io/normal/front/4/9/497a10c6-131b-464e-95e4-e47708a24d48.jpg?17174704662	{1}{R}{R}8BInstantJnormalRRZR
 ±êŒmh3Party Thrasher"en*^https://cards.scryfall.io/normal/front/b/7/b7f8bb8d-c46a-4531-9525-6981a222b468.jpg?17170122442{1}{R}8BCreature ‚Äî Lizard WizardJnormalRRZR
-«»Œmh3Nadu, Winged Wisdom"en*^https://cards.scryfall.io/normal/front/9/4/94b67489-5eb0-4406-9bf3-27e50dc632eb.jpg?17315747592	{1}{G}{U}8B"Legendary Creature ‚Äî Bird WizardJnormalRGRUZGZU
+«»Œmh3Nadu, Winged Wisdom"en*^https://cards.scryfall.io/normal/front/9/4/94b67489-5eb0-4406-9bf3-27e50dc632eb.jpg?17639998812	{1}{G}{U}8B"Legendary Creature ‚Äî Bird WizardJnormalRGRUZGZU
 ô‘Œmh3Jolted Awake"en*^https://cards.scryfall.io/normal/front/f/7/f773a79f-ad0f-45c9-bcf5-44ba5e992729.jpg?17170114652{W}8BSorceryJnormalRWZW
 †ëŒmh3Powerbalance"en*^https://cards.scryfall.io/normal/front/a/f/aff7c0bb-1210-4aeb-b5f8-1387eb633b0f.jpg?17170122632{R}{R}8BEnchantmentJnormalRRZR
 ¢íŒmh3Wheel of Potential"en*^https://cards.scryfall.io/normal/front/c/4/c4eb9a82-91f7-4741-a029-a07a3ff6af78.jpg?17392626922{2}{R}8BSorceryJnormalRRZR
@@ -20109,7 +20106,7 @@ Hired Claw"en*^https://cards.scryfall.io/normal/front/1/a/1ae41080-0d67-4719-ad
 °∏Ámh3A-Galvanic Discharge"en*^https://cards.scryfall.io/normal/front/a/0/a0a12717-a9c0-43c7-b6be-02fd435c0053.jpg?17240044912{R}8BInstantJnormalRRZR
 ßªÁmh3A-Ocelot Pride"en*^https://cards.scryfall.io/normal/front/6/4/648ae09d-f867-49d1-a694-ff9d63800041.jpg?17240044952{1}{W}8BCreature ‚Äî CatJnormalRWZW
 ßºÁmh3A-Ocelot Pride"en*^https://cards.scryfall.io/normal/front/6/4/648ae09d-f867-49d1-a694-ff9d63800041.jpg?17240044952{1}{W}8BCreature ‚Äî CatJnormalRWZW
-¥ΩÁyblbFountainport Charmer"en*^https://cards.scryfall.io/normal/front/d/f/df1552c5-f812-4a55-ac70-e90e01c42036.jpg?17340964832{1}{G}8BCreature ‚Äî Frog BardJnormalRGZG
+¥ΩÁyblbFountainport Charmer"en*^https://cards.scryfall.io/normal/front/d/f/df1552c5-f812-4a55-ac70-e90e01c42036.jpg?17616493242{1}{G}8BCreature ‚Äî Frog BardJnormalRGZG
 ö‰ËakrSunscorched Desert"en*^https://cards.scryfall.io/normal/front/3/8/38ba5598-ca5c-42da-83d7-b22243c8704e.jpg?1597252498BLand ‚Äî DesertJnormal
 õîÁsncBoon of Safety"en*^https://cards.scryfall.io/normal/front/2/0/2069310a-9fb6-41b7-bbd5-849e3df05632.jpg?16644094782{W}8BInstantJnormalRWZW
 ùóÁblbCrumb and Get It"en*^https://cards.scryfall.io/normal/front/3/c/3c7b3b25-d4b3-4451-9f5c-6eb369541175.jpg?17214295402{W}8BInstantJnormalRWZW
@@ -20199,7 +20196,7 @@ GreenhouseEnchantment ‚Äî Room{2}{G}b.
 ∫˘„dskSilent Hallcreeper"en*^https://cards.scryfall.io/normal/front/a/a/aac4f0cc-63be-4f08-956e-39839c9735ba.jpg?17262861222{1}{U}8BEnchantment Creature ‚Äî HorrorJnormalRUZU
 ª˙„dskDoomsday Excruciator"en*^https://cards.scryfall.io/normal/front/5/4/542c89b6-48c6-4fcb-8a4c-b5ed2fa1d384.jpg?17262862012{B}{B}{B}{B}{B}{B}8BCreature ‚Äî DemonJnormalRBZB
 ∑˚„dskRazorkin Needlehead"en*^https://cards.scryfall.io/normal/front/b/c/bc73b963-23c0-46d2-853a-34a8b463994e.jpg?17262864222{R}{R}8BCreature ‚Äî Human AssassinJnormalRRZR
-≠¸„dskScreaming Nemesis"en*^https://cards.scryfall.io/normal/front/c/e/ce35e6fb-ff54-44c4-a216-7ddd37f46882.jpg?17262864392{2}{R}8BCreature ‚Äî SpiritJnormalRRZR
+≠¸„dskScreaming Nemesis"en*^https://cards.scryfall.io/normal/front/c/e/ce35e6fb-ff54-44c4-a216-7ddd37f46882.jpg?17627730712{2}{R}8BCreature ‚Äî SpiritJnormalRRZR
 ∏˝„dskHauntwoods Shrieker"en*^https://cards.scryfall.io/normal/front/7/4/744ef0bc-9973-450e-a0c4-056d8244f357.jpg?17262865422	{1}{G}{G}8BCreature ‚Äî Beast MutantJnormalRGZG
 ±˛„dskUndead Sprinter"en*^https://cards.scryfall.io/normal/front/c/6/c6b96951-4884-4df7-bdf0-94be2bc044f0.jpg?17262867542{B}{R}8BCreature ‚Äî ZombieJnormalRBRRZBZR
 Àˇ„dskKaito, Bane of Nightmares"en*^https://cards.scryfall.io/normal/front/5/5/55a14f30-4ff9-4472-90a6-c3139f1c18e5.jpg?17262866892	{2}{U}{B}8B Legendary Planeswalker ‚Äî KaitoJnormalRBRUZBZU
@@ -20682,12 +20679,12 @@ Boommobile"en*^https://cards.scryfall.io/normal/front/9/3/930c8289-4043-401a-8a
 ê¡ÒtdmMistrise Village"en*^https://cards.scryfall.io/normal/front/d/4/d44bccbf-6fab-46e4-8ddb-6577e27ec6e8.jpg?1743205033BLandJnormalZU
 √¬ÒtdmElspeth, Storm Slayer"en*^https://cards.scryfall.io/normal/front/7/3/73a065e3-b530-4e62-ab3c-4f6f908184ec.jpg?17432039942	{3}{W}{W}8B"Legendary Planeswalker ‚Äî ElspethJnormalRWZW
 Æ√ÒtdmQarsi Revenant"en*^https://cards.scryfall.io/normal/front/8/c/8c93a0f6-5e50-4dda-9ff6-da741fb839ff.jpg?17432043042	{1}{B}{B}8BCreature ‚Äî VampireJnormalRBZB
-≠ƒÒtdmClarion Conqueror"en*^https://cards.scryfall.io/normal/front/f/8/f892d156-371c-4391-8ae6-25513c5032b0.jpg?17432039732{2}{W}8BCreature ‚Äî DragonJnormalRWZW
-≠≈ÒtdmClarion Conqueror"en*^https://cards.scryfall.io/normal/front/f/8/f892d156-371c-4391-8ae6-25513c5032b0.jpg?17432039732{2}{W}8BCreature ‚Äî DragonJnormalRWZW
+≠ƒÒtdmClarion Conqueror"en*^https://cards.scryfall.io/normal/front/f/8/f892d156-371c-4391-8ae6-25513c5032b0.jpg?17617700582{2}{W}8BCreature ‚Äî DragonJnormalRWZW
+≠≈ÒtdmClarion Conqueror"en*^https://cards.scryfall.io/normal/front/f/8/f892d156-371c-4391-8ae6-25513c5032b0.jpg?17617700582{2}{W}8BCreature ‚Äî DragonJnormalRWZW
 ∞ŒÒtdmMagmatic Hellkite"en*^https://cards.scryfall.io/normal/front/b/3/b3b3aec8-d931-4c7f-86b5-1e7dfb717b59.jpg?17432044072	{2}{R}{R}8BCreature ‚Äî DragonJnormalRRZR
 ∞œÒtdmMagmatic Hellkite"en*^https://cards.scryfall.io/normal/front/b/3/b3b3aec8-d931-4c7f-86b5-1e7dfb717b59.jpg?17432044072	{2}{R}{R}8BCreature ‚Äî DragonJnormalRRZR
-∂‘ÒtdmUgin, Eye of the Storms"en*^https://cards.scryfall.io/normal/front/6/4/64a5d494-efa1-446b-bebe-2ad36e154376.jpg?17441029462{7}8BLegendary Planeswalker ‚Äî UginJnormal
-∂’ÒtdmUgin, Eye of the Storms"en*^https://cards.scryfall.io/normal/front/6/4/64a5d494-efa1-446b-bebe-2ad36e154376.jpg?17441029462{7}8BLegendary Planeswalker ‚Äî UginJnormal
+∂‘ÒtdmUgin, Eye of the Storms"en*^https://cards.scryfall.io/normal/front/6/4/64a5d494-efa1-446b-bebe-2ad36e154376.jpg?17617701622{7}8BLegendary Planeswalker ‚Äî UginJnormal
+∂’ÒtdmUgin, Eye of the Storms"en*^https://cards.scryfall.io/normal/front/6/4/64a5d494-efa1-446b-bebe-2ad36e154376.jpg?17617701622{7}8BLegendary Planeswalker ‚Äî UginJnormal
  ÷ÒtdmAnafenza, Unyielding Lineage"en*^https://cards.scryfall.io/normal/front/2/9/29957f49-9a6b-42f6-b2fb-b48f653ab725.jpg?17432039582{2}{W}8B%Legendary Creature ‚Äî Spirit SoldierJnormalRWZW
 ±◊ÒtdmSage of the Skies"en*^https://cards.scryfall.io/normal/front/6/a/6ade6918-6d1d-448d-ab56-93996051e9a9.jpg?17432040402{2}{W}8BCreature ‚Äî Human MonkJnormalRWZW
 •ÿÒtdmSmile at Death"en*^https://cards.scryfall.io/normal/front/a/e/ae2da18f-0d7d-446c-b463-8bf170ed95da.jpg?17432040502	{3}{W}{W}8BEnchantmentJnormalRWZW
@@ -20855,9 +20852,9 @@ Iron Giant"en*^https://cards.scryfall.io/normal/front/e/4/e48cf6d5-4d32-4b66-80
 ¡õÓfinSummon: Esper Ramuh"en*^https://cards.scryfall.io/normal/front/a/6/a6edb808-9753-4029-81ed-60a91ebc1d77.jpg?17487071762	{2}{R}{R}8B$Enchantment Creature ‚Äî Saga WizardJsagaRRZR
 ´°ÌfinDragoon's Wyvern"en*^https://cards.scryfall.io/normal/front/d/9/d92bce20-308e-4841-aaf8-8e20698292e7.jpg?17487059372{2}{U}8BCreature ‚Äî DrakeJnormalRUZU
 ÆõÌfinThe Wind Crystal"en*^https://cards.scryfall.io/normal/front/4/2/423134fa-62d9-439c-b123-eeea52f42414.jpg?17487070302	{2}{W}{W}8BLegendary ArtifactJnormalRWZW
-ß®Ôfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb-
-Midgar, City of MakoLand ‚Äî Town{2}{B}b%
-Reactor RaidSorcery ‚Äî Adventure
+ß®Ôfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb%
+Midgar, City of MakoLand ‚Äî Townb-
+Reactor RaidSorcery ‚Äî Adventure{2}{B}
 •¯ÏfinCoeurl"en*^https://cards.scryfall.io/normal/front/7/6/7604b534-5480-42fa-bc36-bbae730f8582.jpg?17487057982{1}{W}8BCreature ‚Äî Cat BeastJnormalRWZW
 ∏æÌfinStuck in Summoner's Sanctum"en*^https://cards.scryfall.io/normal/front/6/6/6678501e-6349-4e37-ab4c-a31a3d408d52.jpg?17487060462{2}{U}8BEnchantment ‚Äî AuraJnormalRUZU
 ≥ÏÌfin2Sidequest: Hunt the Mark // Yiazmat, Ultimate Mark"en8B,Enchantment // Legendary Creature ‚Äî DragonJ	transformZBbï
@@ -20901,16 +20898,16 @@ Sabotender"en*^https://cards.scryfall.io/normal/front/1/2/12df1295-8b08-4c8e-ba
 ≠êÔfinPuPu UFO"en*^https://cards.scryfall.io/normal/front/9/8/989b52f7-d8a5-4488-9a5d-f14a1d48686d.jpg?17487067822{2}8B%Artifact Creature ‚Äî Construct AlienJnormal
 À˚ÓfinTidus, Blitzball Star"en*^https://cards.scryfall.io/normal/front/c/f/cfe3a1fa-d885-48c0-aa47-bfd8d340bf8e.jpg?17487075642	{1}{W}{U}8B$Legendary Creature ‚Äî Human WarriorJnormalRURWZUZW
 ÆˇÏfinDragoon's Lance"en*^https://cards.scryfall.io/normal/front/9/6/96630531-8eb7-4e3e-8d63-60c562a5571b.jpg?17487058192{1}{W}8BArtifact ‚Äî EquipmentJnormalRWZW
-µ§Ôfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb8
-Jidoor, Aristocratic CapitalLand ‚Äî Town	{4}{U}{U}b!
-OvertureSorcery ‚Äî Adventure
+µ§Ôfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb-
+Jidoor, Aristocratic CapitalLand ‚Äî Townb,
+OvertureSorcery ‚Äî Adventure	{4}{U}{U}
 õÖÓfinHaste Magic"en*^https://cards.scryfall.io/normal/front/3/a/3af9d100-70ee-4c6c-a762-11a0c4f3ef6f.jpg?17487062862{1}{R}8BInstantJnormalRRZR
 œˇÓfinThe Wandering Minstrel"en*^https://cards.scryfall.io/normal/front/f/e/fe9cd860-1b4e-48ec-be30-e0ec4ca75e26.jpg?17487075952{G}{U}8B!Legendary Creature ‚Äî Human BardJnormalRGRUZBZGZRZUZW
 ªçÓfinPrompto Argentum"en*^https://cards.scryfall.io/normal/front/5/1/516105c2-462e-44e8-b412-5e9eb27ba040.jpg?17487075832{1}{R}8B"Legendary Creature ‚Äî Human ScoutJnormalRRZR
 §¿ÓfinRide the Shoopuf"en*^https://cards.scryfall.io/normal/front/1/9/19ad36d6-8bf4-490c-9980-b98a470af892.jpg?17487064982{1}{G}8BEnchantmentJnormalRGZG
 ÜÍÓfin1Kuja, Genome Sorcerer // Trance Kuja, Fate Defied"en8BRLegendary Creature ‚Äî Human Mutant Wizard // Legendary Creature ‚Äî Avatar WizardJ	transformZBZRb¥
-Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*Rb•
-Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*R
+Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*Rb•
+Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*R
 üÀÓfinTifa's Limit Break"en*^https://cards.scryfall.io/normal/front/2/4/24d6eab7-22bd-494f-8cbe-204446f24be9.jpg?17487065362{G}8BInstantJnormalRGZG
 ªÂÌfinReno and Rude"en*^https://cards.scryfall.io/normal/front/e/f/ef6a2ef4-4aa1-4037-89d5-50c4a6579371.jpg?17487075092{1}{B}8B%Legendary Creature ‚Äî Human AssassinJnormalRBZB
 ∆–ÓfinAbsolute Virtue"en*^https://cards.scryfall.io/normal/front/5/0/50716867-4370-4c2f-aae5-9d791a5d5a2e.jpg?17487075312	{6}{W}{U}8B%Legendary Creature ‚Äî Avatar WarriorJnormalRURWZUZW
@@ -20999,10 +20996,10 @@ Sabotender"en*^https://cards.scryfall.io/normal/front/1/2/12df1295-8b08-4c8e-ba
 √±ÓfinDiamond Weapon"en*^https://cards.scryfall.io/normal/front/b/b/bb17f0c0-4738-42a0-94e1-27344f13735f.jpg?17487075282	{7}{G}{G}8	B)Legendary Artifact Creature ‚Äî ElementalJnormalRGZG
 ∞˜ÏfinCloudbound Moogle"en*^https://cards.scryfall.io/normal/front/7/3/7387bca7-f496-45da-a0ac-6be049303a8f.jpg?17487057922	{3}{W}{W}8BCreature ‚Äî MoogleJnormalRWZW
 ∆≈ÔfinBeatrix, Loyal General"en*^https://cards.scryfall.io/normal/front/9/d/9da83b07-4978-4af7-be51-8aa8f35ec0bb.jpg?17487076002	{4}{W}{W}8B$Legendary Creature ‚Äî Human SoldierJnormalRWZW
-≥¶Ôfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb5
-Lindblum, Industrial RegencyLand ‚Äî Town{2}{R}b#
+≥¶Ôfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb-
+Lindblum, Industrial RegencyLand ‚Äî Townb+
 
-Mage SiegeInstant ‚Äî Adventure
+Mage SiegeInstant ‚Äî Adventure{2}{R}
 û¸ÌfinChoco-Comet"en*^https://cards.scryfall.io/normal/front/8/d/8d8d3903-a7f4-4cd8-8d29-b4a173e4fbb2.jpg?17487062582	{X}{R}{R}8BSorceryJnormalRRZR
 ñ•ÌfinEther"en*^https://cards.scryfall.io/normal/front/8/9/896ee6e9-15a9-4974-b576-50f4759fac38.jpg?17487059522{3}{U}8BArtifactJnormalRUZU
 æ∆ÓfinSummon: Fat Chocobo"en*^https://cards.scryfall.io/normal/front/a/4/a44ae92c-4894-4172-82b3-11e2e94653ef.jpg?17491219262{4}{G}8B"Enchantment Creature ‚Äî Saga BirdJnormalRGZG
@@ -21098,9 +21095,9 @@ Demon Wall"en*^https://cards.scryfall.io/normal/front/1/3/13abd96c-d1af-43d0-b3
 äƒÓfin+Sidequest: Raise a Chocobo // Black Chocobo"en8B Enchantment // Creature ‚Äî BirdJ	transformZGbî
 Sidequest: Raise a ChocoboEnchantment{1}{G}"^https://cards.scryfall.io/normal/front/0/c/0cbf911c-a721-4b84-8645-d83a0966be18.jpg?1748707823*GbÑ
 Black ChocoboCreature ‚Äî Bird"]https://cards.scryfall.io/normal/back/0/c/0cbf911c-a721-4b84-8645-d83a0966be18.jpg?1748707823*G
-¡∞Ôfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb9
-Zanarkand, Ancient MetropolisLand ‚Äî Town	{4}{G}{G}b&
-Lasting FaythSorcery ‚Äî Adventure
+¡∞Ôfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb.
+Zanarkand, Ancient MetropolisLand ‚Äî Townb1
+Lasting FaythSorcery ‚Äî Adventure	{4}{G}{G}
 ¢≥Ófin%Esper Origins // Summon: Esper Maduin"en8B2Sorcery // Enchantment Creature ‚Äî Saga ElementalJ	transformZGbÉ
 Esper OriginsSorcery{1}{G}"^https://cards.scryfall.io/normal/front/e/f/efbe3aa0-ddf1-4db2-ae4c-cfea7b5d09ed.jpg?1748707852*Gb°
 Summon: Esper Maduin'Enchantment Creature ‚Äî Saga Elemental"]https://cards.scryfall.io/normal/back/e/f/efbe3aa0-ddf1-4db2-ae4c-cfea7b5d09ed.jpg?1748707852*G
@@ -21112,9 +21109,9 @@ Demon Wall"en*^https://cards.scryfall.io/normal/front/1/3/13abd96c-d1af-43d0-b3
 °âÌfinMoogles' Valor"en*^https://cards.scryfall.io/normal/front/5/2/522920b3-e7a4-4097-8321-2dbb326719c6.jpg?17487070152	{3}{W}{W}8BInstantJnormalRWZW
 ≤ÖÌfinMachinist's Arsenal"en*^https://cards.scryfall.io/normal/front/f/f/ff976428-2145-4630-aab1-08870b90b2f0.jpg?17487058392{4}{W}8BArtifact ‚Äî EquipmentJnormalRWZW
 ñïÔfinAdventurer's Inn"en*^https://cards.scryfall.io/normal/front/f/0/f0da2ee1-986e-4cbf-92eb-d96fdb572ca5.jpg?1748706796BLand ‚Äî TownJnormal
-±¢Ôfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb1
-Ishgard, the Holy SeeLand ‚Äî Town	{3}{W}{W}b&
-Faith & GriefSorcery ‚Äî Adventure
+±¢Ôfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb&
+Ishgard, the Holy SeeLand ‚Äî Townb1
+Faith & GriefSorcery ‚Äî Adventure	{3}{W}{W}
 ÃóÓfin=Sidequest: Play Blitzball // World Champion, Celestial Weapon"en8B/Enchantment // Legendary Artifact ‚Äî EquipmentJ	transformZRbì
 Sidequest: Play BlitzballEnchantment{2}{R}"^https://cards.scryfall.io/normal/front/3/1/31e2ad37-73cf-4858-8a3a-fc1165cd21a7.jpg?1748707819*Rb¶
  World Champion, Celestial Weapon Legendary Artifact ‚Äî Equipment"]https://cards.scryfall.io/normal/back/3/1/31e2ad37-73cf-4858-8a3a-fc1165cd21a7.jpg?1748707819*R
@@ -21398,11 +21395,11 @@ Brainstorm"ja*^https://cards.scryfall.io/normal/front/c/6/c6118d1d-28c1-4f54-97
 Kefka, Court Mage#Legendary Creature ‚Äî Human Wizard{2}{U}{B}{R}"^https://cards.scryfall.io/normal/front/2/1/21977a0a-7e76-4e1f-9c42-dcc4d63961a1.jpg?1748707915*B*R*Ub§
 Kefka, Ruler of Ruin$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/2/1/21977a0a-7e76-4e1f-9c42-dcc4d63961a1.jpg?1748707915*B*R*U
 Ü√ıfin1Kuja, Genome Sorcerer // Trance Kuja, Fate Defied"en8BRLegendary Creature ‚Äî Human Mutant Wizard // Legendary Creature ‚Äî Avatar WizardJ	transformZBZRb¥
-Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*Rb•
-Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*R
+Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*Rb•
+Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*R
 Üƒıfin1Kuja, Genome Sorcerer // Trance Kuja, Fate Defied"en8BRLegendary Creature ‚Äî Human Mutant Wizard // Legendary Creature ‚Äî Avatar WizardJ	transformZBZRb¥
-Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*Rb•
-Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*R
+Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*Rb•
+Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*R
 Ã≈ıfinLightning, Army of One"en*^https://cards.scryfall.io/normal/front/2/b/2b760674-b6cc-4730-8c88-4e627f60589c.jpg?17487075952	{1}{R}{W}8B$Legendary Creature ‚Äî Human SoldierJnormalRRRWZRZW
 ‘∆ıfinNoctis, Prince of Lucis"en*^https://cards.scryfall.io/normal/front/4/9/49543cd4-d976-4d3b-a7d2-6acfbb28b1b5.jpg?17487075952{1}{W}{U}{B}8B"Legendary Creature ‚Äî Human NobleJnormalRBRURWZBZUZW
 ’«ıfinSquall, SeeD Mercenary"en*^https://cards.scryfall.io/normal/front/5/1/51df7137-8bfc-4140-b436-88834bd78b73.jpg?17487075952	{2}{W}{B}8B-Legendary Creature ‚Äî Human Knight MercenaryJnormalRBRWZBZW
@@ -21443,38 +21440,38 @@ Brainstorm"ja*^https://cards.scryfall.io/normal/front/c/6/c6118d1d-28c1-4f54-97
 æﬁıfinSummon: Fat Chocobo"en*^https://cards.scryfall.io/normal/front/a/4/a44ae92c-4894-4172-82b3-11e2e94653ef.jpg?17491219262{4}{G}8B"Enchantment Creature ‚Äî Saga BirdJnormalRGZG
 ∑ﬂıfinSummon: Fenrir"en*^https://cards.scryfall.io/normal/front/4/1/412093fb-15c1-4b36-aa53-9484f955ee2c.jpg?17487072002{2}{G}8B"Enchantment Creature ‚Äî Saga WolfJsagaRGZG
 ∫‡ıfinSummon: Titan"en*^https://cards.scryfall.io/normal/front/e/5/e5881485-7935-427e-911e-843f198d94dc.jpg?17487072072	{3}{G}{G}8B#Enchantment Creature ‚Äî Saga GiantJsagaRGZG
-±·ıfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb1
-Ishgard, the Holy SeeLand ‚Äî Town	{3}{W}{W}b&
-Faith & GriefSorcery ‚Äî Adventure
-±‚ıfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb1
-Ishgard, the Holy SeeLand ‚Äî Town	{3}{W}{W}b&
-Faith & GriefSorcery ‚Äî Adventure
-µ„ıfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb8
-Jidoor, Aristocratic CapitalLand ‚Äî Town	{4}{U}{U}b!
-OvertureSorcery ‚Äî Adventure
-µ‰ıfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb8
-Jidoor, Aristocratic CapitalLand ‚Äî Town	{4}{U}{U}b!
-OvertureSorcery ‚Äî Adventure
-≥Âıfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb5
-Lindblum, Industrial RegencyLand ‚Äî Town{2}{R}b#
+±·ıfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb&
+Ishgard, the Holy SeeLand ‚Äî Townb1
+Faith & GriefSorcery ‚Äî Adventure	{3}{W}{W}
+±‚ıfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb&
+Ishgard, the Holy SeeLand ‚Äî Townb1
+Faith & GriefSorcery ‚Äî Adventure	{3}{W}{W}
+µ„ıfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb-
+Jidoor, Aristocratic CapitalLand ‚Äî Townb,
+OvertureSorcery ‚Äî Adventure	{4}{U}{U}
+µ‰ıfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb-
+Jidoor, Aristocratic CapitalLand ‚Äî Townb,
+OvertureSorcery ‚Äî Adventure	{4}{U}{U}
+≥Âıfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb-
+Lindblum, Industrial RegencyLand ‚Äî Townb+
 
-Mage SiegeInstant ‚Äî Adventure
-≥Êıfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb5
-Lindblum, Industrial RegencyLand ‚Äî Town{2}{R}b#
+Mage SiegeInstant ‚Äî Adventure{2}{R}
+≥Êıfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb-
+Lindblum, Industrial RegencyLand ‚Äî Townb+
 
-Mage SiegeInstant ‚Äî Adventure
-ßÁıfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb-
-Midgar, City of MakoLand ‚Äî Town{2}{B}b%
-Reactor RaidSorcery ‚Äî Adventure
-ßËıfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb-
-Midgar, City of MakoLand ‚Äî Town{2}{B}b%
-Reactor RaidSorcery ‚Äî Adventure
-¡Èıfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb9
-Zanarkand, Ancient MetropolisLand ‚Äî Town	{4}{G}{G}b&
-Lasting FaythSorcery ‚Äî Adventure
-¡Íıfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb9
-Zanarkand, Ancient MetropolisLand ‚Äî Town	{4}{G}{G}b&
-Lasting FaythSorcery ‚Äî Adventure
+Mage SiegeInstant ‚Äî Adventure{2}{R}
+ßÁıfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb%
+Midgar, City of MakoLand ‚Äî Townb-
+Reactor RaidSorcery ‚Äî Adventure{2}{B}
+ßËıfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb%
+Midgar, City of MakoLand ‚Äî Townb-
+Reactor RaidSorcery ‚Äî Adventure{2}{B}
+¡Èıfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb.
+Zanarkand, Ancient MetropolisLand ‚Äî Townb1
+Lasting FaythSorcery ‚Äî Adventure	{4}{G}{G}
+¡Íıfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb.
+Zanarkand, Ancient MetropolisLand ‚Äî Townb1
+Lasting FaythSorcery ‚Äî Adventure	{4}{G}{G}
 …ÎıfinArdyn, the Usurper"en*^https://cards.scryfall.io/normal/front/3/4/34bd7a66-afb1-4a6b-80b3-fce1bb361d88.jpg?17487075752{5}{B}{B}{B}8B(Legendary Creature ‚Äî Elder Human NobleJnormalRBZB
 ƒÏıfinKain, Traitorous Dragoon"en*^https://cards.scryfall.io/normal/front/2/8/28eb294b-4cab-4c34-ae29-20aac9799471.jpg?17487075092{2}{B}8B#Legendary Creature ‚Äî Human KnightJnormalRBZB
 úÌıfin8Sephiroth, Fabled SOLDIER // Sephiroth, One-Winged Angel"en8B\Legendary Creature ‚Äî Human Avatar Soldier // Legendary Creature ‚Äî Angel Nightmare AvatarJ	transformZBb≥
@@ -21533,8 +21530,8 @@ Mage SiegeInstant ‚Äî Adventure
 Kefka, Court Mage#Legendary Creature ‚Äî Human Wizard{2}{U}{B}{R}"^https://cards.scryfall.io/normal/front/2/1/21977a0a-7e76-4e1f-9c42-dcc4d63961a1.jpg?1748707915*B*R*Ub§
 Kefka, Ruler of Ruin$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/2/1/21977a0a-7e76-4e1f-9c42-dcc4d63961a1.jpg?1748707915*B*R*U
 ÜÎÓfin1Kuja, Genome Sorcerer // Trance Kuja, Fate Defied"en8BRLegendary Creature ‚Äî Human Mutant Wizard // Legendary Creature ‚Äî Avatar WizardJ	transformZBZRb¥
-Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*Rb•
-Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/d/6/d673228a-eec8-4f6e-82fd-10db909ccee2.jpg?1748707916*B*R
+Kuja, Genome Sorcerer*Legendary Creature ‚Äî Human Mutant Wizard	{2}{B}{R}"^https://cards.scryfall.io/normal/front/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*Rb•
+Trance Kuja, Fate Defied$Legendary Creature ‚Äî Avatar Wizard"]https://cards.scryfall.io/normal/back/6/5/65530632-5b09-4359-921b-a6d094937aff.jpg?1763805528*B*R
 ∏ÙÓfin"Serah Farron // Crystallized Serah"en8B:Legendary Creature ‚Äî Human Citizen // Legendary ArtifactJ	transformZGZWb•
 Serah Farron$Legendary Creature ‚Äî Human Citizen	{1}{G}{W}"^https://cards.scryfall.io/normal/front/7/2/7224bb1b-167c-47e5-8314-84aebca054b6.jpg?1748707896*G*Wbç
 Crystallized SerahLegendary Artifact"]https://cards.scryfall.io/normal/back/7/2/7224bb1b-167c-47e5-8314-84aebca054b6.jpg?1748707896*G*W
@@ -21547,22 +21544,22 @@ Mage SiegeInstant ‚Äî Adventure
 ±óÔfin6Balamb Garden, SeeD Academy // Balamb Garden, Airborne"enB/Land ‚Äî Town // Legendary Artifact ‚Äî VehicleJ	transformZGZUbå
 Balamb Garden, SeeD AcademyLand ‚Äî Town"^https://cards.scryfall.io/normal/front/1/a/1a6c87dc-188c-4c75-9026-568263940b90.jpg?1748707846bò
 Balamb Garden, AirborneLegendary Artifact ‚Äî Vehicle"]https://cards.scryfall.io/normal/back/1/a/1a6c87dc-188c-4c75-9026-568263940b90.jpg?1748707846
-±£Ôfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb1
-Ishgard, the Holy SeeLand ‚Äî Town	{3}{W}{W}b&
-Faith & GriefSorcery ‚Äî Adventure
-µ•Ôfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb8
-Jidoor, Aristocratic CapitalLand ‚Äî Town	{4}{U}{U}b!
-OvertureSorcery ‚Äî Adventure
-≥ßÔfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb5
-Lindblum, Industrial RegencyLand ‚Äî Town{2}{R}b#
+±£Ôfin&Ishgard, the Holy See // Faith & Grief"en*^https://cards.scryfall.io/normal/front/b/5/b5327e09-2ea0-4365-bb20-087a08da8ce6.jpg?17487069382	{3}{W}{W}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZWb&
+Ishgard, the Holy SeeLand ‚Äî Townb1
+Faith & GriefSorcery ‚Äî Adventure	{3}{W}{W}
+µ•Ôfin(Jidoor, Aristocratic Capital // Overture"en*^https://cards.scryfall.io/normal/front/7/2/72678d58-888e-4d3c-bc2c-78f5b7862e03.jpg?17487069412	{4}{U}{U}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZUb-
+Jidoor, Aristocratic CapitalLand ‚Äî Townb,
+OvertureSorcery ‚Äî Adventure	{4}{U}{U}
+≥ßÔfin*Lindblum, Industrial Regency // Mage Siege"en*^https://cards.scryfall.io/normal/front/b/2/b2ae92d9-7047-424e-a482-2311888a8c56.jpg?17501880482{2}{R}B&Land ‚Äî Town // Instant ‚Äî AdventureJ	adventureZRb-
+Lindblum, Industrial RegencyLand ‚Äî Townb+
 
-Mage SiegeInstant ‚Äî Adventure
-ß©Ôfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb-
-Midgar, City of MakoLand ‚Äî Town{2}{B}b%
-Reactor RaidSorcery ‚Äî Adventure
-¡±Ôfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb9
-Zanarkand, Ancient MetropolisLand ‚Äî Town	{4}{G}{G}b&
-Lasting FaythSorcery ‚Äî Adventure
+Mage SiegeInstant ‚Äî Adventure{2}{R}
+ß©Ôfin$Midgar, City of Mako // Reactor Raid"en*^https://cards.scryfall.io/normal/front/f/a/fa605930-a7f0-410d-ac58-f5f0bd8caadf.jpg?17487069492{2}{B}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZBb%
+Midgar, City of MakoLand ‚Äî Townb-
+Reactor RaidSorcery ‚Äî Adventure{2}{B}
+¡±Ôfin.Zanarkand, Ancient Metropolis // Lasting Fayth"en*^https://cards.scryfall.io/normal/front/c/6/c64bb94b-c1a7-4dd3-b2dc-b87d306d62ad.jpg?17487069522	{4}{G}{G}B&Land ‚Äî Town // Sorcery ‚Äî AdventureJ	adventureZGb.
+Zanarkand, Ancient MetropolisLand ‚Äî Townb1
+Lasting FaythSorcery ‚Äî Adventure	{4}{G}{G}
 ƒ≤ÔfinRagnarok, Divine Deliverance"en*^https://cards.scryfall.io/normal/front/a/9/a951cc35-bd29-467f-b28c-5d57340e7450.jpg?17487081928B#Legendary Creature ‚Äî Beast AvatarJmeldRBRGZBZG
 ïııjmpHerald's Horn"en*^https://cards.scryfall.io/normal/front/e/6/e64d51b3-20a2-4cc3-bd70-7f165940c157.jpg?16010807352{3}8BArtifactJnormal
 ßœ˙ha7	Sun Titan"en*^https://cards.scryfall.io/normal/front/c/c/cc2e4b6b-db54-40c2-a9a8-2d8dace1205d.jpg?16894937822	{4}{W}{W}8BCreature ‚Äî GiantJnormalRWZW
@@ -21749,7 +21746,7 @@ Focus Fire"en*^https://cards.scryfall.io/normal/front/a/9/a9ddfcbc-0f84-4315-aa
 πﬁÛeoeSlagdrill Scrapper"en*^https://cards.scryfall.io/normal/front/1/5/155dcf54-8fdb-4715-97dc-4eb5d3d80d78.jpg?17529472022{R}8B!Artifact Creature ‚Äî Robot ScoutJnormalRRZR
 –òÙeoeHaliya, Ascendant Cadet"en*^https://cards.scryfall.io/normal/front/6/8/683d6eba-7f98-4105-b318-7f2290012f32.jpg?17529474482{2}{G}{W}{W}8B$Legendary Creature ‚Äî Human SoldierJnormalRGRWZGZW
 µ´ÛeoeLightless Evangel"en*^https://cards.scryfall.io/normal/front/6/8/6860556a-6c34-4c41-89ea-f0bc495a159c.jpg?17529469942{1}{B}8BCreature ‚Äî Vampire ClericJnormalRBZB
-û€ÚeoeRadiant Strike"en*^https://cards.scryfall.io/normal/front/8/c/8c38e4cb-918b-4493-872b-66c90dcfd339.jpg?17529466652{3}{W}8BInstantJnormalRWZW
+û€ÚeoeRadiant Strike"en*^https://cards.scryfall.io/normal/front/8/c/8c38e4cb-918b-4493-872b-66c90dcfd339.jpg?17618260702{3}{W}8BInstantJnormalRWZW
 æîÙeoeBiotech Specialist"en*^https://cards.scryfall.io/normal/front/9/7/97dc831c-bd78-4c21-a1f3-24794db8eb5f.jpg?17529479612{R}{G}8BCreature ‚Äî Insect ScientistJnormalRGRRZGZR
 ∂ÈÛeoeAtmospheric Greenhouse"en*^https://cards.scryfall.io/normal/front/b/f/bf05e378-7a0c-49e3-8c6e-c0fd56796434.jpg?17553414102{4}{G}8BArtifact ‚Äî SpacecraftJnormalRGZG
 ∏ÚÛeoeEumidian Terrabotanist"en*^https://cards.scryfall.io/normal/front/6/4/64fb2981-86ed-478a-89cd-c6bb078a5bc7.jpg?17536832252{1}{G}8BCreature ‚Äî Insect DruidJnormalRGZG
@@ -22135,7 +22132,7 @@ Gwen Stacy+Legendary Creature ‚Äî Human Performer Hero{1}{R}"^https://cards.s
 åœ¸om1&Eddie Brock // Venom, Lethal Protector"en8BYLegendary Creature ‚Äî Human Hero Villain // Legendary Creature ‚Äî Symbiote Hero VillainJ	modal_dfcZBZGZRb£
 Eddie Brock)Legendary Creature ‚Äî Human Hero Villain{2}{B}"^https://cards.scryfall.io/normal/front/4/2/42a3589f-f09e-4298-b1ae-7165de65bfb8.jpg?1757549239*BbΩ
 Venom, Lethal Protector,Legendary Creature ‚Äî Symbiote Hero Villain{3}{B}{R}{G}"]https://cards.scryfall.io/normal/back/4/2/42a3589f-f09e-4298-b1ae-7165de65bfb8.jpg?1757549239*B*G*R
-»ò¸om1Arachne, Psionic Weaver"en*^https://cards.scryfall.io/normal/front/6/5/6512f8c1-96bb-4a33-b20f-dd09f6eec5dc.jpg?17575494772{2}{W}8B(Legendary Creature ‚Äî Spider Human HeroJnormalRWZW
+»ò¸om1Arachne, Psionic Weaver"en*^https://cards.scryfall.io/normal/front/6/5/6512f8c1-96bb-4a33-b20f-dd09f6eec5dc.jpg?17628022962{2}{W}8B(Legendary Creature ‚Äî Spider Human HeroJnormalRWZW
 Œ˝¸om1Ezekiel Sims, Spider-Totem"en*^https://cards.scryfall.io/normal/front/b/f/bf2b3695-f5f3-4b17-bde3-90ec0c6b9e5b.jpg?17575472372{4}{G}8B+Legendary Creature ‚Äî Spider Human AdvisorJnormalRGZG
 ßá˝om1Pictures of Spider-Man"en*^https://cards.scryfall.io/normal/front/4/2/42b0bd7b-38a6-465c-badf-ea72989160b9.jpg?17575416722{2}{G}8BArtifactJnormalRGZG
 ÷≤˝om1Spider-Woman, Stunning Savior"en*^https://cards.scryfall.io/normal/front/f/b/fbf1ea21-2e90-4792-b399-111ff70a9d06.jpg?17575457532{1}{W/U}8B(Legendary Creature ‚Äî Spider Human HeroJnormalRURWZUZW
@@ -22143,7 +22140,7 @@ Gwen Stacy+Legendary Creature ‚Äî Human Performer Hero{1}{R}"^https://cards.s
 Wall Crawl"en*^https://cards.scryfall.io/normal/front/c/3/c37e8b36-00bc-4fc0-89e1-dfd8a3188465.jpg?17575478962{3}{G}8BEnchantmentJnormalRGZG
 Œé˝om1Spider-Rex, Daring Dino"en*^https://cards.scryfall.io/normal/front/3/6/36320a3a-e771-4763-b147-f328724cf36c.jpg?17575425812	{4}{G}{G}8B+Legendary Creature ‚Äî Spider Dinosaur HeroJnormalRGZG
 ‘≠˝om1SP//dr, Piloted by Peni"en*^https://cards.scryfall.io/normal/front/c/1/c10d6ea8-f670-41c9-8aa0-66df5fd69f34.jpg?17575602872	{3}{W}{U}8B+Legendary Artifact Creature ‚Äî Spider HeroJnormalRURWZUZW
-µë˝om1Supportive Parents"en*^https://cards.scryfall.io/normal/front/0/9/09bda521-5d2d-4a61-a533-06361e91e4cb.jpg?17575484302{2}{G}8BCreature ‚Äî Human CitizenJnormalRGZG
+µë˝om1Supportive Parents"en*^https://cards.scryfall.io/normal/front/d/f/dfcd2602-6722-420e-a5e2-49cc046ccd5c.jpg?17641512402{2}{G}8BCreature ‚Äî Human CitizenJnormalRGZG
 ì´¸om1Thwip!"en*^https://cards.scryfall.io/normal/front/5/8/582e9e16-51a6-4f5a-a060-d7e92b108ed5.jpg?17575456202{W}8BInstantJnormalRWZW
 ®À¸om1Behold the Sinister Six!"en*^https://cards.scryfall.io/normal/front/2/c/2cdb2129-2cb9-49a0-a30b-34a4b2534f41.jpg?17575448972{6}{B}8BSorceryJnormalRBZB
 ≈¿˝om1Iron Spider, Stark Upgrade"en*^https://cards.scryfall.io/normal/front/0/2/0229a5a9-eb7f-4eba-8b1e-f2271e312d4a.jpg?17575443782{3}8B+Legendary Artifact Creature ‚Äî Spider HeroJnormal
@@ -22356,3 +22353,556 @@ Gwen Stacy+Legendary Creature ‚Äî Human Performer Hero{1}{R}"^https://cards.s
 ÄÜ˝om1$Miles Morales // Ultimate Spider-Man"en8BULegendary Creature ‚Äî Human Citizen Hero // Legendary Creature ‚Äî Spider Human HeroJ	modal_dfcZGZRZWb•
 Miles Morales)Legendary Creature ‚Äî Human Citizen Hero{1}{G}"^https://cards.scryfall.io/normal/front/7/f/7feb1493-b73e-4ee3-968e-d69806360952.jpg?1757644425*Gbµ
 Ultimate Spider-Man(Legendary Creature ‚Äî Spider Human Hero{3}{R}{G}{W}"]https://cards.scryfall.io/normal/back/7/f/7feb1493-b73e-4ee3-968e-d69806360952.jpg?1757644425*G*R*W
+óùébroIsland"en*^https://cards.scryfall.io/normal/front/f/e/fe9d36d3-9373-407c-91fd-975d8ee9e4fe.jpg?1674422330BBasic Land ‚Äî IslandJnormalZU
+ï†éneoSwamp"en*^https://cards.scryfall.io/normal/front/f/d/fdfebc79-5d84-4ce5-8bff-d09fe333f4a3.jpg?1654569141BBasic Land ‚Äî SwampJnormalZB
+ó§émh3Forest"en*^https://cards.scryfall.io/normal/front/f/f/ff4c78b4-7178-4a60-ba22-086fb18146df.jpg?1717013886BBasic Land ‚Äî ForestJnormalZG
+ïüéneoSwamp"en*^https://cards.scryfall.io/normal/front/f/d/fdfebc79-5d84-4ce5-8bff-d09fe333f4a3.jpg?1654569141BBasic Land ‚Äî SwampJnormalZB
+óõéakrPlains"en*^https://cards.scryfall.io/normal/front/f/e/febd8326-9ba6-43de-bb29-910cb459498e.jpg?1597375858BBasic Land ‚Äî PlainsJnormalZW
+óúéakrPlains"en*^https://cards.scryfall.io/normal/front/f/e/febd8326-9ba6-43de-bb29-910cb459498e.jpg?1597375858BBasic Land ‚Äî PlainsJnormalZW
+ó£émh3Forest"en*^https://cards.scryfall.io/normal/front/f/f/ff4c78b4-7178-4a60-ba22-086fb18146df.jpg?1717013886BBasic Land ‚Äî ForestJnormalZG
+õ°ém19Mountain"en*^https://cards.scryfall.io/normal/front/f/e/fedbe1f9-b29f-4bdd-9718-615b7c2413b4.jpg?1562305306BBasic Land ‚Äî MountainJnormalZR
+óûébroIsland"en*^https://cards.scryfall.io/normal/front/f/e/fe9d36d3-9373-407c-91fd-975d8ee9e4fe.jpg?1674422330BBasic Land ‚Äî IslandJnormalZU
+õ¢ém19Mountain"en*^https://cards.scryfall.io/normal/front/f/e/fedbe1f9-b29f-4bdd-9718-615b7c2413b4.jpg?1562305306BBasic Land ‚Äî MountainJnormalZR
+∞¯Èj21Regal Force"en*^https://cards.scryfall.io/normal/front/b/7/b7014c70-7c68-4dcf-9451-175810b2c363.jpg?16302707752{4}{G}{G}{G}8BCreature ‚Äî ElementalJnormalRGZG
+õÌ®j21Assault Strobe"en*^https://cards.scryfall.io/normal/front/7/c/7c3e18a2-e155-47fa-baee-56453d3d32dd.jpg?16302702882{R}8BSorceryJnormalRRZR
+Ø°Äj21Stormfront Pegasus"en*^https://cards.scryfall.io/normal/front/9/b/9bd91239-76f8-4834-874a-5428c5384f64.jpg?17094444672{1}{W}8BCreature ‚Äî PegasusJnormalRWZW
+©ôˇj21Kraken Hatchling"en*^https://cards.scryfall.io/normal/front/1/6/167de85e-34b8-4989-a38d-bc5c6b0301c6.jpg?16302705702{U}8BCreature ‚Äî KrakenJnormalRUZU
+âöéea2Wastes"en*^https://cards.scryfall.io/normal/front/7/7/77e8f8ec-6625-4615-aa5e-f324642b45b0.jpg?1680477865B
+Basic LandJnormal
+ñè˜brrChromatic Star"en*^https://cards.scryfall.io/normal/front/6/6/669f7205-af98-4e9b-a5d1-2901507c511d.jpg?16740918552{1}8BArtifactJnormal
+ó™yj21Force Spike"en*^https://cards.scryfall.io/normal/front/4/a/4a86db54-f920-4644-9efb-e371446cba8d.jpg?16302708332{U}8BInstantJnormalRUZU
+úõ“ydmuTimetwister"en*^https://cards.scryfall.io/normal/front/b/4/b4249540-d391-4ed8-aa88-fa781d584683.jpg?16697663602{2}{U}8BSorceryJnormalRUZU
+öô“ydmu	Time Walk"en*^https://cards.scryfall.io/normal/front/7/e/7e5704ea-175a-485b-b756-b6d32aad5ebb.jpg?16697663342{1}{U}8BSorceryJnormalRUZU
+§ó◊j21Tropical Island"en*^https://cards.scryfall.io/normal/front/a/f/af57b2e6-75d8-4508-8f1c-36e1238d3d45.jpg?1630270105BLand ‚Äî Forest IslandJnormalZGZU
+íûïydmuMox Ruby"en*^https://cards.scryfall.io/normal/front/c/2/c2b63b44-7eb1-49c8-af84-6e69bc379094.jpg?16697664902{0}BArtifactJnormalZR
+ñüïydmuMox Sapphire"en*^https://cards.scryfall.io/normal/front/c/8/c8780a37-2d5f-4461-a6df-daaf142659a1.jpg?16697665552{0}BArtifactJnormalZU
+ë†ïydmuMox Jet"en*^https://cards.scryfall.io/normal/front/7/1/716c83f1-cfd7-4f00-a614-de53a7bd1dd3.jpg?16697665132{0}BArtifactJnormalZB
+ïúïydmuMox Emerald"en*^https://cards.scryfall.io/normal/front/f/7/f730ea98-4270-4a85-b6f9-0ff926d14c8f.jpg?16697663972{0}BArtifactJnormalZG
+ìùïydmu	Mox Pearl"en*^https://cards.scryfall.io/normal/front/a/2/a2229e01-861f-45e6-9305-c480b86bea73.jpg?16701303252{0}BArtifactJnormalZW
+±π˘tlaOrigin of Metalbending"en*^https://cards.scryfall.io/normal/front/2/5/25749f9a-260d-4bdc-bd28-429c12faa4a5.jpg?17641212732{1}{G}8BInstant ‚Äî LessonJnormalRGZG
+öÄ˙tlaBender's Waterskin"en*^https://cards.scryfall.io/normal/front/6/d/6d4a1712-d19e-4475-9614-a0b1af4da610.jpg?17641218852{3}8BArtifactJnormal
+ßÅ˙tlaFire Nation Warship"en*^https://cards.scryfall.io/normal/front/4/1/41ecc1de-353e-4131-b735-d2ce18c9c2d5.jpg?17641218922{3}8BArtifact ‚Äî VehicleJnormal
+∑¿¯tlaSecret of Bloodbending"en*^https://cards.scryfall.io/normal/front/6/8/682fabaf-bfb0-4ee8-b297-f7436c7a68f2.jpg?17641224222{U}{U}{U}{U}8BSorcery ‚Äî LessonJnormalRUZU
+û¸˜tlaZuko's Exile"en*^https://cards.scryfall.io/normal/front/9/0/9090b055-3406-4fed-a8c6-3f6353a9600e.jpg?17641198862{5}8BInstant ‚Äî LessonJnormal
+∑ì¯tlaKyoshi Warriors"en*^https://cards.scryfall.io/normal/front/2/1/211045e1-85c7-4088-b830-a2afa0fe520b.jpg?17641200522{3}{W}8BCreature ‚Äî Human Warrior AllyJnormalRWZW
+≈…¯tlaWan Shi Tong, Librarian"en*^https://cards.scryfall.io/normal/front/d/4/d4bf05c4-a924-4006-835e-42f8468ba869.jpg?17641223132	{X}{U}{U}8B"Legendary Creature ‚Äî Bird SpiritJnormalRUZU
+ºâ¯tlaEarth Kingdom Jailer"en*^https://cards.scryfall.io/normal/front/9/2/9207362c-3605-4794-803f-ad1d0175fcca.jpg?17641199782{2}{W}8BCreature ‚Äî Human Soldier AllyJnormalRWZW
+Ã›˘tlaFire Lord Azula"en*^https://cards.scryfall.io/normal/front/1/e/1ea7248c-e4b3-4776-8e6a-cba06da2d6cc.jpg?17641224012{1}{U}{B}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRBRRRUZBZRZU
+ƒ≈¯tlaTeo, Spirited Glider"en*^https://cards.scryfall.io/normal/front/6/6/66906ed4-baac-4be0-9359-34f453d1a04a.jpg?17641204772{3}{U}8B'Legendary Creature ‚Äî Human Pilot AllyJnormalRUZU
+∫Ñ¯tlaAvatar Enthusiasts"en*^https://cards.scryfall.io/normal/front/7/2/7292e5f2-d5a1-4e39-8f75-eba471819f04.jpg?17641199422{2}{W}8BCreature ‚Äî Human Peasant AllyJnormalRWZW
+òÛ¯tlaSold Out"en*^https://cards.scryfall.io/normal/front/1/a/1affba6d-2cca-4cdf-8690-1e23ffbe8462.jpg?17641208232{3}{B}8BInstantJnormalRBZB
+æô˘tlaTreetop Freedom Fighters"en*^https://cards.scryfall.io/normal/front/a/9/a9394200-7ffc-440f-8b5f-c08b7930133c.jpg?17641210722{2}{R}8BCreature ‚Äî Human Rebel AllyJnormalRRZR
+´„¯tla
+Hog-Monkey"en*^https://cards.scryfall.io/normal/front/4/f/4f442970-5355-4abf-8684-17daaa8e469b.jpg?17641207222{2}{B}8BCreature ‚Äî Boar MonkeyJnormalRBZB
+ß¬˘tlaShared Roots"en*^https://cards.scryfall.io/normal/front/e/7/e7847ba5-e85e-417f-96c0-aef2e6f83994.jpg?17641213322{1}{G}8BSorcery ‚Äî LessonJnormalRGZG
+´í˘tlaPrice of Freedom"en*^https://cards.scryfall.io/normal/front/9/f/9fbe94e9-a71d-4a31-9210-c599abe08e3f.jpg?17641210252{1}{R}8BSorcery ‚Äî LessonJnormalRRZR
+»‘˘tlaBumi, Unleashed"en*^https://cards.scryfall.io/normal/front/7/1/7143a5ba-c597-4f8b-9f39-15849e298a6f.jpg?17641225292	{3}{R}{G}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGRRZGZR
+Æò˘tlaTiger-Dillo"en*^https://cards.scryfall.io/normal/front/0/6/067bd117-04e6-410e-89c4-6d431d627751.jpg?17641210662{1}{R}8BCreature ‚Äî Cat ArmadilloJnormalRRZR
+≈Ó˘tlaPretending Poxbearers"en*^https://cards.scryfall.io/normal/front/d/1/d1af91a5-8681-4a05-910d-96f7a819bfaa.jpg?17641217562{1}{W/B}8BCreature ‚Äî Human Citizen AllyJnormalRBRWZBZW
+¨¶¯tlaAccumulate Wisdom"en*^https://cards.scryfall.io/normal/front/a/6/a6335319-6c92-40d4-ab2d-c06c79049c30.jpg?17641201882{1}{U}8BInstant ‚Äî LessonJnormalRUZU
+†è˘xlnLightning Strike"en*^https://cards.scryfall.io/normal/front/f/0/f0f55dee-7e39-4183-8e74-844d9c299bf5.jpg?15625664472{1}{R}8BInstantJnormalRRZR
+ü†¯tlaTeam Avatar"en*^https://cards.scryfall.io/normal/front/a/9/a9a5f6f7-f04d-477f-b67f-fd01a5dcc0f5.jpg?17641201472{2}{W}8BEnchantmentJnormalRWZW
+µÆ¯tlaGeyser Leaper"en*^https://cards.scryfall.io/normal/front/4/d/4d25428d-e5a5-43c4-8544-43120ed1c4d5.jpg?17641202492{4}{U}8BCreature ‚Äî Human Warrior AllyJnormalRUZU
+∑‰¯tlaJoo Dee, One of Many"en*^https://cards.scryfall.io/normal/front/7/a/7ae1439f-a0c4-42c2-a4f3-8851defa981e.jpg?17641207292{1}{B}8BCreature ‚Äî Human AdvisorJnormalRBZB
+ªÜ˙tlaThe Walls of Ba Sing Se"en*^https://cards.scryfall.io/normal/front/0/8/086b6003-6d90-426b-809e-ea837d868290.jpg?17641223712{8}8B$Legendary Artifact Creature ‚Äî WallJnormal
+πº¯tlaNorth Pole Patrol"en*^https://cards.scryfall.io/normal/front/c/2/c2c0c138-5b61-4949-8431-4a6d458ead6a.jpg?17641203862{2}{U}8BCreature ‚Äî Human Soldier AllyJnormalRUZU
+ªÜ¯tlaCompassionate Healer"en*^https://cards.scryfall.io/normal/front/8/8/88d5f8fd-d4de-4e64-9b74-e53719ffbcdc.jpg?17641199572{1}{W}8BCreature ‚Äî Human Cleric AllyJnormalRWZW
+ø˚¯tlaCombustion Man"en*^https://cards.scryfall.io/normal/front/8/6/86f7399d-6876-4e85-ba34-ff1f97dc144a.jpg?17641208752	{3}{R}{R}8B%Legendary Creature ‚Äî Human AssassinJnormalRRZR
+ÆÀ¯tlaWaterbending Lesson"en*^https://cards.scryfall.io/normal/front/4/f/4f81e3b5-a0a9-4764-8c2d-b499ce1740b4.jpg?17641205432{3}{U}8BSorcery ‚Äî LessonJnormalRUZU
+”Ù˘tlaSuki, Kyoshi Warrior"en*^https://cards.scryfall.io/normal/front/3/e/3e311480-04f8-4b8f-938e-1cc6d06b9902.jpg?17641217942{2}{G/W}{G/W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRWZGZW
+”•˘tlaThe Boulder, Ready to Rumble"en*^https://cards.scryfall.io/normal/front/e/c/ec27a466-5457-44c6-a842-1de7d3788d66.jpg?17641211472{3}{G}8B.Legendary Creature ‚Äî Human Warrior PerformerJnormalRGZG
+Øû˘tlaYuyan Archers"en*^https://cards.scryfall.io/normal/front/9/9/99244462-a996-4a5b-91fb-947045647d6d.jpg?17641211032{1}{R}8BCreature ‚Äî Human ArcherJnormalRRZR
+»ﬂ˘tlaFoggy Swamp Spirit Keeper"en*^https://cards.scryfall.io/normal/front/c/d/cd624be9-e960-4485-a8a9-2d5f2dd51777.jpg?17641216142	{1}{U}{B}8BCreature ‚Äî Human Druid AllyJnormalRBRUZBZU
+±˙¯tlaThe Cave of Two Lovers"en*^https://cards.scryfall.io/normal/front/5/0/50bf5c8b-f218-46b7-843c-8d8083f02fd2.jpg?17641208682{3}{R}8BEnchantment ‚Äî SagaJsagaRRZR
+£Ÿ¯tlaDay of Black Sun"en*^https://cards.scryfall.io/normal/front/f/4/f42f6bd4-dc1d-4b5f-9489-2cb109a68904.jpg?17641227512	{X}{B}{B}8BSorceryJnormalRBZB
+∏ù¯tlaSouth Pole Voyager"en*^https://cards.scryfall.io/normal/front/0/4/04b58759-e9a2-46c6-b0ce-82f550c5c38d.jpg?17641227112{1}{W}8BCreature ‚Äî Human Scout AllyJnormalRWZW
+©∆˘tlaTurtle-Duck"en*^https://cards.scryfall.io/normal/front/a/e/aefcd734-3916-4c77-9d98-3ea2c2795658.jpg?17641213582{G}8BCreature ‚Äî Turtle BirdJnormalRGZG
+øë¯tlaInvasion Reinforcements"en*^https://cards.scryfall.io/normal/front/b/8/b8845bba-d116-43cd-8ae0-e553f3324d66.jpg?17641200372{1}{W}8BCreature ‚Äî Human Warrior AllyJnormalRWZW
+æ†˘tlaZuko, Exiled Prince"en*^https://cards.scryfall.io/normal/front/6/a/6a73b372-9c0e-4a85-89d2-440163330687.jpg?17641211152{3}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRRZR
+±‘¯tlaCallous Inspector"en*^https://cards.scryfall.io/normal/front/f/2/f22610e9-6b14-4914-bb67-bd6723bec9aa.jpg?17641206142{B}8BCreature ‚Äî Human SoldierJnormalRBZB
+®ú˘tlaWar Balloon"en*^https://cards.scryfall.io/normal/front/6/8/6829b20d-c2fa-41a6-89ca-f21c522d8866.jpg?17641210902{2}{R}8BArtifact ‚Äî VehicleJnormalRRZR
+éî˙tlaOmashu City"en*^https://cards.scryfall.io/normal/front/c/2/c21e413b-96ed-4ded-b567-f1647074ce5f.jpg?1764122009BLandJnormalZGZR
+µ¢¯tlaVengeful Villagers"en*^https://cards.scryfall.io/normal/front/8/c/8cabb6ed-5c80-4dab-b96c-9d4d9fe72db7.jpg?17641201612{3}{W}8BCreature ‚Äî Human CitizenJnormalRWZW
+ù€¯eldEpic Downfall"en*^https://cards.scryfall.io/normal/front/6/3/63da83fe-fa59-40cb-a42e-e1b14b650bc8.jpg?15724901222{1}{B}8BSorceryJnormalRBZB
+¨Ù¯tlaSwampsnare Trap"en*^https://cards.scryfall.io/normal/front/6/3/6348b6bf-08a7-45f0-8b2d-2827ab89f21c.jpg?17641208302{2}{B}8BEnchantment ‚Äî AuraJnormalRBZB
+¥”¯tlaBuzzard-Wasp Colony"en*^https://cards.scryfall.io/normal/front/4/2/42d83229-0555-4361-8964-4b525c825843.jpg?17641206072{3}{B}8BCreature ‚Äî Bird InsectJnormalRBZB
+ÿÚ˘tlaSokka, Lateral Strategist"en*^https://cards.scryfall.io/normal/front/1/3/1326c5db-4615-495f-8e30-376243d91352.jpg?17641217822{1}{W/U}{W/U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRURWZUZW
+®≈˘tlaTrue Ancestry"en*^https://cards.scryfall.io/normal/front/8/c/8c55b333-dc8b-4332-895b-eec5eb45543f.jpg?17641213522{1}{G}8BSorcery ‚Äî LessonJnormalRGZG
+®®¯tlaBoomerang Basics"en*^https://cards.scryfall.io/normal/front/1/7/17ab958a-abc6-472e-ad6a-97c731d89c74.jpg?17641202012{U}8BSorcery ‚Äî LessonJnormalRUZU
+®”˘tlaBitter Work"en*^https://cards.scryfall.io/normal/front/3/e/3e8de6a9-9859-4ed2-8ece-ef80a7209be9.jpg?17641214912	{1}{R}{G}8BEnchantmentJnormalRGRRZGZR
+ÿË˘tlaKatara, Water Tribe's Hope"en*^https://cards.scryfall.io/normal/front/9/5/95547532-c056-44a5-9d80-4f6b729b6e0c.jpg?17641225522{2}{W}{U}{U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRURWZUZW
+ﬂ¯˘tlaToph, the First Metalbender"en*^https://cards.scryfall.io/normal/front/1/3/1381ec47-55fd-47d9-aded-d21776bc06b9.jpg?17641226692{1}{R}{G}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRRRWZGZRZW
+êö˙tlaWhite Lotus Hideout"en*^https://cards.scryfall.io/normal/front/2/4/24d1e22c-0d99-4ed5-94f0-fd055fd8e2be.jpg?1764122044BLandJnormal
+ø÷˘tlaCruel Administrator"en*^https://cards.scryfall.io/normal/front/9/d/9d70707b-2e25-40b1-80a8-9a5492bca7e2.jpg?17641215222	{3}{B}{R}8BCreature ‚Äî Human SoldierJnormalRBRRZBZR
+Øô¯tlaPath to Redemption"en*^https://cards.scryfall.io/normal/front/f/9/f936d64a-0db4-49c1-8a57-6d99e012a555.jpg?17641200972{1}{W}8BEnchantment ‚Äî AuraJnormalRWZW
+¬Ç¯tlaAppa, Loyal Sky Bison"en*^https://cards.scryfall.io/normal/front/a/9/a9b2a843-c6fe-4d19-801e-1538e4381ab0.jpg?17641199282	{4}{W}{W}8B!Legendary Creature ‚Äî Bison AllyJnormalRWZW
+Æã¯tlaEnter the Avatar State"en*^https://cards.scryfall.io/normal/front/a/8/a8f3d2cb-d073-4df8-8769-49612628a377.jpg?17641199932{W}8BInstant ‚Äî LessonJnormalRWZW
+≥¡¯tlaSerpent of the Pass"en*^https://cards.scryfall.io/normal/front/8/7/87595843-15bc-48bb-8a81-3e6ad924ed44.jpg?17641204362	{5}{U}{U}8BCreature ‚Äî SerpentJnormalRUZU
+…µ¯tlaKatara, Bending Prodigy"en*^https://cards.scryfall.io/normal/front/e/8/e8372167-383f-4302-a8ea-b6bf495c870c.jpg?17641203182{2}{U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRUZU
+îí˙tlaMisty Palms Oasis"en*^https://cards.scryfall.io/normal/front/7/c/7cc29ddb-8f44-4493-985d-2fac35f9f34d.jpg?1764121997BLandJnormalZBZW
+«‡˘tlaGuru Pathik"en*^https://cards.scryfall.io/normal/front/2/2/224a2241-0dce-4008-8d9c-86db40ec5f8b.jpg?17641216232{2}{G/U}{G/U}8B&Legendary Creature ‚Äî Human Monk AllyJnormalRGRUZGZU
+≈Ë¯tlaMai, Scornful Striker"en*^https://cards.scryfall.io/normal/front/a/a/aaf2c3e2-7941-49a6-9299-7135690f01e1.jpg?17641227572{1}{B}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRBZB
+ÆØ˘tlaElemental Teachings"en*^https://cards.scryfall.io/normal/front/8/0/809bd283-8587-44df-af27-fe4d9bdeedd0.jpg?17641227842{4}{G}8BInstant ‚Äî LessonJnormalRGZG
+±∂˘tlaLeaves from the Vine"en*^https://cards.scryfall.io/normal/front/b/1/b18995c2-efe3-46ca-8204-e2dc0e42f6e3.jpg?17641212552{1}{G}8BEnchantment ‚Äî SagaJnormalRGZG
+üã˘tlaJet's Brainwashing"en*^https://cards.scryfall.io/normal/front/b/1/b17e8bdb-4b91-4a9d-bfe1-8a55f0bd040b.jpg?17641209812{R}8BSorceryJnormalRRZR
+“‚˘tlaHei Bai, Spirit of Balance"en*^https://cards.scryfall.io/normal/front/0/6/060d24e0-1567-41f1-ae8c-2d3b1834df3c.jpg?17641216432{2}{W/B}{W/B}8B"Legendary Creature ‚Äî Bear SpiritJnormalRBRWZBZW
+ª«˘tlaUnlucky Cabbage Merchant"en*^https://cards.scryfall.io/normal/front/0/a/0a838009-b115-4497-b35d-682e41ead7db.jpg?17641213652{1}{G}8BCreature ‚Äî Human CitizenJnormalRGZG
+ÇÀ˘tla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+≠÷¯tla	Cat-Gator"en*^https://cards.scryfall.io/normal/front/e/c/ec83a825-79e6-42a4-919c-3bc498ff4433.jpg?17641206292{6}{B}8BCreature ‚Äî Fish CrocodileJnormalRBZB
+†ó˘tlaSozin's Comet"en*^https://cards.scryfall.io/normal/front/e/4/e4588e53-a5cf-463a-a7b6-20437aeaabee.jpg?17641223892	{3}{R}{R}8BSorceryJnormalRRZR
+äã˙tla
+Ba Sing Se"en*^https://cards.scryfall.io/normal/front/a/8/a8fd4587-7c30-4322-8f19-eb395d66c623.jpg?1764122852BLandJnormalZG
+ïù˙neoSwamp"en*^https://cards.scryfall.io/normal/front/f/d/fdfebc79-5d84-4ce5-8bff-d09fe333f4a3.jpg?1654569141BBasic Land ‚Äî SwampJnormalZB
+…˝˜tlaAang, the Last Airbender"en*^https://cards.scryfall.io/normal/front/2/4/245e008c-e073-443f-9592-6f628c0026ec.jpg?17641198932{3}{W}8B(Legendary Creature ‚Äî Human Avatar AllyJnormalRWZW
+®Ö˘tlaFirebender Ascension"en*^https://cards.scryfall.io/normal/front/0/5/05309d0b-302d-4a9e-b147-1b504ecf365e.jpg?17641222652{1}{R}8BEnchantmentJnormalRRZR
+îà˙tlaAbandoned Air Temple"en*^https://cards.scryfall.io/normal/front/7/6/761988b0-fb0e-45e7-97d3-cef259fe47b7.jpg?1764122839BLandJnormalZW
+≠’˘tlaCat-Owl"en*^https://cards.scryfall.io/normal/front/d/7/d7df3391-dbe5-4eb4-85c1-037c5f3ea971.jpg?17641215122{3}{W/U}8BCreature ‚Äî Cat BirdJnormalRURWZUZW
+∂Õ˘tlaAbandon Attachments"en*^https://cards.scryfall.io/normal/front/7/4/74ca45a4-97ab-4255-9129-884e8b42b984.jpg?17641214302{1}{U/R}8BInstant ‚Äî LessonJnormalRRRUZRZU
+ù⁄¯tlaDeadly Precision"en*^https://cards.scryfall.io/normal/front/4/6/4661daf6-d960-4278-8946-70948efaf99d.jpg?17641206562{B}8BSorceryJnormalRBZB
+«‹˘tlaEarth Village Ruffians"en*^https://cards.scryfall.io/normal/front/5/6/56d4e0b7-232f-4953-84a3-e6f17781aa45.jpg?17641215832{2}{B/G}8B Creature ‚Äî Human Soldier RogueJnormalRBRGZBZG
+õû˙m19Mountain"en*^https://cards.scryfall.io/normal/front/f/e/fedbe1f9-b29f-4bdd-9718-615b7c2413b4.jpg?1562305306BBasic Land ‚Äî MountainJnormalZR
+æ„˘tlaHermitic Herbalist"en*^https://cards.scryfall.io/normal/front/5/d/5d0ee441-a057-41b5-abb8-dc86864ac248.jpg?17641216532{G}{U}8BCreature ‚Äî Human Druid AllyJnormalRGRUZGZU
+©¨˘tlaEarthbender Ascension"en*^https://cards.scryfall.io/normal/front/8/2/826b4f26-419a-4d74-8c70-275555092095.jpg?17641222282{2}{G}8BEnchantmentJnormalRGZG
+º±˘tlaFoggy Swamp Vinebender"en*^https://cards.scryfall.io/normal/front/7/8/78a75317-94f7-47a4-b4da-5a027fa73248.jpg?17641212222{3}{G}8BCreature ‚Äî Human Plant AllyJnormalRGZG
+´è¯tlaGlider Staff"en*^https://cards.scryfall.io/normal/front/7/5/7517f2eb-a24d-49f6-82bf-08de55d3789a.jpg?17641200222{2}{W}8BArtifact ‚Äî EquipmentJnormalRWZW
+∂´¯tlaFirst-Time Flyer"en*^https://cards.scryfall.io/normal/front/e/a/ea22d29d-3a62-4ae2-91d5-21a678be9b48.jpg?17641202222{1}{U}8BCreature ‚Äî Human Pilot AllyJnormalRUZU
+´£˘tla
+Badgermole"en*^https://cards.scryfall.io/normal/front/a/a/aabbd420-b7fc-496f-9168-bad823d51d9e.jpg?17641211342{4}{G}8BCreature ‚Äî Badger MoleJnormalRGZG
+ñå˙tlaBoiling Rock Prison"en*^https://cards.scryfall.io/normal/front/1/c/1c2e2220-54d1-4180-93a0-964e3b0ba8b8.jpg?1764121961BLandJnormalZBZR
+ÆÔ¯tlaRaven Eagle"en*^https://cards.scryfall.io/normal/front/b/c/bc9b17de-ddb7-4f4c-826d-2f8e0678b680.jpg?17641223372{2}{B}8BCreature ‚Äî Bird AssassinJnormalRBZB
+”—˘tlaAzula, Cunning Usurper"en*^https://cards.scryfall.io/normal/front/5/b/5b3352fd-f100-44c2-9e63-83be172317e9.jpg?17641221932{2}{U}{B}{B}8B(Legendary Creature ‚Äî Human Noble RogueJnormalRBRUZBZU
+ ¶˘tlaBumi, King of Three Trials"en*^https://cards.scryfall.io/normal/front/a/2/a268697b-22b0-4e1b-a5b6-d9be95025e57.jpg?17641211522{5}{G}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGZG
+Ωı˘tlaSun Warriors"en*^https://cards.scryfall.io/normal/front/e/4/e477d750-42d2-48c8-bc1f-8148d15d5f53.jpg?17641218002	{2}{R}{W}8BCreature ‚Äî Human Warrior AllyJnormalRRRWZRZW
+†˙˜tlaAang's Journey"en*^https://cards.scryfall.io/normal/front/5/e/5e51f727-5a9b-4bc7-83a9-dbcf1c933e15.jpg?17641198712{2}8BSorcery ‚Äî LessonJnormal
+ÀÊ¯tlaKoh, the Face Stealer"en*^https://cards.scryfall.io/normal/front/b/3/b3bf2ebe-336a-4b9a-9134-4e3efbcafdd2.jpg?17641223252	{4}{B}{B}8B*Legendary Creature ‚Äî Shapeshifter SpiritJnormalRBZB
+÷Í˘tlaLong Feng, Grand Secretariat"en*^https://cards.scryfall.io/normal/front/a/3/a3eb92fe-bc59-4472-9028-f368bd015609.jpg?17641217242{1}{B/G}{B/G}8B$Legendary Creature ‚Äî Human AdvisorJnormalRBRGZBZG
+ø˝¯tlaCrescent Island Temple"en*^https://cards.scryfall.io/normal/front/0/4/04c85150-269e-4158-a1b9-bd11bc6b7d79.jpg?17641208882{3}{R}8B Legendary Enchantment ‚Äî ShrineJnormalRRZR
+π◊˘tlaDai Li Agents"en*^https://cards.scryfall.io/normal/front/8/2/82822ac1-9288-4bac-8afd-83563e693731.jpg?17641222222	{3}{B}{G}8BCreature ‚Äî Human SoldierJnormalRBRGZBZG
+Ø¸¯tlaCombustion Technique"en*^https://cards.scryfall.io/normal/front/1/7/17d97052-e153-42d8-beb6-6d85815c9b59.jpg?17641221802{1}{R}8BInstant ‚Äî LessonJnormalRRZR
+∆“˘tlaBeifong's Bounty Hunters"en*^https://cards.scryfall.io/normal/front/9/9/993d8c56-068d-4708-a22c-486fc6f8fcf1.jpg?17641227912	{2}{B}{G}8BCreature ‚Äî Human MercenaryJnormalRBRGZBZG
+‘·˘tlaHama, the Bloodbender"en*^https://cards.scryfall.io/normal/front/6/f/6fa1197d-7b19-4d86-81e2-5c87de87757b.jpg?17641216342{2}{U/B}{U/B}{U/B}8B$Legendary Creature ‚Äî Human WarlockJnormalRBRUZBZU
+ΩÆ˘tlaEarthen Ally"en*^https://cards.scryfall.io/normal/front/5/a/5a2754b7-6a0f-4124-ad31-10214d0f4895.jpg?17641227782{G}8BCreature ‚Äî Human Soldier AllyJnormalRGZBZGZRZUZW
+íç˙tlaFire Nation Palace"en*^https://cards.scryfall.io/normal/front/3/7/372e7d4e-c011-423b-9e2c-af57fb0d5403.jpg?1764122859BLandJnormalZR
+…ä˘tlaJeong Jeong, the Deserter"en*^https://cards.scryfall.io/normal/front/a/9/a9f63d3b-bee5-48bc-8b04-d8b24b0bda6e.jpg?17641209742{2}{R}8B'Legendary Creature ‚Äî Human Rebel AllyJnormalRRZR
+πø¯tlaRowdy Snowballers"en*^https://cards.scryfall.io/normal/front/1/7/17d71522-b133-4003-b787-0c742a2fd70e.jpg?17641204162{2}{U}8BCreature ‚Äî Human Peasant AllyJnormalRUZU
+§π¯tla	Lost Days"en*^https://cards.scryfall.io/normal/front/d/b/db8e88e3-0931-403f-90e7-3c22c0b61dac.jpg?17641203572{4}{U}8BInstant ‚Äî LessonJnormalRUZU
+∫ê˘tlaMai, Jaded Edge"en*^https://cards.scryfall.io/normal/front/7/3/732e6bc9-0798-4c00-aea0-5ef4298b45f5.jpg?17641210132{1}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRRZR
+µÉ˘tlaFire Nation Raider"en*^https://cards.scryfall.io/normal/front/e/d/ede1bbdb-c726-46e3-aaf1-b8cf2be2c341.jpg?17641209272{3}{R}8BCreature ‚Äî Human SoldierJnormalRRZR
+ìó˙tlaSecret Tunnel"en*^https://cards.scryfall.io/normal/front/5/1/51003a38-3493-4524-aed8-9681f5a89037.jpg?1764122879BLand ‚Äî CaveJnormal
+≈⁄˘tlaEarth King's Lieutenant"en*^https://cards.scryfall.io/normal/front/6/a/6a431eaf-13a0-4052-b887-ca477bb55847.jpg?17641227982{G}{W}8BCreature ‚Äî Human Soldier AllyJnormalRGRWZGZW
+≈≥˘tlaHaru, Hidden Talent"en*^https://cards.scryfall.io/normal/front/9/6/9657a0c0-2c26-4331-8e62-f032265a01af.jpg?17641212352{1}{G}8B)Legendary Creature ‚Äî Human Peasant AllyJnormalRGZG
+´¥¯tlaIt'll Quench Ya!"en*^https://cards.scryfall.io/normal/front/4/7/47c25e41-f43c-4447-81b5-b9631448bd29.jpg?17641203082{1}{U}8BInstant ‚Äî LessonJnormalRUZU
+ºµ˘tlaKyoshi Island Plaza"en*^https://cards.scryfall.io/normal/front/9/c/9c25ea98-9823-4487-bf6b-ee29ce5a4ed8.jpg?17641212492{3}{G}8B Legendary Enchantment ‚Äî ShrineJnormalRGZG
+ªΩ˘tlaRebellious Captives"en*^https://cards.scryfall.io/normal/front/e/6/e64a4a8b-323c-4c8b-92af-1a3295799e65.jpg?17641213002{1}{G}8BCreature ‚Äî Human Peasant AllyJnormalRGZG
+ˇ…˘tla0Aang, at the Crossroads // Aang, Destined Savior"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZGZUZWb∫
+Aang, at the Crossroads(Legendary Creature ‚Äî Human Avatar Ally{2}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507*G*U*Wbö
+Aang, Destined Savior"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507
+Õﬁ˘tlaFire Lord Zuko"en*^https://cards.scryfall.io/normal/front/0/c/0c457a8b-8d56-474d-b788-c058a9882fdd.jpg?17641226552	{R}{W}{B}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRBRRRWZBZRZW
+ªÿ˘tlaDragonfly Swarm"en*^https://cards.scryfall.io/normal/front/1/6/16be5cc4-b15a-4c5e-8a6e-05c87b519127.jpg?17641215422	{1}{U}{R}8BCreature ‚Äî Dragon InsectJnormalRRRUZRZU
+±é¯tlaGlider Kids"en*^https://cards.scryfall.io/normal/front/0/6/0613afb5-4cee-4132-8adf-404767ed8d07.jpg?17641200152{2}{W}8BCreature ‚Äî Human Pilot AllyJnormalRWZW
+¶æ˘tlaRockalanche"en*^https://cards.scryfall.io/normal/front/5/2/52b213d3-6f68-43e6-91e9-435d8fe1f34c.jpg?17641213072{2}{G}8BSorcery ‚Äî LessonJnormalRGZG
+≤Ç˘tlaFire Nation Cadets"en*^https://cards.scryfall.io/normal/front/1/a/1a3a862c-9c9a-41cd-94d1-2d0cff22a6cd.jpg?17641209212{R}8BCreature ‚Äî Human SoldierJnormalRRZR
+óú˙broIsland"en*^https://cards.scryfall.io/normal/front/f/e/fe9d36d3-9373-407c-91fd-975d8ee9e4fe.jpg?1674422330BBasic Land ‚Äî IslandJnormalZU
+îè˙tlaJasmine Dragon Tea Shop"en*^https://cards.scryfall.io/normal/front/4/4/4487d299-1571-4d44-81bb-9bf54fb33fbc.jpg?1764122865BLandJnormal
+°ˇ˘tlaBarrels of Blasting Jelly"en*^https://cards.scryfall.io/normal/front/4/f/4fd83083-3779-41f0-90a0-a00e3270e4e6.jpg?17641218772{1}8BArtifactJnormal
+¶Ø¯tla	Giant Koi"en*^https://cards.scryfall.io/normal/front/3/9/3938ec1f-979c-48e5-bb13-bebace006a8f.jpg?17641202592	{4}{U}{U}8BCreature ‚Äî FishJnormalRUZU
+ô˘¯tla	Bumi Bash"en*^https://cards.scryfall.io/normal/front/e/8/e8895479-26cb-4ee8-98ca-6d46c43f0dbd.jpg?17641208622{3}{R}8BSorceryJnormalRRZR
+±≥¯tlaInvasion Submersible"en*^https://cards.scryfall.io/normal/front/a/f/af5299f5-1633-4c07-ade5-fd47e29ea4aa.jpg?17641202982{2}{U}8BArtifact ‚Äî VehicleJnormalRUZU
+§Ω¯tlaOctopus Form"en*^https://cards.scryfall.io/normal/front/c/e/ce96a826-53a0-4029-bf34-46779d133b13.jpg?17641203962{U}8BInstant ‚Äî LessonJnormalRUZU
+∂√˘tlaSparring Dummy"en*^https://cards.scryfall.io/normal/front/5/2/520f5a03-ff5a-43ed-8f15-cf24596d60cd.jpg?17641213392{1}{G}8BArtifact Creature ‚Äî ScarecrowJnormalRGZG
+œÒ˘tlaSokka, Bold Boomeranger"en*^https://cards.scryfall.io/normal/front/0/d/0d4788f3-ae08-4698-ac4f-c78a337981c2.jpg?17641228192{U}{R}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRRRUZRZU
+ø›¯tlaThe Fire Nation Drill"en*^https://cards.scryfall.io/normal/front/a/a/aaf7eb99-b60d-44d7-baf5-30508cc8d6b3.jpg?17641223192	{2}{B}{B}8BLegendary Artifact ‚Äî VehicleJnormalRBZB
+¶ˆ˘tlaTolls of War"en*^https://cards.scryfall.io/normal/front/d/8/d822b9ad-a787-4355-88c2-07ae2bd3a78e.jpg?17641218072{W}{B}8BEnchantmentJnormalRBRWZBZW
+¬Â¯tlaJune, Bounty Hunter"en*^https://cards.scryfall.io/normal/front/1/4/148bbaab-bc7b-46ab-8e18-ade69d71d847.jpg?17641207352{1}{B}8B&Legendary Creature ‚Äî Human MercenaryJnormalRBZB
+ñä˙tlaAirship Engine Room"en*^https://cards.scryfall.io/normal/front/0/b/0b98ba34-f251-4bd0-9d75-1d4445be5cfd.jpg?1764121949BLandJnormalZRZU
+°Ö¯tlaAvatar's Wrath"en*^https://cards.scryfall.io/normal/front/a/2/a24b3b8a-7742-4aa1-8da9-162dd1d49441.jpg?17641226972	{2}{W}{W}8BSorceryJnormalRWZW
+ìô˙tlaSun-Blessed Peak"en*^https://cards.scryfall.io/normal/front/a/e/ae04c862-095f-41d2-8aef-21036d5a0cdc.jpg?1764122039BLandJnormalZRZW
+∞î¯tla)The Legend of Yangchen // Avatar Yangchen"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZWbú
+The Legend of YangchenEnchantment ‚Äî Saga	{3}{W}{W}"^https://cards.scryfall.io/normal/front/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580*Wbè
+Avatar YangchenLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580
+À€˘tlaEarth Rumble Wrestlers"en*^https://cards.scryfall.io/normal/front/7/4/74fca0b8-12e1-405f-b999-160d65fe0ade.jpg?17641215732{3}{R/G}8B$Creature ‚Äî Human Warrior PerformerJnormalRGRRZGZR
+úø˘tlaRocky Rebuke"en*^https://cards.scryfall.io/normal/front/5/2/52fd910f-6d42-41f5-a4be-f375aa254ea2.jpg?17641213132{1}{G}8BInstantJnormalRGZG
+”‰˘tlaIroh, Grand Lotus"en*^https://cards.scryfall.io/normal/front/8/5/85af39f5-8207-4fc5-a956-1ee2799ac374.jpg?17641225362{3}{G}{U}{R}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGRRRUZGZRZU
+»È˘tlaThe Lion-Turtle"en*^https://cards.scryfall.io/normal/front/8/d/8da5dab3-4505-40d9-8d81-f653cd77e491.jpg?17641223632	{1}{G}{U}8B'Legendary Creature ‚Äî Elder Cat TurtleJnormalRGRUZGZU
+ù‹¯tlaFatal Fissure"en*^https://cards.scryfall.io/normal/front/3/3/3343933d-4425-4ede-8d92-876bd0c6df60.jpg?17641206692{1}{B}8BInstantJnormalRBZB
+≈õ˘tlaTy Lee, Artful Acrobat"en*^https://cards.scryfall.io/normal/front/d/c/dcd9df24-272b-4aa1-b05f-6ee6b3d3dfe7.jpg?17641210842{2}{R}8B&Legendary Creature ‚Äî Human PerformerJnormalRRZR
+© ¯tlaWaterbender Ascension"en*^https://cards.scryfall.io/normal/front/e/5/e5f2648f-990d-44d7-a7bf-0db99bdc3015.jpg?17641222532{1}{U}8BEnchantmentJnormalRUZU
+∂¿˘tlaSaber-Tooth Moose-Lion"en*^https://cards.scryfall.io/normal/front/b/1/b15f302d-c451-4e79-a5af-75ee3ba4cadf.jpg?17641213202	{4}{G}{G}8BCreature ‚Äî Elk CatJnormalRGZG
+§¥˘tlaInvasion Tactics"en*^https://cards.scryfall.io/normal/front/2/7/27c6330d-49f6-4707-b4d4-d1411fa422eb.jpg?17641212422{4}{G}8BEnchantmentJnormalRGZG
+†ç˘tla!The Legend of Roku // Avatar Roku"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZRbò
+The Legend of RokuEnchantment ‚Äî Saga	{2}{R}{R}"^https://cards.scryfall.io/normal/front/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621*Rbã
+Avatar RokuLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621
+¡˛˘tlaZuko, Conflicted"en*^https://cards.scryfall.io/normal/front/5/2/52f92b27-6dfe-466f-b68b-f5dc6befa271.jpg?17641221862{B}{R}8B"Legendary Creature ‚Äî Human RogueJnormalRBRRZBZR
+¢ú¯tlaSandbenders' Storm"en*^https://cards.scryfall.io/normal/front/b/3/b3bf4a25-4329-4318-870a-2b06aa620dc4.jpg?17641201182{3}{W}8BInstantJnormalRWZW
+Ω–¯tlaAzula, On the Hunt"en*^https://cards.scryfall.io/normal/front/1/3/1335a145-248a-4f1e-8760-9a5d531e14e3.jpg?17641205892{3}{B}8B"Legendary Creature ‚Äî Human NobleJnormalRBZB
+∫—¯tlaBeetle-Headed Merchants"en*^https://cards.scryfall.io/normal/front/c/2/c2eed79f-38c1-4aac-9525-d54cb114f17f.jpg?17641205952{4}{B}8BCreature ‚Äî Human CitizenJnormalRBZB
+æ∫¯tlaMaster Pakku"en*^https://cards.scryfall.io/normal/front/9/1/91e30df5-63f7-4281-8d64-8d522d663652.jpg?17641203662{1}{U}8B)Legendary Creature ‚Äî Human Advisor AllyJnormalRUZU
+¶ç¯tlaGather the White Lotus"en*^https://cards.scryfall.io/normal/front/9/6/96e2b3d0-f060-4f3c-9d12-a0444b202008.jpg?17641200072{4}{W}8BSorceryJnormalRWZW
+ŸÔ˘tlaProfessor Zei, Anthropologist"en*^https://cards.scryfall.io/normal/front/2/7/27baccc0-7e25-4f39-be0d-31cd98ca0dc5.jpg?17641217622
+{U/R}{U/R}8B)Legendary Creature ‚Äî Human Advisor AllyJnormalRRRUZRZU
+ƒ»¯tlaThe Unagi of Kyoshi Island"en*^https://cards.scryfall.io/normal/front/6/6/66387ea1-af31-4332-bacc-c32fe3260f4b.jpg?17641223072	{3}{U}{U}8BLegendary Creature ‚Äî SerpentJnormalRUZU
+ëê˙tlaKyoshi Village"en*^https://cards.scryfall.io/normal/front/8/d/8d5f3008-2af8-4e81-8847-1c91f524e747.jpg?1764121985BLandJnormalZGZW
+öª˘tlaPillar Launch"en*^https://cards.scryfall.io/normal/front/f/1/f177e9cc-0c41-417d-9215-5ff23a1a0657.jpg?17641212872{G}8BInstantJnormalRGZG
+πˇ¯tlaDeserter's Disciple"en*^https://cards.scryfall.io/normal/front/1/4/14f2ed5a-042b-4cce-82ad-cfb4bd511d98.jpg?17641209012{1}{R}8BCreature ‚Äî Human Rebel AllyJnormalRRZR
+ìì˙tlaNorth Pole Gates"en*^https://cards.scryfall.io/normal/front/b/c/bcf7b9da-d35d-4338-b4d9-83e47dc058ee.jpg?1764122003BLandJnormalZUZW
+ßƒ¯tlaSpirit Water Revival"en*^https://cards.scryfall.io/normal/front/e/a/eadded94-3c18-43a9-bde9-f7ec86a98cce.jpg?17641227312	{1}{U}{U}8BSorceryJnormalRUZU
+»ƒ˘tlaToph, the Blind Bandit"en*^https://cards.scryfall.io/normal/front/f/f/ff68fa7b-8065-407b-a8b4-bfbb14f1c99c.jpg?17641213452{2}{G}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGZG
+π◊¯sncCorrupt Court Official"en*^https://cards.scryfall.io/normal/front/5/0/505c6215-4006-4c4f-897a-be051cb73fa7.jpg?16644107652{1}{B}8BCreature ‚Äî Human AdvisorJnormalRBZB
+ü˚˜tlaEnergybending"en*^https://cards.scryfall.io/normal/front/6/c/6c085441-e023-4032-89a0-d24ce5060ac3.jpg?17641198782{2}8BInstant ‚Äî LessonJnormal
+¨Ñ˘tla
+Fire Sages"en*^https://cards.scryfall.io/normal/front/7/1/71a9fa44-306f-417a-a9d9-991aff95025c.jpg?17641209332{1}{R}8BCreature ‚Äî Human ClericJnormalRRZR
+≥á˘tlaFirebending Student"en*^https://cards.scryfall.io/normal/front/7/9/79d1889c-4b3d-47d4-847e-4343cdaf9750.jpg?17641228862{1}{R}8BCreature ‚Äî Human MonkJnormalRRZR
+æ©˘tlaThe Earth King"en*^https://cards.scryfall.io/normal/front/3/6/3687f487-eec1-4979-8008-5c907adafe9d.jpg?17641224822{3}{G}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGZG
+–˝˘tlaZhao, Ruthless Admiral"en*^https://cards.scryfall.io/normal/front/3/f/3fd48a57-b0bb-4177-a0f3-bd317a179cbe.jpg?17641218622{2}{B/R}{B/R}8B$Legendary Creature ‚Äî Human SoldierJnormalRBRRZBZR
+•¡˘tlaSeismic Sense"en*^https://cards.scryfall.io/normal/front/a/7/a7b93c2a-c478-4734-8aca-03f3e9c11b20.jpg?17641213262{G}8BSorcery ‚Äî LessonJnormalRGZG
+™™¯tlaEmber Island Production"en*^https://cards.scryfall.io/normal/front/0/f/0f79a7fc-36b1-4397-8e67-6638379d3a38.jpg?17641202152	{3}{U}{U}8BSorceryJnormalRUZU
+´¬¯tlaSokka's Haiku"en*^https://cards.scryfall.io/normal/front/0/0/004be4bc-ac3c-4026-8d36-f4687ab18c70.jpg?17641204462	{3}{U}{U}8BInstant ‚Äî LessonJnormalRUZU
+°å˘tlaThe Last Agni Kai"en*^https://cards.scryfall.io/normal/front/5/1/51af6d52-bda7-40be-8a83-c19916320df5.jpg?17641222762{1}{R}8BInstantJnormalRRZR
+™ö˘tlaTwin Blades"en*^https://cards.scryfall.io/normal/front/d/c/dc399ae0-36b5-4c92-9fe2-138caf8d7a86.jpg?17641210782{2}{R}8BArtifact ‚Äî EquipmentJnormalRRZR
+≥’¯tlaCanyon Crawler"en*^https://cards.scryfall.io/normal/front/3/0/30a30bfb-f0f3-425b-b37d-20079ee27046.jpg?17641206212	{4}{B}{B}8BCreature ‚Äî Spider BeastJnormalRBZB
+∫‡¯tlaFoggy Swamp Hunters"en*^https://cards.scryfall.io/normal/front/3/f/3f6e5869-ca25-4b98-a844-8a498cb40aab.jpg?17641206982{3}{B}8BCreature ‚Äî Human Ranger AllyJnormalRBZB
+∏»˘tlaWalltop Sentries"en*^https://cards.scryfall.io/normal/front/e/5/e55f1c63-58f6-4e2b-aaeb-f2d5faca47a2.jpg?17641229002{2}{G}8BCreature ‚Äî Human Soldier AllyJnormalRGZG
+ºû¯tlaSouthern Air Temple"en*^https://cards.scryfall.io/normal/front/5/c/5c172f9b-2184-4736-9f90-74ce08596292.jpg?17641201332{3}{W}8B Legendary Enchantment ‚Äî ShrineJnormalRWZW
+óõ˙akrPlains"en*^https://cards.scryfall.io/normal/front/f/e/febd8326-9ba6-43de-bb29-910cb459498e.jpg?1597375858BBasic Land ‚Äî PlainsJnormalZW
+¬≠¯tlaForecasting Fortune Teller"en*^https://cards.scryfall.io/normal/front/0/2/023e7ad4-6af0-4f29-a716-27a313974227.jpg?17641202392{1}{U}8BCreature ‚Äî Human Advisor AllyJnormalRUZU
+©Ä˘tlaFated Firepower"en*^https://cards.scryfall.io/normal/front/1/3/13688c4d-d63f-4cef-8aae-16aec7b9effc.jpg?17641224572{X}{R}{R}{R}8BEnchantmentJnormalRRZR
+≤Ú¯tlaRuinous Waterbending"en*^https://cards.scryfall.io/normal/front/5/3/53161747-c82b-41e8-90ea-7791ea262a85.jpg?17641208172	{1}{B}{B}8BSorcery ‚Äî LessonJnormalRBZB
+ˆœ˘tla'Avatar Aang // Aang, Master of Elements"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZBZGZRZUZWb±
+Avatar Aang(Legendary Creature ‚Äî Human Avatar Ally{R}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683*G*R*U*Wbù
+Aang, Master of Elements"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683
+≠∫˘tlaOstrich-Horse"en*^https://cards.scryfall.io/normal/front/5/c/5ca3fd45-9301-44ef-afc0-4d7999d66d36.jpg?17641212802{2}{G}8BCreature ‚Äî Bird HorseJnormalRGZG
+π“¯tlaBoiling Rock Rioter"en*^https://cards.scryfall.io/normal/front/7/f/7fa397df-99c4-4ea8-9ec1-836626ddcca4.jpg?17641227442{2}{B}8BCreature ‚Äî Human Rogue AllyJnormalRBZB
+ª£¯tlaWater Tribe Captain"en*^https://cards.scryfall.io/normal/front/0/a/0a0cdf97-1927-47c6-8ef1-29969e3567ee.jpg?17641201682{2}{W}8BCreature ‚Äî Human Soldier AllyJnormalRWZW
+©å¯tlaFancy Footwork"en*^https://cards.scryfall.io/normal/front/9/c/9c59f8c5-4063-4e5a-b684-fde175c4a981.jpg?17641200002{2}{W}8BInstant ‚Äî LessonJnormalRWZW
+∞∂¯tlaKnowledge Seeker"en*^https://cards.scryfall.io/normal/front/8/5/8554e862-f78a-42f5-b876-076aac6c9504.jpg?17641203282{1}{U}8BCreature ‚Äî Fox SpiritJnormalRUZU
+©Ï¯tlaOzai's Cruelty"en*^https://cards.scryfall.io/normal/front/2/2/22cad680-d46a-4589-a633-b6ee9a78d61e.jpg?17641207782{2}{B}8BSorcery ‚Äî LessonJnormalRBZB
+Õü¯tlaSuki, Courageous Rescuer"en*^https://cards.scryfall.io/normal/front/f/4/f4e73660-ca67-4587-9aac-02154e984861.jpg?17641227182	{1}{W}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRWZW
+««¯tlaTy Lee, Chi Blocker"en*^https://cards.scryfall.io/normal/front/4/d/4d2e5f2b-993a-48b1-834e-a4fe18e119ae.jpg?17641227372{2}{U}8B+Legendary Creature ‚Äî Human Performer AllyJnormalRUZU
+õõ¯tlaRazor Rings"en*^https://cards.scryfall.io/normal/front/b/0/b05cfee5-ee59-4df6-a5f6-d9ef0fa7f98a.jpg?17641201112{1}{W}8BInstantJnormalRWZW
+øŒ¯tlaYue, the Moon Spirit"en*^https://cards.scryfall.io/normal/front/b/5/b50e8e26-0f3c-4478-8827-dc3245f31d8a.jpg?17641224302{3}{U}8B"Legendary Creature ‚Äî Spirit AllyJnormalRUZU
+ù‚¯ikoHeartless Act"en*^https://cards.scryfall.io/normal/front/e/4/e4e6794a-feeb-4fc8-a2ee-38c75c18aaae.jpg?15912268192{1}{B}8BInstantJnormalRBZB
+∏≤˘tlaGreat Divide Guide"en*^https://cards.scryfall.io/normal/front/7/a/7a89533f-1236-49bf-9a25-1b7f7789eb2a.jpg?17641224922{1}{G}8BCreature ‚Äî Human Scout AllyJnormalRGZG
+Ø§˘tlaBadgermole Cub"en*^https://cards.scryfall.io/normal/front/b/e/be16c053-99e1-4921-8530-5135c989149d.jpg?17641223502{1}{G}8BCreature ‚Äî Badger MoleJnormalRGZG
+∞ÿ¯tlaDai Li Indoctrination"en*^https://cards.scryfall.io/normal/front/e/c/eca652b8-44f1-4bd9-b4bf-036eeead13aa.jpg?17641206432{1}{B}8BSorcery ‚Äî LessonJnormalRBZB
+Æ≠˘tlaEarthbending Lesson"en*^https://cards.scryfall.io/normal/front/e/c/eccd63b3-3a3a-4661-9d6e-fb8152429bdb.jpg?17641211952{3}{G}8BSorcery ‚Äî LessonJnormalRGZG
+ü°¯tlaUnited Front"en*^https://cards.scryfall.io/normal/front/d/a/dad8f56c-1bf2-4641-885d-04b885533a3c.jpg?17641223832	{X}{W}{W}8BSorceryJnormalRWZW
+¿ñ¯tlaMaster Piandao"en*^https://cards.scryfall.io/normal/front/3/e/3e4a042c-f2a6-45e7-9444-acd1ca838b87.jpg?17641200752{4}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRWZW
+ìë˙tlaMeditation Pools"en*^https://cards.scryfall.io/normal/front/c/c/cc078fc6-4470-473f-9e24-d2c470e09141.jpg?1764121991BLandJnormalZGZU
+¶Õ¯tlaWatery Grasp"en*^https://cards.scryfall.io/normal/front/2/6/26bcff57-428e-4f30-a153-a778fbfc437d.jpg?17641205632{U}8BEnchantment ‚Äî AuraJnormalRUZU
+µ≤¯tlaIguana Parrot"en*^https://cards.scryfall.io/normal/front/7/f/7faa3e3d-c08a-4908-85ef-1370d3f90815.jpg?17641202892{2}{U}8BCreature ‚Äî Lizard Bird PirateJnormalRUZU
+≠Ñ˙tlaPlanetarium of Wan Shi Tong"en*^https://cards.scryfall.io/normal/front/e/3/e3276b9a-6cb1-4afb-bcc0-ea5a8d8d6a44.jpg?17641228322{6}8BLegendary ArtifactJnormal
+÷Ê˘tlaJet, Freedom Fighter"en*^https://cards.scryfall.io/normal/front/9/2/9202c044-15e4-4218-a94d-16287ba19d69.jpg?17641216832{2}{R/W}{R/W}{R/W}8B'Legendary Creature ‚Äî Human Rebel AllyJnormalRRRWZRZW
+†•¯tlaYip Yip!"en*^https://cards.scryfall.io/normal/front/4/3/43f4b10e-165b-4100-82f3-728e1b0c78ed.jpg?17641201822{W}8BInstant ‚Äî LessonJnormalRWZW
+µÌ¯tlaPhoenix Fleet Airship"en*^https://cards.scryfall.io/normal/front/b/f/bf9085bd-0ee0-4d8a-8deb-686a87b28c7a.jpg?17641223312	{2}{B}{B}8BArtifact ‚Äî VehicleJnormalRBZB
+ª§¯tlaWater Tribe Rallier"en*^https://cards.scryfall.io/normal/front/4/e/4e744b6c-1c2f-451a-818a-5ee7785b5213.jpg?17641201752{1}{W}8BCreature ‚Äî Human Soldier AllyJnormalRWZW
+©à¯tlaDestined Confrontation"en*^https://cards.scryfall.io/normal/front/d/4/d4605cf7-03bc-4a7f-b50a-49b83b09b54d.jpg?17641199712	{2}{W}{W}8BSorceryJnormalRWZW
+ÀÂ˘tlaIroh, Tea Master"en*^https://cards.scryfall.io/normal/front/7/6/76a39187-317f-40b6-a920-18edcb0bf6ac.jpg?17641228042	{1}{R}{W}8B)Legendary Creature ‚Äî Human Citizen AllyJnormalRRRWZRZW
+π√¯tlaThe Spirit Oasis"en*^https://cards.scryfall.io/normal/front/3/a/3a1b1329-531c-47ed-9802-c505501f8fd9.jpg?17641204552{2}{U}8B Legendary Enchantment ‚Äî ShrineJnormalRUZU
+≥º˘tlaRaucous Audience"en*^https://cards.scryfall.io/normal/front/c/c/ccd03ec3-0fae-48b2-9f04-9c57d2f94267.jpg?17641212942{1}{G}8BCreature ‚Äî Human CitizenJnormalRGZG
+†˛¯tlaCunning Maneuver"en*^https://cards.scryfall.io/normal/front/0/f/0ff7c993-ba29-43b0-9639-7c4bc0292fa2.jpg?17641208942{1}{R}8BInstantJnormalRRZR
+¢˛˜tlaAang's Iceberg"en*^https://cards.scryfall.io/normal/front/6/c/6cd25a10-1e4e-4f47-8a67-221df4907b26.jpg?17641224152{2}{W}8BEnchantmentJnormalRWZW
+®∑˘tla%The Legend of Kyoshi // Avatar Kyoshi"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZGbö
+The Legend of KyoshiEnchantment ‚Äî Saga	{4}{G}{G}"^https://cards.scryfall.io/normal/front/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634*Gbç
+Avatar KyoshiLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634
+ëò˙tlaSerpent's Pass"en*^https://cards.scryfall.io/normal/front/a/d/ad87bff5-9b8c-44e4-a6d3-8cc71be9640a.jpg?1764122033BLandJnormalZBZU
+Ωä¯tlaEarth Kingdom Protectors"en*^https://cards.scryfall.io/normal/front/d/2/d263472e-1d75-4cb9-8f7b-986fa22bc841.jpg?17641199852{W}8BCreature ‚Äî Human Soldier AllyJnormalRWZW
+¢É˙tlaMeteor Sword"en*^https://cards.scryfall.io/normal/front/6/8/68b1c746-a4b8-4a45-9f0e-3962f0ae40e3.jpg?17641219062{7}8BArtifact ‚Äî EquipmentJnormal
+∏∞¯tla	Gran-Gran"en*^https://cards.scryfall.io/normal/front/f/a/fa434b41-e5f7-4989-865a-95db67b05cb1.jpg?17641202692{U}8B)Legendary Creature ‚Äî Human Peasant AllyJnormalRUZU
+πÍ¯tlaNorthern Air Temple"en*^https://cards.scryfall.io/normal/front/0/6/06b7675e-e665-49cb-a8d9-7092a654d464.jpg?17641207662{B}8B Legendary Enchantment ‚Äî ShrineJnormalRBZB
+§∑¯tla#The Legend of Kuruk // Avatar Kuruk"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZUbô
+The Legend of KurukEnchantment ‚Äî Saga	{2}{U}{U}"^https://cards.scryfall.io/normal/front/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593*Ubå
+Avatar KurukLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593
+¨Å¯tlaAirbending Lesson"en*^https://cards.scryfall.io/normal/front/e/2/e2bcd0a6-e94d-4a21-a334-a57459c1b8cc.jpg?17641199212{2}{W}8BInstant ‚Äî LessonJnormalRWZW
+ΩÈ¯tlaMerchant of Many Hats"en*^https://cards.scryfall.io/normal/front/7/5/752ffa24-93b6-4b33-bf10-7222357ac472.jpg?17641207602{1}{B}8BCreature ‚Äî Human Peasant AllyJnormalRBZB
+•ˆ¯tlaWolfbat"en*^https://cards.scryfall.io/normal/front/2/a/2ae83b4e-e5a4-4c98-8d16-eef3c71b8ff2.jpg?17641208432{2}{B}8BCreature ‚Äî Wolf BatJnormalRBZB
+∏Ì˘tlaPlatypus-Bear"en*^https://cards.scryfall.io/normal/front/7/e/7ebf742a-3995-4b22-9dc7-b05f57889683.jpg?17641217502{1}{G/U}8BCreature ‚Äî Platypus BearJnormalRGRUZGZU
+•∆¯tla
+Tiger-Seal"en*^https://cards.scryfall.io/normal/front/d/4/d47fd63e-ddf0-4d98-8883-9ac883c20691.jpg?17641223012{U}8BCreature ‚Äî Cat SealJnormalRUZU
+Øñ˘tlaSolstice Revelations"en*^https://cards.scryfall.io/normal/front/f/2/f22ac19f-66fb-4d54-9f09-495a20a29577.jpg?17641210532{2}{R}8BInstant ‚Äî LessonJnormalRRZR
+•Î¯tlaObsessive Pursuit"en*^https://cards.scryfall.io/normal/front/2/f/2ff0a75c-b679-436f-8150-faaec3ea1df6.jpg?17641224482{1}{B}8BEnchantmentJnormalRBZB
+∂ﬂ¯tlaFire Navy Trebuchet"en*^https://cards.scryfall.io/normal/front/e/5/e58372cc-9a89-47a4-a0db-df5435e26cd3.jpg?17641206922{2}{B}8BArtifact Creature ‚Äî WallJnormalRBZB
+™Œ˘tlaAir Nomad Legacy"en*^https://cards.scryfall.io/normal/front/1/0/10874416-fa4c-4aa3-b885-4351d011d208.jpg?17641214402{W}{U}8BEnchantmentJnormalRURWZUZW
+√Á¯tlaLo and Li, Twin Tutors"en*^https://cards.scryfall.io/normal/front/c/b/cba9260d-ef07-4429-99f9-6004cc1fea0f.jpg?17641207472{4}{B}8B$Legendary Creature ‚Äî Human AdvisorJnormalRBZB
+”˜˘tlaToph, Hardheaded Teacher"en*^https://cards.scryfall.io/normal/front/3/b/3b36026b-15fb-4eeb-9cb3-266f295e4375.jpg?17641228252	{2}{R}{G}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRRZGZR
+∏ï˘tlaRough Rhino Cavalry"en*^https://cards.scryfall.io/normal/front/a/8/a8bc29cf-f6f8-4bb8-b722-f016b58b6d2d.jpg?17641210462{4}{R}8BCreature ‚Äî Human MercenaryJnormalRRZR
+®ı¯tlaTundra Tank"en*^https://cards.scryfall.io/normal/front/1/3/13c66fce-8f8e-4a98-8413-9f05aebf6e13.jpg?17641208362{2}{B}8BArtifact ‚Äî VehicleJnormalRBZB
+Æà˘tlaHow to Start a Riot"en*^https://cards.scryfall.io/normal/front/2/3/23b3bf1e-ea85-47f5-8473-4d16615f68d7.jpg?17641209612{2}{R}8BInstant ‚Äî LessonJnormalRRZR
+¿∞˘tlaFlopsie, Bumi's Buddy"en*^https://cards.scryfall.io/normal/front/0/8/082f4abc-c09f-42cf-977f-060875dfd411.jpg?17641212162	{4}{G}{G}8BLegendary Creature ‚Äî Ape GoatJnormalRGZG
+´ß˘tlaCycle of Renewal"en*^https://cards.scryfall.io/normal/front/2/3/233f4a05-057b-48f4-8f56-8d4a060a40e4.jpg?17641211592{2}{G}8BInstant ‚Äî LessonJnormalRGZG
+ßˇ˜tlaAirbender Ascension"en*^https://cards.scryfall.io/normal/front/e/b/eb941485-d85a-4693-b797-890e38c8d056.jpg?17641226912{1}{W}8BEnchantmentJnormalRWZW
+≠æ¯tlaOtter-Penguin"en*^https://cards.scryfall.io/normal/front/4/8/480b6279-bb34-4b3f-a639-868b52af92b9.jpg?17641204062{1}{U}8BCreature ‚Äî Otter BirdJnormalRUZU
+«˘˘tla
+Uncle Iroh"en*^https://cards.scryfall.io/normal/front/5/c/5c88672c-0eba-4e93-a0ec-30bbb1bb7661.jpg?17641218312{1}{R/G}{R/G}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGRRZGZR
+ù©¯tlaCrashing Wave"en*^https://cards.scryfall.io/normal/front/a/4/a4cee0c6-8a29-4d08-9b24-c12c45c2309d.jpg?17641221732{U}{U}8BSorceryJnormalRUZU
+’Á˘tlaKatara, the Fearless"en*^https://cards.scryfall.io/normal/front/1/5/15260c74-6400-46bd-a144-9d9e107eab8a.jpg?17641226622	{G}{W}{U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRURWZGZUZW
+∂Î˘tlaMessenger Hawk"en*^https://cards.scryfall.io/normal/front/6/a/6a2946c0-0a40-4cdb-92c8-af2bafecca09.jpg?17641217352{2}{U/B}8BCreature ‚Äî Bird ScoutJnormalRBRUZBZU
+¨œ¯tlaAzula Always Lies"en*^https://cards.scryfall.io/normal/front/4/1/416b9207-a2af-44d1-9b87-4943f6e46d42.jpg?17641205822{1}{B}8BInstant ‚Äî LessonJnormalRBZB
+Ω™˘tlaEarth Kingdom General"en*^https://cards.scryfall.io/normal/front/8/6/8688fce5-74b1-41e1-a59a-05a3878a75cb.jpg?17641211772{3}{G}8BCreature ‚Äî Human Soldier AllyJnormalRGZG
+ïé˙tlaFoggy Bottom Swamp"en*^https://cards.scryfall.io/normal/front/2/2/226af626-873d-4bd2-b889-000f8316786f.jpg?1764121972BLandJnormalZBZG
+™î˘tlaRedirect Lightning"en*^https://cards.scryfall.io/normal/front/2/c/2c1c0fb2-cb74-46a1-9ce4-5274feab1146.jpg?17641224742{R}8BInstant ‚Äî LessonJnormalRRZR
+óü˙mh3Forest"en*^https://cards.scryfall.io/normal/front/f/f/ff4c78b4-7178-4a60-ba22-086fb18146df.jpg?1717013886BBasic Land ‚Äî ForestJnormalZG
+ú´˘tlaEarth Rumble"en*^https://cards.scryfall.io/normal/front/6/2/62730505-56f1-4043-a8b9-4fb7bc508b47.jpg?17641211832{3}{G}8BSorceryJnormalRGZG
+–Ï˘tlaOzai, the Phoenix King"en*^https://cards.scryfall.io/normal/front/d/1/d11a45f5-9552-46a5-9f75-008b352c8121.jpg?17641224082{2}{B}{B}{R}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRBRRZBZR
+¿Ÿ˘tlaEarth Kingdom Soldier"en*^https://cards.scryfall.io/normal/front/2/d/2d543d35-945a-4ffa-beb7-7c5d4f894f79.jpg?17641215532{4}{G/W}8BCreature ‚Äî Human SoldierJnormalRGRWZGZW
+ﬁÛ˘tlaSokka, Tenacious Tactician"en*^https://cards.scryfall.io/normal/front/b/9/b9dc53c3-351e-46da-bce6-ab8c651cb4ea.jpg?17641225592{1}{U}{R}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRRRURWZRZUZW
+äâ˙tla
+Agna Qel'a"en*^https://cards.scryfall.io/normal/front/5/0/501c24b4-26e4-47ac-8a5c-3289d937620e.jpg?1764122846BLandJnormalZU
+ØÄ¯tlaAirbender's Reversal"en*^https://cards.scryfall.io/normal/front/6/b/6b7078e4-2892-4b5f-83ab-90369e0d6dba.jpg?17641199142{1}{W}8BInstant ‚Äî LessonJnormalRWZW
+¬ü˘tlaZhao, the Moon Slayer"en*^https://cards.scryfall.io/normal/front/6/a/6a438677-5355-4918-897e-fd2d5b693bb1.jpg?17641227712{1}{R}8B$Legendary Creature ‚Äî Human SoldierJnormalRRZR
+£Å˘tlaFire Nation Attacks"en*^https://cards.scryfall.io/normal/front/e/d/ed94f384-ebd2-4c30-a9bb-9cf793d9a810.jpg?17641221662{4}{R}8BInstantJnormalRRZR
+À¸˘tlaWhite Lotus Reinforcements"en*^https://cards.scryfall.io/normal/front/4/c/4c7e3e2f-d7ac-4d40-ab84-cb7efe06a316.jpg?17641218532	{1}{G}{W}8BCreature ‚Äî Human Soldier AllyJnormalRGRWZGZW
+òá˙tlaWhite Lotus Tile"en*^https://cards.scryfall.io/normal/front/1/5/15efe915-5e38-4e00-b10f-28e76ab51597.jpg?17641223772{4}8BArtifactJnormal
+∫®˘tlaDiligent Zookeeper"en*^https://cards.scryfall.io/normal/front/5/f/5f7e8f5d-c9d6-4f25-af92-f1a6b815f0c1.jpg?17641223572{3}{G}8BCreature ‚Äî Human Citizen AllyJnormalRGZG
+ßÇ˙tlaKyoshi Battle Fan"en*^https://cards.scryfall.io/normal/front/2/5/257e6862-96fe-4312-aff2-509d0696843a.jpg?17641218992{2}8BArtifact ‚Äî EquipmentJnormal
+º˙˘tlaVindictive Warden"en*^https://cards.scryfall.io/normal/front/0/f/0f34de05-39a9-425f-a3b4-3a9d46c917ac.jpg?17641218382{2}{B/R}8BCreature ‚Äî Human SoldierJnormalRBRRZBZR
+—ª¯tlaThe Mechanist, Aerial Artisan"en*^https://cards.scryfall.io/normal/front/d/6/d638ce04-cff8-4253-95f6-4ebdcfe01309.jpg?17641227242{2}{U}8B+Legendary Creature ‚Äî Human Artificer AllyJnormalRUZU
+Øâ˘tlaIroh's Demonstration"en*^https://cards.scryfall.io/normal/front/1/8/18d15fed-1f8f-4407-a221-a47ce75001a8.jpg?17641209672{1}{R}8BSorcery ‚Äî LessonJnormalRRZR
+âñ˙tlaRumble Arena"en*^https://cards.scryfall.io/normal/front/3/f/3f5d2c38-663c-4f64-8cfc-c102462e82ef.jpg?1764122021BLandJnormal
+û°˘tlaAllies at Last"en*^https://cards.scryfall.io/normal/front/1/1/11a77897-2aba-4a9b-bbe6-1768ca9f12cb.jpg?17641211222{2}{G}8BInstantJnormalRGZG
+≥ß¯tlaBenevolent River Spirit"en*^https://cards.scryfall.io/normal/front/7/f/7ffb79cd-d170-4047-89c8-6e85188f30da.jpg?17641201942{U}{U}8BCreature ‚Äî SpiritJnormalRUZU
+∑á¯tlaCurious Farm Animals"en*^https://cards.scryfall.io/normal/front/2/4/2402d759-84b6-41d2-ad78-9333974e9222.jpg?17641199642{W}8BCreature ‚Äî Boar Elk Bird OxJnormalRWZW
+º¨¯tlaFlexible Waterbender"en*^https://cards.scryfall.io/normal/front/1/4/1447ebce-7e48-4b21-a39c-740920538bdd.jpg?17641202302{3}{U}8BCreature ‚Äî Human Warrior AllyJnormalRUZU
+µì˘tlaRan and Shaw"en*^https://cards.scryfall.io/normal/front/b/9/b9b12da4-7c5c-4dce-932d-0683bf04df7d.jpg?17641223432	{3}{R}{R}8BLegendary Creature ‚Äî DragonJnormalRRZR
+øó¯tlaMomo, Friendly Flier"en*^https://cards.scryfall.io/normal/front/a/7/a7b91b5f-815c-4bdc-97e4-dc7bc8ed29c0.jpg?17641228932{W}8B%Legendary Creature ‚Äî Lemur Bat AllyJnormalRWZW
+¶·¯tlaFoggy Swamp Visions"en*^https://cards.scryfall.io/normal/front/f/8/f8f56648-85be-417a-814b-c356df390ba0.jpg?17641224382	{1}{B}{B}8BSorceryJnormalRBZB
+¶Ö˙tlaTrusty Boomerang"en*^https://cards.scryfall.io/normal/front/d/f/df99a166-6d58-4d92-9037-2fdfbaf65629.jpg?17641219192{1}8BArtifact ‚Äî EquipmentJnormal
+Ωí¯tlaJeong Jeong's Deserters"en*^https://cards.scryfall.io/normal/front/0/6/060966f9-5e56-4512-9ef3-2b216daf093c.jpg?17641200442{1}{W}8BCreature ‚Äî Human Rebel AllyJnormalRWZW
+Æ¢˘tlaAvatar Destiny"en*^https://cards.scryfall.io/normal/front/1/9/19b71bf7-d354-4729-a160-b85402c084f3.jpg?17641223952	{2}{G}{G}8BEnchantment ‚Äî AuraJnormalRGZG
+πﬁ¯tlaFire Nation Engineer"en*^https://cards.scryfall.io/normal/front/5/d/5daba108-277d-46c8-ac35-7610f4786813.jpg?17641206842{2}{B}8BCreature ‚Äî Human ArtificerJnormalRBZB
+Ø¯¯tlaBoar-q-pine"en*^https://cards.scryfall.io/normal/front/0/8/087a445c-5f63-45d6-83e8-20d22650db20.jpg?17641208552{2}{R}8BCreature ‚Äî Boar PorcupineJnormalRRZR
+ºò¯tlaMomo, Playful Pet"en*^https://cards.scryfall.io/normal/front/9/3/9350bf4a-fa12-4867-b31f-1f1394d99571.jpg?17641200892{W}8B%Legendary Creature ‚Äî Lemur Bat AllyJnormalRWZW
+≥¯tla$The Rise of Sozin // Fire Lord Sozin"en8B:Enchantment ‚Äî Saga // Legendary Creature ‚Äî Human NobleJ	transformZBbó
+The Rise of SozinEnchantment ‚Äî Saga	{4}{B}{B}"^https://cards.scryfall.io/normal/front/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*Bbó
+Fire Lord Sozin"Legendary Creature ‚Äî Human Noble"]https://cards.scryfall.io/normal/back/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*B
+∑ë˘tlaMongoose Lizard"en*^https://cards.scryfall.io/normal/front/7/d/7d40b9cb-82ef-44c5-8d3c-c8bb4ce9891c.jpg?17641210192	{4}{R}{R}8BCreature ‚Äî Mongoose LizardJnormalRRZR
+≈É¯tlaAppa, Steadfast Guardian"en*^https://cards.scryfall.io/normal/front/4/d/4d822fa1-70f9-4a63-841d-31c94e1e3dd4.jpg?17641222882	{2}{W}{W}8B!Legendary Creature ‚Äî Bison AllyJnormalRWZW
+µö¯tlaRabaroo Troop"en*^https://cards.scryfall.io/normal/front/6/2/62a983b4-ac73-4949-9317-05a75a8ce164.jpg?17641201042	{3}{W}{W}8BCreature ‚Äî Rabbit KangarooJnormalRWZW
+•±¯tlaHonest Work"en*^https://cards.scryfall.io/normal/front/5/7/57e0ccb0-22f0-4e4d-9a47-c4fec2c7f251.jpg?17641202792{U}8BEnchantment ‚Äî AuraJnormalRUZU
+±Ó¯tlaPirate Peddlers"en*^https://cards.scryfall.io/normal/front/5/c/5c998994-6c3b-4f34-9b31-babba2b17266.jpg?17641207912{2}{B}8BCreature ‚Äî Human PirateJnormalRBZB
+º˘tlaSandbender Scavengers"en*^https://cards.scryfall.io/normal/front/c/2/c2584dda-a1e6-41d4-ae50-a073db428cee.jpg?17641228122{W}{B}8BCreature ‚Äî Human RogueJnormalRBRWZBZW
+∏ù˘tlaWartime Protestors"en*^https://cards.scryfall.io/normal/front/1/7/17310896-20e9-4844-9c3e-9e114c619bfe.jpg?17641227642{3}{R}8BCreature ‚Äî Human Rebel AllyJnormalRRZR
+¿˚˘tlaWandering Musicians"en*^https://cards.scryfall.io/normal/front/3/d/3da81dbd-dc80-47ff-a33b-270d23a24e0a.jpg?17641218452{3}{R/W}8BCreature ‚Äî Human Bard AllyJnormalRRRWZRZW
+§Ã¯tlaWaterbending Scroll"en*^https://cards.scryfall.io/normal/front/5/0/50d0be73-a2c8-44a0-9178-9949f342f6f9.jpg?17641205532{1}{U}8BArtifactJnormalRUZU
+Ãê¯tlaHakoda, Selfless Commander"en*^https://cards.scryfall.io/normal/front/3/f/3fdb2f5f-c881-4c10-8787-d37a4ee57aa4.jpg?17641227042{3}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRWZW
+åï˙tlaRealm of Koh"en*^https://cards.scryfall.io/normal/front/1/9/191cbf96-5e92-4b83-aef7-d7ae65b8e555.jpg?1764122873BLandJnormalZB
+™Ü˘tlaFirebending Lesson"en*^https://cards.scryfall.io/normal/front/f/a/fa940e68-010e-4b68-be8a-555d7068f7b4.jpg?17641209472{R}8BInstant ‚Äî LessonJnormalRRZR
+û˜¯tlaZuko's Conviction"en*^https://cards.scryfall.io/normal/front/a/d/ad8933d6-cdc7-4d60-a78e-b43ffecfb136.jpg?17641208492{B}8BInstantJnormalRBZB
+√ÊÇha1Captain Sisay"en*^https://cards.scryfall.io/normal/front/c/5/c5834227-e292-495a-b8dc-ee80085da72e.jpg?15958813872	{2}{G}{W}8B$Legendary Creature ‚Äî Human SoldierJnormalRGRWZGZW
+°ÀÇmatTraining Grounds"en*^https://cards.scryfall.io/normal/front/9/9/991c27ed-f53c-48c6-8c12-282f44b8d441.jpg?16931710152{U}8BEnchantmentJnormalRUZU
+∞ÏÇbroCityscape Leveler"en*^https://cards.scryfall.io/normal/front/6/7/67a87278-4c82-4056-8354-253d86b0ef3d.jpg?16744219502{8}8BArtifact Creature ‚Äî ConstructJnormal
+ãÇm21Fabled Passage"en*^https://cards.scryfall.io/normal/front/d/3/d313d051-7295-4884-8cbf-f2f835fd45f4.jpg?1594737636BLandJnormal
+≠‡ÇeldThe Great Henge"en*^https://cards.scryfall.io/normal/front/a/f/af915ed2-1f34-43f6-85f5-2430325b720f.jpg?15724905802	{7}{G}{G}8	BLegendary ArtifactJnormalRGZG
+∞ÿÇj25Mirrorwing Dragon"en*^https://cards.scryfall.io/normal/front/8/0/8014a4ae-1495-4380-904c-54d74d389a4d.jpg?17304878122	{3}{R}{R}8BCreature ‚Äî DragonJnormalRRZR
+ù⁄Çea1Searing Blood"en*^https://cards.scryfall.io/normal/front/e/5/e558fa5d-1629-40ba-943f-11daad5045a2.jpg?16796161292{R}{R}8BInstantJnormalRRZR
+¨ËÇsirFevered Visions"en*^https://cards.scryfall.io/normal/front/8/b/8badb2d3-530b-40ca-bcca-4137487f9f01.jpg?16789452342	{1}{U}{R}8BEnchantmentJnormalRRRUZRZU
+ëÌÇm21	Meteorite"en*^https://cards.scryfall.io/normal/front/e/c/ec3a2c95-4e7a-43c5-90bd-6f1de7c82a5c.jpg?15947375132{5}8BArtifactJnormal
+§ÈÇmidJoin the Dance"en*^https://cards.scryfall.io/normal/front/5/6/56b30a99-601b-40b9-b012-30fa4be5fd3c.jpg?16366844582{G}{W}8BSorceryJnormalRGRWZGZW
+£‚Çm21Heroic Intervention"en*^https://cards.scryfall.io/normal/front/4/3/43c037e3-7d1a-48ca-8ecc-276696592f62.jpg?15947370382{1}{G}8BInstantJnormalRGZG
+ ÍÇkhmKoma, Cosmos Serpent"en*^https://cards.scryfall.io/normal/front/8/7/876ad1df-e926-4d89-aad7-499a37b27f4c.jpg?16310554122{3}{G}{G}{U}{U}8BLegendary Creature ‚Äî SerpentJnormalRGRUZGZU
+õ◊ÇstaLightning Bolt"ja*^https://cards.scryfall.io/normal/front/b/1/b14fae63-2e82-49c1-8e62-d84a65f27479.jpg?16381097022{R}8BInstantJnormalRRZR
+©„ÇeldReturn of the Wildspeaker"en*^https://cards.scryfall.io/normal/front/b/8/b88a4943-bd1b-4d10-9cd3-b2ab91b25c10.jpg?15724906462{4}{G}8BInstantJnormalRGZG
+ª–ÇklrNoxious Gearhulk"en*^https://cards.scryfall.io/normal/front/2/7/279ee863-a5ce-467d-b83a-c6f0d0a38b29.jpg?16053278882	{4}{B}{B}8BArtifact Creature ‚Äî ConstructJnormalRBZB
+õŸÇea2Rending Volley"en*^https://cards.scryfall.io/normal/front/c/d/cdfcd1ff-5d4c-45ce-b99e-508cd5427c54.jpg?16796167742{R}8BInstantJnormalRRZR
+¬ÎÇpanaRhys the Redeemed"en*^https://cards.scryfall.io/normal/front/f/8/f829249f-2b51-4f13-9d54-319da81e23eb.jpg?15792585622{G/W}8B"Legendary Creature ‚Äî Elf WarriorJnormalRGRWZGZW
+∞’ÇpioHumble Defector"en*^https://cards.scryfall.io/normal/front/2/b/2bb25d6f-7309-48c1-8381-c4e17d4a6adb.jpg?17331796192{1}{R}8BCreature ‚Äî Human RogueJnormalRRZR
+íÒÇha7Sunbaked Canyon"en*^https://cards.scryfall.io/normal/front/b/1/b13cde19-58d5-44e8-ac48-4d2fbcf4fdfe.jpg?1689492639BLandJnormalZRZW
+•˝ˇjmpCoastal Piracy"en*^https://cards.scryfall.io/normal/front/0/f/0f2c4e43-71b2-4483-ba54-4be1dcffcd5f.jpg?16007137072	{2}{U}{U}8BEnchantmentJnormalRUZU
+ó¸ˇsta
+Brainstorm"ja*^https://cards.scryfall.io/normal/front/c/6/c6118d1d-28c1-4f54-97cb-c4f934b6739c.jpg?16665535032{U}8BInstantJnormalRUZU
+≠ãÄsncSuspicious Bookcase"en*^https://cards.scryfall.io/normal/front/f/c/fc574b42-e1bb-428f-a71f-bc3d7f5451da.jpg?16644143442{2}8BArtifact Creature ‚Äî WallJnormal
+é≥Çj25Thriving Bluff"en*^https://cards.scryfall.io/normal/front/7/e/7e18fde3-9623-4663-97cf-9f85fc1e03a5.jpg?1730488568BLandJnormalZR
+õ¯ˇlciAcrobatic Leap"en*^https://cards.scryfall.io/normal/front/4/7/47f82d84-03ad-42dd-80ce-f0ac5e353e46.jpg?16990430642{W}8BInstantJnormalRWZW
+ôÉÄblb	Diresight"en*^https://cards.scryfall.io/normal/front/f/a/fada29c0-5293-40a4-b36d-d073ee99e650.jpg?17214263972{2}{B}8BSorceryJnormalRBZB
+ç∂ÇjmpThriving Isle"en*^https://cards.scryfall.io/normal/front/7/e/7eb8fd94-2b59-4b05-b4d0-c93497301d19.jpg?1632261929BLandJnormalZU
+ò±ÇdomRun Amok"en*^https://cards.scryfall.io/normal/front/d/3/d3f2aa2c-deec-4927-a2d6-f5dce5967e26.jpg?15627435622{1}{R}8BInstantJnormalRRZR
+ôÑÄfdn	Bolt Bend"en*^https://cards.scryfall.io/normal/front/c/f/cf01af2c-68e5-4bb5-81de-f3a1b860fb2e.jpg?17304909452{3}{R}8BInstantJnormalRRZR
+ï˛ˇmidConsider"en*^https://cards.scryfall.io/normal/front/a/2/a211d505-4d40-4914-a9da-220770d6ddbc.jpg?16658193092{U}8BInstantJnormalRUZU
+•ÅÉbrrSwiftfoot Boots"en*^https://cards.scryfall.io/normal/front/e/5/e5a412b9-5cab-486f-a0d3-3f73b33b93ca.jpg?16740926882{2}8BArtifact ‚Äî EquipmentJnormal
+é¥Çj25Thriving Grove"en*^https://cards.scryfall.io/normal/front/b/5/b548551d-756b-496e-a1c0-4fa77707663d.jpg?1730488569BLandJnormalZG
+™ÅÄikoBastion of Remembrance"en*^https://cards.scryfall.io/normal/front/2/d/2dd354dd-939e-4b1a-8ed6-fe89a7fd64bf.jpg?15912265822{2}{B}8BEnchantmentJnormalRBZB
+¶˙ˇjmpDuelist's Heritage"en*^https://cards.scryfall.io/normal/front/f/e/fefef556-dd3c-49b9-a6f5-8b86af64416e.jpg?16006963432{2}{W}8BEnchantmentJnormalRWZW
+ó≤ÇjmpExplore"en*^https://cards.scryfall.io/normal/front/8/e/8ea6c234-ede2-4543-ab8e-38d7a503a5e1.jpg?16010793972{1}{G}8BSorceryJnormalRGZG
+öäÄltrMany Partings"en*^https://cards.scryfall.io/normal/front/d/1/d179dbbe-9c79-4dbc-955a-5209a3e2745a.jpg?16869694702{G}8BSorceryJnormalRGZG
+ü˚ˇfdnValorous Stance"en*^https://cards.scryfall.io/normal/front/b/c/bc4c47e3-04b6-4760-9a80-b6acef1e4524.jpg?17304908132{1}{W}8BInstantJnormalRWZW
+ç∑Çj25Thriving Moor"en*^https://cards.scryfall.io/normal/front/4/8/48760243-5614-46cd-b487-2ec09638921a.jpg?1730488584BLandJnormalZB
+û∞ÇznrFeed the Swarm"en*^https://cards.scryfall.io/normal/front/f/6/f6b2eba7-862a-4efd-9f65-065fb2070855.jpg?16041956492{1}{B}8BSorceryJnormalRBZB
+éµÇjmpThriving Heath"en*^https://cards.scryfall.io/normal/front/f/e/fe424eb3-7df8-4317-8776-6d960afbb90a.jpg?1632261923BLandJnormalZW
+ôÇÄpio	Dark Deal"en*^https://cards.scryfall.io/normal/front/d/4/d4c8abc5-ed15-4c5a-99ff-0a5d72fc878b.jpg?17331793982{2}{B}8BSorceryJnormalRBZB
+°ˇˇpioDramatic Reversal"en*^https://cards.scryfall.io/normal/front/6/b/6b6ebfd5-12b6-4588-ac0f-eca0de8df955.jpg?17331791902{1}{U}8BInstantJnormalRUZU
+ì¸ÇspgGamble"en*^https://cards.scryfall.io/normal/front/6/d/6d289cdd-3afa-48dd-9c90-3d8f9df79f16.jpg?17074293612{R}8BSorceryJnormalRRZR
+ûâÄjmpInspiring Call"en*^https://cards.scryfall.io/normal/front/e/b/eb7a443d-ab85-4c3e-9fd4-f84afcea2665.jpg?16010796762{2}{G}8BInstantJnormalRGZG
+ûáÄj21Fists of Flame"en*^https://cards.scryfall.io/normal/front/d/0/d058192d-f43f-471b-88ce-7b800f71f014.jpg?16302489322{1}{R}8BInstantJnormalRRZR
+ïˇÇanbArcane Signet"en*^https://cards.scryfall.io/normal/front/e/a/eae6e393-315b-4f70-9da2-c58003e2813d.jpg?16796203752{2}8BArtifactJnormal
+ó˘ˇjmp
+Cloudshift"en*^https://cards.scryfall.io/normal/front/8/b/8bc7fdf0-3e1e-487c-833d-7c74aa02c0c1.jpg?16007169602{W}8BInstantJnormalRWZW
+°ÖÄikoCathartic Reunion"en*^https://cards.scryfall.io/normal/front/4/3/43d93cfd-06d1-4c6a-87f6-9b6eaa2a995f.jpg?15912271062{1}{R}8BSorceryJnormalRRZR
+£æÇstaTeferi's Protection"ja*^https://cards.scryfall.io/normal/front/a/7/a7f56fbb-c88a-4d10-a6c1-fef72403c4b9.jpg?16381137062{2}{W}8BInstantJnormalRWZW
+ú∏Çm20Brought Back"en*^https://cards.scryfall.io/normal/front/a/e/aecdc315-95e5-450c-bedc-998eea46cf8c.jpg?15925159842{W}{W}8BInstantJnormalRWZW
+≥≈ÇfdnImprisoned in the Moon"en*^https://cards.scryfall.io/normal/front/e/e/ee28e147-6622-4399-a314-c14a5c912dd0.jpg?17304891852{2}{U}8BEnchantment ‚Äî AuraJnormalRUZU
+µπÇikoDrannith Magistrate"en*^https://cards.scryfall.io/normal/front/9/8/98b0a4a8-9319-451b-9b79-b0bca7a41e91.jpg?16288017422{1}{W}8BCreature ‚Äî Human WizardJnormalRWZW
+¢∆ÇwotIntruder Alarm"en*^https://cards.scryfall.io/normal/front/0/c/0c7eafcf-49aa-4134-b2d8-d9804160bcca.jpg?16929488442{2}{U}8BEnchantmentJnormalRUZU
+∂¿Çm20Agent of Treachery"en*^https://cards.scryfall.io/normal/front/c/c/cc6686e6-4535-49be-b0b3-e76464656cd2.jpg?16390524972	{5}{U}{U}8BCreature ‚Äî Human RogueJnormalRUZU
+ïÙ˛neoSwamp"en*^https://cards.scryfall.io/normal/front/f/d/fdfebc79-5d84-4ce5-8bff-d09fe333f4a3.jpg?1654569141BBasic Land ‚Äî SwampJnormalZB
+ó˜˛akrPlains"en*^https://cards.scryfall.io/normal/front/f/e/febd8326-9ba6-43de-bb29-910cb459498e.jpg?1597375858BBasic Land ‚Äî PlainsJnormalZW
+óˆ˛mh3Forest"en*^https://cards.scryfall.io/normal/front/f/f/ff4c78b4-7178-4a60-ba22-086fb18146df.jpg?1717013886BBasic Land ‚Äî ForestJnormalZG
+ó¯˛broIsland"en*^https://cards.scryfall.io/normal/front/f/e/fe9d36d3-9373-407c-91fd-975d8ee9e4fe.jpg?1674422330BBasic Land ‚Äî IslandJnormalZU
+õı˛m19Mountain"en*^https://cards.scryfall.io/normal/front/f/e/fedbe1f9-b29f-4bdd-9718-615b7c2413b4.jpg?1562305306BBasic Land ‚Äî MountainJnormalZR
+ó˚˛mh3Forest"en*^https://cards.scryfall.io/normal/front/f/f/ff4c78b4-7178-4a60-ba22-086fb18146df.jpg?1717013886BBasic Land ‚Äî ForestJnormalZG
+õ˙˛m19Mountain"en*^https://cards.scryfall.io/normal/front/f/e/fedbe1f9-b29f-4bdd-9718-615b7c2413b4.jpg?1562305306BBasic Land ‚Äî MountainJnormalZR
+óÚ˛akrPlains"en*^https://cards.scryfall.io/normal/front/f/e/febd8326-9ba6-43de-bb29-910cb459498e.jpg?1597375858BBasic Land ‚Äî PlainsJnormalZW
+óÛ˛broIsland"en*^https://cards.scryfall.io/normal/front/f/e/fe9d36d3-9373-407c-91fd-975d8ee9e4fe.jpg?1674422330BBasic Land ‚Äî IslandJnormalZU
+ï˘˛neoSwamp"en*^https://cards.scryfall.io/normal/front/f/d/fdfebc79-5d84-4ce5-8bff-d09fe333f4a3.jpg?1654569141BBasic Land ‚Äî SwampJnormalZB
+∞ï¯tla)The Legend of Yangchen // Avatar Yangchen"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZWbú
+The Legend of YangchenEnchantment ‚Äî Saga	{3}{W}{W}"^https://cards.scryfall.io/normal/front/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580*Wbè
+Avatar YangchenLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580
+§∏¯tla#The Legend of Kuruk // Avatar Kuruk"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZUbô
+The Legend of KurukEnchantment ‚Äî Saga	{2}{U}{U}"^https://cards.scryfall.io/normal/front/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593*Ubå
+Avatar KurukLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593
+≥Ò¯tla$The Rise of Sozin // Fire Lord Sozin"en8B:Enchantment ‚Äî Saga // Legendary Creature ‚Äî Human NobleJ	transformZBbó
+The Rise of SozinEnchantment ‚Äî Saga	{4}{B}{B}"^https://cards.scryfall.io/normal/front/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*Bbó
+Fire Lord Sozin"Legendary Creature ‚Äî Human Noble"]https://cards.scryfall.io/normal/back/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*B
+†é˘tla!The Legend of Roku // Avatar Roku"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZRbò
+The Legend of RokuEnchantment ‚Äî Saga	{2}{R}{R}"^https://cards.scryfall.io/normal/front/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621*Rbã
+Avatar RokuLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621
+®∏˘tla%The Legend of Kyoshi // Avatar Kyoshi"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZGbö
+The Legend of KyoshiEnchantment ‚Äî Saga	{4}{G}{G}"^https://cards.scryfall.io/normal/front/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634*Gbç
+Avatar KyoshiLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634
+ˇ ˘tla0Aang, at the Crossroads // Aang, Destined Savior"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZGZUZWb∫
+Aang, at the Crossroads(Legendary Creature ‚Äî Human Avatar Ally{2}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507*G*U*Wbö
+Aang, Destined Savior"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507
+ÇÃ˘tla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+ˆ–˘tla'Avatar Aang // Aang, Master of Elements"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZBZGZRZUZWb±
+Avatar Aang(Legendary Creature ‚Äî Human Avatar Ally{R}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683*G*R*U*Wbù
+Aang, Master of Elements"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683
+©íÉtlaFated Firepower"en*^https://cards.scryfall.io/normal/front/1/3/13688c4d-d63f-4cef-8aae-16aec7b9effc.jpg?17641224572{X}{R}{R}{R}8BEnchantmentJnormalRRZR
+ÇìÉtla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+ÇîÉtla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+£ïÉtlaFire Nation Attacks"en*^https://cards.scryfall.io/normal/front/e/d/ed94f384-ebd2-4c30-a9bb-9cf793d9a810.jpg?17641221662{4}{R}8BInstantJnormalRRZR
+ùñÉtlaCrashing Wave"en*^https://cards.scryfall.io/normal/front/a/4/a4cee0c6-8a29-4d08-9b24-c12c45c2309d.jpg?17641221732{U}{U}8BSorceryJnormalRUZU
+ØóÉtlaCombustion Technique"en*^https://cards.scryfall.io/normal/front/1/7/17d97052-e153-42d8-beb6-6d85815c9b59.jpg?17641221802{1}{R}8BInstant ‚Äî LessonJnormalRRZR
+¡òÉtlaZuko, Conflicted"en*^https://cards.scryfall.io/normal/front/5/2/52f92b27-6dfe-466f-b68b-f5dc6befa271.jpg?17641221862{B}{R}8B"Legendary Creature ‚Äî Human RogueJnormalRBRRZBZR
+”ôÉtlaAzula, Cunning Usurper"en*^https://cards.scryfall.io/normal/front/5/b/5b3352fd-f100-44c2-9e63-83be172317e9.jpg?17641221932{2}{U}{B}{B}8B(Legendary Creature ‚Äî Human Noble RogueJnormalRBRUZBZU
+ˇöÉtla0Aang, at the Crossroads // Aang, Destined Savior"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZGZUZWb∫
+Aang, at the Crossroads(Legendary Creature ‚Äî Human Avatar Ally{2}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507*G*U*Wbö
+Aang, Destined Savior"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507
+ˇõÉtla0Aang, at the Crossroads // Aang, Destined Savior"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZGZUZWb∫
+Aang, at the Crossroads(Legendary Creature ‚Äî Human Avatar Ally{2}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507*G*U*Wbö
+Aang, Destined Savior"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507
+’úÉtlaKatara, the Fearless"en*^https://cards.scryfall.io/normal/front/1/5/15260c74-6400-46bd-a144-9d9e107eab8a.jpg?17641226622	{G}{W}{U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRURWZGZUZW
+πùÉtlaDai Li Agents"en*^https://cards.scryfall.io/normal/front/8/2/82822ac1-9288-4bac-8afd-83563e693731.jpg?17641222222	{3}{B}{G}8BCreature ‚Äî Human SoldierJnormalRBRGZBZG
+©ûÉtlaEarthbender Ascension"en*^https://cards.scryfall.io/normal/front/8/2/826b4f26-419a-4d74-8c70-275555092095.jpg?17641222282{2}{G}8BEnchantmentJnormalRGZG
+ˆüÉtla'Avatar Aang // Aang, Master of Elements"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZBZGZRZUZWb±
+Avatar Aang(Legendary Creature ‚Äî Human Avatar Ally{R}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683*G*R*U*Wbù
+Aang, Master of Elements"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683
+ˆ†Étla'Avatar Aang // Aang, Master of Elements"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZBZGZRZUZWb±
+Avatar Aang(Legendary Creature ‚Äî Human Avatar Ally{R}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683*G*R*U*Wbù
+Aang, Master of Elements"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/0/d0467b6f-8c7d-4fcd-99f8-d335bb736484.jpg?1764122683
+†°ÉtlaSozin's Comet"en*^https://cards.scryfall.io/normal/front/e/4/e4588e53-a5cf-463a-a7b6-20437aeaabee.jpg?17641223892	{3}{R}{R}8BSorceryJnormalRRZR
+©¢ÉtlaWaterbender Ascension"en*^https://cards.scryfall.io/normal/front/e/5/e5f2648f-990d-44d7-a7bf-0db99bdc3015.jpg?17641222532{1}{U}8BEnchantmentJnormalRUZU
+–£ÉtlaOzai, the Phoenix King"en*^https://cards.scryfall.io/normal/front/d/1/d11a45f5-9552-46a5-9f75-008b352c8121.jpg?17641224082{2}{B}{B}{R}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRBRRZBZR
+®§ÉtlaFirebender Ascension"en*^https://cards.scryfall.io/normal/front/0/5/05309d0b-302d-4a9e-b147-1b504ecf365e.jpg?17641222652{1}{R}8BEnchantmentJnormalRRZR
+Ã•ÉtlaFire Lord Azula"en*^https://cards.scryfall.io/normal/front/1/e/1ea7248c-e4b3-4776-8e6a-cba06da2d6cc.jpg?17641224012{1}{U}{B}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRBRRRUZBZRZU
+°¶ÉtlaThe Last Agni Kai"en*^https://cards.scryfall.io/normal/front/5/1/51af6d52-bda7-40be-8a83-c19916320df5.jpg?17641222762{1}{R}8BInstantJnormalRRZR
+ÕßÉtlaFire Lord Zuko"en*^https://cards.scryfall.io/normal/front/0/c/0c457a8b-8d56-474d-b788-c058a9882fdd.jpg?17641226552	{R}{W}{B}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRBRRRWZBZRZW
+≈®ÉtlaAppa, Steadfast Guardian"en*^https://cards.scryfall.io/normal/front/4/d/4d822fa1-70f9-4a63-841d-31c94e1e3dd4.jpg?17641222882	{2}{W}{W}8B!Legendary Creature ‚Äî Bison AllyJnormalRWZW
+ø©ÉtlaMomo, Friendly Flier"en*^https://cards.scryfall.io/normal/front/a/7/a7b91b5f-815c-4bdc-97e4-dc7bc8ed29c0.jpg?17641228932{W}8B%Legendary Creature ‚Äî Lemur Bat AllyJnormalRWZW
+•™Étla
+Tiger-Seal"en*^https://cards.scryfall.io/normal/front/d/4/d47fd63e-ddf0-4d98-8883-9ac883c20691.jpg?17641223012{U}8BCreature ‚Äî Cat SealJnormalRUZU
+ƒ´ÉtlaThe Unagi of Kyoshi Island"en*^https://cards.scryfall.io/normal/front/6/6/66387ea1-af31-4332-bacc-c32fe3260f4b.jpg?17641223072	{3}{U}{U}8BLegendary Creature ‚Äî SerpentJnormalRUZU
+≈¨ÉtlaWan Shi Tong, Librarian"en*^https://cards.scryfall.io/normal/front/d/4/d4bf05c4-a924-4006-835e-42f8468ba869.jpg?17641223132	{X}{U}{U}8B"Legendary Creature ‚Äî Bird SpiritJnormalRUZU
+ø≠ÉtlaThe Fire Nation Drill"en*^https://cards.scryfall.io/normal/front/a/a/aaf7eb99-b60d-44d7-baf5-30508cc8d6b3.jpg?17641223192	{2}{B}{B}8BLegendary Artifact ‚Äî VehicleJnormalRBZB
+ÀÆÉtlaKoh, the Face Stealer"en*^https://cards.scryfall.io/normal/front/b/3/b3bf2ebe-336a-4b9a-9134-4e3efbcafdd2.jpg?17641223252	{4}{B}{B}8B*Legendary Creature ‚Äî Shapeshifter SpiritJnormalRBZB
+µØÉtlaPhoenix Fleet Airship"en*^https://cards.scryfall.io/normal/front/b/f/bf9085bd-0ee0-4d8a-8deb-686a87b28c7a.jpg?17641223312	{2}{B}{B}8BArtifact ‚Äî VehicleJnormalRBZB
+Æ∞ÉtlaRaven Eagle"en*^https://cards.scryfall.io/normal/front/b/c/bc9b17de-ddb7-4f4c-826d-2f8e0678b680.jpg?17641223372{2}{B}8BCreature ‚Äî Bird AssassinJnormalRBZB
+µ±ÉtlaRan and Shaw"en*^https://cards.scryfall.io/normal/front/b/9/b9b12da4-7c5c-4dce-932d-0683bf04df7d.jpg?17641223432	{3}{R}{R}8BLegendary Creature ‚Äî DragonJnormalRRZR
+Ø≤ÉtlaBadgermole Cub"en*^https://cards.scryfall.io/normal/front/b/e/be16c053-99e1-4921-8530-5135c989149d.jpg?17641223502{1}{G}8BCreature ‚Äî Badger MoleJnormalRGZG
+∫≥ÉtlaDiligent Zookeeper"en*^https://cards.scryfall.io/normal/front/5/f/5f7e8f5d-c9d6-4f25-af92-f1a6b815f0c1.jpg?17641223572{3}{G}8BCreature ‚Äî Human Citizen AllyJnormalRGZG
+»¥ÉtlaThe Lion-Turtle"en*^https://cards.scryfall.io/normal/front/8/d/8da5dab3-4505-40d9-8d81-f653cd77e491.jpg?17641223632	{1}{G}{U}8B'Legendary Creature ‚Äî Elder Cat TurtleJnormalRGRUZGZU
+ªµÉtlaThe Walls of Ba Sing Se"en*^https://cards.scryfall.io/normal/front/0/8/086b6003-6d90-426b-809e-ea837d868290.jpg?17641223712{8}8B$Legendary Artifact Creature ‚Äî WallJnormal
+ò∂ÉtlaWhite Lotus Tile"en*^https://cards.scryfall.io/normal/front/1/5/15efe915-5e38-4e00-b10f-28e76ab51597.jpg?17641223772{4}8BArtifactJnormal
+¢∑ÉtlaAang's Iceberg"en*^https://cards.scryfall.io/normal/front/6/c/6cd25a10-1e4e-4f47-8a67-221df4907b26.jpg?17641224152{2}{W}8BEnchantmentJnormalRWZW
+∑∏ÉtlaSecret of Bloodbending"en*^https://cards.scryfall.io/normal/front/6/8/682fabaf-bfb0-4ee8-b297-f7436c7a68f2.jpg?17641224222{U}{U}{U}{U}8BSorcery ‚Äî LessonJnormalRUZU
+øπÉtlaYue, the Moon Spirit"en*^https://cards.scryfall.io/normal/front/b/5/b50e8e26-0f3c-4478-8827-dc3245f31d8a.jpg?17641224302{3}{U}8B"Legendary Creature ‚Äî Spirit AllyJnormalRUZU
+¶∫ÉtlaFoggy Swamp Visions"en*^https://cards.scryfall.io/normal/front/f/8/f8f56648-85be-417a-814b-c356df390ba0.jpg?17641224382	{1}{B}{B}8BSorceryJnormalRBZB
+•ªÉtlaObsessive Pursuit"en*^https://cards.scryfall.io/normal/front/2/f/2ff0a75c-b679-436f-8150-faaec3ea1df6.jpg?17641224482{1}{B}8BEnchantmentJnormalRBZB
+©ºÉtlaFated Firepower"en*^https://cards.scryfall.io/normal/front/1/3/13688c4d-d63f-4cef-8aae-16aec7b9effc.jpg?17641224572{X}{R}{R}{R}8BEnchantmentJnormalRRZR
+≥ΩÉtlaFirebending Student"en*^https://cards.scryfall.io/normal/front/7/9/79d1889c-4b3d-47d4-847e-4343cdaf9750.jpg?17641228862{1}{R}8BCreature ‚Äî Human MonkJnormalRRZR
+™æÉtlaRedirect Lightning"en*^https://cards.scryfall.io/normal/front/2/c/2c1c0fb2-cb74-46a1-9ce4-5274feab1146.jpg?17641224742{R}8BInstant ‚Äî LessonJnormalRRZR
+æøÉtlaThe Earth King"en*^https://cards.scryfall.io/normal/front/3/6/3687f487-eec1-4979-8008-5c907adafe9d.jpg?17641224822{3}{G}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGZG
+∏¿ÉtlaGreat Divide Guide"en*^https://cards.scryfall.io/normal/front/7/a/7a89533f-1236-49bf-9a25-1b7f7789eb2a.jpg?17641224922{1}{G}8BCreature ‚Äî Human Scout AllyJnormalRGZG
+ˇ¡Étla0Aang, at the Crossroads // Aang, Destined Savior"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZGZUZWb∫
+Aang, at the Crossroads(Legendary Creature ‚Äî Human Avatar Ally{2}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507*G*U*Wbö
+Aang, Destined Savior"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507
+ˇ¬Étla0Aang, at the Crossroads // Aang, Destined Savior"en8BNLegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar AllyJ	transformZGZUZWb∫
+Aang, at the Crossroads(Legendary Creature ‚Äî Human Avatar Ally{2}{G}{W}{U}"^https://cards.scryfall.io/normal/front/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507*G*U*Wbö
+Aang, Destined Savior"Legendary Creature ‚Äî Avatar Ally"]https://cards.scryfall.io/normal/back/d/7/d7f35cd9-71ac-4191-8604-1a653b56c42d.jpg?1764122507
+Ç√Étla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+ÇƒÉtla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+»≈ÉtlaBumi, Unleashed"en*^https://cards.scryfall.io/normal/front/7/1/7143a5ba-c597-4f8b-9f39-15849e298a6f.jpg?17641225292	{3}{R}{G}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGRRZGZR
+”∆ÉtlaIroh, Grand Lotus"en*^https://cards.scryfall.io/normal/front/8/5/85af39f5-8207-4fc5-a956-1ee2799ac374.jpg?17641225362{3}{G}{U}{R}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRGRRRUZGZRZU
+’«ÉtlaKatara, the Fearless"en*^https://cards.scryfall.io/normal/front/1/5/15260c74-6400-46bd-a144-9d9e107eab8a.jpg?17641226622	{G}{W}{U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRURWZGZUZW
+ÿ»ÉtlaKatara, Water Tribe's Hope"en*^https://cards.scryfall.io/normal/front/9/5/95547532-c056-44a5-9d80-4f6b729b6e0c.jpg?17641225522{2}{W}{U}{U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRURWZUZW
+ﬁ…ÉtlaSokka, Tenacious Tactician"en*^https://cards.scryfall.io/normal/front/b/9/b9dc53c3-351e-46da-bce6-ab8c651cb4ea.jpg?17641225592{1}{U}{R}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRRRURWZRZUZW
+ﬂ ÉtlaToph, the First Metalbender"en*^https://cards.scryfall.io/normal/front/1/3/1381ec47-55fd-47d9-aded-d21776bc06b9.jpg?17641226692{1}{R}{G}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRRRWZGZRZW
+∞ÀÉtla)The Legend of Yangchen // Avatar Yangchen"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZWbú
+The Legend of YangchenEnchantment ‚Äî Saga	{3}{W}{W}"^https://cards.scryfall.io/normal/front/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580*Wbè
+Avatar YangchenLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580
+∞ÃÉtla)The Legend of Yangchen // Avatar Yangchen"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZWbú
+The Legend of YangchenEnchantment ‚Äî Saga	{3}{W}{W}"^https://cards.scryfall.io/normal/front/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580*Wbè
+Avatar YangchenLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/9/4/944ddbe5-45bf-44c3-aad5-b051ec79ae8b.jpg?1764122580
+§ÕÉtla#The Legend of Kuruk // Avatar Kuruk"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZUbô
+The Legend of KurukEnchantment ‚Äî Saga	{2}{U}{U}"^https://cards.scryfall.io/normal/front/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593*Ubå
+Avatar KurukLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593
+§ŒÉtla#The Legend of Kuruk // Avatar Kuruk"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZUbô
+The Legend of KurukEnchantment ‚Äî Saga	{2}{U}{U}"^https://cards.scryfall.io/normal/front/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593*Ubå
+Avatar KurukLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/f/4/f487686d-2b8a-440f-b2f3-8a07dd95ad93.jpg?1764122593
+≥œÉtla$The Rise of Sozin // Fire Lord Sozin"en8B:Enchantment ‚Äî Saga // Legendary Creature ‚Äî Human NobleJ	transformZBbó
+The Rise of SozinEnchantment ‚Äî Saga	{4}{B}{B}"^https://cards.scryfall.io/normal/front/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*Bbó
+Fire Lord Sozin"Legendary Creature ‚Äî Human Noble"]https://cards.scryfall.io/normal/back/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*B
+≥–Étla$The Rise of Sozin // Fire Lord Sozin"en8B:Enchantment ‚Äî Saga // Legendary Creature ‚Äî Human NobleJ	transformZBbó
+The Rise of SozinEnchantment ‚Äî Saga	{4}{B}{B}"^https://cards.scryfall.io/normal/front/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*Bbó
+Fire Lord Sozin"Legendary Creature ‚Äî Human Noble"]https://cards.scryfall.io/normal/back/7/5/75fcadb9-2573-4c10-8e61-ecdf72120c53.jpg?1764122607*B
+†—Étla!The Legend of Roku // Avatar Roku"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZRbò
+The Legend of RokuEnchantment ‚Äî Saga	{2}{R}{R}"^https://cards.scryfall.io/normal/front/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621*Rbã
+Avatar RokuLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621
+†“Étla!The Legend of Roku // Avatar Roku"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZRbò
+The Legend of RokuEnchantment ‚Äî Saga	{2}{R}{R}"^https://cards.scryfall.io/normal/front/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621*Rbã
+Avatar RokuLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/4/a/4a8bdef0-c50c-4a30-81bc-507a8289a81b.jpg?1764122621
+®”Étla%The Legend of Kyoshi // Avatar Kyoshi"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZGbö
+The Legend of KyoshiEnchantment ‚Äî Saga	{4}{G}{G}"^https://cards.scryfall.io/normal/front/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634*Gbç
+Avatar KyoshiLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634
+®‘Étla%The Legend of Kyoshi // Avatar Kyoshi"en8B5Enchantment ‚Äî Saga // Legendary Creature ‚Äî AvatarJ	transformZGbö
+The Legend of KyoshiEnchantment ‚Äî Saga	{4}{G}{G}"^https://cards.scryfall.io/normal/front/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634*Gbç
+Avatar KyoshiLegendary Creature ‚Äî Avatar"]https://cards.scryfall.io/normal/back/8/3/83731884-cd1a-4c12-8b1c-9a1c7b34ef12.jpg?1764122634
+≥’ÉtlaFirebending Student"en*^https://cards.scryfall.io/normal/front/7/9/79d1889c-4b3d-47d4-847e-4343cdaf9750.jpg?17641228862{1}{R}8BCreature ‚Äî Human MonkJnormalRRZR
+ü÷ÉtlaUnited Front"en*^https://cards.scryfall.io/normal/front/d/a/dad8f56c-1bf2-4641-885d-04b885533a3c.jpg?17641223832	{X}{W}{W}8BSorceryJnormalRWZW
+†◊ÉtlaSozin's Comet"en*^https://cards.scryfall.io/normal/front/e/4/e4588e53-a5cf-463a-a7b6-20437aeaabee.jpg?17641223892	{3}{R}{R}8BSorceryJnormalRRZR
+ÆÿÉtlaAvatar Destiny"en*^https://cards.scryfall.io/normal/front/1/9/19b71bf7-d354-4729-a160-b85402c084f3.jpg?17641223952	{2}{G}{G}8BEnchantment ‚Äî AuraJnormalRGZG
+ÃŸÉtlaFire Lord Azula"en*^https://cards.scryfall.io/normal/front/1/e/1ea7248c-e4b3-4776-8e6a-cba06da2d6cc.jpg?17641224012{1}{U}{B}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRBRRRUZBZRZU
+–⁄ÉtlaOzai, the Phoenix King"en*^https://cards.scryfall.io/normal/front/d/1/d11a45f5-9552-46a5-9f75-008b352c8121.jpg?17641224082{2}{B}{B}{R}{R}8B"Legendary Creature ‚Äî Human NobleJnormalRBRRZBZR
+Ç€Étla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+Ç‹Étla/Aang, Swift Savior // Aang and La, Ocean's Fury"en8BULegendary Creature ‚Äî Human Avatar Ally // Legendary Creature ‚Äî Avatar Spirit AllyJ	transformZUZWbØ
+Aang, Swift Savior(Legendary Creature ‚Äî Human Avatar Ally	{1}{W}{U}"^https://cards.scryfall.io/normal/front/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648*U*Wb•
+Aang and La, Ocean's Fury)Legendary Creature ‚Äî Avatar Spirit Ally"]https://cards.scryfall.io/normal/back/3/7/372afa84-9ca9-46e6-8643-e16249505c59.jpg?1764122648
+Õ›ÉtlaFire Lord Zuko"en*^https://cards.scryfall.io/normal/front/0/c/0c457a8b-8d56-474d-b788-c058a9882fdd.jpg?17641226552	{R}{W}{B}8B'Legendary Creature ‚Äî Human Noble AllyJnormalRBRRRWZBZRZW
+’ﬁÉtlaKatara, the Fearless"en*^https://cards.scryfall.io/normal/front/1/5/15260c74-6400-46bd-a144-9d9e107eab8a.jpg?17641226622	{G}{W}{U}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRURWZGZUZW
+ﬂﬂÉtlaToph, the First Metalbender"en*^https://cards.scryfall.io/normal/front/1/3/1381ec47-55fd-47d9-aded-d21776bc06b9.jpg?17641226692{1}{R}{G}{W}8B)Legendary Creature ‚Äî Human Warrior AllyJnormalRGRRRWZGZRZW
+´≠ìrix
+Polyraptor"en*^https://cards.scryfall.io/normal/front/f/8/f8965a3a-93fe-4021-a665-b6013bdc86f7.jpg?15550407282	{6}{G}{G}8BCreature ‚Äî DinosaurJnormalRGZG
+≥ØìbrrWurmcoil Engine"en*^https://cards.scryfall.io/normal/front/b/0/b045a766-73ee-4109-bede-2e1d71b80f2f.jpg?16740927242{6}8B$Artifact Creature ‚Äî Phyrexian WurmJnormal
+æﬂùfinA-Vivi Ornitier"en*^https://cards.scryfall.io/normal/front/f/5/f5fce9a5-85ae-408e-a260-b1e39843626e.jpg?17619046072	{1}{U}{R}8BLegendary Creature ‚Äî WizardJnormalRRRUZRZU
+æ‡ùfinA-Vivi Ornitier"en*^https://cards.scryfall.io/normal/front/f/5/f5fce9a5-85ae-408e-a260-b1e39843626e.jpg?17619046072	{1}{U}{R}8BLegendary Creature ‚Äî WizardJnormalRRRUZRZU
