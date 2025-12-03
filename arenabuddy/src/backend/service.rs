@@ -10,6 +10,7 @@ use arenabuddy_core::{
         mulligan::Mulligan,
     },
     models::{Draft, MTGAMatch},
+    sheets,
 };
 use arenabuddy_data::DirectoryStorage;
 use tokio::sync::Mutex;
@@ -152,6 +153,14 @@ where
         let mut debug_backend = self.debug_storage.lock().await;
         *debug_backend = Some(storage);
         Ok(())
+    }
+
+    pub async fn sync_match_to_sheets(&self, match_id: String) -> Result<()> {
+        let match_details = self.get_match_details(match_id).await?;
+        sheets::write_to_arenadata(&match_details).await.map_err(|e| {
+            tracingx::error!("Error writing to sheets: {e}");
+            e.into()
+        })
     }
 
     pub async fn get_debug_logs(&self) -> Result<Option<Vec<String>>> {
