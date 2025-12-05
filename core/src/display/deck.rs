@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Write};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
@@ -79,6 +79,23 @@ impl DeckDisplayRecord {
         };
         cards.iter().fold(0, |acc, card| acc + card.quantity)
     }
+
+    pub fn pretty_print(&self) -> String {
+        let mut output = String::new();
+        for (card_type, cards) in &self.main_deck {
+            writeln!(output, "{card_type}:").expect("valid write");
+            for card in cards {
+                writeln!(output, "{} {}", card.quantity, card.name).expect("valid write");
+            }
+        }
+        if !self.sideboard.is_empty() {
+            writeln!(output, "Sideboard:").expect("valid write");
+            for card in &self.sideboard {
+                writeln!(output, "{} {}", card.quantity, card.name).expect("valid write");
+            }
+        }
+        output
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -132,6 +149,23 @@ impl Difference {
         let removed = Self::aggregate(&removed, cards_database);
 
         Self::new(added, removed)
+    }
+
+    pub fn pretty_print(&self) -> String {
+        let mut output = String::new();
+        if !self.added.is_empty() {
+            writeln!(output, "Added:").expect("valid write");
+            for card in &self.added {
+                writeln!(output, "{} {}", card.quantity, card.name).expect("valid write");
+            }
+        }
+        if !self.removed.is_empty() {
+            writeln!(output, "\nRemoved:").expect("valid write");
+            for card in &self.removed {
+                writeln!(output, "{} {}", card.quantity, card.name).expect("valid write");
+            }
+        }
+        output
     }
 }
 

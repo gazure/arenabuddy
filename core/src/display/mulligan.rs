@@ -75,4 +75,25 @@ impl Mulligan {
             cards_database,
         )
     }
+
+    pub fn pretty_print(&self) -> String {
+        use std::fmt::Write;
+
+        let mut output = String::new();
+        writeln!(output, "Game #{}: {}", self.game_number, self.opponent_identity).expect("valid write");
+        writeln!(
+            output,
+            "Hand: {}",
+            self.hand
+                .iter()
+                .map(|card| card.name.clone())
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
+        .expect("valid write");
+        writeln!(output, "Keep: {}", self.number_to_keep).expect("valid write");
+        writeln!(output, "Play/Draw: {}", self.play_draw).expect("valid write");
+        writeln!(output, "Decision: {}", self.decision).expect("valid write");
+        output
+    }
 }

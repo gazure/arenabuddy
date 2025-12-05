@@ -15,7 +15,7 @@ use crate::{Result, display::match_details::MatchDetails};
 fn match_details_sheet_row(md: &MatchDetails) -> Vec<serde_json::Value> {
     let mut row = vec![
         json!(md.id),
-        json!(md.created_at.to_rfc3339()),
+        json!(md.created_at.to_rfc3339_opts(chrono::SecondsFormat::Secs, true)),
         json!(md.did_controller_win),
         json!(md.controller_player_name),
         json!(md.opponent_player_name),
@@ -31,26 +31,61 @@ fn match_details_sheet_row(md: &MatchDetails) -> Vec<serde_json::Value> {
     row.push(json!(format!("{}-{}", wins, losses)));
 
     // Primary deck archetype
-    let primary_archetype = md
-        .primary_decklist
-        .as_ref()
-        .map_or_else(|| "Unknown".to_string(), |d| d.archetype.clone());
-    row.push(json!(primary_archetype));
+    let player_decklist = md.primary_decklist.as_ref().map_or_else(
+        || "Player Deck Not Found".to_string(),
+        super::display::deck::DeckDisplayRecord::pretty_print,
+    );
+    row.push(json!(player_decklist));
 
     // Opponent deck archetype
-    let opponent_archetype = md
-        .opponent_deck
-        .as_ref()
-        .map_or_else(|| "Unknown".to_string(), |d| d.archetype.clone());
-    row.push(json!(opponent_archetype));
+    let opponent_deck = md.opponent_deck.as_ref().map_or_else(
+        || "Unknown".to_string(),
+        super::display::deck::DeckDisplayRecord::pretty_print,
+    );
+    row.push(json!(opponent_deck));
 
-    // Differences count
-    let differences_count = md.differences.as_ref().map_or(0, std::vec::Vec::len);
-    row.push(json!(differences_count));
+    // Sideboarding
+    let game_two_sideboard = md
+        .differences
+        .as_ref()
+        .and_then(|ds| ds.first().map(super::display::deck::Difference::pretty_print))
+        .unwrap_or("No Game 2 Sideboarding".to_string());
+    row.push(json!(game_two_sideboard));
+
+    let game_three_sideboard = md
+        .differences
+        .as_ref()
+        .and_then(|ds| ds.get(1).map(super::display::deck::Difference::pretty_print))
+        .unwrap_or("No Game 3 Sideboarding".to_string());
+    row.push(json!(game_three_sideboard));
 
     // Mulligan information
-    let mulligans_taken = md.mulligans.len();
-    row.push(json!(mulligans_taken));
+    let game_one_mulligans = md
+        .mulligans
+        .iter()
+        .filter(|m| m.game_number == 1)
+        .map(super::display::mulligan::Mulligan::pretty_print)
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    row.push(json!(game_one_mulligans));
+
+    let game_two_mulligans = md
+        .mulligans
+        .iter()
+        .filter(|m| m.game_number == 2)
+        .map(super::display::mulligan::Mulligan::pretty_print)
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    row.push(json!(game_two_mulligans));
+
+    let game_three_mulligans = md
+        .mulligans
+        .iter()
+        .filter(|m| m.game_number == 3)
+        .map(super::display::mulligan::Mulligan::pretty_print)
+        .collect::<Vec<_>>()
+        .join("\n\n");
+    row.push(json!(game_three_mulligans));
 
     // Game details (individual game results)
     for game in &md.game_results {
@@ -76,13 +111,16 @@ pub fn sheet_headers() -> Vec<&'static str> {
         "Player Name",
         "Opponent Name",
         "Game Score",
-        "Deck Archetype",
-        "Opponent Archetype",
-        "Deck Differences",
-        "Mulligans",
-        "Game 1",
-        "Game 2",
-        "Game 3",
+        "Player Deck",
+        "Opponent Deck",
+        "Game 2 Sideboarding",
+        "Game 3 Sideboarding",
+        "Game 1 Mulligans",
+        "Game 2 Mulligans",
+        "Game 3 Mulligans",
+        "Game 1 Result",
+        "Game 2 Result",
+        "Game 3 Result",
     ]
 }
 
@@ -141,7 +179,7 @@ impl SheetsClient {
     /// Batch write multiple `MatchDetails` records
     /// # Errors
     ///
-    /// If there is a google sheets API errors
+    /// If there is a google sheets API error
     pub async fn batch_append_matches(&self, matches: &[MatchDetails], sheet_name: &str) -> Result<()> {
         if matches.is_empty() {
             return Ok(());
@@ -212,11 +250,11 @@ impl SheetsClient {
     }
 }
 
-/// Example usage function
+/// Writes `match_details` to the specified spreadsheet idea into the "Matches" sheet
 ///
 /// # Errors
 /// If there was an error interacting with the Google Sheets API.
-pub async fn write_match_to_sheets(match_details: &MatchDetails, spreadsheet_id: &str) -> Result<()> {
+async fn write_match_to_sheets(match_details: &MatchDetails, spreadsheet_id: &str) -> Result<()> {
     let client = SheetsClient::new(spreadsheet_id.to_string()).await?;
 
     // Initialize headers if needed
@@ -228,6 +266,8 @@ pub async fn write_match_to_sheets(match_details: &MatchDetails, spreadsheet_id:
     Ok(())
 }
 
+/// Writes `match_details` to my spreadsheet
+///
 /// # Errors
 /// If there was an error interacting with the Google Sheets API.
 pub async fn write_to_arenadata(match_details: &MatchDetails) -> Result<()> {
