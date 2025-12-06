@@ -5,7 +5,7 @@ use tracingx::{debug, info};
 
 use crate::{Error, Result, errors::ParseError};
 
-const EXTRA_SETS: [&str; 4] = ["FIN", "EOE", "OM1", "TLA"];
+const EXTRA_SETS: [&str; 5] = ["FIN", "EOE", "OM1", "TLA", "DSK"];
 const USER_AGENT: &str = "arenabuddy/1.0";
 
 /// Execute the Scrape command
