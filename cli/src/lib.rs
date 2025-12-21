@@ -18,7 +18,7 @@ struct Cli {
 
 pub async fn run() -> Result<()> {
     let cli = Cli::parse();
-    tracingx::init_once();
+    tracingx::init_dev();
 
     match &cli.command {
         Commands::Parse {
