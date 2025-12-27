@@ -9,7 +9,7 @@ use dioxus::{
 use start::AppMeta;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracingx::{
-    EnvFilter, Layer, Level, SubscriberExt, SubscriberInitExt, debug,
+    EnvFilter, Layer, Level, SubscriberExt, SubscriberInitExt,
     fmt::{self, writer::MakeWriterExt},
     info,
 };
@@ -22,7 +22,6 @@ use crate::{
 
 pub fn launch() -> Result<()> {
     let data_dir = get_app_data_dir()?;
-    let resource_dir = get_resource_dir()?;
     let home = std::env::home_dir().ok_or(Error::NoHomeDir)?;
     let player_log_path = match std::env::consts::OS {
         "macos" => Ok(home.join("Library/Logs/Wizards of the Coast/MTGA/Player.log")),
@@ -48,7 +47,6 @@ pub fn launch() -> Result<()> {
         .with_cfg(
             Config::new()
                 .with_data_directory(data_dir.clone())
-                .with_resource_directory(resource_dir.clone())
                 .with_window(WindowBuilder::new().with_title("Arenabuddy").with_resizable(true)),
         )
         .with_context(service)
@@ -68,31 +66,6 @@ fn get_app_data_dir() -> Result<std::path::PathBuf> {
 
     std::fs::create_dir_all(&app_data).map_err(|_| Error::CorruptedAppData)?;
     Ok(app_data)
-}
-
-fn get_resource_dir() -> Result<std::path::PathBuf> {
-    // In a desktop app, resources are typically bundled with the executable
-    let exe_dir = std::env::current_exe()?.parent().unwrap().to_path_buf();
-
-    // Check common resource locations
-    let possible_paths = vec![
-        exe_dir.join("resources"),
-        exe_dir.join("data"),
-        exe_dir.parent().unwrap().join("Resources"), // macOS app bundle
-        std::env::var("CARGO_MANIFEST_DIR").map_or_else(
-            |_| std::env::current_dir().unwrap().join("./data"),
-            |dir| std::path::PathBuf::from(dir).join("data"),
-        ), // Development mode
-    ];
-
-    for path in possible_paths {
-        debug!("looking in: {:?}", path);
-        if path.join("cards-full.pb").exists() {
-            return Ok(path);
-        }
-    }
-
-    Err(Error::NoCardsDatabase)
 }
 
 fn setup_logging(app_data_dir: &Path) -> Result<()> {
@@ -145,16 +118,12 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
 
 async fn create_app_service() -> Result<Service> {
     let data_dir = get_app_data_dir()?;
-    let resource_dir = get_resource_dir()?;
     setup_logging(&data_dir)?;
 
     let app_meta = AppMeta::from_env().with_app_name("arenabuddy");
     let root_span = tracingx::info_span!("app", app = %app_meta.app);
     let _span = root_span.enter();
-    info!("resource dir: {:?}", resource_dir);
-    let cards_path = resource_dir.join("cards-full.pb");
-    info!("cards_db path: {:?}", cards_path);
-    let cards_db = Arc::new(CardsDatabase::new(cards_path).unwrap_or_default());
+    let cards_db = Arc::new(CardsDatabase::default());
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
     info!("using matches db: {:?}", url);
     let db = MatchDB::new(url.as_deref(), cards_db.clone()).await?;
