@@ -62,10 +62,7 @@ async fn find_sets(base_url: &str, client: &reqwest::Client) -> Result<Vec<Strin
         sets = data
             .iter()
             .filter_map(|set| {
-                if set["set_type"]
-                    .as_str()
-                    .is_some_and(|st| st == "expansion" || st == "commander" || st == "alchemy")
-                {
+                if set["set_type"].as_str().is_some_and(|st| st != "token") {
                     Some(set["code"].as_str().unwrap().to_owned())
                 } else {
                     None
@@ -84,11 +81,10 @@ async fn extract_set(
     debug!("Extracting set: {set}");
     let set_query = format!("e:{set}");
     let query = vec![
-        ("include_extras", "true"),
         ("include_variations", "true"),
         ("order", "set"),
         ("q", &set_query),
-        ("unique", "prints"),
+        ("unique", "cards"),
     ];
     let response = client
         .get(format!("{base_url}/cards/search"))
