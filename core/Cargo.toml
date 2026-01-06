@@ -34,6 +34,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracingx = { path = "../../lib/tracingx" }
 uuid = { workspace = true }
+yup-oauth2 = { workspace = true }
 
 [features]
 default = []

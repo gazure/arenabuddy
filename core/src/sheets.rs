@@ -6,9 +6,9 @@ use google_sheets4::{
         client::legacy::{Client, connect::HttpConnector},
         rt::TokioExecutor,
     },
-    yup_oauth2,
 };
 use serde_json::json;
+use yup_oauth2;
 
 use crate::{Result, display::match_details::MatchDetails};
 

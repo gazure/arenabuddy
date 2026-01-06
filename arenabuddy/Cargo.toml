@@ -31,10 +31,7 @@ tracingx = { path = "../../lib/tracingx" }
 tracing-appender = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-rfd = { workspace = true, default_features = false, features = [
-    "xdg-portal",
-    "tokio",
-] }
+rfd = { workspace = true, default_features = false, features = ["xdg-portal"] }
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 rfd = { workspace = true }
