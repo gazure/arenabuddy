@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::events::gre::DeckMessage;
+use crate::{events::gre::DeckMessage, proto::DeckProto};
 
 /// A mapping of card IDs to their quantities in a deck
 pub type Quantities = HashMap<i32, u16>;
@@ -42,6 +42,28 @@ impl From<(String, Vec<i32>, Vec<i32>)> for Deck {
     fn from(tuple: (String, Vec<i32>, Vec<i32>)) -> Self {
         let (name, mainboard, sideboard) = tuple;
         Self::new(name, 0, mainboard, sideboard)
+    }
+}
+
+impl From<&DeckProto> for Deck {
+    fn from(proto: &DeckProto) -> Self {
+        Self::new(
+            proto.name.clone(),
+            proto.game_number,
+            proto.mainboard.clone(),
+            proto.sideboard.clone(),
+        )
+    }
+}
+
+impl From<&Deck> for DeckProto {
+    fn from(d: &Deck) -> Self {
+        Self {
+            name: d.name.clone(),
+            game_number: d.game_number,
+            mainboard: d.mainboard.clone(),
+            sideboard: d.sideboard.clone(),
+        }
     }
 }
 

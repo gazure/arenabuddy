@@ -1,6 +1,8 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
+use crate::proto::MulliganProto;
+
 /// Represents a mulligan decision in a Magic: The Gathering Arena game
 ///
 /// A mulligan contains information about a player's hand and their decision
@@ -125,5 +127,32 @@ impl Mulligan {
     /// A vector of card IDs, or an empty vector if the hand string couldn't be parsed
     pub fn hand_cards(&self) -> Vec<i32> {
         serde_json::from_str(&self.hand).unwrap_or_default()
+    }
+}
+
+impl From<(&str, &MulliganProto)> for Mulligan {
+    fn from((match_id, proto): (&str, &MulliganProto)) -> Self {
+        Self::new(
+            match_id,
+            proto.game_number,
+            proto.number_to_keep,
+            &proto.hand,
+            &proto.play_draw,
+            &proto.opponent_identity,
+            &proto.decision,
+        )
+    }
+}
+
+impl From<&Mulligan> for MulliganProto {
+    fn from(m: &Mulligan) -> Self {
+        Self {
+            game_number: m.game_number,
+            number_to_keep: m.number_to_keep,
+            hand: m.hand.clone(),
+            play_draw: m.play_draw.clone(),
+            opponent_identity: m.opponent_identity.clone(),
+            decision: m.decision.clone(),
+        }
     }
 }

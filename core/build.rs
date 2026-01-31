@@ -19,10 +19,11 @@ fn main() -> Result<()> {
     // Convert PathBuf to &str references
     let proto_paths: Vec<&str> = proto_files.iter().filter_map(|p| p.to_str()).collect();
 
-    // Compile the proto files with prost-build
-    prost_build::Config::new()
-        .btree_map(["."])
-        .format(true)
+    // Compile the proto files with tonic-prost-build (generates gRPC service stubs + prost messages)
+    tonic_prost_build::configure()
+        .build_server(true)
+        .build_client(true)
+        .btree_map(".")
         .compile_protos(&proto_paths, &[proto_dir])?;
 
     Ok(())

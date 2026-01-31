@@ -27,6 +27,7 @@ serde_json = { workspace = true }
 start = { path = "../../lib/start" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full", "tracing"] }
+tonic = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
 tracing-appender = { workspace = true }
 

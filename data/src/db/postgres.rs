@@ -550,6 +550,51 @@ impl PostgresMatchDB {
 
         Ok(MTGADraft::new(draft, packs))
     }
+
+    async fn do_upsert_match_data(
+        &self,
+        mtga_match: &MTGAMatch,
+        decks: &[Deck],
+        mulligans: &[Mulligan],
+        results: &[MatchResult],
+        opponent_cards: &[ArenaId],
+    ) -> Result<()> {
+        info!("Upserting match data for match_id: {}", mtga_match.id());
+        let match_id = Uuid::parse_str(mtga_match.id())?;
+
+        let mut tx = self.pool.begin().await.map_err(Error::from)?;
+
+        Self::insert_match(&match_id, mtga_match, &mut tx).await?;
+
+        for deck in decks {
+            Self::insert_deck(&match_id, deck, &mut tx).await?;
+        }
+
+        for mulligan in mulligans {
+            Self::insert_mulligan_info(&match_id, mulligan, &mut tx).await?;
+        }
+
+        for result in results {
+            Self::insert_match_result(&match_id, result, &mut tx).await?;
+        }
+
+        Self::insert_opponent_deck(&match_id, opponent_cards, &mut tx).await?;
+
+        tx.commit().await?;
+        Ok(())
+    }
+
+    async fn do_delete_match(&self, match_id: &str) -> Result<()> {
+        info!("Deleting match: {}", match_id);
+        let match_id = Uuid::parse_str(match_id)?;
+
+        sqlx::query("DELETE FROM match WHERE id = $1")
+            .bind(match_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
 }
 
 impl ArenabuddyRepository for PostgresMatchDB {
@@ -591,6 +636,21 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
     fn get_draft(&self, draft_id: &str) -> impl Future<Output = Result<MTGADraft>> + Send {
         self.do_get_draft(draft_id)
+    }
+
+    fn upsert_match_data(
+        &self,
+        mtga_match: &MTGAMatch,
+        decks: &[Deck],
+        mulligans: &[Mulligan],
+        results: &[MatchResult],
+        opponent_cards: &[ArenaId],
+    ) -> impl Future<Output = Result<()>> + Send {
+        self.do_upsert_match_data(mtga_match, decks, mulligans, results, opponent_cards)
+    }
+
+    fn delete_match(&self, match_id: &str) -> impl Future<Output = Result<()>> + Send {
+        self.do_delete_match(match_id)
     }
 }
 

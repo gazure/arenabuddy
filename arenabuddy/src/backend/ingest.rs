@@ -1,12 +1,17 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
-use arenabuddy_core::player_log::{
-    ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
-    replay::MatchReplay,
+use arenabuddy_core::{
+    cards::CardsDatabase,
+    player_log::{
+        ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
+        replay::MatchReplay,
+    },
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB};
 use tokio::sync::Mutex;
 use tracingx::{error, info};
+
+use super::grpc_writer::GrpcReplayWriter;
 
 /// Adapter that wraps an Arc<Mutex<Option<DirectoryStorage>>> for the `ReplayWriter` trait
 /// TODO: rethink this
@@ -50,6 +55,7 @@ fn handle_ingestion_event(event: IngestionEvent, log_collector: Arc<Mutex<Vec<St
 
 pub async fn start(
     db: MatchDB,
+    cards: Arc<CardsDatabase>,
     debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
@@ -77,6 +83,22 @@ pub async fn start(
     // Add directory storage writer
     let dir_adapter = DirectoryStorageAdapter::new(debug_dir.clone());
     let service = service.add_writer(Box::new(dir_adapter));
+
+    // Add gRPC writer if URL is configured
+    let service = if let Ok(grpc_url) = std::env::var("ARENABUDDY_GRPC_URL") {
+        match GrpcReplayWriter::connect(&grpc_url, cards).await {
+            Ok(writer) => {
+                info!("Connected to gRPC backend at {grpc_url}");
+                service.add_writer(Box::new(writer))
+            }
+            Err(e) => {
+                error!("Failed to connect to gRPC backend at {grpc_url}: {e}");
+                service
+            }
+        }
+    } else {
+        service
+    };
 
     // Set up event callback to handle ingestion events
     let event_callback = Arc::new(move |event: IngestionEvent| handle_ingestion_event(event, log_collector.clone()));

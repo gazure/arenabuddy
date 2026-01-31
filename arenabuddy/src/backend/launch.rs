@@ -36,6 +36,7 @@ pub fn launch() -> Result<()> {
     background.spawn(async move {
         crate::backend::ingest::start(
             service2.db.clone(),
+            service2.cards.clone(),
             service2.debug_storage.clone(),
             service2.log_collector.clone(),
             player_log_path,

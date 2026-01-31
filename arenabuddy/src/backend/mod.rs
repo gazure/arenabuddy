@@ -1,3 +1,4 @@
+pub(crate) mod grpc_writer;
 pub(crate) mod ingest;
 mod launch;
 mod service;

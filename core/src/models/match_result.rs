@@ -1,6 +1,8 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
+use crate::proto::MatchResultProto;
+
 /// Represents the result of a Magic: The Gathering Arena match
 ///
 /// A match result contains information about which player/team won a specific game
@@ -119,5 +121,21 @@ impl MatchResult {
     /// true if the specified team ID is the winner, false otherwise
     pub fn is_winner(&self, team_id: i32) -> bool {
         self.winning_team_id == team_id
+    }
+}
+
+impl From<(&str, &MatchResultProto)> for MatchResult {
+    fn from((match_id, proto): (&str, &MatchResultProto)) -> Self {
+        Self::new(match_id, proto.game_number, proto.winning_team_id, &proto.result_scope)
+    }
+}
+
+impl From<&MatchResult> for MatchResultProto {
+    fn from(r: &MatchResult) -> Self {
+        Self {
+            game_number: r.game_number,
+            winning_team_id: r.winning_team_id,
+            result_scope: r.result_scope.clone(),
+        }
     }
 }

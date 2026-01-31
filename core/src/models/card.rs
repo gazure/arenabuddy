@@ -4,20 +4,13 @@ use std::{
     str::FromStr,
 };
 
-// Re-export the card types for easier access
-/// Re-export the card types for easier access
-/// These are protobuf-generated types that represent Magic: The Gathering cards
-pub use arenabuddy::{Card, CardCollection, CardFace};
 use prost::Message;
 use serde::{Deserialize, Serialize};
 
 use crate::models::Cost;
-
-mod arenabuddy {
-    #![allow(clippy::all, clippy::pedantic)]
-    // Include the generated code from the build script
-    include!(concat!(env!("OUT_DIR"), "/arenabuddy.rs"));
-}
+/// Re-export the card types for easier access
+/// These are protobuf-generated types that represent Magic: The Gathering cards
+pub use crate::proto::{Card, CardCollection, CardFace};
 
 /// Represents the primary type of a Magic: The Gathering card
 ///

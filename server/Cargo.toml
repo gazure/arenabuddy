@@ -1,0 +1,24 @@
+[package]
+name = "arenabuddy_server"
+description = "gRPC backend service for arenabuddy match data"
+authors.workspace = true
+categories.workspace = true
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+[dependencies]
+arenabuddy_core = { path = "../core/" }
+arenabuddy_data = { path = "../data" }
+chrono = { workspace = true }
+prost = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tonic = { workspace = true }
+tonic-prost = { workspace = true }
+tracingx = { path = "../../lib/tracingx" }
+
+[lints]
+workspace = true
