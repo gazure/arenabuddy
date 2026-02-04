@@ -5,8 +5,8 @@ use arenabuddy_core::{
     models::{MTGAMatch, MatchResult},
     player_log::replay::MatchReplay,
     proto::{
-        DeckProto, MatchData, MatchResultProto, MtgaMatchProto, MulliganProto, OpponentDeckProto,
-        UpsertMatchDataRequest, match_service_client::MatchServiceClient,
+        Deck as DeckProto, MatchData, MatchResult as MatchResultProto, MtgaMatch as MtgaMatchProto,
+        Mulligan as MulliganProto, OpponentDeckProto, UpsertMatchDataRequest, match_service_client::MatchServiceClient,
     },
 };
 use chrono::Utc;

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package arenabuddy;
+package arenabuddy.public.v1;
 
-message MtgaMatchProto {
+message MtgaMatch {
   string id = 1;
   int32 controller_seat_id = 2;
   string controller_player_name = 3;
@@ -10,14 +10,14 @@ message MtgaMatchProto {
   string created_at = 5; // RFC3339 timestamp
 }
 
-message DeckProto {
+message Deck {
   string name = 1;
   int32 game_number = 2;
   repeated int32 mainboard = 3;
   repeated int32 sideboard = 4;
 }
 
-message MulliganProto {
+message Mulligan {
   int32 game_number = 1;
   int32 number_to_keep = 2;
   string hand = 3;
@@ -26,7 +26,7 @@ message MulliganProto {
   string decision = 6;
 }
 
-message MatchResultProto {
+message MatchResult {
   int32 game_number = 1;
   int32 winning_team_id = 2;
   string result_scope = 3;
@@ -38,10 +38,10 @@ message OpponentDeckProto {
 
 // Composite message grouping all match data for atomic upsert
 message MatchData {
-  MtgaMatchProto mtga_match = 1;
-  repeated DeckProto decks = 2;
-  repeated MulliganProto mulligans = 3;
-  repeated MatchResultProto results = 4;
+  MtgaMatch mtga_match = 1;
+  repeated Deck decks = 2;
+  repeated Mulligan mulligans = 3;
+  repeated MatchResult results = 4;
   OpponentDeckProto opponent_deck = 5;
 }
 
@@ -64,7 +64,7 @@ message GetMatchDataResponse {
 message ListMatchesRequest {}
 
 message ListMatchesResponse {
-  repeated MtgaMatchProto matches = 1;
+  repeated MtgaMatch matches = 1;
 }
 
 message DeleteMatchRequest {

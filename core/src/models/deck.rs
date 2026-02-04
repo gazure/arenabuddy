@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{events::gre::DeckMessage, proto::DeckProto};
+use crate::{events::gre::DeckMessage, proto::Deck as DeckProto};
 
 /// A mapping of card IDs to their quantities in a deck
 pub type Quantities = HashMap<i32, u16>;

@@ -1,7 +1,7 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::proto::MulliganProto;
+use crate::proto::Mulligan as MulliganProto;
 
 /// Represents a mulligan decision in a Magic: The Gathering Arena game
 ///

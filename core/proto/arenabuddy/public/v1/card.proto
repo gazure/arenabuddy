@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package arenabuddy;
+package arenabuddy.public.v1;
 
 // Card represents a Magic: The Gathering card
 message Card {

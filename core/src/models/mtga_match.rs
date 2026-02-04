@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::proto::MtgaMatchProto;
+use crate::proto::MtgaMatch as MtgaMatchProto;
 
 /// Represents a match in Magic: The Gathering Arena
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Builder, PartialEq)]

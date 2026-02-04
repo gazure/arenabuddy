@@ -4,9 +4,10 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     models::{ArenaId, Deck, MTGAMatch, MatchResult, Mulligan},
     proto::{
-        DeckProto, DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse,
-        ListMatchesRequest, ListMatchesResponse, MatchData, MatchResultProto, MtgaMatchProto, MulliganProto,
-        OpponentDeckProto, UpsertMatchDataRequest, UpsertMatchDataResponse,
+        Deck as DeckProto, DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse,
+        ListMatchesRequest, ListMatchesResponse, MatchData, MatchResult as MatchResultProto,
+        MtgaMatch as MtgaMatchProto, Mulligan as MulliganProto, OpponentDeckProto, UpsertMatchDataRequest,
+        UpsertMatchDataResponse,
         match_service_server::{MatchService, MatchServiceServer},
     },
 };

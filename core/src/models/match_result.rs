@@ -1,7 +1,7 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::proto::MatchResultProto;
+use crate::proto::MatchResult as MatchResultProto;
 
 /// Represents the result of a Magic: The Gathering Arena match
 ///
