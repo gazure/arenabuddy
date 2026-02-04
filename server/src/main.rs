@@ -2,12 +2,10 @@ use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
-    models::{ArenaId, Deck, MTGAMatch, MatchResult, Mulligan},
+    models::{ArenaId, MatchData, OpponentDeck},
     proto::{
-        Deck as DeckProto, DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse,
-        ListMatchesRequest, ListMatchesResponse, MatchData, MatchResult as MatchResultProto,
-        MtgaMatch as MtgaMatchProto, Mulligan as MulliganProto, OpponentDeckProto, UpsertMatchDataRequest,
-        UpsertMatchDataResponse,
+        DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse, ListMatchesRequest,
+        ListMatchesResponse, UpsertMatchDataRequest, UpsertMatchDataResponse,
         match_service_server::{MatchService, MatchServiceServer},
     },
 };
@@ -25,37 +23,24 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<UpsertMatchDataRequest>,
     ) -> Result<Response<UpsertMatchDataResponse>, Status> {
-        let match_data = request
+        let match_data_proto = request
             .into_inner()
             .match_data
             .ok_or_else(|| Status::invalid_argument("match_data is required"))?;
 
-        let mtga_match_proto = match_data
-            .mtga_match
-            .ok_or_else(|| Status::invalid_argument("mtga_match is required"))?;
+        let match_data: MatchData = (&match_data_proto).into();
+        let match_id = match_data.mtga_match.id().to_string();
 
-        let mtga_match = MTGAMatch::from(&mtga_match_proto);
-        let match_id = mtga_match.id().to_string();
-
-        let decks: Vec<Deck> = match_data.decks.iter().map(Deck::from).collect();
-        let mulligans: Vec<Mulligan> = match_data
-            .mulligans
-            .iter()
-            .map(|m| Mulligan::from((match_id.as_str(), m)))
-            .collect();
-        let results: Vec<MatchResult> = match_data
-            .results
-            .iter()
-            .map(|r| MatchResult::from((match_id.as_str(), r)))
-            .collect();
-        let opponent_cards: Vec<ArenaId> = match_data
-            .opponent_deck
-            .as_ref()
-            .map(|d| d.cards.iter().map(|&id| ArenaId::from(id)).collect())
-            .unwrap_or_default();
+        let opponent_cards: Vec<ArenaId> = match_data.opponent_deck.cards.clone();
 
         self.db
-            .upsert_match_data(&mtga_match, &decks, &mulligans, &results, &opponent_cards)
+            .upsert_match_data(
+                &match_data.mtga_match,
+                &match_data.decks,
+                &match_data.mulligans,
+                &match_data.results,
+                &opponent_cards,
+            )
             .await
             .map_err(|e| {
                 error!("Failed to upsert match data: {e}");
@@ -104,20 +89,20 @@ impl MatchService for MatchServiceImpl {
             .get_opponent_deck(&match_id)
             .await
             .ok()
-            .map(|d| OpponentDeckProto {
-                cards: d.mainboard().to_vec(),
+            .map_or_else(OpponentDeck::empty, |d| {
+                OpponentDeck::new(d.mainboard().iter().map(|&id| ArenaId::from(id)).collect())
             });
 
-        let match_data = MatchData {
-            mtga_match: Some(MtgaMatchProto::from(&mtga_match)),
-            decks: decks.iter().map(DeckProto::from).collect(),
-            mulligans: mulligans.iter().map(MulliganProto::from).collect(),
-            results: results.iter().map(MatchResultProto::from).collect(),
+        let match_data_model = MatchData {
+            mtga_match,
+            decks,
+            mulligans,
+            results,
             opponent_deck,
         };
 
         Ok(Response::new(GetMatchDataResponse {
-            match_data: Some(match_data),
+            match_data: Some((&match_data_model).into()),
         }))
     }
 
@@ -131,7 +116,7 @@ impl MatchService for MatchServiceImpl {
         })?;
 
         Ok(Response::new(ListMatchesResponse {
-            matches: matches.iter().map(MtgaMatchProto::from).collect(),
+            matches: matches.iter().map(std::convert::Into::into).collect(),
         }))
     }
 

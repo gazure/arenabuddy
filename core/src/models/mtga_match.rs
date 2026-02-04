@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::proto::MtgaMatch as MtgaMatchProto;
+use crate::proto;
 
 /// Represents a match in Magic: The Gathering Arena
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Builder, PartialEq)]
@@ -113,8 +113,8 @@ impl MTGAMatch {
     }
 }
 
-impl From<&MtgaMatchProto> for MTGAMatch {
-    fn from(proto: &MtgaMatchProto) -> Self {
+impl From<&proto::MtgaMatch> for MTGAMatch {
+    fn from(proto: &proto::MtgaMatch) -> Self {
         let created_at = DateTime::parse_from_rfc3339(&proto.created_at)
             .map(|dt| dt.with_timezone(&Utc))
             .unwrap_or_default();
@@ -128,7 +128,7 @@ impl From<&MtgaMatchProto> for MTGAMatch {
     }
 }
 
-impl From<&MTGAMatch> for MtgaMatchProto {
+impl From<&MTGAMatch> for proto::MtgaMatch {
     fn from(m: &MTGAMatch) -> Self {
         Self {
             id: m.id.clone(),

@@ -2,12 +2,9 @@ use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
-    models::{MTGAMatch, MatchResult},
+    models::{MTGAMatch, MatchData, MatchResult, OpponentDeck},
     player_log::replay::MatchReplay,
-    proto::{
-        Deck as DeckProto, MatchData, MatchResult as MatchResultProto, MtgaMatch as MtgaMatchProto,
-        Mulligan as MulliganProto, OpponentDeckProto, UpsertMatchDataRequest, match_service_client::MatchServiceClient,
-    },
+    proto::{UpsertMatchDataRequest, match_service_client::MatchServiceClient},
 };
 use chrono::Utc;
 use tonic::transport::Channel;
@@ -46,7 +43,7 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
         let match_results = replay.get_match_results()?;
         let opponent_cards = replay.get_opponent_cards();
 
-        let results: Vec<MatchResultProto> = match_results
+        let results: Vec<MatchResult> = match_results
             .result_list
             .iter()
             .enumerate()
@@ -56,26 +53,20 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
                 } else {
                     0
                 };
-                let mr = MatchResult::new(&match_id, game_number, result.winning_team_id, &result.scope);
-                MatchResultProto::from(&mr)
+                MatchResult::new(&match_id, game_number, result.winning_team_id, &result.scope)
             })
             .collect();
 
         let match_data = MatchData {
-            mtga_match: Some(MtgaMatchProto::from(&mtga_match)),
-            decks: decks.iter().map(DeckProto::from).collect(),
-            mulligans: mulligans.iter().map(MulliganProto::from).collect(),
+            mtga_match,
+            decks,
+            mulligans,
             results,
-            opponent_deck: Some(OpponentDeckProto {
-                cards: opponent_cards
-                    .iter()
-                    .map(arenabuddy_core::models::ArenaId::inner)
-                    .collect(),
-            }),
+            opponent_deck: OpponentDeck::new(opponent_cards),
         };
 
         let request = UpsertMatchDataRequest {
-            match_data: Some(match_data),
+            match_data: Some((&match_data).into()),
         };
 
         self.client.upsert_match_data(request).await.map_err(|e| {

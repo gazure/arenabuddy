@@ -1,7 +1,7 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::proto::Mulligan as MulliganProto;
+use crate::proto;
 
 /// Represents a mulligan decision in a Magic: The Gathering Arena game
 ///
@@ -130,8 +130,8 @@ impl Mulligan {
     }
 }
 
-impl From<(&str, &MulliganProto)> for Mulligan {
-    fn from((match_id, proto): (&str, &MulliganProto)) -> Self {
+impl From<(&str, &proto::Mulligan)> for Mulligan {
+    fn from((match_id, proto): (&str, &proto::Mulligan)) -> Self {
         Self::new(
             match_id,
             proto.game_number,
@@ -144,7 +144,7 @@ impl From<(&str, &MulliganProto)> for Mulligan {
     }
 }
 
-impl From<&Mulligan> for MulliganProto {
+impl From<&Mulligan> for proto::Mulligan {
     fn from(m: &Mulligan) -> Self {
         Self {
             game_number: m.game_number,

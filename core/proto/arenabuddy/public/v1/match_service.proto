@@ -32,7 +32,7 @@ message MatchResult {
   string result_scope = 3;
 }
 
-message OpponentDeckProto {
+message OpponentDeck {
   repeated int32 cards = 1;
 }
 
@@ -42,7 +42,7 @@ message MatchData {
   repeated Deck decks = 2;
   repeated Mulligan mulligans = 3;
   repeated MatchResult results = 4;
-  OpponentDeckProto opponent_deck = 5;
+  OpponentDeck opponent_deck = 5;
 }
 
 // --- Request/Response messages ---

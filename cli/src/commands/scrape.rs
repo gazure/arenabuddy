@@ -151,8 +151,7 @@ async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, St
 
 /// Save a collection of cards to a binary protobuf file
 async fn save_card_collection_to_file(cards: &CardCollection, output_path: impl AsRef<Path>) -> Result<()> {
-    let data = cards.encode_to_vec();
-    tokio::fs::write(output_path.as_ref(), &data).await?;
+    tokio::fs::write(output_path.as_ref(), &cards.encode_to_vec()).await?;
     Ok(())
 }
 
