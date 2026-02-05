@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package arenabuddy.api.v1;
+
+import "arenabuddy/models/v1/match.proto";
+
+// --- Request/Response messages ---
+
+message UpsertMatchDataRequest {
+  arenabuddy.models.v1.MatchData match_data = 1;
+}
+
+message UpsertMatchDataResponse {}
+
+message GetMatchDataRequest {
+  string match_id = 1;
+}
+
+message GetMatchDataResponse {
+  arenabuddy.models.v1.MatchData match_data = 1;
+}
+
+message ListMatchesRequest {}
+
+message ListMatchesResponse {
+  repeated arenabuddy.models.v1.MtgaMatch matches = 1;
+}
+
+message DeleteMatchRequest {
+  string match_id = 1;
+}
+
+message DeleteMatchResponse {}
+
+// --- Service ---
+
+service MatchService {
+  rpc UpsertMatchData(UpsertMatchDataRequest) returns (UpsertMatchDataResponse);
+  rpc GetMatchData(GetMatchDataRequest) returns (GetMatchDataResponse);
+  rpc ListMatches(ListMatchesRequest) returns (ListMatchesResponse);
+  rpc DeleteMatch(DeleteMatchRequest) returns (DeleteMatchResponse);
+}

@@ -7,49 +7,13 @@ use std::{
 use prost::Message;
 use serde::{Deserialize, Serialize};
 
-use crate::{models::Cost, proto};
-
-/// Represents a Magic: The Gathering card face (for multi-faced cards)
+use crate::models::Cost;
+/// Re-export the card types from proto - these ARE our domain types
 ///
-/// Some cards in Magic have multiple faces (e.g., transforming cards, modal cards).
-/// This struct represents a single face of such a card.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CardFace {
-    pub name: String,
-    pub type_line: String,
-    pub mana_cost: String,
-    pub image_uri: Option<String>,
-    pub colors: Vec<String>,
-}
-
-/// Represents a Magic: The Gathering card
-///
-/// This is the domain model for a card, providing a clean interface
-/// for working with card data independently of the protobuf wire format.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Card {
-    pub id: i64,
-    pub set: String,
-    pub name: String,
-    pub lang: String,
-    pub image_uri: String,
-    pub mana_cost: String,
-    pub cmc: i32,
-    pub type_line: String,
-    pub layout: String,
-    pub colors: Vec<String>,
-    pub color_identity: Vec<String>,
-    pub card_faces: Vec<CardFace>,
-}
-
-/// Represents a collection of Magic: The Gathering cards
-///
-/// This is the domain model for a collection of cards, providing methods
-/// for managing and querying the collection.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CardCollection {
-    pub cards: Vec<Card>,
-}
+/// In Rust with prost, proto types can have methods and traits implemented directly on them,
+/// so there's no need for separate wrapper types. This is different from Go where you typically
+/// need wrappers to add methods to proto-generated structs.
+pub use crate::proto::{Card, CardCollection, CardFace};
 
 /// Represents the primary type of a Magic: The Gathering card
 ///
@@ -107,87 +71,8 @@ impl Display for CardType {
     }
 }
 
-// Conversions between domain models and proto types
-
-impl From<&proto::CardFace> for CardFace {
-    fn from(proto: &proto::CardFace) -> Self {
-        Self {
-            name: proto.name.clone(),
-            type_line: proto.type_line.clone(),
-            mana_cost: proto.mana_cost.clone(),
-            image_uri: proto.image_uri.clone(),
-            colors: proto.colors.clone(),
-        }
-    }
-}
-
-impl From<&CardFace> for proto::CardFace {
-    fn from(face: &CardFace) -> Self {
-        Self {
-            name: face.name.clone(),
-            type_line: face.type_line.clone(),
-            mana_cost: face.mana_cost.clone(),
-            image_uri: face.image_uri.clone(),
-            colors: face.colors.clone(),
-        }
-    }
-}
-
-impl From<&proto::Card> for Card {
-    fn from(proto: &proto::Card) -> Self {
-        Self {
-            id: proto.id,
-            set: proto.set.clone(),
-            name: proto.name.clone(),
-            lang: proto.lang.clone(),
-            image_uri: proto.image_uri.clone(),
-            mana_cost: proto.mana_cost.clone(),
-            cmc: proto.cmc,
-            type_line: proto.type_line.clone(),
-            layout: proto.layout.clone(),
-            colors: proto.colors.clone(),
-            color_identity: proto.color_identity.clone(),
-            card_faces: proto.card_faces.iter().map(CardFace::from).collect(),
-        }
-    }
-}
-
-impl From<&Card> for proto::Card {
-    fn from(card: &Card) -> Self {
-        Self {
-            id: card.id,
-            set: card.set.clone(),
-            name: card.name.clone(),
-            lang: card.lang.clone(),
-            image_uri: card.image_uri.clone(),
-            mana_cost: card.mana_cost.clone(),
-            cmc: card.cmc,
-            type_line: card.type_line.clone(),
-            layout: card.layout.clone(),
-            colors: card.colors.clone(),
-            color_identity: card.color_identity.clone(),
-            card_faces: card.card_faces.iter().map(std::convert::Into::into).collect(),
-        }
-    }
-}
-
-impl From<&proto::CardCollection> for CardCollection {
-    fn from(proto: &proto::CardCollection) -> Self {
-        Self {
-            cards: proto.cards.iter().map(Card::from).collect(),
-        }
-    }
-}
-
-impl From<&CardCollection> for proto::CardCollection {
-    fn from(collection: &CardCollection) -> Self {
-        Self {
-            cards: collection.cards.iter().map(std::convert::Into::into).collect(),
-        }
-    }
-}
-
-// Domain model implementations
+// Domain logic implementations on proto types
+// This is idiomatic Rust - we can add methods directly to proto-generated types
 
 impl Card {
     /// Creates a new card with required fields, initializing optional fields to empty values
@@ -412,6 +297,8 @@ impl Card {
         }
     }
 }
+
+impl Eq for Card {}
 
 impl Ord for Card {
     fn cmp(&self, other: &Self) -> Ordering {
@@ -639,40 +526,12 @@ impl CardCollection {
 
     /// Encodes the card collection to a vector of bytes using Protocol Buffers
     ///
-    /// This delegates to the proto type for serialization to maintain compatibility
-    /// with the existing binary format.
-    ///
     /// # Returns
     ///
-    /// A Result containing the serialized bytes
+    /// A vector of bytes representing the serialized `CardCollection`
     pub fn encode_to_vec(&self) -> Vec<u8> {
-        proto::CardCollection::from(self).encode_to_vec()
-    }
-
-    /// Decodes a card collection from Protocol Buffer bytes
-    ///
-    /// This delegates to the proto type for deserialization to maintain compatibility
-    /// with the existing binary format.
-    ///
-    /// # Arguments
-    ///
-    /// * `bytes` - The bytes to decode
-    ///
-    /// # Returns
-    ///
-    /// A Result containing the decoded `CardCollection`, or a `prost::DecodeError` if decoding fails
-    ///
-    /// # Errors
-    ///
-    /// Returns a `prost::DecodeError` if decoding fails
-    pub fn decode(bytes: &[u8]) -> Result<Self, prost::DecodeError> {
-        let proto = proto::CardCollection::decode(bytes)?;
-        Ok(Self::from(&proto))
-    }
-}
-
-impl Default for CardCollection {
-    fn default() -> Self {
-        Self::new()
+        let mut buf = Vec::new();
+        self.encode(&mut buf).unwrap_or_default();
+        buf
     }
 }

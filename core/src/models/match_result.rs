@@ -1,7 +1,7 @@
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::proto;
+use crate::proto::MatchResult as MatchResultProto;
 
 /// Represents the result of a Magic: The Gathering Arena match
 ///
@@ -124,13 +124,13 @@ impl MatchResult {
     }
 }
 
-impl From<(&str, &proto::MatchResult)> for MatchResult {
-    fn from((match_id, proto): (&str, &proto::MatchResult)) -> Self {
+impl From<(&str, &MatchResultProto)> for MatchResult {
+    fn from((match_id, proto): (&str, &MatchResultProto)) -> Self {
         Self::new(match_id, proto.game_number, proto.winning_team_id, &proto.result_scope)
     }
 }
 
-impl From<&MatchResult> for proto::MatchResult {
+impl From<&MatchResult> for MatchResultProto {
     fn from(r: &MatchResult) -> Self {
         Self {
             game_number: r.game_number,

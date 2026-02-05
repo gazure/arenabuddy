@@ -4,7 +4,7 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     models::{MTGAMatch, MatchData, MatchResult, OpponentDeck},
     player_log::replay::MatchReplay,
-    proto::{UpsertMatchDataRequest, match_service_client::MatchServiceClient},
+    services::match_service::{UpsertMatchDataRequest, match_service_client::MatchServiceClient},
 };
 use chrono::Utc;
 use tonic::transport::Channel;

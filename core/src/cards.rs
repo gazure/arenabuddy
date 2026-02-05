@@ -1,5 +1,6 @@
 use std::{collections::BTreeMap, fmt::Display, fs::File, io::Read, path::Path};
 
+use prost::Message;
 use tracingx::debug;
 
 use crate::models::{Card, CardCollection};
@@ -27,8 +28,7 @@ impl CardsDatabase {
     ///
     /// Will error if the provided bytes do not contain a `CardsCollection` proto
     pub fn from_bytes(cards: &[u8]) -> crate::Result<Self> {
-        let collection = CardCollection::decode(cards)?;
-        let cards_db: BTreeMap<String, Card> = collection
+        let cards_db: BTreeMap<String, Card> = CardCollection::decode(cards)?
             .cards
             .into_iter()
             .map(|card| (card.id.to_string(), card))

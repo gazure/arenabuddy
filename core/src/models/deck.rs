@@ -4,7 +4,7 @@ use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{events::gre::DeckMessage, proto};
+use crate::{events::gre::DeckMessage, proto::Deck as DeckProto};
 
 /// A mapping of card IDs to their quantities in a deck
 pub type Quantities = HashMap<i32, u16>;
@@ -45,8 +45,8 @@ impl From<(String, Vec<i32>, Vec<i32>)> for Deck {
     }
 }
 
-impl From<&proto::Deck> for Deck {
-    fn from(proto: &proto::Deck) -> Self {
+impl From<&DeckProto> for Deck {
+    fn from(proto: &DeckProto) -> Self {
         Self::new(
             proto.name.clone(),
             proto.game_number,
@@ -56,7 +56,7 @@ impl From<&proto::Deck> for Deck {
     }
 }
 
-impl From<&Deck> for proto::Deck {
+impl From<&Deck> for DeckProto {
     fn from(d: &Deck) -> Self {
         Self {
             name: d.name.clone(),

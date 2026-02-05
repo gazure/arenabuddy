@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package arenabuddy.models.v1;
+
+// MtgaMatch represents a match in Magic: The Gathering Arena
+message MtgaMatch {
+  string id = 1;
+  int32 controller_seat_id = 2;
+  string controller_player_name = 3;
+  string opponent_player_name = 4;
+  string created_at = 5; // RFC3339 timestamp
+}
+
+// Deck represents a deck used in a match
+message Deck {
+  string name = 1;
+  int32 game_number = 2;
+  repeated int32 mainboard = 3;
+  repeated int32 sideboard = 4;
+}
+
+// Mulligan represents a mulligan decision in a game
+message Mulligan {
+  int32 game_number = 1;
+  int32 number_to_keep = 2;
+  string hand = 3;
+  string play_draw = 4;
+  string opponent_identity = 5;
+  string decision = 6;
+}
+
+// MatchResult represents the result of a game or match
+message MatchResult {
+  int32 game_number = 1;
+  int32 winning_team_id = 2;
+  string result_scope = 3;
+}
+
+// OpponentDeck represents the cards seen in an opponent's deck
+message OpponentDeck {
+  repeated int32 cards = 1;
+}
+
+// MatchData groups all data associated with a match for atomic operations
+message MatchData {
+  MtgaMatch mtga_match = 1;
+  repeated Deck decks = 2;
+  repeated Mulligan mulligans = 3;
+  repeated MatchResult results = 4;
+  OpponentDeck opponent_deck = 5;
+}
