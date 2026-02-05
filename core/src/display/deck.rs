@@ -13,7 +13,7 @@ fn get_card(db: &CardsDatabase, quantities: &Quantities, card_id: i32) -> CardDi
     let mut card: CardDisplayRecord = db
         .get(&card_id)
         .map_or_else(|| CardDisplayRecord::new(card_id.to_string()), std::convert::Into::into);
-    card.quantity = *quantities.get(&card_id).unwrap_or(&0u16);
+    card.quantity = quantities.get(&card_id).copied().unwrap_or(0);
     card
 }
 
@@ -63,7 +63,7 @@ impl DeckDisplayRecord {
     }
 
     /// Returns the total number of cards in the main deck and sideboard.
-    pub fn totals(&self) -> (u16, u16) {
+    pub fn totals(&self) -> (usize, usize) {
         (
             self.main_deck
                 .values()
@@ -73,7 +73,7 @@ impl DeckDisplayRecord {
         )
     }
 
-    pub fn total_by_type(&self, card_type: CardType) -> u16 {
+    pub fn total_by_type(&self, card_type: CardType) -> usize {
         let Some(cards) = self.main_deck.get(&card_type) else {
             return 0;
         };
@@ -109,7 +109,7 @@ impl Difference {
         Self { added, removed }
     }
 
-    fn missing_cards(main1: &HashMap<i32, u16>, main2: &HashMap<i32, u16>) -> HashMap<i32, u16> {
+    fn missing_cards(main1: &Quantities, main2: &Quantities) -> Quantities {
         let mut missing = Vec::new();
         for (card_id, quantity) in main1 {
             if let Some(deck2_quantity) = main2.get(card_id) {
@@ -118,13 +118,13 @@ impl Difference {
                     (0..diff).for_each(|_| missing.push(*card_id));
                 }
             } else {
-                (0u16..*quantity).for_each(|_| missing.push(*card_id));
+                (0usize..*quantity).for_each(|_| missing.push(*card_id));
             }
         }
         quantities(&missing)
     }
 
-    fn aggregate(collection: &HashMap<i32, u16>, cards_database: &CardsDatabase) -> Vec<CardDisplayRecord> {
+    fn aggregate(collection: &Quantities, cards_database: &CardsDatabase) -> Vec<CardDisplayRecord> {
         collection
             .iter()
             .map(|(card_id, quantity)| -> CardDisplayRecord {
@@ -169,12 +169,12 @@ impl Difference {
     }
 }
 
-fn quantities(deck: &[i32]) -> HashMap<i32, u16> {
+fn quantities(deck: &[i32]) -> Quantities {
     let unique: Vec<_> = deck.iter().unique().copied().collect();
-    let deck_quantities: HashMap<i32, u16> = unique
+    let deck_quantities: Quantities = unique
         .iter()
         .map(|ent_id| {
-            let quantity = u16::try_from(deck.iter().filter(|&id| id == ent_id).count()).unwrap_or_default();
+            let quantity = deck.iter().filter(|&id| id == ent_id).count();
             (*ent_id, quantity)
         })
         .collect();

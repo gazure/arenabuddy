@@ -1,9 +1,4 @@
 use super::{ArenaId, Deck, MTGAMatch, MatchResult, Mulligan};
-pub use crate::proto::MatchData as MatchDataProto;
-use crate::proto::{
-    Deck as DeckProto, MatchResult as MatchResultProto, MtgaMatch as MtgaMatchProto, Mulligan as MulliganProto,
-    OpponentDeck as OpponentDeckProto,
-};
 
 /// Represents an opponent's deck in a match
 ///
@@ -49,61 +44,4 @@ pub struct MatchData {
     pub mulligans: Vec<Mulligan>,
     pub results: Vec<MatchResult>,
     pub opponent_deck: OpponentDeck,
-}
-
-// Conversions between domain models and proto types
-
-impl From<&OpponentDeckProto> for OpponentDeck {
-    fn from(proto: &OpponentDeckProto) -> Self {
-        Self {
-            cards: proto.cards.iter().map(|&id| ArenaId::from(id)).collect(),
-        }
-    }
-}
-
-impl From<&OpponentDeck> for OpponentDeckProto {
-    fn from(deck: &OpponentDeck) -> Self {
-        Self {
-            cards: deck.cards.iter().map(ArenaId::inner).collect(),
-        }
-    }
-}
-
-impl From<&MatchDataProto> for MatchData {
-    fn from(proto: &MatchDataProto) -> Self {
-        let mtga_match_proto = proto.mtga_match.as_ref().expect("MatchData must have mtga_match");
-        let mtga_match = MTGAMatch::from(mtga_match_proto);
-        let match_id = mtga_match.id().to_string();
-
-        Self {
-            mtga_match,
-            decks: proto.decks.iter().map(Deck::from).collect(),
-            mulligans: proto
-                .mulligans
-                .iter()
-                .map(|m| Mulligan::from((match_id.as_str(), m)))
-                .collect(),
-            results: proto
-                .results
-                .iter()
-                .map(|r| MatchResult::from((match_id.as_str(), r)))
-                .collect(),
-            opponent_deck: proto
-                .opponent_deck
-                .as_ref()
-                .map_or_else(OpponentDeck::empty, OpponentDeck::from),
-        }
-    }
-}
-
-impl From<&MatchData> for MatchDataProto {
-    fn from(data: &MatchData) -> Self {
-        Self {
-            mtga_match: Some(MtgaMatchProto::from(&data.mtga_match)),
-            decks: data.decks.iter().map(DeckProto::from).collect(),
-            mulligans: data.mulligans.iter().map(MulliganProto::from).collect(),
-            results: data.results.iter().map(MatchResultProto::from).collect(),
-            opponent_deck: Some(OpponentDeckProto::from(&data.opponent_deck)),
-        }
-    }
 }

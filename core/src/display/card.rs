@@ -8,7 +8,7 @@ pub struct CardDisplayRecord {
     pub type_field: CardType,
     pub mana_value: u8,
     pub mana: String,
-    pub quantity: u16,
+    pub quantity: usize,
     pub image_uri: String,
 }
 

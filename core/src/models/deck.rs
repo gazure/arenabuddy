@@ -1,25 +1,17 @@
 use std::{collections::HashMap, fmt::Display};
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{events::gre::DeckMessage, proto::Deck as DeckProto};
-
-/// A mapping of card IDs to their quantities in a deck
-pub type Quantities = HashMap<i32, u16>;
-
-/// Represents a Magic: The Gathering deck
+use crate::events::gre::DeckMessage;
+/// Re-export the Deck type from proto
 ///
 /// A deck consists of a name, game number, mainboard cards, and sideboard cards.
 /// Card IDs are stored as integers that correspond to Arena's internal card identifiers.
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct Deck {
-    name: String,
-    game_number: i32,
-    mainboard: Vec<i32>,
-    sideboard: Vec<i32>,
-}
+pub use crate::proto::Deck;
+
+/// A mapping of card IDs to their quantities in a deck
+pub type Quantities = HashMap<i32, usize>;
 
 impl From<DeckMessage> for Deck {
     fn from(deck_message: DeckMessage) -> Self {
@@ -42,28 +34,6 @@ impl From<(String, Vec<i32>, Vec<i32>)> for Deck {
     fn from(tuple: (String, Vec<i32>, Vec<i32>)) -> Self {
         let (name, mainboard, sideboard) = tuple;
         Self::new(name, 0, mainboard, sideboard)
-    }
-}
-
-impl From<&DeckProto> for Deck {
-    fn from(proto: &DeckProto) -> Self {
-        Self::new(
-            proto.name.clone(),
-            proto.game_number,
-            proto.mainboard.clone(),
-            proto.sideboard.clone(),
-        )
-    }
-}
-
-impl From<&Deck> for DeckProto {
-    fn from(d: &Deck) -> Self {
-        Self {
-            name: d.name.clone(),
-            game_number: d.game_number,
-            mainboard: d.mainboard.clone(),
-            sideboard: d.sideboard.clone(),
-        }
     }
 }
 
@@ -189,7 +159,7 @@ fn quantities(deck: &[i32]) -> Quantities {
         .unique()
         .copied()
         .map(|card_id| {
-            let quantity = u16::try_from(deck.iter().filter(|&id| *id == card_id).count()).unwrap_or(0);
+            let quantity = deck.iter().filter(|&id| *id == card_id).count();
             (card_id, quantity)
         })
         .collect()

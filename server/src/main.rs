@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
-    models::{ArenaId, MatchData, MatchDataProto, MtgaMatchProto, OpponentDeck},
+    models::{ArenaId, MatchData, OpponentDeck},
     services::match_service::{
         DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse, ListMatchesRequest,
         ListMatchesResponse, UpsertMatchDataRequest, UpsertMatchDataResponse,
@@ -102,7 +102,7 @@ impl MatchService for MatchServiceImpl {
         };
 
         Ok(Response::new(GetMatchDataResponse {
-            match_data: Some(MatchDataProto::from(&match_data_model)),
+            match_data: Some((&match_data_model).into()),
         }))
     }
 
@@ -116,7 +116,7 @@ impl MatchService for MatchServiceImpl {
         })?;
 
         Ok(Response::new(ListMatchesResponse {
-            matches: matches.iter().map(MtgaMatchProto::from).collect(),
+            matches: matches.iter().map(Into::into).collect(),
         }))
     }
 

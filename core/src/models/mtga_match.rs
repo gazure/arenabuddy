@@ -2,8 +2,6 @@ use chrono::{DateTime, Utc};
 use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-pub use crate::proto::MtgaMatch as MtgaMatchProto;
-
 /// Represents a match in Magic: The Gathering Arena
 #[derive(Debug, Default, Clone, Serialize, Deserialize, Builder, PartialEq)]
 #[builder(setter(into))]
@@ -109,33 +107,6 @@ impl MTGAMatch {
         } else {
             // We don't know the exact opponent seat ID, but we know it's not the controller
             Some(&self.opponent_player_name)
-        }
-    }
-}
-
-impl From<&MtgaMatchProto> for MTGAMatch {
-    fn from(proto: &MtgaMatchProto) -> Self {
-        let created_at = DateTime::parse_from_rfc3339(&proto.created_at)
-            .map(|dt| dt.with_timezone(&Utc))
-            .unwrap_or_default();
-        Self::new_with_timestamp(
-            &proto.id,
-            proto.controller_seat_id,
-            &proto.controller_player_name,
-            &proto.opponent_player_name,
-            created_at,
-        )
-    }
-}
-
-impl From<&MTGAMatch> for MtgaMatchProto {
-    fn from(m: &MTGAMatch) -> Self {
-        Self {
-            id: m.id.clone(),
-            controller_seat_id: m.controller_seat_id,
-            controller_player_name: m.controller_player_name.clone(),
-            opponent_player_name: m.opponent_player_name.clone(),
-            created_at: m.created_at.to_rfc3339(),
         }
     }
 }
