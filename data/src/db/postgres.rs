@@ -34,10 +34,55 @@ impl PostgresMatchDB {
             let pool = PgPool::connect(url).await?;
             Ok(Self { pool, _db: None, cards })
         } else {
-            let mut db = PostgreSQL::default();
+            // Configure persistent embedded PostgreSQL
+            let db_path = Self::get_embedded_db_path()?;
+            info!("Using embedded PostgreSQL at: {}", db_path.display());
+
+            std::fs::create_dir_all(&db_path)?;
+
+            let mut settings = postgresql_embedded::Settings::default();
+            settings.installation_dir = db_path.join("postgres_install");
+            settings.data_dir = db_path.join("data");
+            settings.password_file = db_path.join("password.txt");
+            settings.temporary = false; // Make database persistent across restarts
+
+            // Use a fixed password for persistent database
+            // This is safe because the embedded DB only listens on localhost
+            settings.password = "arenabuddy_local".to_string();
+
+            let mut db = PostgreSQL::new(settings);
             db.setup().await?;
-            db.start().await?;
-            db.create_database("arenabuddy").await?;
+
+            // Try to start the database, handling the case where it might already be running
+            // or there's a stale PID file from an unclean shutdown
+            match db.start().await {
+                Ok(()) => {
+                    info!("PostgreSQL started successfully");
+                }
+                Err(e) => {
+                    info!(
+                        "First start attempt failed ({}), trying to stop any existing instance...",
+                        e
+                    );
+                    // Try to stop any running instance first
+                    let _ = db.stop().await;
+
+                    // Clean up stale PID file if it exists
+                    let pid_file = db.settings().data_dir.join("postmaster.pid");
+                    if pid_file.exists() {
+                        info!("Removing stale PID file: {}", pid_file.display());
+                        let _ = std::fs::remove_file(&pid_file);
+                    }
+
+                    // Try starting again
+                    db.start().await?;
+                    info!("PostgreSQL started successfully after cleanup");
+                }
+            }
+
+            // Create database only if it doesn't exist yet
+            // The database will persist between app restarts
+            let _ = db.create_database("arenabuddy").await;
 
             let pool = PgPool::connect(&db.settings().url("arenabuddy")).await?;
             Ok(Self {
@@ -48,12 +93,32 @@ impl PostgresMatchDB {
         }
     }
 
+    fn get_embedded_db_path() -> Result<std::path::PathBuf> {
+        // Use platform-appropriate application data directory
+        let home = std::env::home_dir().ok_or_else(|| {
+            Error::IoError(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "Could not determine home directory",
+            ))
+        })?;
+
+        let db_path = match std::env::consts::OS {
+            "macos" => home.join("Library/Application Support/com.gazure.dev.arenabuddy.app/postgres"),
+            "windows" => home.join("AppData/Roaming/com.gazure.dev.arenabuddy.app/postgres"),
+            "linux" => home.join(".local/share/com.gazure.dev.arenabuddy.app/postgres"),
+            os => {
+                return Err(Error::IoError(std::io::Error::new(
+                    std::io::ErrorKind::Unsupported,
+                    format!("Unsupported OS: {os}"),
+                )));
+            }
+        };
+
+        Ok(db_path)
+    }
+
     pub async fn initialize(&self) -> Result<()> {
-        let migrations_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("migrations/postgres");
-        sqlx::migrate::Migrator::new(migrations_path)
-            .await?
-            .run(&self.pool)
-            .await?;
+        sqlx::migrate!("./migrations/postgres").run(&self.pool).await?;
         Ok(())
     }
 
