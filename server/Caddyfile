@@ -1,4 +1,8 @@
-# Replace with your actual domain
-arenabuddy.example.com {
-	reverse_proxy h2c://server:50051
+arenabuddy.grantazure.com {
+	reverse_proxy h2c://server:50051 {
+		flush_interval -1
+		transport http {
+			versions h2c 2
+		}
+	}
 }

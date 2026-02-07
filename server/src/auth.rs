@@ -182,15 +182,20 @@ pub fn validate_jwt(token: &str, jwt_secret: &str) -> Result<Claims, jsonwebtoke
 
 pub fn auth_interceptor(jwt_secret: Arc<String>) -> impl Fn(Request<()>) -> Result<Request<()>, Status> + Clone {
     move |mut req: Request<()>| {
+        info!("Incoming authenticated request");
+
         let token = req
             .metadata()
             .get("authorization")
             .and_then(|v| v.to_str().ok())
             .and_then(|v| v.strip_prefix("Bearer "))
-            .ok_or_else(|| Status::unauthenticated("missing authorization token"))?;
+            .ok_or_else(|| {
+                info!("Rejected: missing authorization token");
+                Status::unauthenticated("missing authorization token")
+            })?;
 
         let claims = validate_jwt(token, &jwt_secret).map_err(|e| {
-            error!("JWT validation failed: {e}");
+            error!("Rejected: JWT validation failed: {e}");
             Status::unauthenticated("invalid token")
         })?;
 
@@ -199,6 +204,7 @@ pub fn auth_interceptor(jwt_secret: Arc<String>) -> impl Fn(Request<()>) -> Resu
             .parse::<Uuid>()
             .map_err(|_| Status::unauthenticated("invalid token claims"))?;
 
+        info!("Authorized user {user_id}");
         req.extensions_mut().insert(UserId(user_id));
         Ok(req)
     }
@@ -210,6 +216,7 @@ impl AuthService for AuthServiceImpl {
         &self,
         request: Request<ExchangeTokenRequest>,
     ) -> Result<Response<ExchangeTokenResponse>, Status> {
+        info!("ExchangeToken request received");
         let req = request.into_inner();
 
         if req.authorization_code.is_empty() {
