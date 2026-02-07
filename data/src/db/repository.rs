@@ -5,26 +5,27 @@ use arenabuddy_core::{
 
 use crate::Result;
 
+#[async_trait::async_trait]
 pub trait ArenabuddyRepository: Send + Sync + 'static {
-    fn init(&self) -> impl Future<Output = Result<()>> + Send;
-    fn write_replay(&self, replay: &MatchReplay) -> impl Future<Output = Result<()>> + Send;
-    fn list_matches(&self) -> impl Future<Output = Result<Vec<MTGAMatch>>> + Send;
-    fn get_match(&self, match_id: &str) -> impl Future<Output = Result<(MTGAMatch, Option<MatchResult>)>> + Send;
-    fn get_draft(&self, draft_id: &str) -> impl Future<Output = Result<MTGADraft>> + Send;
-    fn get_opponent_deck(&self, match_id: &str) -> impl Future<Output = Result<Deck>> + Send;
-    fn list_decklists(&self, match_id: &str) -> impl Future<Output = Result<Vec<Deck>>> + Send;
-    fn list_mulligans(&self, match_id: &str) -> impl Future<Output = Result<Vec<Mulligan>>> + Send;
-    fn list_match_results(&self, match_id: &str) -> impl Future<Output = Result<Vec<MatchResult>>> + Send;
-    fn list_drafts(&self) -> impl Future<Output = Result<Vec<Draft>>> + Send;
+    async fn init(&self) -> Result<()>;
+    async fn write_replay(&self, replay: &MatchReplay) -> Result<()>;
+    async fn list_matches(&self) -> Result<Vec<MTGAMatch>>;
+    async fn get_match(&self, match_id: &str) -> Result<(MTGAMatch, Option<MatchResult>)>;
+    async fn get_draft(&self, draft_id: &str) -> Result<MTGADraft>;
+    async fn get_opponent_deck(&self, match_id: &str) -> Result<Deck>;
+    async fn list_decklists(&self, match_id: &str) -> Result<Vec<Deck>>;
+    async fn list_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>>;
+    async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>>;
+    async fn list_drafts(&self) -> Result<Vec<Draft>>;
 
-    fn upsert_match_data(
+    async fn upsert_match_data(
         &self,
         mtga_match: &MTGAMatch,
         decks: &[Deck],
         mulligans: &[Mulligan],
         results: &[MatchResult],
         opponent_cards: &[ArenaId],
-    ) -> impl Future<Output = Result<()>> + Send;
+    ) -> Result<()>;
 
-    fn delete_match(&self, match_id: &str) -> impl Future<Output = Result<()>> + Send;
+    async fn delete_match(&self, match_id: &str) -> Result<()>;
 }

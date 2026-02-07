@@ -597,60 +597,62 @@ impl PostgresMatchDB {
     }
 }
 
+#[async_trait::async_trait]
 impl ArenabuddyRepository for PostgresMatchDB {
-    fn init(&self) -> impl Future<Output = Result<()>> + Send {
-        self.initialize()
+    async fn init(&self) -> Result<()> {
+        self.initialize().await
     }
 
-    fn write_replay(&self, replay: &MatchReplay) -> impl Future<Output = Result<()>> + Send {
-        self.write(replay)
+    async fn write_replay(&self, replay: &MatchReplay) -> Result<()> {
+        self.write(replay).await
     }
 
-    fn get_match(&self, match_id: &str) -> impl Future<Output = Result<(MTGAMatch, Option<MatchResult>)>> + Send {
-        self.retrieve_match(match_id)
+    async fn get_match(&self, match_id: &str) -> Result<(MTGAMatch, Option<MatchResult>)> {
+        self.retrieve_match(match_id).await
     }
 
-    fn list_matches(&self) -> impl Future<Output = Result<Vec<MTGAMatch>>> + Send {
-        self.get_matches()
+    async fn list_matches(&self) -> Result<Vec<MTGAMatch>> {
+        self.get_matches().await
     }
 
-    fn list_decklists(&self, match_id: &str) -> impl Future<Output = Result<Vec<Deck>>> + Send {
-        self.get_decklists(match_id)
+    async fn list_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
+        self.get_decklists(match_id).await
     }
 
-    fn list_mulligans(&self, match_id: &str) -> impl Future<Output = Result<Vec<Mulligan>>> + Send {
-        self.get_mulligans(match_id)
+    async fn list_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>> {
+        self.get_mulligans(match_id).await
     }
 
-    fn list_match_results(&self, match_id: &str) -> impl Future<Output = Result<Vec<MatchResult>>> + Send {
-        self.get_match_results(match_id)
+    async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
+        self.get_match_results(match_id).await
     }
 
-    fn get_opponent_deck(&self, match_id: &str) -> impl Future<Output = Result<Deck>> + Send {
-        self.do_get_opponent_deck(match_id)
+    async fn get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
+        self.do_get_opponent_deck(match_id).await
     }
 
-    fn list_drafts(&self) -> impl Future<Output = Result<Vec<Draft>>> + Send {
-        self.do_list_drafts()
+    async fn list_drafts(&self) -> Result<Vec<Draft>> {
+        self.do_list_drafts().await
     }
 
-    fn get_draft(&self, draft_id: &str) -> impl Future<Output = Result<MTGADraft>> + Send {
-        self.do_get_draft(draft_id)
+    async fn get_draft(&self, draft_id: &str) -> Result<MTGADraft> {
+        self.do_get_draft(draft_id).await
     }
 
-    fn upsert_match_data(
+    async fn upsert_match_data(
         &self,
         mtga_match: &MTGAMatch,
         decks: &[Deck],
         mulligans: &[Mulligan],
         results: &[MatchResult],
         opponent_cards: &[ArenaId],
-    ) -> impl Future<Output = Result<()>> + Send {
+    ) -> Result<()> {
         self.do_upsert_match_data(mtga_match, decks, mulligans, results, opponent_cards)
+            .await
     }
 
-    fn delete_match(&self, match_id: &str) -> impl Future<Output = Result<()>> + Send {
-        self.do_delete_match(match_id)
+    async fn delete_match(&self, match_id: &str) -> Result<()> {
+        self.do_delete_match(match_id).await
     }
 }
 
