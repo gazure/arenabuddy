@@ -1,0 +1,4 @@
+# Replace with your actual domain
+arenabuddy.example.com {
+	reverse_proxy h2c://server:50051
+}
