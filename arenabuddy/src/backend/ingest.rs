@@ -133,16 +133,9 @@ pub async fn start(
             Ok(writer) => {
                 info!("Connected to gRPC backend at {grpc_url}");
 
-                // Create a separate debug client on the same channel
-                if let Ok(channel) = tonic::transport::Channel::from_shared(grpc_url)
-                    .expect("valid URL")
-                    .connect()
-                    .await
-                {
-                    debug_reporter = Some(Arc::new(Mutex::new(DebugReporter {
-                        client: DebugServiceClient::new(channel),
-                        token,
-                    })));
+                // Create a separate debug client
+                if let Ok(client) = DebugServiceClient::connect(grpc_url).await {
+                    debug_reporter = Some(Arc::new(Mutex::new(DebugReporter { client, token })));
                 }
 
                 service.add_writer(Box::new(writer))

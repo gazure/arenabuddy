@@ -6,7 +6,7 @@ use crate::{
         debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
         match_details::MatchDetails, matches::Matches,
     },
-    backend::SharedAuthState,
+    backend::{BackgroundRuntime, SharedAuthState},
 };
 
 fn open_github() {
@@ -95,8 +95,10 @@ fn Layout() -> Element {
         });
     });
 
+    let bg_runtime = use_context::<BackgroundRuntime>();
     let on_login = move |_| {
         let auth_state = auth_state.clone();
+        let bg = bg_runtime.clone();
         spawn(async move {
             let Ok(grpc_url) = std::env::var("ARENABUDDY_GRPC_URL") else {
                 tracingx::error!("ARENABUDDY_GRPC_URL not set, cannot login");
@@ -108,14 +110,25 @@ fn Layout() -> Element {
             };
 
             login_loading.set(true);
-            match crate::backend::auth::login(&grpc_url, &client_id).await {
-                Ok(state) => {
+            // Run login on the background tokio runtime which has a real I/O
+            // driver — Dioxus's async executor lacks one, so tonic channels
+            // fail with "transport error" if spawned directly.
+            let (tx, rx) = tokio::sync::oneshot::channel();
+            bg.spawn(async move {
+                let result = crate::backend::auth::login(&grpc_url, &client_id).await;
+                let _ = tx.send(result);
+            });
+            match rx.await {
+                Ok(Ok(state)) => {
                     let username = state.user.username.clone();
                     *auth_state.lock().await = Some(state);
                     login_status.set(Some(username));
                 }
-                Err(e) => {
+                Ok(Err(e)) => {
                     tracingx::error!("Login failed: {e}");
+                }
+                Err(_) => {
+                    tracingx::error!("Login task was dropped");
                 }
             }
             login_loading.set(false);

@@ -20,6 +20,10 @@ use crate::{
     backend::{Service, new_shared_auth_state, service::AppService},
 };
 
+/// Shared handle to the background tokio runtime, so Dioxus UI code
+/// can run async work that requires a real tokio I/O driver (e.g. tonic gRPC).
+pub type BackgroundRuntime = Arc<tokio::runtime::Runtime>;
+
 pub fn launch() -> Result<()> {
     let data_dir = get_app_data_dir()?;
     let home = std::env::home_dir().ok_or(Error::NoHomeDir)?;
@@ -30,7 +34,7 @@ pub fn launch() -> Result<()> {
     }?;
     info!("Processing logs from : {}", player_log_path.to_string_lossy());
 
-    let background = tokio::runtime::Runtime::new()?;
+    let background: BackgroundRuntime = Arc::new(tokio::runtime::Runtime::new()?);
     let service = background.block_on(create_app_service())?;
     let auth_state = new_shared_auth_state();
     if let Some(saved) = crate::backend::auth::load_auth() {
@@ -59,6 +63,7 @@ pub fn launch() -> Result<()> {
         )
         .with_context(service)
         .with_context(auth_state)
+        .with_context(background)
         .launch(App);
     Ok(())
 }

@@ -5,7 +5,6 @@ use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
-use tonic::transport::Channel;
 use tracingx::{error, info};
 
 /// Stored authentication state for the current session.
@@ -170,8 +169,12 @@ pub async fn login(
     info!("Received Discord auth code, exchanging for token");
 
     // Exchange the code for a JWT via the gRPC AuthService
-    let channel = Channel::from_shared(grpc_url.to_string())?.connect().await?;
-    let mut client = AuthServiceClient::new(channel);
+    info!("Connecting to gRPC auth service at {grpc_url}");
+    let mut client = AuthServiceClient::connect(grpc_url.to_string()).await.map_err(|e| {
+        error!("Failed to connect auth channel: {e}");
+        e
+    })?;
+    info!("Auth channel connected");
 
     let response = client
         .exchange_token(ExchangeTokenRequest {
@@ -179,7 +182,11 @@ pub async fn login(
             code_verifier,
             redirect_uri,
         })
-        .await?
+        .await
+        .map_err(|e| {
+            error!("ExchangeToken RPC failed: {e}");
+            e
+        })?
         .into_inner();
 
     let user = response.user.ok_or("Server did not return user info")?;
