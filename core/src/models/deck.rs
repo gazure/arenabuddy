@@ -11,7 +11,44 @@ use crate::events::gre::DeckMessage;
 pub use crate::proto::Deck;
 
 /// A mapping of card IDs to their quantities in a deck
-pub type Quantities = HashMap<i32, usize>;
+pub struct Quantities(HashMap<i32, usize>);
+
+impl Quantities {
+    pub fn from_cards(deck: &[i32]) -> Self {
+        let unique: Vec<_> = deck.iter().unique().copied().collect();
+        let deck_quantities = unique
+            .iter()
+            .map(|ent_id| {
+                let quantity = deck.iter().filter(|&id| id == ent_id).count();
+                (*ent_id, quantity)
+            })
+            .collect();
+
+        Quantities(deck_quantities)
+    }
+
+    pub fn get(&self, card_id: i32) -> Option<usize> {
+        self.0.get(&card_id).copied()
+    }
+
+    pub fn keys(&self) -> impl Iterator<Item = i32> {
+        self.0.keys().copied()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (i32, usize)> + '_ {
+        self.0.iter().map(|(c, q)| (*c, *q))
+    }
+}
+
+impl<'a> IntoIterator for &'a Quantities {
+    type IntoIter =
+        std::iter::Map<std::collections::hash_map::Iter<'a, i32, usize>, fn((&'a i32, &'a usize)) -> (i32, usize)>;
+    type Item = (i32, usize);
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.iter().map(|(c, q)| (*c, *q))
+    }
+}
 
 impl From<DeckMessage> for Deck {
     fn from(deck_message: DeckMessage) -> Self {
@@ -138,11 +175,11 @@ impl Deck {
     }
 
     pub fn quantities(&self) -> Quantities {
-        quantities(&self.mainboard)
+        Quantities::from_cards(&self.mainboard)
     }
 
     pub fn sideboard_quantities(&self) -> Quantities {
-        quantities(&self.sideboard)
+        Quantities::from_cards(&self.sideboard)
     }
 
     fn mainboard_size(&self) -> usize {
@@ -152,17 +189,6 @@ impl Deck {
     fn sideboard_size(&self) -> usize {
         self.sideboard.len()
     }
-}
-
-fn quantities(deck: &[i32]) -> Quantities {
-    deck.iter()
-        .unique()
-        .copied()
-        .map(|card_id| {
-            let quantity = deck.iter().filter(|&id| *id == card_id).count();
-            (card_id, quantity)
-        })
-        .collect()
 }
 
 fn process_raw_decklist(raw_decklist: &str) -> Vec<i32> {
@@ -182,11 +208,11 @@ mod tests {
     #[test]
     fn test_quantities() {
         let deck = vec![1, 2, 3, 1, 2, 3, 1, 2, 3, 4];
-        let quantities = super::quantities(&deck);
-        assert_eq!(quantities.get(&1), Some(&3));
-        assert_eq!(quantities.get(&2), Some(&3));
-        assert_eq!(quantities.get(&3), Some(&3));
-        assert_eq!(quantities.get(&4), Some(&1));
+        let quantities = super::Quantities::from_cards(&deck);
+        assert_eq!(quantities.get(1), Some(3));
+        assert_eq!(quantities.get(2), Some(3));
+        assert_eq!(quantities.get(3), Some(3));
+        assert_eq!(quantities.get(4), Some(1));
     }
 
     #[test]
@@ -241,10 +267,10 @@ mod tests {
             vec![4, 5, 6],
         );
         let quantities = deck.quantities();
-        assert_eq!(quantities.get(&1), Some(&3));
-        assert_eq!(quantities.get(&2), Some(&3));
-        assert_eq!(quantities.get(&3), Some(&3));
-        assert_eq!(quantities.get(&4), Some(&1));
+        assert_eq!(quantities.get(1), Some(3));
+        assert_eq!(quantities.get(2), Some(3));
+        assert_eq!(quantities.get(3), Some(3));
+        assert_eq!(quantities.get(4), Some(1));
     }
 
     #[test]
@@ -256,8 +282,8 @@ mod tests {
             vec![4, 5, 6],
         );
         let quantities = deck.sideboard_quantities();
-        assert_eq!(quantities.get(&4), Some(&1));
-        assert_eq!(quantities.get(&5), Some(&1));
-        assert_eq!(quantities.get(&6), Some(&1));
+        assert_eq!(quantities.get(4), Some(1));
+        assert_eq!(quantities.get(5), Some(1));
+        assert_eq!(quantities.get(6), Some(1));
     }
 }

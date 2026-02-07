@@ -13,7 +13,7 @@ fn get_card(db: &CardsDatabase, quantities: &Quantities, card_id: i32) -> CardDi
     let mut card: CardDisplayRecord = db
         .get(&card_id)
         .map_or_else(|| CardDisplayRecord::new(card_id.to_string()), std::convert::Into::into);
-    card.quantity = quantities.get(&card_id).copied().unwrap_or(0);
+    card.quantity = quantities.get(card_id).unwrap_or(0);
     card
 }
 
@@ -33,7 +33,6 @@ impl DeckDisplayRecord {
 
         let mut main_cards = main_quantities
             .keys()
-            .copied()
             .map(|card_id| get_card(cards_db, &main_quantities, card_id))
             .fold(
                 HashMap::new(),
@@ -50,7 +49,6 @@ impl DeckDisplayRecord {
 
         let sideboard_cards = sideboard_quantities
             .keys()
-            .copied()
             .map(|card_id| get_card(cards_db, &sideboard_quantities, card_id))
             .sorted()
             .collect();
@@ -115,13 +113,13 @@ impl Difference {
             if let Some(deck2_quantity) = main2.get(card_id) {
                 if deck2_quantity < quantity {
                     let diff = quantity - deck2_quantity;
-                    (0..diff).for_each(|_| missing.push(*card_id));
+                    (0..diff).for_each(|_| missing.push(card_id));
                 }
             } else {
-                (0usize..*quantity).for_each(|_| missing.push(*card_id));
+                (0usize..quantity).for_each(|_| missing.push(card_id));
             }
         }
-        quantities(&missing)
+        Quantities::from_cards(&missing)
     }
 
     fn aggregate(collection: &Quantities, cards_database: &CardsDatabase) -> Vec<CardDisplayRecord> {
@@ -131,7 +129,7 @@ impl Difference {
                 let mut card = cards_database
                     .get(&card_id)
                     .map_or_else(|| CardDisplayRecord::new(card_id.to_string()), std::convert::Into::into);
-                card.quantity = *quantity;
+                card.quantity = quantity;
                 card
             })
             .sorted()
@@ -167,16 +165,4 @@ impl Difference {
         }
         output
     }
-}
-
-fn quantities(deck: &[i32]) -> Quantities {
-    let unique: Vec<_> = deck.iter().unique().copied().collect();
-    let deck_quantities: Quantities = unique
-        .iter()
-        .map(|ent_id| {
-            let quantity = deck.iter().filter(|&id| id == ent_id).count();
-            (*ent_id, quantity)
-        })
-        .collect();
-    deck_quantities
 }
