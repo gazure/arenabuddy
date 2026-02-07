@@ -125,9 +125,11 @@ pub async fn start(
     let dir_adapter = DirectoryStorageAdapter::new(debug_dir.clone());
     let service = service.add_writer(Box::new(dir_adapter));
 
-    // Add gRPC writer and debug reporter if URL is configured
+    // Add gRPC writer and debug reporter
     let mut debug_reporter: Option<Arc<Mutex<DebugReporter>>> = None;
-    let service = if let Ok(grpc_url) = std::env::var("ARENABUDDY_GRPC_URL") {
+    let grpc_url =
+        std::env::var("ARENABUDDY_GRPC_URL").unwrap_or_else(|_| "https://arenabuddy.grantazure.com".to_string());
+    let service = {
         let token = auth_state.lock().await.as_ref().map(|s| s.token.clone());
         match GrpcReplayWriter::connect(&grpc_url, cards, token.clone()).await {
             Ok(writer) => {
@@ -145,8 +147,6 @@ pub async fn start(
                 service
             }
         }
-    } else {
-        service
     };
 
     // Set up event callback to handle ingestion events

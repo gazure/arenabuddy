@@ -100,14 +100,9 @@ fn Layout() -> Element {
         let auth_state = auth_state.clone();
         let bg = bg_runtime.clone();
         spawn(async move {
-            let Ok(grpc_url) = std::env::var("ARENABUDDY_GRPC_URL") else {
-                tracingx::error!("ARENABUDDY_GRPC_URL not set, cannot login");
-                return;
-            };
-            let Ok(client_id) = std::env::var("DISCORD_CLIENT_ID") else {
-                tracingx::error!("DISCORD_CLIENT_ID not set, cannot login");
-                return;
-            };
+            let grpc_url = std::env::var("ARENABUDDY_GRPC_URL")
+                .unwrap_or_else(|_| "https://arenabuddy.grantazure.com".to_string());
+            let client_id = std::env::var("DISCORD_CLIENT_ID").unwrap_or_else(|_| "1469498901886271663".to_string());
 
             login_loading.set(true);
             // Run login on the background tokio runtime which has a real I/O
