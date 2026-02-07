@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package arenabuddy.api.v1;
+
+message ParseErrorReport {
+  string raw_json = 1;
+  int64 timestamp = 2;
+}
+
+message ReportParseErrorsRequest {
+  repeated ParseErrorReport errors = 1;
+}
+
+message ReportParseErrorsResponse {
+  int32 accepted = 1;
+}
+
+service DebugService {
+  rpc ReportParseErrors(ReportParseErrorsRequest) returns (ReportParseErrorsResponse);
+}

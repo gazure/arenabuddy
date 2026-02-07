@@ -5,6 +5,10 @@ use arenabuddy_core::{
     models::{ArenaId, MatchData, OpponentDeck},
     services::{
         auth_service::auth_service_server::AuthServiceServer,
+        debug_service::{
+            ReportParseErrorsRequest, ReportParseErrorsResponse,
+            debug_service_server::{DebugService, DebugServiceServer},
+        },
         match_service::{
             DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse, ListMatchesRequest,
             ListMatchesResponse, UpsertMatchDataRequest, UpsertMatchDataResponse,
@@ -13,6 +17,7 @@ use arenabuddy_core::{
     },
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
+use sqlx::PgPool;
 use tonic::{Request, Response, Status, transport::Server};
 use tracingx::{error, info};
 
@@ -22,6 +27,10 @@ use auth::{AuthConfig, AuthServiceImpl, UserId, auth_interceptor};
 
 struct MatchServiceImpl {
     db: MatchDB,
+}
+
+struct DebugServiceImpl {
+    pool: PgPool,
 }
 
 #[tonic::async_trait]
@@ -151,6 +160,37 @@ impl MatchService for MatchServiceImpl {
     }
 }
 
+#[tonic::async_trait]
+impl DebugService for DebugServiceImpl {
+    async fn report_parse_errors(
+        &self,
+        request: Request<ReportParseErrorsRequest>,
+    ) -> Result<Response<ReportParseErrorsResponse>, Status> {
+        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
+        let errors = request.into_inner().errors;
+
+        let mut accepted = 0i32;
+        for err in &errors {
+            let reported_at = chrono::DateTime::from_timestamp(err.timestamp, 0).unwrap_or_else(chrono::Utc::now);
+
+            sqlx::query("INSERT INTO parse_error (user_id, raw_json, reported_at) VALUES ($1, $2, $3)")
+                .bind(user_id)
+                .bind(&err.raw_json)
+                .bind(reported_at)
+                .execute(&self.pool)
+                .await
+                .map_err(|e| {
+                    error!("Failed to insert parse error: {e}");
+                    Status::internal("failed to store parse error")
+                })?;
+            accepted += 1;
+        }
+
+        info!("Stored {accepted} parse error(s) from user {user_id:?}");
+        Ok(Response::new(ReportParseErrorsResponse { accepted }))
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracingx::init_compact();
@@ -176,13 +216,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Database initialized");
 
     let match_service = MatchServiceImpl { db: db.clone() };
+    let debug_service = DebugServiceImpl {
+        pool: db.pool().clone(),
+    };
     let auth_service = AuthServiceImpl::new(&db, auth_config.clone());
 
     let interceptor = auth_interceptor(Arc::new(auth_config.jwt_secret.clone()));
 
     info!("Starting gRPC server on {addr}");
     Server::builder()
-        .add_service(MatchServiceServer::with_interceptor(match_service, interceptor))
+        .add_service(MatchServiceServer::with_interceptor(match_service, interceptor.clone()))
+        .add_service(DebugServiceServer::with_interceptor(debug_service, interceptor))
         .add_service(AuthServiceServer::new(auth_service))
         .serve(addr)
         .await?;

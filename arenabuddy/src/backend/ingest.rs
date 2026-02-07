@@ -6,9 +6,11 @@ use arenabuddy_core::{
         ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
         replay::MatchReplay,
     },
+    services::debug_service::{ParseErrorReport, ReportParseErrorsRequest, debug_service_client::DebugServiceClient},
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB};
 use tokio::sync::Mutex;
+use tonic::transport::Channel;
 use tracingx::{error, info};
 
 use super::{auth::SharedAuthState, grpc_writer::GrpcReplayWriter};
@@ -43,14 +45,52 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for DirectoryStorageAdapt
 type PinnedFuture = std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>;
 
 /// Helper function to handle ingestion events
-fn handle_ingestion_event(event: IngestionEvent, log_collector: Arc<Mutex<Vec<String>>>) -> PinnedFuture {
+fn handle_ingestion_event(
+    event: IngestionEvent,
+    log_collector: Arc<Mutex<Vec<String>>>,
+    debug_client: Option<Arc<Mutex<DebugReporter>>>,
+) -> PinnedFuture {
     Box::pin(async move {
         tracingx::debug!("{event}");
-        if let IngestionEvent::ParseError(error) = event {
-            let mut collector = log_collector.lock().await;
-            collector.push(error);
+        if let IngestionEvent::ParseError(raw_json) = event {
+            {
+                let mut collector = log_collector.lock().await;
+                collector.push(raw_json.clone());
+            }
+            if let Some(reporter) = debug_client {
+                let mut reporter = reporter.lock().await;
+                reporter.report_parse_error(&raw_json).await;
+            }
         }
     })
+}
+
+struct DebugReporter {
+    client: DebugServiceClient<Channel>,
+    token: Option<String>,
+}
+
+impl DebugReporter {
+    async fn report_parse_error(&mut self, raw_json: &str) {
+        let timestamp = chrono::Utc::now().timestamp();
+        let mut request = tonic::Request::new(ReportParseErrorsRequest {
+            errors: vec![ParseErrorReport {
+                raw_json: raw_json.to_string(),
+                timestamp,
+            }],
+        });
+
+        if let Some(token) = &self.token {
+            let bearer = format!("Bearer {token}");
+            if let Ok(value) = bearer.parse() {
+                request.metadata_mut().insert("authorization", value);
+            }
+        }
+
+        if let Err(e) = self.client.report_parse_errors(request).await {
+            error!("Failed to report parse error to server: {e}");
+        }
+    }
 }
 
 pub async fn start(
@@ -85,12 +125,26 @@ pub async fn start(
     let dir_adapter = DirectoryStorageAdapter::new(debug_dir.clone());
     let service = service.add_writer(Box::new(dir_adapter));
 
-    // Add gRPC writer if URL is configured
+    // Add gRPC writer and debug reporter if URL is configured
+    let mut debug_reporter: Option<Arc<Mutex<DebugReporter>>> = None;
     let service = if let Ok(grpc_url) = std::env::var("ARENABUDDY_GRPC_URL") {
         let token = auth_state.lock().await.as_ref().map(|s| s.token.clone());
-        match GrpcReplayWriter::connect(&grpc_url, cards, token).await {
+        match GrpcReplayWriter::connect(&grpc_url, cards, token.clone()).await {
             Ok(writer) => {
                 info!("Connected to gRPC backend at {grpc_url}");
+
+                // Create a separate debug client on the same channel
+                if let Ok(channel) = tonic::transport::Channel::from_shared(grpc_url)
+                    .expect("valid URL")
+                    .connect()
+                    .await
+                {
+                    debug_reporter = Some(Arc::new(Mutex::new(DebugReporter {
+                        client: DebugServiceClient::new(channel),
+                        token,
+                    })));
+                }
+
                 service.add_writer(Box::new(writer))
             }
             Err(e) => {
@@ -103,7 +157,9 @@ pub async fn start(
     };
 
     // Set up event callback to handle ingestion events
-    let event_callback = Arc::new(move |event: IngestionEvent| handle_ingestion_event(event, log_collector.clone()));
+    let event_callback = Arc::new(move |event: IngestionEvent| {
+        handle_ingestion_event(event, log_collector.clone(), debug_reporter.clone())
+    });
 
     let service = service.with_event_callback(event_callback);
 
