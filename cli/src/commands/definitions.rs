@@ -41,6 +41,18 @@ pub enum Commands {
         output: PathBuf,
     },
 
+    /// Scrape card data from MTGA database and enrich with Scryfall
+    ScrapeMtga {
+        #[arg(long, help = "Path to MTGA installation directory")]
+        mtga_path: Option<PathBuf>,
+
+        #[arg(long, help = "Scryfall API base URL", default_value = SCRYFALL_HOST_DEFAULT)]
+        scryfall_host: String,
+
+        #[arg(long, help = "Output file for card database", default_value = "./cards.pb")]
+        output: PathBuf,
+    },
+
     /// Start an interactive REPL for card searches, analytics, and file info
     Repl {
         #[arg(short, long, help = "Database of cards to reference")]

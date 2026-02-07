@@ -35,6 +35,15 @@ pub enum Error {
     #[error("Network error: {0}")]
     Network(#[from] reqwest::Error),
 
+    #[error("SQLite error: {0}")]
+    Sqlite(#[from] rusqlite::Error),
+
+    #[error("MTGA database not found at path: {0}")]
+    MtgaDatabaseNotFound(String),
+
+    #[error("Card not found in Scryfall: set={0} collector_number={1}")]
+    ScryfallCardNotFound(String, String),
+
     #[error("URL error: {0}")]
     Url(String),
 

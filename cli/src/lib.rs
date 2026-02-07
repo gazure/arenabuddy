@@ -1,3 +1,4 @@
+#![expect(clippy::assigning_clones)]
 use clap::Parser;
 
 mod commands;
@@ -43,6 +44,14 @@ pub async fn run() -> Result<()> {
             output,
         } => {
             commands::scrape::execute(scryfall_host, seventeen_lands_host, output).await?;
+        }
+
+        Commands::ScrapeMtga {
+            mtga_path,
+            scryfall_host,
+            output,
+        } => {
+            commands::scrape_mtga::execute(mtga_path.as_ref(), scryfall_host, output).await?;
         }
 
         Commands::Repl { cards_db } => {
