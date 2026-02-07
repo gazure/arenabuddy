@@ -17,7 +17,7 @@ use tracingx::{
 use crate::{
     Error, Result,
     app::App,
-    backend::{Service, service::AppService},
+    backend::{Service, new_shared_auth_state, service::AppService},
 };
 
 pub fn launch() -> Result<()> {
@@ -32,7 +32,13 @@ pub fn launch() -> Result<()> {
 
     let background = tokio::runtime::Runtime::new()?;
     let service = background.block_on(create_app_service())?;
+    let auth_state = new_shared_auth_state();
+    if let Some(saved) = crate::backend::auth::load_auth() {
+        info!("Restored auth session for {}", saved.user.username);
+        *auth_state.blocking_lock() = Some(saved);
+    }
     let service2 = service.clone();
+    let auth_state2 = auth_state.clone();
     background.spawn(async move {
         crate::backend::ingest::start(
             service2.db.clone(),
@@ -40,6 +46,7 @@ pub fn launch() -> Result<()> {
             service2.debug_storage.clone(),
             service2.log_collector.clone(),
             player_log_path,
+            auth_state2,
         )
         .await;
     });
@@ -51,6 +58,7 @@ pub fn launch() -> Result<()> {
                 .with_window(WindowBuilder::new().with_title("Arenabuddy").with_resizable(true)),
         )
         .with_context(service)
+        .with_context(auth_state)
         .launch(App);
     Ok(())
 }

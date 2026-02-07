@@ -1,9 +1,12 @@
 use dioxus::prelude::*;
 use dioxus_router::{Link, Outlet, Routable};
 
-use crate::app::{
-    debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
-    match_details::MatchDetails, matches::Matches,
+use crate::{
+    app::{
+        debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
+        match_details::MatchDetails, matches::Matches,
+    },
+    backend::SharedAuthState,
 };
 
 fn open_github() {
@@ -78,9 +81,50 @@ fn PageNotFound(route: Vec<String>) -> Element {
 
 #[component]
 fn Layout() -> Element {
+    let auth_state = use_context::<SharedAuthState>();
+    let mut login_status = use_signal(|| None::<String>);
+    let mut login_loading = use_signal(|| false);
+
+    // Check current auth state on render
+    let auth_state_effect = auth_state.clone();
+    use_effect(move || {
+        let auth_state = auth_state_effect.clone();
+        spawn(async move {
+            let state = auth_state.lock().await;
+            login_status.set(state.as_ref().map(|s| s.user.username.clone()));
+        });
+    });
+
+    let on_login = move |_| {
+        let auth_state = auth_state.clone();
+        spawn(async move {
+            let Ok(grpc_url) = std::env::var("ARENABUDDY_GRPC_URL") else {
+                tracingx::error!("ARENABUDDY_GRPC_URL not set, cannot login");
+                return;
+            };
+            let Ok(client_id) = std::env::var("DISCORD_CLIENT_ID") else {
+                tracingx::error!("DISCORD_CLIENT_ID not set, cannot login");
+                return;
+            };
+
+            login_loading.set(true);
+            match crate::backend::auth::login(&grpc_url, &client_id).await {
+                Ok(state) => {
+                    let username = state.user.username.clone();
+                    *auth_state.lock().await = Some(state);
+                    login_status.set(Some(username));
+                }
+                Err(e) => {
+                    tracingx::error!("Login failed: {e}");
+                }
+            }
+            login_loading.set(false);
+        });
+    };
+
     rsx! {
         nav { class: "bg-gray-800 p-4 shadow-md",
-            div { class: "container mx-auto",
+            div { class: "container mx-auto flex justify-between items-center",
                 ul { class: "flex space-x-6 text-white",
                     li {
                         Link {
@@ -122,6 +166,19 @@ fn Layout() -> Element {
                             to: Route::Contact {},
                             class: "hover:text-blue-400 transition-colors duration-200",
                             "Contact"
+                        }
+                    }
+                }
+                div { class: "text-white",
+                    if let Some(username) = login_status() {
+                        span { class: "text-green-400 text-sm", "Logged in as {username}" }
+                    } else if login_loading() {
+                        span { class: "text-yellow-400 text-sm", "Logging in..." }
+                    } else {
+                        button {
+                            class: "bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200",
+                            onclick: on_login,
+                            "Login with Discord"
                         }
                     }
                 }

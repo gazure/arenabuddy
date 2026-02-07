@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package arenabuddy.api.v1;
+
+import "arenabuddy/models/v1/user.proto";
+
+message ExchangeTokenRequest {
+  string authorization_code = 1;
+  string code_verifier = 2;
+  string redirect_uri = 3;
+}
+
+message ExchangeTokenResponse {
+  string access_token = 1;
+  int64 expires_at = 2;
+  arenabuddy.models.v1.User user = 3;
+}
+
+message GetCurrentUserRequest {}
+
+message GetCurrentUserResponse {
+  arenabuddy.models.v1.User user = 1;
+}
+
+service AuthService {
+  rpc ExchangeToken(ExchangeTokenRequest) returns (ExchangeTokenResponse);
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
+}

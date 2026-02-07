@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package arenabuddy.models.v1;
+
+// User represents an authenticated ArenaBuddy user
+message User {
+  string id = 1;
+  string discord_id = 2;
+  string username = 3;
+  string avatar_url = 4;
+}

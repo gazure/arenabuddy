@@ -3,15 +3,22 @@ use std::sync::Arc;
 use arenabuddy_core::{
     cards::CardsDatabase,
     models::{ArenaId, MatchData, OpponentDeck},
-    services::match_service::{
-        DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse, ListMatchesRequest,
-        ListMatchesResponse, UpsertMatchDataRequest, UpsertMatchDataResponse,
-        match_service_server::{MatchService, MatchServiceServer},
+    services::{
+        auth_service::auth_service_server::AuthServiceServer,
+        match_service::{
+            DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse, ListMatchesRequest,
+            ListMatchesResponse, UpsertMatchDataRequest, UpsertMatchDataResponse,
+            match_service_server::{MatchService, MatchServiceServer},
+        },
     },
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tonic::{Request, Response, Status, transport::Server};
 use tracingx::{error, info};
+
+mod auth;
+
+use auth::{AuthConfig, AuthServiceImpl, UserId, auth_interceptor};
 
 struct MatchServiceImpl {
     db: MatchDB,
@@ -23,6 +30,7 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<UpsertMatchDataRequest>,
     ) -> Result<Response<UpsertMatchDataResponse>, Status> {
+        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
         let match_data_proto = request
             .into_inner()
             .match_data
@@ -40,6 +48,7 @@ impl MatchService for MatchServiceImpl {
                 &match_data.mulligans,
                 &match_data.results,
                 &opponent_cards,
+                user_id,
             )
             .await
             .map_err(|e| {
@@ -55,12 +64,13 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<GetMatchDataRequest>,
     ) -> Result<Response<GetMatchDataResponse>, Status> {
+        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
         let match_id = request.into_inner().match_id;
         if match_id.is_empty() {
             return Err(Status::invalid_argument("match_id is required"));
         }
 
-        let (mtga_match, _match_result) = self.db.get_match(&match_id).await.map_err(|e| {
+        let (mtga_match, _match_result) = self.db.get_match(&match_id, user_id).await.map_err(|e| {
             error!("Failed to get match: {e}");
             Status::internal(format!("failed to get match: {e}"))
         })?;
@@ -108,9 +118,10 @@ impl MatchService for MatchServiceImpl {
 
     async fn list_matches(
         &self,
-        _request: Request<ListMatchesRequest>,
+        request: Request<ListMatchesRequest>,
     ) -> Result<Response<ListMatchesResponse>, Status> {
-        let matches = self.db.list_matches().await.map_err(|e| {
+        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
+        let matches = self.db.list_matches(user_id).await.map_err(|e| {
             error!("Failed to list matches: {e}");
             Status::internal(format!("failed to list matches: {e}"))
         })?;
@@ -124,12 +135,13 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<DeleteMatchRequest>,
     ) -> Result<Response<DeleteMatchResponse>, Status> {
+        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
         let match_id = request.into_inner().match_id;
         if match_id.is_empty() {
             return Err(Status::invalid_argument("match_id is required"));
         }
 
-        self.db.delete_match(&match_id).await.map_err(|e| {
+        self.db.delete_match(&match_id, user_id).await.map_err(|e| {
             error!("Failed to delete match: {e}");
             Status::internal(format!("failed to delete match: {e}"))
         })?;
@@ -149,17 +161,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap_or_else(|_| "[::1]:50051".to_string())
         .parse()?;
 
+    let auth_config = Arc::new(AuthConfig {
+        discord_client_id: std::env::var("DISCORD_CLIENT_ID")
+            .expect("DISCORD_CLIENT_ID environment variable must be set"),
+        discord_client_secret: std::env::var("DISCORD_CLIENT_SECRET")
+            .expect("DISCORD_CLIENT_SECRET environment variable must be set"),
+        jwt_secret: std::env::var("JWT_SECRET").expect("JWT_SECRET environment variable must be set"),
+    });
+
     info!("Connecting to database...");
     let cards = Arc::new(CardsDatabase::default());
     let db = MatchDB::new(Some(&database_url), cards).await?;
     db.init().await?;
     info!("Database initialized");
 
-    let service = MatchServiceImpl { db };
+    let match_service = MatchServiceImpl { db: db.clone() };
+    let auth_service = AuthServiceImpl::new(&db, auth_config.clone());
+
+    let interceptor = auth_interceptor(Arc::new(auth_config.jwt_secret.clone()));
 
     info!("Starting gRPC server on {addr}");
     Server::builder()
-        .add_service(MatchServiceServer::new(service))
+        .add_service(MatchServiceServer::with_interceptor(match_service, interceptor))
+        .add_service(AuthServiceServer::new(auth_service))
         .serve(addr)
         .await?;
 

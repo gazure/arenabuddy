@@ -59,13 +59,13 @@ where
     }
 
     pub async fn get_matches(&self) -> Result<Vec<MTGAMatch>> {
-        Ok(self.db.list_matches().await?)
+        Ok(self.db.list_matches(None).await?)
     }
 
     pub async fn get_match_details(&self, id: String) -> Result<MatchDetails> {
         info!("looking for match {id}");
 
-        let (mtga_match, result) = self.db.get_match(&id).await.unwrap_or_default();
+        let (mtga_match, result) = self.db.get_match(&id, None).await.unwrap_or_default();
 
         let mut match_details = MatchDetails {
             id: id.clone(),

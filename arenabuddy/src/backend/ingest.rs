@@ -11,7 +11,7 @@ use arenabuddy_data::{DirectoryStorage, MatchDB};
 use tokio::sync::Mutex;
 use tracingx::{error, info};
 
-use super::grpc_writer::GrpcReplayWriter;
+use super::{auth::SharedAuthState, grpc_writer::GrpcReplayWriter};
 
 /// Adapter that wraps an Arc<Mutex<Option<DirectoryStorage>>> for the `ReplayWriter` trait
 /// TODO: rethink this
@@ -59,6 +59,7 @@ pub async fn start(
     debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
+    auth_state: SharedAuthState,
 ) {
     info!("Initializing log ingestion service");
 
@@ -86,7 +87,8 @@ pub async fn start(
 
     // Add gRPC writer if URL is configured
     let service = if let Ok(grpc_url) = std::env::var("ARENABUDDY_GRPC_URL") {
-        match GrpcReplayWriter::connect(&grpc_url, cards).await {
+        let token = auth_state.lock().await.as_ref().map(|s| s.token.clone());
+        match GrpcReplayWriter::connect(&grpc_url, cards, token).await {
             Ok(writer) => {
                 info!("Connected to gRPC backend at {grpc_url}");
                 service.add_writer(Box::new(writer))

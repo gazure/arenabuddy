@@ -14,11 +14,17 @@ license.workspace = true
 arenabuddy_core = { path = "../core/" }
 arenabuddy_data = { path = "../data" }
 chrono = { workspace = true }
+jsonwebtoken = { workspace = true }
 prost = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sqlx = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tonic = { workspace = true }
 tonic-prost = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
+uuid = { workspace = true }
 
 [lints]
 workspace = true

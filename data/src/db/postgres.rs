@@ -1,6 +1,7 @@
 #![expect(clippy::cast_possible_truncation)]
 #![expect(clippy::cast_sign_loss)]
 #![expect(clippy::similar_names)]
+#![expect(clippy::field_reassign_with_default)]
 use std::sync::Arc;
 
 use arenabuddy_core::{
@@ -16,8 +17,27 @@ use arenabuddy_core::{
 };
 use chrono::{NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
-use sqlx::{PgPool, Postgres, Transaction, types::Uuid};
+use sqlx::{FromRow, PgPool, Postgres, Transaction, types::Uuid};
 use tracingx::{debug, error, info};
+
+#[derive(FromRow)]
+struct MatchRow {
+    id: Uuid,
+    controller_seat_id: i32,
+    controller_player_name: String,
+    opponent_player_name: String,
+    created_at: Option<NaiveDateTime>,
+}
+
+#[derive(FromRow)]
+struct MatchWithResultRow {
+    id: Uuid,
+    controller_seat_id: i32,
+    controller_player_name: String,
+    opponent_player_name: String,
+    winning_team_id: i32,
+    created_at: Option<NaiveDateTime>,
+}
 
 use crate::{Error, Result, db::repository::ArenabuddyRepository};
 
@@ -117,6 +137,10 @@ impl PostgresMatchDB {
         Ok(db_path)
     }
 
+    pub fn pool(&self) -> &PgPool {
+        &self.pool
+    }
+
     pub async fn initialize(&self) -> Result<()> {
         sqlx::migrate!("./migrations/postgres").run(&self.pool).await?;
         Ok(())
@@ -125,17 +149,23 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    async fn insert_match(match_id: &Uuid, mtga_match: &MTGAMatch, tx: &mut Transaction<'_, Postgres>) -> Result<()> {
-        sqlx::query!(
-            r#"INSERT INTO match
-            (id, controller_seat_id, controller_player_name, opponent_player_name, created_at)
-            VALUES ($1, $2, $3, $4, $5) ON CONFLICT(id) DO NOTHING"#,
-            match_id,
-            mtga_match.controller_seat_id(),
-            mtga_match.controller_player_name(),
-            mtga_match.opponent_player_name(),
-            mtga_match.created_at().naive_utc()
+    async fn insert_match(
+        match_id: &Uuid,
+        mtga_match: &MTGAMatch,
+        user_id: Option<Uuid>,
+        tx: &mut Transaction<'_, Postgres>,
+    ) -> Result<()> {
+        sqlx::query(
+            r"INSERT INTO match
+            (id, controller_seat_id, controller_player_name, opponent_player_name, created_at, user_id)
+            VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO NOTHING",
         )
+        .bind(match_id)
+        .bind(mtga_match.controller_seat_id())
+        .bind(mtga_match.controller_player_name())
+        .bind(mtga_match.opponent_player_name())
+        .bind(mtga_match.created_at().naive_utc())
+        .bind(user_id)
         .execute(&mut **tx)
         .await?;
         Ok(())
@@ -339,10 +369,11 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
-    async fn get_matches(&self) -> Result<Vec<MTGAMatch>> {
-        let results = sqlx::query!(
-            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match"
+    async fn get_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
+        let results: Vec<MatchRow> = sqlx::query_as(
+            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match WHERE ($1::uuid IS NULL OR user_id = $1)",
         )
+        .bind(user_id)
         .fetch_all(&self.pool)
         .await?;
 
@@ -368,19 +399,20 @@ impl PostgresMatchDB {
     /// # Errors
     ///
     /// Errors if underlying data is malformed
-    async fn retrieve_match(&self, match_id: &str) -> Result<(MTGAMatch, Option<MatchResult>)> {
+    async fn retrieve_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<(MTGAMatch, Option<MatchResult>)> {
         info!("Getting match details for match_id: {}", match_id);
         let match_id = Uuid::parse_str(match_id)?;
 
-        let result = sqlx::query!(
-            r#"
+        let result: Option<MatchWithResultRow> = sqlx::query_as(
+            r"
             SELECT
                 m.id, m.controller_player_name, m.opponent_player_name, mr.winning_team_id, m.controller_seat_id, m.created_at
             FROM match m JOIN match_result mr ON m.id = mr.match_id
-            WHERE m.id = $1 AND mr.result_scope = 'MatchScope_Match' LIMIT 1
-            "#,
-            match_id
+            WHERE m.id = $1 AND mr.result_scope = 'MatchScope_Match' AND ($2::uuid IS NULL OR m.user_id = $2) LIMIT 1
+            ",
         )
+        .bind(match_id)
+        .bind(user_id)
         .fetch_optional(&self.pool)
         .await?;
 
@@ -424,7 +456,7 @@ impl PostgresMatchDB {
 
         let mut tx = self.pool.begin().await.map_err(Error::from)?;
 
-        Self::insert_match(&match_id, &mtga_match, &mut tx).await?;
+        Self::insert_match(&match_id, &mtga_match, None, &mut tx).await?;
 
         let decklists = match_replay.get_decklists()?;
         for deck in &decklists {
@@ -623,13 +655,14 @@ impl PostgresMatchDB {
         mulligans: &[Mulligan],
         results: &[MatchResult],
         opponent_cards: &[ArenaId],
+        user_id: Option<Uuid>,
     ) -> Result<()> {
         info!("Upserting match data for match_id: {}", mtga_match.id());
         let match_id = Uuid::parse_str(mtga_match.id())?;
 
         let mut tx = self.pool.begin().await.map_err(Error::from)?;
 
-        Self::insert_match(&match_id, mtga_match, &mut tx).await?;
+        Self::insert_match(&match_id, mtga_match, user_id, &mut tx).await?;
 
         for deck in decks {
             Self::insert_deck(&match_id, deck, &mut tx).await?;
@@ -649,12 +682,13 @@ impl PostgresMatchDB {
         Ok(())
     }
 
-    async fn do_delete_match(&self, match_id: &str) -> Result<()> {
+    async fn do_delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
         info!("Deleting match: {}", match_id);
         let match_id = Uuid::parse_str(match_id)?;
 
-        sqlx::query("DELETE FROM match WHERE id = $1")
+        sqlx::query("DELETE FROM match WHERE id = $1 AND ($2::uuid IS NULL OR user_id = $2)")
             .bind(match_id)
+            .bind(user_id)
             .execute(&self.pool)
             .await?;
 
@@ -672,12 +706,12 @@ impl ArenabuddyRepository for PostgresMatchDB {
         self.write(replay).await
     }
 
-    async fn get_match(&self, match_id: &str) -> Result<(MTGAMatch, Option<MatchResult>)> {
-        self.retrieve_match(match_id).await
+    async fn get_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<(MTGAMatch, Option<MatchResult>)> {
+        self.retrieve_match(match_id, user_id).await
     }
 
-    async fn list_matches(&self) -> Result<Vec<MTGAMatch>> {
-        self.get_matches().await
+    async fn list_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
+        self.get_matches(user_id).await
     }
 
     async fn list_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
@@ -711,13 +745,14 @@ impl ArenabuddyRepository for PostgresMatchDB {
         mulligans: &[Mulligan],
         results: &[MatchResult],
         opponent_cards: &[ArenaId],
+        user_id: Option<Uuid>,
     ) -> Result<()> {
-        self.do_upsert_match_data(mtga_match, decks, mulligans, results, opponent_cards)
+        self.do_upsert_match_data(mtga_match, decks, mulligans, results, opponent_cards, user_id)
             .await
     }
 
-    async fn delete_match(&self, match_id: &str) -> Result<()> {
-        self.do_delete_match(match_id).await
+    async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
+        self.do_delete_match(match_id, user_id).await
     }
 }
 

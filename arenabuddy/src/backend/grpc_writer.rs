@@ -13,12 +13,17 @@ use tracingx::{error, info};
 pub struct GrpcReplayWriter {
     client: MatchServiceClient<Channel>,
     cards: Arc<CardsDatabase>,
+    token: Option<String>,
 }
 
 impl GrpcReplayWriter {
-    pub async fn connect(url: &str, cards: Arc<CardsDatabase>) -> Result<Self, tonic::transport::Error> {
+    pub async fn connect(
+        url: &str,
+        cards: Arc<CardsDatabase>,
+        token: Option<String>,
+    ) -> Result<Self, tonic::transport::Error> {
         let client = MatchServiceClient::connect(url.to_string()).await?;
-        Ok(Self { client, cards })
+        Ok(Self { client, cards, token })
     }
 }
 
@@ -65,9 +70,16 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
             opponent_deck: OpponentDeck::new(opponent_cards),
         };
 
-        let request = UpsertMatchDataRequest {
+        let mut request = tonic::Request::new(UpsertMatchDataRequest {
             match_data: Some((&match_data).into()),
-        };
+        });
+
+        if let Some(token) = &self.token {
+            let bearer = format!("Bearer {token}");
+            if let Ok(value) = bearer.parse() {
+                request.metadata_mut().insert("authorization", value);
+            }
+        }
 
         self.client.upsert_match_data(request).await.map_err(|e| {
             error!("gRPC upsert failed for match {match_id}: {e}");
