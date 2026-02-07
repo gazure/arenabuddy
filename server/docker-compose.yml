@@ -15,9 +15,7 @@ services:
       retries: 5
 
   server:
-    build:
-      context: ../..
-      dockerfile: arenabuddy/server/Dockerfile
+    image: ${SERVER_IMAGE:-arenabuddy-server:latest}
     restart: unless-stopped
     depends_on:
       postgres:
