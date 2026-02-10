@@ -20,7 +20,7 @@ async-trait = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 ctrlc = { workspace = true }
 derive_builder = { workspace = true }
-google-sheets4 = { workspace = true }
+
 indoc = { workspace = true }
 itertools = { workspace = true }
 multimap = { path = "../../lib/multimap" }
@@ -36,7 +36,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracingx = { path = "../../lib/tracingx" }
 uuid = { workspace = true }
-yup-oauth2 = { workspace = true }
+
 
 [features]
 default = []

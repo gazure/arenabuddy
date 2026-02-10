@@ -22,11 +22,14 @@ use tonic::{Request, Response, Status, transport::Server};
 use tracingx::{error, info};
 
 mod auth;
+mod sheets_sync;
 
 use auth::{AuthConfig, AuthServiceImpl, UserId, auth_interceptor};
 
 struct MatchServiceImpl {
     db: MatchDB,
+    cards: Arc<CardsDatabase>,
+    spreadsheet_id: Option<String>,
 }
 
 struct DebugServiceImpl {
@@ -66,6 +69,17 @@ impl MatchService for MatchServiceImpl {
             })?;
 
         info!("Upserted match data for match_id: {match_id}");
+
+        if let Some(ref spreadsheet_id) = self.spreadsheet_id {
+            sheets_sync::spawn_sheets_sync(
+                self.db.clone(),
+                self.cards.clone(),
+                match_id,
+                user_id,
+                spreadsheet_id.clone(),
+            );
+        }
+
         Ok(Response::new(UpsertMatchDataResponse {}))
     }
 
@@ -211,11 +225,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Connecting to database...");
     let cards = Arc::new(CardsDatabase::default());
-    let db = MatchDB::new(Some(&database_url), cards).await?;
+    let db = MatchDB::new(Some(&database_url), cards.clone()).await?;
     db.init().await?;
     info!("Database initialized");
 
-    let match_service = MatchServiceImpl { db: db.clone() };
+    let spreadsheet_id = std::env::var("GOOGLE_SHEETS_SPREADSHEET_ID").ok();
+    if spreadsheet_id.is_some() {
+        info!("Google Sheets sync enabled");
+    }
+
+    let match_service = MatchServiceImpl {
+        db: db.clone(),
+        cards: cards.clone(),
+        spreadsheet_id,
+    };
     let debug_service = DebugServiceImpl {
         pool: db.pool().clone(),
     };

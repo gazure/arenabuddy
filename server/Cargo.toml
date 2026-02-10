@@ -14,6 +14,7 @@ license.workspace = true
 arenabuddy_core = { path = "../core/" }
 arenabuddy_data = { path = "../data" }
 chrono = { workspace = true }
+google-sheets4 = { workspace = true }
 jsonwebtoken = { workspace = true }
 prost = { workspace = true }
 reqwest = { workspace = true }
@@ -25,6 +26,7 @@ tonic = { workspace = true }
 tonic-prost = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
 uuid = { workspace = true }
+yup-oauth2 = { workspace = true }
 
 [lints]
 workspace = true

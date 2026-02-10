@@ -12,6 +12,5 @@ pub mod models;
 pub mod player_log;
 pub(crate) mod proto;
 pub mod services;
-pub mod sheets;
 
 pub use errors::{Error, Result};

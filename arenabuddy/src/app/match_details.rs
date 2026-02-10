@@ -26,18 +26,6 @@ pub(crate) fn MatchDetails(id: String) -> Element {
         match_details.restart();
     };
 
-    let service3 = service.clone();
-    let id3 = id.clone();
-    let sync_to_sheets = move |_| {
-        let service4 = service3.clone();
-        let id4 = id3.clone();
-        spawn(async move {
-            if let Err(e) = service4.sync_match_to_sheets(id4).await {
-                tracingx::error!("Failed to sync to sheets: {e}");
-            }
-        });
-    };
-
     let resource_value = match_details.value();
     let data = resource_value.read();
 
@@ -88,25 +76,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                                 }
                             }
                         }
-                        button {
-                            onclick: sync_to_sheets,
-                            class: "bg-black bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center",
-                            disabled: data.is_none(),
-                            span { class: "mr-2", "Sync to Sheets" }
-                            svg {
-                                xmlns: "http://www.w3.org/2000/svg",
-                                class: "h-5 w-5",
-                                fill: "none",
-                                view_box: "0 0 24 24",
-                                stroke: "currentColor",
-                                path {
-                                    stroke_linecap: "round",
-                                    stroke_linejoin: "round",
-                                    stroke_width: "2",
-                                    d: "M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                }
-                            }
-                        }
+
                     }
                 }
                 p { class: "text-lg opacity-80 mt-2",
