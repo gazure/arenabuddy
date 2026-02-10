@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, fmt::Display, fs::File, io::Read, path::Path};
+use std::{collections::BTreeMap, fmt::Display, fs::File, io::Read, path::Path, sync::Arc};
 
 use prost::Message;
 use tracingx::debug;
@@ -7,9 +7,9 @@ use crate::models::{Card, CardCollection};
 
 const CARDS: &[u8] = include_bytes!("../data/cards-full.pb");
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CardsDatabase {
-    pub db: BTreeMap<String, Card>,
+    db: Arc<BTreeMap<String, Card>>,
 }
 
 impl CardsDatabase {
@@ -34,7 +34,7 @@ impl CardsDatabase {
             .map(|card| (card.id.to_string(), card))
             .collect();
         debug!("loaded {} cards", cards_db.len());
-        Ok(Self { db: cards_db })
+        Ok(Self { db: Arc::new(cards_db) })
     }
 
     /// # Errors
@@ -53,6 +53,10 @@ impl CardsDatabase {
     {
         let grp_id = grp_id.to_string();
         self.db.get(&grp_id)
+    }
+
+    pub fn values(&self) -> impl Iterator<Item = &Card> {
+        self.db.values()
     }
 
     pub fn len(&self) -> usize {

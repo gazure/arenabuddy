@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use arenabuddy_core::{
     cards::CardsDatabase,
     models::{MTGAMatch, MatchData, MatchResult, OpponentDeck},
@@ -12,14 +10,14 @@ use tracingx::{error, info};
 
 pub struct GrpcReplayWriter {
     client: MatchServiceClient<Channel>,
-    cards: Arc<CardsDatabase>,
+    cards: CardsDatabase,
     token: Option<String>,
 }
 
 impl GrpcReplayWriter {
     pub async fn connect(
         url: &str,
-        cards: Arc<CardsDatabase>,
+        cards: CardsDatabase,
         token: Option<String>,
     ) -> Result<Self, tonic::transport::Error> {
         let client = MatchServiceClient::connect(url.to_string()).await?;

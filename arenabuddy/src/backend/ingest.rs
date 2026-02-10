@@ -95,7 +95,7 @@ impl DebugReporter {
 
 pub async fn start(
     db: MatchDB,
-    cards: Arc<CardsDatabase>,
+    cards: CardsDatabase,
     debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,

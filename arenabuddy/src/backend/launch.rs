@@ -137,12 +137,12 @@ async fn create_app_service() -> Result<Service> {
     let app_meta = AppMeta::from_env().with_app_name("arenabuddy");
     let root_span = tracingx::info_span!("app", app = %app_meta.app);
     let _span = root_span.enter();
-    let cards_db = Arc::new(CardsDatabase::default());
+    let cards_db = CardsDatabase::default();
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
     info!("using matches db: {:?}", url);
     let db = MatchDB::new(url.as_deref(), cards_db.clone()).await?;
     db.initialize().await?;
     let log_collector = Arc::new(tokio::sync::Mutex::new(Vec::<String>::new()));
     let debug_backend = Arc::new(tokio::sync::Mutex::new(None::<DirectoryStorage>));
-    Ok(AppService::new(db, cards_db.clone(), log_collector, debug_backend))
+    Ok(AppService::new(db, cards_db, log_collector, debug_backend))
 }

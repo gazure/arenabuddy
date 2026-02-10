@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use arenabuddy_core::{
     cards::CardsDatabase,
     display::{
@@ -265,7 +263,7 @@ async fn build_match_details(
 /// This runs in the background and does not block the gRPC response.
 pub fn spawn_sheets_sync(
     db: MatchDB,
-    cards: Arc<CardsDatabase>,
+    cards: CardsDatabase,
     match_id: String,
     user_id: Option<Uuid>,
     spreadsheet_id: String,

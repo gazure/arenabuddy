@@ -13,7 +13,7 @@ use crate::Result;
 pub fn execute(cards_db_path: &Path) -> Result<()> {
     // Load the cards database
     let cards_db = CardsDatabase::new(cards_db_path)?;
-    println!("Loaded {} cards", cards_db.db.len());
+    println!("Loaded {} cards", cards_db.len());
 
     let mut rl = DefaultEditor::new()?;
     println!("Arenabuddy REPL");
@@ -126,7 +126,7 @@ fn find_card(cards_db: &CardsDatabase, arena_id: i64) {
 fn count_cards_by_set(cards_db: &CardsDatabase, filter_set: Option<&str>) {
     let mut set_counts: HashMap<String, usize> = HashMap::new();
 
-    for card in cards_db.db.values() {
+    for card in cards_db.values() {
         if let Some(filter) = filter_set {
             if card.set.to_lowercase() == filter.to_lowercase() {
                 *set_counts.entry(card.set.clone()).or_insert(0) += 1;
@@ -169,7 +169,7 @@ fn count_cards_by_set(cards_db: &CardsDatabase, filter_set: Option<&str>) {
 fn list_sets(cards_db: &CardsDatabase) {
     let mut sets = std::collections::HashSet::new();
 
-    for card in cards_db.db.values() {
+    for card in cards_db.values() {
         sets.insert(card.set.clone());
     }
 
@@ -192,7 +192,7 @@ fn search_cards_by_name(cards_db: &CardsDatabase, name_prefix: &str) {
     let prefix_lower = name_prefix.to_lowercase();
     let mut matches = Vec::new();
 
-    for card in cards_db.db.values() {
+    for card in cards_db.values() {
         if card.name.to_lowercase().starts_with(&prefix_lower) {
             matches.push(card);
         }

@@ -20,7 +20,7 @@ use crate::Result;
 #[derive(Clone)]
 pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
     pub db: D,
-    pub cards: Arc<CardsDatabase>,
+    pub cards: CardsDatabase,
     pub log_collector: Arc<Mutex<Vec<String>>>,
     pub debug_storage: Arc<Mutex<Option<DirectoryStorage>>>,
 }
@@ -45,7 +45,7 @@ where
 {
     pub fn new(
         db: D,
-        cards: Arc<CardsDatabase>,
+        cards: CardsDatabase,
         log_collector: Arc<Mutex<Vec<String>>>,
         debug_backend: Arc<Mutex<Option<DirectoryStorage>>>,
     ) -> Self {

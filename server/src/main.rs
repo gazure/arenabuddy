@@ -28,7 +28,7 @@ use auth::{AuthConfig, AuthServiceImpl, UserId, auth_interceptor};
 
 struct MatchServiceImpl {
     db: MatchDB,
-    cards: Arc<CardsDatabase>,
+    cards: CardsDatabase,
     spreadsheet_id: Option<String>,
 }
 
@@ -224,7 +224,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     });
 
     info!("Connecting to database...");
-    let cards = Arc::new(CardsDatabase::default());
+    let cards = CardsDatabase::default();
     let db = MatchDB::new(Some(&database_url), cards.clone()).await?;
     db.init().await?;
     info!("Database initialized");

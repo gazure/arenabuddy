@@ -2,7 +2,6 @@
 #![expect(clippy::cast_sign_loss)]
 #![expect(clippy::similar_names)]
 #![expect(clippy::field_reassign_with_default)]
-use std::sync::Arc;
 
 use arenabuddy_core::{
     cards::CardsDatabase,
@@ -44,12 +43,12 @@ use crate::{Error, Result, db::repository::ArenabuddyRepository};
 #[derive(Debug, Clone)]
 pub struct PostgresMatchDB {
     pool: PgPool,
-    _db: Option<Arc<PostgreSQL>>,
-    cards: Arc<CardsDatabase>,
+    _db: Option<PostgreSQL>,
+    cards: CardsDatabase,
 }
 
 impl PostgresMatchDB {
-    pub async fn new(url: Option<&str>, cards: Arc<CardsDatabase>) -> Result<Self> {
+    pub async fn new(url: Option<&str>, cards: CardsDatabase) -> Result<Self> {
         if let Some(url) = url {
             let pool = PgPool::connect(url).await?;
             Ok(Self { pool, _db: None, cards })
@@ -107,7 +106,7 @@ impl PostgresMatchDB {
             let pool = PgPool::connect(&db.settings().url("arenabuddy")).await?;
             Ok(Self {
                 pool,
-                _db: Some(Arc::new(db)),
+                _db: Some(db),
                 cards,
             })
         }

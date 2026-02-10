@@ -1,7 +1,4 @@
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::path::{Path, PathBuf};
 
 use arenabuddy_core::{
     cards::CardsDatabase,
@@ -43,7 +40,7 @@ pub async fn execute(
     // Add database storage if specified
     if let Some(db_url) = db {
         info!("Writing replays to database: {}", db_url);
-        let db = MatchDB::new(Some(db_url), Arc::new(cards_db)).await?;
+        let db = MatchDB::new(Some(db_url), cards_db).await?;
         db.initialize().await?;
         service = service.add_writer(Box::new(db));
     }
