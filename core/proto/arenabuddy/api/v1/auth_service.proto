@@ -14,7 +14,26 @@ message ExchangeTokenResponse {
   string access_token = 1;
   int64 expires_at = 2;
   arenabuddy.models.v1.User user = 3;
+  string refresh_token = 4;
+  int64 refresh_expires_at = 5;
 }
+
+message RefreshTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshTokenResponse {
+  string access_token = 1;
+  int64 expires_at = 2;
+  string refresh_token = 3;
+  int64 refresh_expires_at = 4;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {}
 
 message GetCurrentUserRequest {}
 
@@ -24,5 +43,7 @@ message GetCurrentUserResponse {
 
 service AuthService {
   rpc ExchangeToken(ExchangeTokenRequest) returns (ExchangeTokenResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
   rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse);
 }

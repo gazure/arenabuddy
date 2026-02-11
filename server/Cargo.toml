@@ -13,13 +13,16 @@ license.workspace = true
 [dependencies]
 arenabuddy_core = { path = "../core/" }
 arenabuddy_data = { path = "../data" }
+base64 = { workspace = true }
 chrono = { workspace = true }
 google-sheets4 = { workspace = true }
 jsonwebtoken = { workspace = true }
 prost = { workspace = true }
+rand = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+sha2 = { workspace = true }
 sqlx = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tonic = { workspace = true }

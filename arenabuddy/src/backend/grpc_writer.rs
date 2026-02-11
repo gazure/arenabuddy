@@ -8,20 +8,82 @@ use chrono::Utc;
 use tonic::transport::Channel;
 use tracingx::{error, info};
 
+use super::auth::{SharedAuthState, needs_refresh, refresh};
+
 pub struct GrpcReplayWriter {
     client: MatchServiceClient<Channel>,
     cards: CardsDatabase,
-    token: Option<String>,
+    auth_state: SharedAuthState,
+    grpc_url: String,
 }
 
 impl GrpcReplayWriter {
     pub async fn connect(
         url: &str,
         cards: CardsDatabase,
-        token: Option<String>,
+        auth_state: SharedAuthState,
     ) -> Result<Self, tonic::transport::Error> {
         let client = MatchServiceClient::connect(url.to_string()).await?;
-        Ok(Self { client, cards, token })
+        Ok(Self {
+            client,
+            cards,
+            auth_state,
+            grpc_url: url.to_string(),
+        })
+    }
+
+    /// Ensure the access token is fresh, refreshing if needed.
+    /// Returns the current Bearer token string, or None if not authenticated.
+    async fn current_token(&self) -> Option<String> {
+        let mut guard = self.auth_state.lock().await;
+        let state = guard.as_ref()?;
+
+        if needs_refresh(state) {
+            info!("Access token expiring soon, refreshing");
+            match refresh(&self.grpc_url, state).await {
+                Ok(new_state) => {
+                    *guard = Some(new_state.clone());
+                    return Some(new_state.token);
+                }
+                Err(e) => {
+                    error!("Failed to refresh token: {e}");
+                    // Fall through and use the existing (possibly expired) token
+                }
+            }
+        }
+
+        Some(state.token.clone())
+    }
+
+    /// Attempt to refresh and retry the request once after an UNAUTHENTICATED error.
+    async fn refresh_and_retry(&mut self, match_data: &MatchData, match_id: &str) -> arenabuddy_core::Result<()> {
+        let new_token = {
+            let mut guard = self.auth_state.lock().await;
+            let state = guard
+                .as_ref()
+                .ok_or_else(|| arenabuddy_core::Error::Io("not authenticated".to_string()))?;
+
+            match refresh(&self.grpc_url, state).await {
+                Ok(new_state) => {
+                    let token = new_state.token.clone();
+                    *guard = Some(new_state);
+                    token
+                }
+                Err(e) => {
+                    error!("Retry refresh failed: {e}");
+                    return Err(arenabuddy_core::Error::Io(format!("refresh failed: {e}")));
+                }
+            }
+        };
+
+        let request = build_request(match_data, Some(new_token));
+        self.client.upsert_match_data(request).await.map_err(|e| {
+            error!("gRPC retry failed for match {match_id}: {e}");
+            arenabuddy_core::Error::Io(format!("gRPC retry failed: {e}"))
+        })?;
+
+        info!("Sent match {match_id} to gRPC backend (after refresh)");
+        Ok(())
     }
 }
 
@@ -68,23 +130,37 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
             opponent_deck: OpponentDeck::new(opponent_cards),
         };
 
-        let mut request = tonic::Request::new(UpsertMatchDataRequest {
-            match_data: Some((&match_data).into()),
-        });
+        let token = self.current_token().await;
+        let request = build_request(&match_data, token);
 
-        if let Some(token) = &self.token {
-            let bearer = format!("Bearer {token}");
-            if let Ok(value) = bearer.parse() {
-                request.metadata_mut().insert("authorization", value);
+        match self.client.upsert_match_data(request).await {
+            Ok(_) => {
+                info!("Sent match {match_id} to gRPC backend");
+                Ok(())
+            }
+            Err(e) if e.code() == tonic::Code::Unauthenticated => {
+                info!("Got UNAUTHENTICATED, attempting refresh and retry");
+                self.refresh_and_retry(&match_data, &match_id).await
+            }
+            Err(e) => {
+                error!("gRPC upsert failed for match {match_id}: {e}");
+                Err(arenabuddy_core::Error::Io(format!("gRPC upsert failed: {e}")))
             }
         }
-
-        self.client.upsert_match_data(request).await.map_err(|e| {
-            error!("gRPC upsert failed for match {match_id}: {e}");
-            arenabuddy_core::Error::Io(format!("gRPC upsert failed: {e}"))
-        })?;
-
-        info!("Sent match {match_id} to gRPC backend");
-        Ok(())
     }
+}
+
+fn build_request(match_data: &MatchData, token: Option<String>) -> tonic::Request<UpsertMatchDataRequest> {
+    let mut request = tonic::Request::new(UpsertMatchDataRequest {
+        match_data: Some(match_data.into()),
+    });
+
+    if let Some(token) = token {
+        let bearer = format!("Bearer {token}");
+        if let Ok(value) = bearer.parse() {
+            request.metadata_mut().insert("authorization", value);
+        }
+    }
+
+    request
 }

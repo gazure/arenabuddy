@@ -1,6 +1,8 @@
 use std::{path::PathBuf, sync::Arc};
 
-use arenabuddy_core::services::auth_service::{ExchangeTokenRequest, User, auth_service_client::AuthServiceClient};
+use arenabuddy_core::services::auth_service::{
+    ExchangeTokenRequest, LogoutRequest, RefreshTokenRequest, User, auth_service_client::AuthServiceClient,
+};
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -11,6 +13,9 @@ use tracingx::{error, info};
 #[derive(Debug, Clone)]
 pub struct AuthState {
     pub token: String,
+    pub token_expires_at: i64,
+    pub refresh_token: String,
+    pub refresh_expires_at: i64,
     pub user: User,
 }
 
@@ -21,10 +26,19 @@ pub fn new_shared_auth_state() -> SharedAuthState {
     Arc::new(Mutex::new(None))
 }
 
+/// Returns true if the access token expires within 60 seconds.
+pub fn needs_refresh(state: &AuthState) -> bool {
+    let now = chrono::Utc::now().timestamp();
+    state.token_expires_at - now < 60
+}
+
 /// Serializable form of auth state for file persistence.
 #[derive(Serialize, Deserialize)]
 struct SavedAuth {
     token: String,
+    token_expires_at: i64,
+    refresh_token: String,
+    refresh_expires_at: i64,
     user_id: String,
     discord_id: String,
     username: String,
@@ -49,6 +63,9 @@ pub fn save_auth(state: &AuthState) {
     };
     let saved = SavedAuth {
         token: state.token.clone(),
+        token_expires_at: state.token_expires_at,
+        refresh_token: state.refresh_token.clone(),
+        refresh_expires_at: state.refresh_expires_at,
         user_id: state.user.id.clone(),
         discord_id: state.user.discord_id.clone(),
         username: state.user.username.clone(),
@@ -67,6 +84,8 @@ pub fn save_auth(state: &AuthState) {
 }
 
 /// Load auth state from disk, if a saved token exists.
+/// Returns None if the saved file is missing, malformed, or lacks refresh token fields
+/// (backwards compatibility: forces re-login for old format).
 pub fn load_auth() -> Option<AuthState> {
     let path = auth_file_path()?;
     let json = std::fs::read_to_string(&path).ok()?;
@@ -74,6 +93,9 @@ pub fn load_auth() -> Option<AuthState> {
     info!("Loaded saved auth for user: {}", saved.username);
     Some(AuthState {
         token: saved.token,
+        token_expires_at: saved.token_expires_at,
+        refresh_token: saved.refresh_token,
+        refresh_expires_at: saved.refresh_expires_at,
         user: User {
             id: saved.user_id,
             discord_id: saved.discord_id,
@@ -83,6 +105,17 @@ pub fn load_auth() -> Option<AuthState> {
     })
 }
 
+/// Delete the saved auth file from disk.
+pub fn delete_saved_auth() {
+    if let Some(path) = auth_file_path() {
+        if let Err(e) = std::fs::remove_file(&path) {
+            error!("Failed to delete auth file: {e}");
+        } else {
+            info!("Deleted saved auth file");
+        }
+    }
+}
+
 /// Generate a PKCE code verifier and code challenge.
 fn generate_pkce() -> (String, String) {
     let mut bytes = [0u8; 32];
@@ -90,6 +123,53 @@ fn generate_pkce() -> (String, String) {
     let verifier = URL_SAFE_NO_PAD.encode(bytes);
     let challenge = URL_SAFE_NO_PAD.encode(Sha256::digest(verifier.as_bytes()));
     (verifier, challenge)
+}
+
+/// Refresh the access token using a refresh token.
+/// Returns a new `AuthState` with updated tokens.
+pub async fn refresh(
+    grpc_url: &str,
+    current_state: &AuthState,
+) -> Result<AuthState, Box<dyn std::error::Error + Send + Sync>> {
+    info!("Refreshing access token");
+    let mut client = AuthServiceClient::connect(grpc_url.to_string()).await?;
+
+    let response = client
+        .refresh_token(RefreshTokenRequest {
+            refresh_token: current_state.refresh_token.clone(),
+        })
+        .await?
+        .into_inner();
+
+    let state = AuthState {
+        token: response.access_token,
+        token_expires_at: response.expires_at,
+        refresh_token: response.refresh_token,
+        refresh_expires_at: response.refresh_expires_at,
+        user: current_state.user.clone(),
+    };
+
+    save_auth(&state);
+    info!("Access token refreshed successfully");
+
+    Ok(state)
+}
+
+/// Log out: revoke the refresh token on the server and delete local auth state.
+pub async fn logout(grpc_url: &str, refresh_token: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    info!("Logging out");
+    let mut client = AuthServiceClient::connect(grpc_url.to_string()).await?;
+
+    client
+        .logout(LogoutRequest {
+            refresh_token: refresh_token.to_string(),
+        })
+        .await?;
+
+    delete_saved_auth();
+    info!("Logged out successfully");
+
+    Ok(())
 }
 
 /// Run the full Discord `OAuth2` login flow:
@@ -194,6 +274,9 @@ pub async fn login(
 
     let state = AuthState {
         token: response.access_token,
+        token_expires_at: response.expires_at,
+        refresh_token: response.refresh_token,
+        refresh_expires_at: response.refresh_expires_at,
         user,
     };
 

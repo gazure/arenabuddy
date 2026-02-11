@@ -244,7 +244,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
     let auth_service = AuthServiceImpl::new(&db, auth_config.clone());
 
-    let interceptor = auth_interceptor(Arc::new(auth_config.jwt_secret.clone()));
+    let interceptor = auth_interceptor(auth_config.jwt_secret.clone());
 
     info!("Starting gRPC server on {addr}");
     Server::builder()

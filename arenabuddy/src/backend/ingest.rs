@@ -67,7 +67,7 @@ fn handle_ingestion_event(
 
 struct DebugReporter {
     client: DebugServiceClient<Channel>,
-    token: Option<String>,
+    auth_state: SharedAuthState,
 }
 
 impl DebugReporter {
@@ -80,7 +80,8 @@ impl DebugReporter {
             }],
         });
 
-        if let Some(token) = &self.token {
+        let token = self.auth_state.lock().await.as_ref().map(|s| s.token.clone());
+        if let Some(token) = &token {
             let bearer = format!("Bearer {token}");
             if let Ok(value) = bearer.parse() {
                 request.metadata_mut().insert("authorization", value);
@@ -130,14 +131,16 @@ pub async fn start(
     let grpc_url =
         std::env::var("ARENABUDDY_GRPC_URL").unwrap_or_else(|_| "https://arenabuddy.grantazure.com".to_string());
     let service = {
-        let token = auth_state.lock().await.as_ref().map(|s| s.token.clone());
-        match GrpcReplayWriter::connect(&grpc_url, cards, token.clone()).await {
+        match GrpcReplayWriter::connect(&grpc_url, cards, auth_state.clone()).await {
             Ok(writer) => {
                 info!("Connected to gRPC backend at {grpc_url}");
 
                 // Create a separate debug client
                 if let Ok(client) = DebugServiceClient::connect(grpc_url).await {
-                    debug_reporter = Some(Arc::new(Mutex::new(DebugReporter { client, token })));
+                    debug_reporter = Some(Arc::new(Mutex::new(DebugReporter {
+                        client,
+                        auth_state: auth_state.clone(),
+                    })));
                 }
 
                 service.add_writer(Box::new(writer))

@@ -96,38 +96,78 @@ fn Layout() -> Element {
     });
 
     let bg_runtime = use_context::<BackgroundRuntime>();
-    let on_login = move |_| {
+    let on_login = {
         let auth_state = auth_state.clone();
-        let bg = bg_runtime.clone();
-        spawn(async move {
-            let grpc_url = std::env::var("ARENABUDDY_GRPC_URL")
-                .unwrap_or_else(|_| "https://arenabuddy.grantazure.com".to_string());
-            let client_id = std::env::var("DISCORD_CLIENT_ID").unwrap_or_else(|_| "1469498901886271663".to_string());
+        let bg_runtime = bg_runtime.clone();
+        move |_| {
+            let auth_state = auth_state.clone();
+            let bg = bg_runtime.clone();
+            spawn(async move {
+                let grpc_url = std::env::var("ARENABUDDY_GRPC_URL")
+                    .unwrap_or_else(|_| "https://arenabuddy.grantazure.com".to_string());
+                let client_id =
+                    std::env::var("DISCORD_CLIENT_ID").unwrap_or_else(|_| "1469498901886271663".to_string());
 
-            login_loading.set(true);
-            // Run login on the background tokio runtime which has a real I/O
-            // driver — Dioxus's async executor lacks one, so tonic channels
-            // fail with "transport error" if spawned directly.
-            let (tx, rx) = tokio::sync::oneshot::channel();
-            bg.spawn(async move {
-                let result = crate::backend::auth::login(&grpc_url, &client_id).await;
-                let _ = tx.send(result);
+                login_loading.set(true);
+                // Run login on the background tokio runtime which has a real I/O
+                // driver — Dioxus's async executor lacks one, so tonic channels
+                // fail with "transport error" if spawned directly.
+                let (tx, rx) = tokio::sync::oneshot::channel();
+                bg.spawn(async move {
+                    let result = crate::backend::auth::login(&grpc_url, &client_id).await;
+                    let _ = tx.send(result);
+                });
+                match rx.await {
+                    Ok(Ok(state)) => {
+                        let username = state.user.username.clone();
+                        *auth_state.lock().await = Some(state);
+                        login_status.set(Some(username));
+                    }
+                    Ok(Err(e)) => {
+                        tracingx::error!("Login failed: {e}");
+                    }
+                    Err(_) => {
+                        tracingx::error!("Login task was dropped");
+                    }
+                }
+                login_loading.set(false);
             });
-            match rx.await {
-                Ok(Ok(state)) => {
-                    let username = state.user.username.clone();
-                    *auth_state.lock().await = Some(state);
-                    login_status.set(Some(username));
+        }
+    };
+
+    let on_logout = {
+        let auth_state = auth_state.clone();
+        let bg_runtime = bg_runtime.clone();
+        move |_| {
+            let auth_state = auth_state.clone();
+            let bg = bg_runtime.clone();
+            spawn(async move {
+                let grpc_url = std::env::var("ARENABUDDY_GRPC_URL")
+                    .unwrap_or_else(|_| "https://arenabuddy.grantazure.com".to_string());
+
+                let refresh_token = auth_state.lock().await.as_ref().map(|s| s.refresh_token.clone());
+                if let Some(refresh_token) = refresh_token {
+                    let (tx, rx) = tokio::sync::oneshot::channel();
+                    bg.spawn(async move {
+                        let result = crate::backend::auth::logout(&grpc_url, &refresh_token).await;
+                        let _ = tx.send(result);
+                    });
+                    match rx.await {
+                        Ok(Ok(())) => {
+                            tracingx::info!("Logged out successfully");
+                        }
+                        Ok(Err(e)) => {
+                            tracingx::error!("Logout failed: {e}");
+                        }
+                        Err(_) => {
+                            tracingx::error!("Logout task was dropped");
+                        }
+                    }
                 }
-                Ok(Err(e)) => {
-                    tracingx::error!("Login failed: {e}");
-                }
-                Err(_) => {
-                    tracingx::error!("Login task was dropped");
-                }
-            }
-            login_loading.set(false);
-        });
+                *auth_state.lock().await = None;
+                login_status.set(None);
+            });
+        }
     };
 
     rsx! {
@@ -177,9 +217,14 @@ fn Layout() -> Element {
                         }
                     }
                 }
-                div { class: "text-white",
+                div { class: "text-white flex items-center space-x-3",
                     if let Some(username) = login_status() {
                         span { class: "text-green-400 text-sm", "Logged in as {username}" }
+                        button {
+                            class: "bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200",
+                            onclick: on_logout,
+                            "Logout"
+                        }
                     } else if login_loading() {
                         span { class: "text-yellow-400 text-sm", "Logging in..." }
                     } else {
