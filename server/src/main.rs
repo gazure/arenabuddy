@@ -60,6 +60,7 @@ impl MatchService for MatchServiceImpl {
                 &match_data.mulligans,
                 &match_data.results,
                 &opponent_cards,
+                &match_data.event_logs,
                 user_id,
             )
             .await
@@ -132,6 +133,7 @@ impl MatchService for MatchServiceImpl {
             mulligans,
             results,
             opponent_deck,
+            event_logs: Vec::new(), // TODO: retrieve from database
         };
 
         Ok(Response::new(GetMatchDataResponse {

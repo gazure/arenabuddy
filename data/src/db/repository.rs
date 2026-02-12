@@ -1,5 +1,5 @@
 use arenabuddy_core::{
-    models::{ArenaId, Deck, Draft, MTGADraft, MTGAMatch, MatchResult, Mulligan},
+    models::{ArenaId, Deck, Draft, GameEventLog, MTGADraft, MTGAMatch, MatchResult, Mulligan},
     player_log::replay::MatchReplay,
 };
 use sqlx::types::Uuid;
@@ -19,6 +19,7 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
     async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>>;
     async fn list_drafts(&self) -> Result<Vec<Draft>>;
 
+    #[expect(clippy::too_many_argument)]
     async fn upsert_match_data(
         &self,
         mtga_match: &MTGAMatch,
@@ -26,6 +27,7 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
         mulligans: &[Mulligan],
         results: &[MatchResult],
         opponent_cards: &[ArenaId],
+        event_logs: &[GameEventLog],
         user_id: Option<Uuid>,
     ) -> Result<()>;
 

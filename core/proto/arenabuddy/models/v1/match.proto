@@ -41,6 +41,12 @@ message OpponentDeck {
   repeated int32 cards = 1;
 }
 
+// GameEventLog holds the structured event log for a single game within a match
+message GameEventLog {
+  int32 game_number = 1;
+  string events_json = 2; // JSON-serialized Vec<GameEvent>
+}
+
 // MatchData groups all data associated with a match for atomic operations
 message MatchData {
   MtgaMatch mtga_match = 1;
@@ -48,4 +54,5 @@ message MatchData {
   repeated Mulligan mulligans = 3;
   repeated MatchResult results = 4;
   OpponentDeck opponent_deck = 5;
+  repeated GameEventLog event_logs = 6;
 }

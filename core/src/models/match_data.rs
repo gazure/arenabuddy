@@ -1,4 +1,4 @@
-use super::{ArenaId, Deck, MTGAMatch, MatchResult, Mulligan};
+use super::{ArenaId, Deck, GameEventLog, MTGAMatch, MatchResult, Mulligan};
 
 /// Represents an opponent's deck in a match
 ///
@@ -44,4 +44,5 @@ pub struct MatchData {
     pub mulligans: Vec<Mulligan>,
     pub results: Vec<MatchResult>,
     pub opponent_deck: OpponentDeck,
+    pub event_logs: Vec<GameEventLog>,
 }

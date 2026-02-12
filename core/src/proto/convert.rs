@@ -13,10 +13,13 @@
 use chrono::{DateTime, Utc};
 
 use super::{
-    MatchData as MatchDataProto, MatchResult as MatchResultProto, MtgaMatch as MtgaMatchProto,
-    Mulligan as MulliganProto, OpponentDeck as OpponentDeckProto,
+    GameEventLog as GameEventLogProto, MatchData as MatchDataProto, MatchResult as MatchResultProto,
+    MtgaMatch as MtgaMatchProto, Mulligan as MulliganProto, OpponentDeck as OpponentDeckProto,
 };
-use crate::models::{ArenaId, MTGAMatch, MatchData as MatchDataDomain, MatchResult, Mulligan, OpponentDeck};
+use crate::models::{
+    ArenaId, GameEventLog as GameEventLogDomain, MTGAMatch, MatchData as MatchDataDomain, MatchResult, Mulligan,
+    OpponentDeck,
+};
 
 // --- MTGAMatch ↔ MtgaMatch proto ---
 
@@ -115,6 +118,27 @@ impl From<&OpponentDeck> for OpponentDeckProto {
     }
 }
 
+// --- GameEventLog ↔ GameEventLog proto ---
+
+impl From<&GameEventLogProto> for GameEventLogDomain {
+    fn from(proto: &GameEventLogProto) -> Self {
+        let events = serde_json::from_str(&proto.events_json).unwrap_or_default();
+        Self {
+            game_number: proto.game_number,
+            events,
+        }
+    }
+}
+
+impl From<&GameEventLogDomain> for GameEventLogProto {
+    fn from(domain: &GameEventLogDomain) -> Self {
+        Self {
+            game_number: domain.game_number,
+            events_json: serde_json::to_string(&domain.events).unwrap_or_default(),
+        }
+    }
+}
+
 // --- MatchData ↔ MatchData proto ---
 
 impl From<&MatchDataProto> for MatchDataDomain {
@@ -140,6 +164,7 @@ impl From<&MatchDataProto> for MatchDataDomain {
                 .opponent_deck
                 .as_ref()
                 .map_or_else(OpponentDeck::empty, OpponentDeck::from),
+            event_logs: proto.event_logs.iter().map(GameEventLogDomain::from).collect(),
         }
     }
 }
@@ -152,6 +177,7 @@ impl From<&MatchDataDomain> for MatchDataProto {
             mulligans: data.mulligans.iter().map(MulliganProto::from).collect(),
             results: data.results.iter().map(MatchResultProto::from).collect(),
             opponent_deck: Some(OpponentDeckProto::from(&data.opponent_deck)),
+            event_logs: data.event_logs.iter().map(GameEventLogProto::from).collect(),
         }
     }
 }

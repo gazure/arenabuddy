@@ -39,5 +39,5 @@ mod convert;
 
 // Re-export model types at proto module level for convenience
 pub use arenabuddy::models::v1::{
-    Card, CardCollection, CardFace, Deck, MatchData, MatchResult, MtgaMatch, Mulligan, OpponentDeck,
+    Card, CardCollection, CardFace, Deck, GameEventLog, MatchData, MatchResult, MtgaMatch, Mulligan, OpponentDeck,
 };

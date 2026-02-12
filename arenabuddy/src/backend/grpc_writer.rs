@@ -122,12 +122,15 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
             })
             .collect();
 
+        let event_logs = replay.get_event_logs(&self.cards);
+
         let match_data = MatchData {
             mtga_match,
             decks,
             mulligans,
             results,
             opponent_deck: OpponentDeck::new(opponent_cards),
+            event_logs,
         };
 
         let token = self.current_token().await;

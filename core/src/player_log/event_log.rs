@@ -1,7 +1,7 @@
 #![expect(clippy::too_many_lines)]
 use std::collections::HashMap;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tracingx::debug;
 
 use crate::{
@@ -20,14 +20,14 @@ use crate::{
 // ---------------------------------------------------------------------------
 
 /// One event log per game within a match.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameEventLog {
     pub game_number: i32,
     pub events: Vec<GameEvent>,
 }
 
 /// A single structured event in the game log.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameEvent {
     pub game_state_id: i32,
     pub turn: Option<TurnContext>,
@@ -35,7 +35,7 @@ pub struct GameEvent {
 }
 
 /// Turn/phase context at the time of the event.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TurnContext {
     pub turn_number: i32,
     pub active_player: PlayerRef,
@@ -44,14 +44,14 @@ pub struct TurnContext {
 }
 
 /// Reference to a player.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PlayerRef {
     pub seat_id: i32,
     pub name: Option<String>,
 }
 
 /// Reference to a card with resolved name.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CardRef {
     pub instance_id: i32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -61,21 +61,21 @@ pub struct CardRef {
 }
 
 /// Info about a single attacker.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AttackerInfo {
     pub card: CardRef,
     pub target: DamageTarget,
 }
 
 /// Info about a single blocker.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BlockerInfo {
     pub card: CardRef,
     pub blocking: Vec<CardRef>,
 }
 
 /// Target of damage — either a player or a permanent.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum DamageTarget {
     Player { player: PlayerRef },
@@ -83,7 +83,7 @@ pub enum DamageTarget {
 }
 
 /// The core action enum — what happened.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum GameAction {
     // Turn structure

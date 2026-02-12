@@ -24,3 +24,5 @@ pub use match_data::{MatchData, OpponentDeck};
 pub use match_result::{MatchResult, MatchResultBuilder, MatchResultBuilderError};
 pub use mtga_match::{MTGAMatch, MTGAMatchBuilder, MTGAMatchBuilderError};
 pub use mulligan::{Mulligan, MulliganBuilder};
+
+pub use crate::player_log::event_log::GameEventLog;

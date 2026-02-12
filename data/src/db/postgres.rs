@@ -6,7 +6,7 @@
 use arenabuddy_core::{
     cards::CardsDatabase,
     models::{
-        ArenaId, Deck, Draft, DraftPack, Format, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult,
+        ArenaId, Deck, Draft, DraftPack, Format, GameEventLog, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult,
         MatchResultBuilder, Mulligan,
     },
     player_log::{
@@ -273,6 +273,27 @@ impl PostgresMatchDB {
         Ok(())
     }
 
+    async fn insert_event_log(
+        match_id: &Uuid,
+        event_log: &GameEventLog,
+        tx: &mut Transaction<'_, Postgres>,
+    ) -> Result<()> {
+        let events_json = serde_json::to_string(&event_log.events)?;
+
+        sqlx::query(
+            r"INSERT INTO match_event_log (match_id, game_number, events_json)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (match_id, game_number)
+             DO UPDATE SET events_json = excluded.events_json",
+        )
+        .bind(match_id)
+        .bind(event_log.game_number)
+        .bind(events_json)
+        .execute(&mut **tx)
+        .await?;
+        Ok(())
+    }
+
     /// # Errors
     ///
     /// will return an error if the database cannot be contacted for some reason
@@ -489,6 +510,11 @@ impl PostgresMatchDB {
 
         Self::insert_opponent_deck(&match_id, &match_replay.get_opponent_cards(), &mut tx).await?;
 
+        let event_logs = match_replay.get_event_logs(&self.cards);
+        for event_log in &event_logs {
+            Self::insert_event_log(&match_id, event_log, &mut tx).await?;
+        }
+
         tx.commit().await?;
         Ok(())
     }
@@ -647,6 +673,7 @@ impl PostgresMatchDB {
         Ok(MTGADraft::new(draft, packs))
     }
 
+    #[expect(clippy::too_many_arguments)]
     async fn do_upsert_match_data(
         &self,
         mtga_match: &MTGAMatch,
@@ -654,6 +681,7 @@ impl PostgresMatchDB {
         mulligans: &[Mulligan],
         results: &[MatchResult],
         opponent_cards: &[ArenaId],
+        event_logs: &[GameEventLog],
         user_id: Option<Uuid>,
     ) -> Result<()> {
         info!("Upserting match data for match_id: {}", mtga_match.id());
@@ -676,6 +704,10 @@ impl PostgresMatchDB {
         }
 
         Self::insert_opponent_deck(&match_id, opponent_cards, &mut tx).await?;
+
+        for event_log in event_logs {
+            Self::insert_event_log(&match_id, event_log, &mut tx).await?;
+        }
 
         tx.commit().await?;
         Ok(())
@@ -744,10 +776,19 @@ impl ArenabuddyRepository for PostgresMatchDB {
         mulligans: &[Mulligan],
         results: &[MatchResult],
         opponent_cards: &[ArenaId],
+        event_logs: &[GameEventLog],
         user_id: Option<Uuid>,
     ) -> Result<()> {
-        self.do_upsert_match_data(mtga_match, decks, mulligans, results, opponent_cards, user_id)
-            .await
+        self.do_upsert_match_data(
+            mtga_match,
+            decks,
+            mulligans,
+            results,
+            opponent_cards,
+            event_logs,
+            user_id,
+        )
+        .await
     }
 
     async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
