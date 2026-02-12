@@ -19,7 +19,7 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
     async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>>;
     async fn list_drafts(&self) -> Result<Vec<Draft>>;
 
-    #[expect(clippy::too_many_argument)]
+    #[expect(clippy::too_many_arguments)]
     async fn upsert_match_data(
         &self,
         mtga_match: &MTGAMatch,
@@ -30,6 +30,8 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
         event_logs: &[GameEventLog],
         user_id: Option<Uuid>,
     ) -> Result<()>;
+
+    async fn list_event_logs(&self, match_id: &str) -> Result<Vec<GameEventLog>>;
 
     async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()>;
 }

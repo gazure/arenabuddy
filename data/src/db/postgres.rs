@@ -38,6 +38,12 @@ struct MatchWithResultRow {
     created_at: Option<NaiveDateTime>,
 }
 
+#[derive(FromRow)]
+struct EventLogRow {
+    game_number: i32,
+    events_json: String,
+}
+
 use crate::{Error, Result, db::repository::ArenabuddyRepository};
 
 #[derive(Debug, Clone)]
@@ -292,6 +298,29 @@ impl PostgresMatchDB {
         .execute(&mut **tx)
         .await?;
         Ok(())
+    }
+
+    async fn get_event_logs(&self, match_id: &str) -> Result<Vec<GameEventLog>> {
+        let match_id = Uuid::parse_str(match_id)?;
+        let rows: Vec<EventLogRow> = sqlx::query_as(
+            "SELECT game_number, events_json FROM match_event_log WHERE match_id = $1 ORDER BY game_number",
+        )
+        .bind(match_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        let event_logs = rows
+            .into_iter()
+            .map(|row| {
+                let events = serde_json::from_str(&row.events_json).unwrap_or_default();
+                GameEventLog {
+                    game_number: row.game_number,
+                    events,
+                }
+            })
+            .collect();
+
+        Ok(event_logs)
     }
 
     /// # Errors
@@ -789,6 +818,10 @@ impl ArenabuddyRepository for PostgresMatchDB {
             user_id,
         )
         .await
+    }
+
+    async fn list_event_logs(&self, match_id: &str) -> Result<Vec<GameEventLog>> {
+        self.get_event_logs(match_id).await
     }
 
     async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {

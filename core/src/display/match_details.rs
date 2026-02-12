@@ -7,6 +7,7 @@ use crate::{
         mulligan::Mulligan,
     },
     models::Deck,
+    player_log::event_log::GameEventLog,
 };
 
 #[derive(Debug, Default, Clone)]
@@ -23,4 +24,5 @@ pub struct MatchDetails {
     pub decklists: Vec<Deck>,
     pub opponent_deck: Option<DeckDisplayRecord>,
     pub mulligans: Vec<Mulligan>,
+    pub event_logs: Vec<GameEventLog>,
 }

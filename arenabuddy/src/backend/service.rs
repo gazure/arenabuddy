@@ -128,6 +128,11 @@ where
             .map(|deck| DeckDisplayRecord::from_decklist(&deck, &self.cards))
             .ok();
 
+        match_details.event_logs = self.db.list_event_logs(&id).await.unwrap_or_else(|e| {
+            error!("Error retrieving event logs: {}", e);
+            Vec::default()
+        });
+
         Ok(match_details)
     }
 

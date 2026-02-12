@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 use crate::{
     app::{
         Route,
-        components::{DeckList, MatchInfo, MulliganDisplay},
+        components::{DeckList, EventLogDisplay, MatchInfo, MulliganDisplay},
     },
     backend::Service,
 };
@@ -106,30 +106,71 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                     }
                 },
 
-                Some(Ok(details)) => rsx! {
-                    MatchInfo {
-                        controller_player_name: details.controller_player_name.clone(),
-                        opponent_player_name: details.opponent_player_name.clone(),
-                        did_controller_win: details.did_controller_win
-                    }
+                Some(Ok(details)) => {
+                    let mut active_tab = use_signal(|| 0u8);
+                    let event_count: usize = details.event_logs.iter().map(|l| l.events.len()).sum();
 
-                    if let Some(ref deck) = details.primary_decklist {
-                        DeckList {
-                            title: "Your deck",
-                            deck: deck.clone()
+                    rsx! {
+                        MatchInfo {
+                            controller_player_name: details.controller_player_name.clone(),
+                            opponent_player_name: details.opponent_player_name.clone(),
+                            did_controller_win: details.did_controller_win
                         }
-                    }
 
-                    if let Some(ref opponent_deck) = details.opponent_deck {
-                        DeckList {
-                            title: "Opponent's cards",
-                            deck: opponent_deck.clone(),
-                            show_quantities: false
+                        div { class: "flex gap-1 mb-6 border-b border-gray-200",
+                            button {
+                                class: if active_tab() == 0 {
+                                    "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600"
+                                } else {
+                                    "px-4 py-2 font-medium text-gray-500 hover:text-gray-700"
+                                },
+                                onclick: move |_| active_tab.set(0),
+                                "Overview"
+                            }
+                            button {
+                                class: if active_tab() == 1 {
+                                    "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600"
+                                } else {
+                                    "px-4 py-2 font-medium text-gray-500 hover:text-gray-700"
+                                },
+                                onclick: move |_| active_tab.set(1),
+                                "Event Log"
+                                if event_count > 0 {
+                                    span { class: "ml-2 px-2 py-0.5 text-xs rounded-full bg-emerald-100 text-emerald-800",
+                                        "{event_count}"
+                                    }
+                                }
+                            }
                         }
-                    }
 
-                    div { class: "mt-8 col-span-full",
-                        MulliganDisplay { mulligans: details.mulligans.clone() }
+                        match active_tab() {
+                            0 => rsx! {
+                                if let Some(ref deck) = details.primary_decklist {
+                                    DeckList {
+                                        title: "Your deck",
+                                        deck: deck.clone()
+                                    }
+                                }
+
+                                if let Some(ref opponent_deck) = details.opponent_deck {
+                                    DeckList {
+                                        title: "Opponent's cards",
+                                        deck: opponent_deck.clone(),
+                                        show_quantities: false
+                                    }
+                                }
+
+                                div { class: "mt-8 col-span-full",
+                                    MulliganDisplay { mulligans: details.mulligans.clone() }
+                                }
+                            },
+                            _ => rsx! {
+                                EventLogDisplay {
+                                    event_logs: details.event_logs.clone(),
+                                    controller_seat_id: details.controller_seat_id,
+                                }
+                            },
+                        }
                     }
                 },
             }
