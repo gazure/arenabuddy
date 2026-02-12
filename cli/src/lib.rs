@@ -57,6 +57,15 @@ pub async fn run() -> Result<()> {
         Commands::Repl { cards_db } => {
             commands::repl::execute(cards_db)?;
         }
+
+        Commands::EventLog {
+            player_log,
+            cards_db,
+            output,
+            game,
+        } => {
+            commands::event_log::execute(player_log, cards_db.as_ref(), output.as_ref(), *game).await?;
+        }
     }
 
     Ok(())

@@ -22,7 +22,11 @@ use crate::{
         primitives::ZoneType,
     },
     models::{ArenaId, Deck, Mulligan, MulliganBuilder},
-    player_log::{ingest::ReplayWriter, processor::ParseOutput},
+    player_log::{
+        event_log::{EventLogBuilder, GameEventLog},
+        ingest::ReplayWriter,
+        processor::ParseOutput,
+    },
 };
 
 const DEFAULT_HAND_SIZE: i32 = 7;
@@ -327,6 +331,21 @@ impl MatchReplay {
             BusinessEvent::Game(game_business_event) => Some(game_business_event.event_id.clone()),
             _ => None,
         })
+    }
+
+    /// Builds a structured event log for each game in this match.
+    ///
+    /// Returns one `GameEventLog` per game in the match.
+    pub fn get_event_logs(&self, cards_db: &CardsDatabase) -> Vec<GameEventLog> {
+        let mut player_names = std::collections::HashMap::new();
+        if let Ok((controller, opponent)) = self.get_player_names(self.controller_seat_id) {
+            player_names.insert(self.controller_seat_id, controller);
+            // Opponent seat is whichever isn't controller (typically 1 or 2)
+            let opponent_seat = if self.controller_seat_id == 1 { 2 } else { 1 };
+            player_names.insert(opponent_seat, opponent);
+        }
+
+        EventLogBuilder::new(self.controller_seat_id, cards_db, player_names).build(&self.client_server_messages)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = EventRef<'_>> {

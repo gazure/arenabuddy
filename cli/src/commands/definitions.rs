@@ -58,4 +58,19 @@ pub enum Commands {
         #[arg(short, long, help = "Database of cards to reference")]
         cards_db: PathBuf,
     },
+
+    /// Generate a structured event log from a Player.log file
+    EventLog {
+        #[arg(short, long, help = "Location of Player.log file")]
+        player_log: PathBuf,
+
+        #[arg(short, long, help = "Database of cards to reference")]
+        cards_db: Option<PathBuf>,
+
+        #[arg(short, long, help = "Output file (default: stdout)")]
+        output: Option<PathBuf>,
+
+        #[arg(long, help = "Filter to a specific game number")]
+        game: Option<i32>,
+    },
 }
