@@ -9,33 +9,20 @@ use crate::{app::pages::Route, backend::Service};
 #[component]
 pub fn DraftDetails(id: String) -> Element {
     let service = use_context::<Service>();
-    let mut draft = use_signal(|| None::<DraftDetailsDisplay>);
-    let mut loading = use_signal(|| true);
-    let mut error = use_signal(|| None::<String>);
 
-    let service2 = service.clone();
-    let id2 = id.clone();
-
-    // Load draft details on component mount
-    use_future({
+    // Load draft details using use_resource
+    let draft_resource = use_resource({
+        let service = service.clone();
+        let id = id.clone();
         move || {
-            let service2 = service2.clone();
-            let id2 = id2.clone();
-            async move {
-                match service2.get_draft_details(id2).await {
-                    Ok(data) => {
-                        draft.set(Some(data));
-                        error.set(None);
-                    }
-                    Err(e) => {
-                        error.set(Some(format!("Failed to load draft details: {e}")));
-                        draft.set(None);
-                    }
-                }
-                loading.set(false);
-            }
+            let service = service.clone();
+            let id = id.clone();
+            async move { service.get_draft_details(id).await }
         }
     });
+
+    let resource_value = draft_resource.value();
+    let data = resource_value.read();
 
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-7xl",
@@ -61,26 +48,24 @@ pub fn DraftDetails(id: String) -> Element {
                 }
             }
 
-            if let Some(err) = error() {
-                div { class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4",
-                    p { "{err}" }
-                }
-            }
+            match data.as_ref() {
+                None => rsx! {
+                    div { class: "bg-white rounded-lg shadow-md p-12 text-center text-gray-500",
+                        div { class: "animate-pulse", "Loading draft details..." }
+                    }
+                },
+                Some(Err(err)) => rsx! {
+                    div { class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4",
+                        p { "Failed to load draft details: {err}" }
+                    }
+                },
+                Some(Ok(draft_data)) => rsx! {
+                    // Draft Header
+                    DraftHeader { draft: draft_data.clone() }
 
-            if loading() {
-                div { class: "bg-white rounded-lg shadow-md p-12 text-center text-gray-500",
-                    div { class: "animate-pulse", "Loading draft details..." }
-                }
-            } else if let Some(draft_data) = draft.read().as_ref() {
-                // Draft Header
-                DraftHeader { draft: draft_data.clone() }
-
-                // Draft Packs
-                DraftPacksSection { draft: draft_data.clone() }
-            } else {
-                div { class: "bg-white rounded-lg shadow-md p-12 text-center text-gray-500",
-                    "Draft not found"
-                }
+                    // Draft Packs
+                    DraftPacksSection { draft: draft_data.clone() }
+                },
             }
         }
     }

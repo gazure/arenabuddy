@@ -15,14 +15,13 @@ use tracingx::{error, info};
 
 use super::{auth::SharedAuthState, grpc_writer::GrpcReplayWriter};
 
-/// Adapter that wraps an Arc<Mutex<Option<DirectoryStorage>>> for the `ReplayWriter` trait
-/// TODO: rethink this
+/// Adapter that wraps `DirectoryStorage` for the `ReplayWriter` trait
 struct DirectoryStorageAdapter {
-    storage: Arc<Mutex<Option<DirectoryStorage>>>,
+    storage: Arc<Mutex<DirectoryStorage>>,
 }
 
 impl DirectoryStorageAdapter {
-    fn new(storage: Arc<Mutex<Option<DirectoryStorage>>>) -> Self {
+    fn new(storage: Arc<Mutex<DirectoryStorage>>) -> Self {
         Self { storage }
     }
 }
@@ -31,13 +30,10 @@ impl DirectoryStorageAdapter {
 impl arenabuddy_core::player_log::ingest::ReplayWriter for DirectoryStorageAdapter {
     async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
         let mut storage = self.storage.lock().await;
-        if let Some(dir) = storage.as_mut() {
-            dir.write(replay)
-                .await
-                .map_err(|e| arenabuddy_core::Error::StorageError(e.to_string()))
-        } else {
-            Ok(())
-        }
+        storage
+            .write(replay)
+            .await
+            .map_err(|e| arenabuddy_core::Error::StorageError(e.to_string()))
     }
 }
 
@@ -97,7 +93,7 @@ impl DebugReporter {
 pub async fn start(
     db: MatchDB,
     cards: CardsDatabase,
-    debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
+    debug_dir: Option<Arc<Mutex<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
     auth_state: SharedAuthState,
@@ -120,11 +116,13 @@ pub async fn start(
     };
 
     // Add database writer
-    let service = service.add_writer(Box::new(db.clone())).add_draft_writer(Box::new(db));
+    let mut service = service.add_writer(Box::new(db.clone())).add_draft_writer(Box::new(db));
 
-    // Add directory storage writer
-    let dir_adapter = DirectoryStorageAdapter::new(debug_dir.clone());
-    let service = service.add_writer(Box::new(dir_adapter));
+    // Add directory storage writer if configured
+    if let Some(debug_dir) = debug_dir {
+        let dir_adapter = DirectoryStorageAdapter::new(debug_dir);
+        service = service.add_writer(Box::new(dir_adapter));
+    }
 
     // Add gRPC writer and debug reporter
     let mut debug_reporter: Option<Arc<Mutex<DebugReporter>>> = None;

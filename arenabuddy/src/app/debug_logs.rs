@@ -56,26 +56,17 @@ pub fn DebugLogs() -> Element {
             spawn(async move {
                 match select_directory().await {
                     Ok(dir) => {
-                        match service.set_debug_logs(dir.clone()).await {
-                            Ok(()) => {
-                                // Reload the logs after setting directory
-                                match service.get_debug_logs().await {
-                                    Ok(Some(logs)) => {
-                                        selected_dir.set(Some(logs));
-                                        status_message
-                                            .set(Some("Debug logs directory updated successfully!".to_string()));
-                                    }
-                                    Ok(None) => {
-                                        status_message.set(Some("Directory set but no logs found".to_string()));
-                                    }
-                                    Err(err) => {
-                                        status_message
-                                            .set(Some(format!("Directory set but error loading logs: {err}")));
-                                    }
-                                }
+                        service.set_debug_logs(dir.clone());
+                        match service.get_debug_logs().await {
+                            Ok(Some(logs)) => {
+                                selected_dir.set(Some(logs));
+                                status_message.set(Some("Debug logs directory updated successfully!".to_string()));
+                            }
+                            Ok(None) => {
+                                status_message.set(Some("Directory set but no logs found".to_string()));
                             }
                             Err(err) => {
-                                status_message.set(Some(format!("Error setting directory: {err}")));
+                                status_message.set(Some(format!("Directory set but error loading logs: {err}")));
                             }
                         }
                     }

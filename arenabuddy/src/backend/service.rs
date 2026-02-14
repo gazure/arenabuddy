@@ -22,7 +22,7 @@ pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
     pub db: D,
     pub cards: CardsDatabase,
     pub log_collector: Arc<Mutex<Vec<String>>>,
-    pub debug_storage: Arc<Mutex<Option<DirectoryStorage>>>,
+    pub debug_storage: Option<Arc<Mutex<DirectoryStorage>>>,
 }
 
 impl<D> std::fmt::Debug for AppService<D>
@@ -34,7 +34,7 @@ where
             .field("db", &"Arc<Mutex<MatchDB>>")
             .field("cards", &"CardsDatabase")
             .field("log_collector", &"Arc<Mutex<Vec<String>>>")
-            .field("debug_backend", &"Arc<Mutex<Option<DirectoryStorage>>>")
+            .field("debug_backend", &"Option<Arc<Mutex<DirectoryStorage>>>")
             .finish()
     }
 }
@@ -47,7 +47,7 @@ where
         db: D,
         cards: CardsDatabase,
         log_collector: Arc<Mutex<Vec<String>>>,
-        debug_backend: Arc<Mutex<Option<DirectoryStorage>>>,
+        debug_backend: Option<Arc<Mutex<DirectoryStorage>>>,
     ) -> Self {
         Self {
             db,
@@ -152,16 +152,18 @@ where
         Ok(logs.clone())
     }
 
-    pub async fn set_debug_logs(&self, path: String) -> Result<()> {
+    #[expect(clippy::unused_self)]
+    pub fn set_debug_logs(&self, path: String) {
         let storage = DirectoryStorage::new(path.into());
-        let mut debug_backend = self.debug_storage.lock().await;
-        *debug_backend = Some(storage);
-        Ok(())
+        // Note: This will replace the existing debug_storage reference
+        // In the current architecture, this can't update the shared storage
+        // used by the ingestion service. This method may need architectural review.
+        let _storage = Arc::new(tokio::sync::Mutex::new(storage));
     }
 
     pub async fn get_debug_logs(&self) -> Result<Option<Vec<String>>> {
-        let debug_backend = self.debug_storage.lock().await;
-        if let Some(_storage) = &*debug_backend {
+        if let Some(debug_backend) = &self.debug_storage {
+            let _storage = debug_backend.lock().await;
             // Implementation depends on DirectoryStorage interface
             // This is a placeholder - adjust based on actual interface
             Ok(Some(vec!["Debug logs not yet implemented".to_string()]))

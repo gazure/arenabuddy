@@ -29,55 +29,22 @@ fn DraftRow(draft: Draft) -> Element {
 #[component]
 pub fn Drafts() -> Element {
     let service = use_context::<Service>();
-    let mut drafts = use_signal(|| None::<Vec<Draft>>);
-    let mut loading = use_signal(|| true);
-    let mut error = use_signal(|| None::<String>);
 
-    let service2 = service.clone();
-    // Load drafts on component mount
-    use_future({
+    // Load drafts using use_resource
+    let mut drafts_resource = use_resource({
+        let service = service.clone();
         move || {
-            let service2 = service2.clone();
-            async move {
-                match service2.get_drafts().await {
-                    Ok(data) => {
-                        drafts.set(Some(data));
-                        error.set(None);
-                    }
-                    Err(e) => {
-                        error.set(Some(format!("Failed to load drafts: {e}")));
-                        drafts.set(None);
-                    }
-                }
-                loading.set(false);
-            }
+            let service = service.clone();
+            async move { service.get_drafts().await }
         }
     });
 
-    let refresh_drafts = {
-        let service = service.clone();
-        let mut loading = loading;
-        let mut drafts = drafts;
-        let mut error = error;
-        move |_| {
-            loading.set(true);
-            error.set(None);
-            let service = service.clone();
-            spawn(async move {
-                match service.get_drafts().await {
-                    Ok(data) => {
-                        drafts.set(Some(data));
-                        error.set(None);
-                    }
-                    Err(e) => {
-                        error.set(Some(format!("Failed to refresh drafts: {e}")));
-                        drafts.set(None);
-                    }
-                }
-                loading.set(false);
-            });
-        }
+    let refresh_drafts = move |_| {
+        drafts_resource.restart();
     };
+
+    let resource_value = drafts_resource.value();
+    let data = resource_value.read();
 
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-5xl",
@@ -86,8 +53,8 @@ pub fn Drafts() -> Element {
                 button {
                     onclick: refresh_drafts,
                     class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow transition-colors duration-150 flex items-center",
-                    disabled: loading(),
-                    if loading() {
+                    disabled: data.is_none(),
+                    if data.is_none() {
                         "Loading..."
                     } else {
                         "Refresh Drafts"
@@ -95,51 +62,49 @@ pub fn Drafts() -> Element {
                 }
             }
 
-            if let Some(err) = error() {
-                div { class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4",
-                    p { "{err}" }
-                }
-            }
-
             div { class: "bg-white rounded-lg shadow-md overflow-hidden",
-                if loading() && drafts().is_none() {
-                    div { class: "p-12 text-center text-gray-500",
-                        div { class: "animate-pulse", "Loading draft data..." }
-                    }
-                } else if let Some(drafts_data) = drafts.read().as_ref() {
-                    div { class: "p-4 border-b bg-gray-50",
-                        p { class: "text-gray-600",
-                            span { class: "font-medium", "{drafts_data.len()}" }
-                            " drafts found"
-                        }
-                    }
-                    if drafts_data.is_empty() {
+                match data.as_ref() {
+                    None => rsx! {
                         div { class: "p-12 text-center text-gray-500",
-                            "No drafts found. Start a draft in MTG Arena!"
+                            div { class: "animate-pulse", "Loading draft data..." }
                         }
-                    } else {
-                        div { class: "overflow-x-auto",
-                            table { class: "min-w-full table-auto",
-                                thead {
-                                    tr { class: "bg-gray-100 text-left",
-                                        th { class: "py-3 px-4 font-semibold text-gray-700", "Set" }
-                                        th { class: "py-3 px-4 font-semibold text-gray-700", "Format" }
-                                        th { class: "py-3 px-4 font-semibold text-gray-700", "Status" }
-                                        th { class: "py-3 px-4 font-semibold text-gray-700", "Date" }
+                    },
+                    Some(Err(err)) => rsx! {
+                        div { class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded m-4",
+                            p { "Failed to load drafts: {err}" }
+                        }
+                    },
+                    Some(Ok(drafts_data)) => rsx! {
+                        div { class: "p-4 border-b bg-gray-50",
+                            p { class: "text-gray-600",
+                                span { class: "font-medium", "{drafts_data.len()}" }
+                                " drafts found"
+                            }
+                        }
+                        if drafts_data.is_empty() {
+                            div { class: "p-12 text-center text-gray-500",
+                                "No drafts found. Start a draft in MTG Arena!"
+                            }
+                        } else {
+                            div { class: "overflow-x-auto",
+                                table { class: "min-w-full table-auto",
+                                    thead {
+                                        tr { class: "bg-gray-100 text-left",
+                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Set" }
+                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Format" }
+                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Status" }
+                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Date" }
+                                        }
                                     }
-                                }
-                                tbody {
-                                    for draft in drafts_data {
-                                        DraftRow { key: "{draft.id()}", draft: draft.clone() }
+                                    tbody {
+                                        for draft in drafts_data {
+                                            DraftRow { key: "{draft.id()}", draft: draft.clone() }
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                } else {
-                    div { class: "p-12 text-center text-gray-500",
-                        "No draft data available"
-                    }
+                    },
                 }
             }
         }

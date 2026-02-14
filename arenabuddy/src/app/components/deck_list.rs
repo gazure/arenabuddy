@@ -91,7 +91,7 @@ fn NonLandCards(
     let main_deck = &deck.main_deck;
 
     rsx! {
-        for card_type in CardType::iter() {
+        for card_type in CardType::iter().filter(|ct| *ct != CardType::Land) {
             if let Some(cards) = main_deck.get(&card_type) {
                 if !cards.is_empty() {
                     div { class: "mb-4",

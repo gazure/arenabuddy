@@ -10,11 +10,11 @@ pub fn MulliganDisplay(mulligans: Vec<Mulligan>) -> Element {
             }
             div { class: "p-6",
                 if mulligans.is_empty() {
-                    {empty_state_view()}
+                    EmptyState {}
                 } else {
                     div { class: "space-y-8",
-                        for mulligan in mulligans {
-                            {mulligan_card_view(mulligan)}
+                        for mulligan in mulligans.into_iter() {
+                            MulliganCard { mulligan: mulligan }
                         }
                     }
                 }
@@ -23,7 +23,8 @@ pub fn MulliganDisplay(mulligans: Vec<Mulligan>) -> Element {
     }
 }
 
-fn empty_state_view() -> Element {
+#[component]
+fn EmptyState() -> Element {
     rsx! {
         div { class: "text-center text-gray-500 py-8",
             p { "No mulligan information available" }
@@ -31,7 +32,8 @@ fn empty_state_view() -> Element {
     }
 }
 
-fn mulligan_card_view(mulligan: Mulligan) -> Element {
+#[component]
+fn MulliganCard(mulligan: Mulligan) -> Element {
     let decision_class = get_decision_class(&mulligan.decision);
 
     rsx! {
