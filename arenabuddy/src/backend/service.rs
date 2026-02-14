@@ -22,7 +22,10 @@ pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
     pub db: D,
     pub cards: CardsDatabase,
     pub log_collector: Arc<Mutex<Vec<String>>>,
-    pub debug_storage: Option<Arc<Mutex<DirectoryStorage>>>,
+    /// Shared mutable debug storage. `Arc<Mutex<Option<..>>>` is intentional:
+    /// both `AppService` (UI) and the ingestion service need shared mutable
+    /// access, and the `Option` represents "not yet configured".
+    pub debug_storage: Arc<Mutex<Option<DirectoryStorage>>>,
 }
 
 impl<D> std::fmt::Debug for AppService<D>
@@ -34,7 +37,7 @@ where
             .field("db", &"Arc<Mutex<MatchDB>>")
             .field("cards", &"CardsDatabase")
             .field("log_collector", &"Arc<Mutex<Vec<String>>>")
-            .field("debug_backend", &"Option<Arc<Mutex<DirectoryStorage>>>")
+            .field("debug_backend", &"Arc<Mutex<Option<DirectoryStorage>>>")
             .finish()
     }
 }
@@ -47,7 +50,7 @@ where
         db: D,
         cards: CardsDatabase,
         log_collector: Arc<Mutex<Vec<String>>>,
-        debug_backend: Option<Arc<Mutex<DirectoryStorage>>>,
+        debug_backend: Arc<Mutex<Option<DirectoryStorage>>>,
     ) -> Self {
         Self {
             db,
@@ -152,21 +155,17 @@ where
         Ok(logs.clone())
     }
 
-    #[expect(clippy::unused_self)]
-    pub fn set_debug_logs(&self, path: String) {
+    pub async fn set_debug_logs(&self, path: String) {
         let storage = DirectoryStorage::new(path.into());
-        // Note: This will replace the existing debug_storage reference
-        // In the current architecture, this can't update the shared storage
-        // used by the ingestion service. This method may need architectural review.
-        let _storage = Arc::new(tokio::sync::Mutex::new(storage));
+        let mut debug_backend = self.debug_storage.lock().await;
+        *debug_backend = Some(storage);
     }
 
     pub async fn get_debug_logs(&self) -> Result<Option<Vec<String>>> {
-        if let Some(debug_backend) = &self.debug_storage {
-            let _storage = debug_backend.lock().await;
-            // Implementation depends on DirectoryStorage interface
-            // This is a placeholder - adjust based on actual interface
-            Ok(Some(vec!["Debug logs not yet implemented".to_string()]))
+        let debug_backend = self.debug_storage.lock().await;
+        if let Some(storage) = &*debug_backend {
+            let replays = storage.list_replays().await?;
+            Ok(Some(replays))
         } else {
             Ok(None)
         }

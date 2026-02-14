@@ -56,7 +56,7 @@ pub fn DebugLogs() -> Element {
             spawn(async move {
                 match select_directory().await {
                     Ok(dir) => {
-                        service.set_debug_logs(dir.clone());
+                        service.set_debug_logs(dir.clone()).await;
                         match service.get_debug_logs().await {
                             Ok(Some(logs)) => {
                                 selected_dir.set(Some(logs));

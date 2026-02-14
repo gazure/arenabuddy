@@ -20,6 +20,22 @@ impl DirectoryStorage {
     pub fn path(&self) -> &PathBuf {
         &self.path
     }
+
+    pub async fn list_replays(&self) -> Result<Vec<String>> {
+        let mut entries = tokio::fs::read_dir(&self.path).await?;
+        let mut replays = Vec::new();
+        while let Some(entry) = entries.next_entry().await? {
+            if let Some(name) = entry.file_name().to_str()
+                && std::path::Path::new(name)
+                    .extension()
+                    .is_some_and(|ext| ext.eq_ignore_ascii_case("json"))
+            {
+                replays.push(name.to_string());
+            }
+        }
+        replays.sort();
+        Ok(replays)
+    }
 }
 
 #[async_trait]
