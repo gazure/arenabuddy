@@ -1,4 +1,7 @@
-use arenabuddy_core::player_log::event_log::{CardRef, DamageTarget, GameAction, GameEvent, GameEventLog, PlayerRef};
+use arenabuddy_core::{
+    display::event_log::{ActionDisplay, ActionStyle},
+    player_log::event_log::{GameAction, GameEvent, GameEventLog},
+};
 use dioxus::prelude::*;
 
 // ---------------------------------------------------------------------------
@@ -221,178 +224,24 @@ fn TurnGroup(group: TurnEventGroup, controller_seat_id: i32) -> Element {
 // Single event row
 // ---------------------------------------------------------------------------
 
-fn card_display(card: &CardRef) -> String {
-    card.name.clone().unwrap_or_else(|| {
-        card.arena_id
-            .map_or(format!("#{}", card.instance_id), |id| format!("Card #{}", id.inner()))
-    })
-}
-
-fn player_display(player: &PlayerRef) -> String {
-    player
-        .name
-        .clone()
-        .unwrap_or_else(|| format!("Player {}", player.seat_id))
-}
-
-fn damage_target_display(target: &DamageTarget) -> String {
-    match target {
-        DamageTarget::Player { player } => player_display(player),
-        DamageTarget::Permanent { card } => card_display(card),
+/// Map semantic `ActionStyle` to Tailwind CSS classes
+fn style_to_css(style: ActionStyle) -> &'static str {
+    match style {
+        ActionStyle::Normal => "",
+        ActionStyle::Phase => "text-gray-400 text-xs italic",
+        ActionStyle::PlayerAction => "text-blue-800",
+        ActionStyle::OpponentAction => "text-red-800",
+        ActionStyle::Attack | ActionStyle::Negative => "text-red-700",
+        ActionStyle::Defense => "text-blue-700",
+        ActionStyle::Damage => "text-orange-700",
+        ActionStyle::Positive => "text-green-700",
+        ActionStyle::Emphasized => "font-semibold",
     }
-}
-
-struct ActionDisplay {
-    icon: &'static str,
-    description: String,
-    row_class: &'static str,
-}
-
-#[expect(clippy::too_many_lines)]
-fn render_action(action: &GameAction, controller_seat_id: i32) -> Option<ActionDisplay> {
-    let display = match action {
-        GameAction::NewTurn { .. } => return None,
-
-        GameAction::PhaseChange { phase, step } => {
-            let step_str = step.map_or(String::new(), |s| format!(" - {s}"));
-            ActionDisplay {
-                icon: "\u{23F1}",
-                description: format!("{phase}{step_str}"),
-                row_class: "text-gray-400 text-xs italic",
-            }
-        }
-
-        GameAction::CardPlayed {
-            player,
-            card,
-            action_type,
-        } => {
-            let is_you = player.seat_id == controller_seat_id;
-            ActionDisplay {
-                icon: "\u{1F0CF}",
-                description: format!(
-                    "{} plays {} ({})",
-                    player_display(player),
-                    card_display(card),
-                    action_type
-                ),
-                row_class: if is_you { "text-blue-800" } else { "text-red-800" },
-            }
-        }
-
-        GameAction::ZoneTransfer {
-            card,
-            from_zone,
-            to_zone,
-            category,
-        } => {
-            let cat = category.as_ref().map_or(String::new(), |c| format!(" ({c})"));
-            ActionDisplay {
-                icon: "\u{27A1}",
-                description: format!("{}: {} \u{2192} {}{}", card_display(card), from_zone, to_zone, cat),
-                row_class: "",
-            }
-        }
-
-        GameAction::AttackersDeclared { attackers } => {
-            let names: Vec<String> = attackers.iter().map(|a| card_display(&a.card)).collect();
-            ActionDisplay {
-                icon: "\u{2694}",
-                description: format!("Attackers declared: {}", names.join(", ")),
-                row_class: "text-red-700",
-            }
-        }
-
-        GameAction::BlockersDeclared { blockers } => {
-            let names: Vec<String> = blockers.iter().map(|b| card_display(&b.card)).collect();
-            ActionDisplay {
-                icon: "\u{1F6E1}",
-                description: format!("Blockers declared: {}", names.join(", ")),
-                row_class: "text-blue-700",
-            }
-        }
-
-        GameAction::DamageDealt { source, target, amount } => ActionDisplay {
-            icon: "\u{26A1}",
-            description: format!(
-                "{} deals {} damage to {}",
-                card_display(source),
-                amount,
-                damage_target_display(target)
-            ),
-            row_class: "text-orange-700",
-        },
-
-        GameAction::LifeChanged {
-            player,
-            old_total,
-            new_total,
-            change,
-        } => {
-            let sign = if *change > 0 { "+" } else { "" };
-            ActionDisplay {
-                icon: "\u{2764}",
-                description: format!(
-                    "{}: {} \u{2192} {} ({sign}{})",
-                    player_display(player),
-                    old_total,
-                    new_total,
-                    change
-                ),
-                row_class: if *change > 0 { "text-green-700" } else { "text-red-700" },
-            }
-        }
-
-        GameAction::TokenCreated { card, controller } => ActionDisplay {
-            icon: "\u{2795}",
-            description: format!("{} creates token: {}", player_display(controller), card_display(card)),
-            row_class: "",
-        },
-
-        GameAction::CounterAdded { card, counter_type } => {
-            let ct = counter_type
-                .as_ref()
-                .map_or("counter".to_string(), |c| format!("{c} counter"));
-            ActionDisplay {
-                icon: "\u{2B06}",
-                description: format!("+1 {} on {}", ct, card_display(card)),
-                row_class: "text-green-700",
-            }
-        }
-
-        GameAction::CounterRemoved { card, counter_type } => {
-            let ct = counter_type
-                .as_ref()
-                .map_or("counter".to_string(), |c| format!("{c} counter"));
-            ActionDisplay {
-                icon: "\u{2B07}",
-                description: format!("-1 {} on {}", ct, card_display(card)),
-                row_class: "text-red-700",
-            }
-        }
-
-        GameAction::GameOver { losing_player, reason } => {
-            let reason_str = reason.as_ref().map_or(String::new(), |r| format!(" ({r})"));
-            ActionDisplay {
-                icon: "\u{1F3C1}",
-                description: format!("Game Over: {} loses{}", player_display(losing_player), reason_str),
-                row_class: "font-semibold",
-            }
-        }
-
-        GameAction::PlayerConceded { player } => ActionDisplay {
-            icon: "\u{1F3F3}",
-            description: format!("{} concedes", player_display(player)),
-            row_class: "font-semibold",
-        },
-    };
-
-    Some(display)
 }
 
 #[component]
 fn EventRow(event: GameEvent, controller_seat_id: i32) -> Element {
-    let Some(display) = render_action(&event.action, controller_seat_id) else {
+    let Some(display) = ActionDisplay::from_game_action(&event.action, controller_seat_id) else {
         return rsx! {};
     };
 
@@ -403,17 +252,19 @@ fn EventRow(event: GameEvent, controller_seat_id: i32) -> Element {
         })
     });
 
+    let css_class = style_to_css(display.style);
+
     // PhaseChange events render as subtle dividers
     if matches!(event.action, GameAction::PhaseChange { .. }) {
         return rsx! {
-            div { class: "px-4 py-1 {display.row_class}",
+            div { class: "px-4 py-1 {css_class}",
                 "{display.icon} {display.description}"
             }
         };
     }
 
     rsx! {
-        div { class: "px-4 py-2 flex items-center gap-3 text-sm {display.row_class}",
+        div { class: "px-4 py-2 flex items-center gap-3 text-sm {css_class}",
             span { class: "flex-shrink-0 w-6 text-center", "{display.icon}" }
             span { class: "flex-grow", "{display.description}" }
             if let Some(badge) = phase_badge {
