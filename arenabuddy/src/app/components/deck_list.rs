@@ -14,7 +14,7 @@ pub fn DeckList(
 ) -> Element {
     let title = title.unwrap_or("Your Deck");
     let (main_total, sideboard_total) = deck.totals();
-    let mut hovered_card = use_signal(|| None::<(CardDisplayRecord, (f64, f64))>);
+    let hovered_card = use_signal(|| None::<(CardDisplayRecord, (f64, f64))>);
 
     rsx! {
         div { class: "bg-white rounded-lg shadow-md overflow-hidden",
@@ -31,11 +31,11 @@ pub fn DeckList(
 
                     div { class: "grid grid-cols-2 gap-6",
                         div { class: "space-y-6",
-                            {render_non_land_cards(&deck, &mut hovered_card, show_quantities)}
+                            NonLandCards { deck: deck.clone(), hovered_card, show_quantities }
                         }
                         div { class: "space-y-6",
-                            {render_lands(&deck, &mut hovered_card, show_quantities)}
-                            {render_sideboard(&deck, &mut hovered_card, show_quantities)}
+                            Lands { deck: deck.clone(), hovered_card, show_quantities }
+                            Sideboard { deck: deck.clone(), hovered_card, show_quantities }
                         }
                     }
                 }
@@ -82,10 +82,11 @@ pub fn DeckList(
     }
 }
 
-fn render_non_land_cards(
-    deck: &DeckDisplayRecord,
-    hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
-    show_quantities: bool,
+#[component]
+fn NonLandCards(
+    deck: DeckDisplayRecord,
+    hovered_card: Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    #[props(default = true)] show_quantities: bool,
 ) -> Element {
     let main_deck = &deck.main_deck;
 
@@ -103,7 +104,7 @@ fn render_non_land_cards(
                         }
                         div { class: "space-y-1",
                             for card in cards {
-                                {render_card_row(card, hovered_card, show_quantities)}
+                                CardRow { card: card.clone(), hovered_card, show_quantities }
                             }
                         }
                     }
@@ -113,10 +114,11 @@ fn render_non_land_cards(
     }
 }
 
-fn render_lands(
-    deck: &DeckDisplayRecord,
-    hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
-    show_quantities: bool,
+#[component]
+fn Lands(
+    deck: DeckDisplayRecord,
+    hovered_card: Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    #[props(default = true)] show_quantities: bool,
 ) -> Element {
     let main_deck = &deck.main_deck;
     if let Some(lands) = main_deck.get(&CardType::Land).filter(|l| !l.is_empty()) {
@@ -131,7 +133,7 @@ fn render_lands(
                 }
                 div { class: "space-y-1 mt-2",
                     for land in lands {
-                        {render_card_row(land, hovered_card, show_quantities)}
+                        CardRow { card: land.clone(), hovered_card, show_quantities }
                     }
                 }
             }
@@ -141,10 +143,11 @@ fn render_lands(
     }
 }
 
-fn render_sideboard(
-    deck: &DeckDisplayRecord,
-    hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
-    show_quantities: bool,
+#[component]
+fn Sideboard(
+    deck: DeckDisplayRecord,
+    hovered_card: Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    #[props(default = true)] show_quantities: bool,
 ) -> Element {
     let sideboard = &deck.sideboard;
     if sideboard.is_empty() {
@@ -161,7 +164,7 @@ fn render_sideboard(
                 }
                 div { class: "space-y-1 mt-2",
                     for card in sideboard {
-                        {render_card_row(card, hovered_card, show_quantities)}
+                        CardRow { card: card.clone(), hovered_card, show_quantities }
                     }
                 }
             }
@@ -169,24 +172,21 @@ fn render_sideboard(
     }
 }
 
-fn render_card_row(
-    card: &CardDisplayRecord,
-    hovered_card: &mut Signal<Option<(CardDisplayRecord, (f64, f64))>>,
-    show_quantities: bool,
+#[component]
+fn CardRow(
+    card: CardDisplayRecord,
+    hovered_card: Signal<Option<(CardDisplayRecord, (f64, f64))>>,
+    #[props(default = true)] show_quantities: bool,
 ) -> Element {
-    let card_clone = card.clone();
-    let mut hovered_card_enter = *hovered_card;
-    let mut hovered_card_leave = *hovered_card;
-
     rsx! {
         div {
             class: "flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm cursor-pointer",
             onmouseenter: move |event| {
                 let coords = event.client_coordinates();
-                hovered_card_enter.set(Some((card_clone.clone(), (coords.x, coords.y))));
+                hovered_card.set(Some((card.clone(), (coords.x, coords.y))));
             },
             onmouseleave: move |_| {
-                hovered_card_leave.set(None);
+                hovered_card.set(None);
             },
             div { class: "flex items-center space-x-2",
                 if show_quantities {
