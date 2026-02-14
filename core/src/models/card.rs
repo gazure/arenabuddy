@@ -33,6 +33,23 @@ pub enum CardType {
     Unknown,
 }
 
+impl CardType {
+    pub fn iter() -> impl Iterator<Item = CardType> {
+        [
+            CardType::Creature,
+            CardType::Planeswalker,
+            CardType::Artifact,
+            CardType::Enchantment,
+            CardType::Instant,
+            CardType::Sorcery,
+            CardType::Battle,
+            CardType::Land,
+            CardType::Unknown,
+        ]
+        .into_iter()
+    }
+}
+
 impl FromStr for CardType {
     type Err = Self;
 

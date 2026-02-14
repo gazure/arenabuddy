@@ -88,19 +88,9 @@ fn render_non_land_cards(
     show_quantities: bool,
 ) -> Element {
     let main_deck = &deck.main_deck;
-    let ordered_types = vec![
-        CardType::Creature,
-        CardType::Planeswalker,
-        CardType::Artifact,
-        CardType::Enchantment,
-        CardType::Instant,
-        CardType::Sorcery,
-        CardType::Battle,
-        CardType::Unknown,
-    ];
 
     rsx! {
-        for card_type in ordered_types {
+        for card_type in CardType::iter() {
             if let Some(cards) = main_deck.get(&card_type) {
                 if !cards.is_empty() {
                     div { class: "mb-4",
