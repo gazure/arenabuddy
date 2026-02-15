@@ -4,7 +4,7 @@ use dioxus_router::{Link, Outlet, Routable};
 use crate::{
     app::{
         debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
-        match_details::MatchDetails, matches::Matches,
+        match_details::MatchDetails, matches::Matches, stats::Stats,
     },
     backend::{BackgroundRuntime, SharedAuthState},
 };
@@ -35,6 +35,8 @@ pub enum Route {
         DraftDetails { id: String },
         #[route("/debug")]
         DebugLogs {},
+        #[route("/stats")]
+        Stats {},
     #[end_layout]
     #[route("/:..route")]
     PageNotFound { route: Vec<String> },
@@ -193,6 +195,13 @@ fn Layout() -> Element {
                             to: Route::Drafts { },
                             class: "hover:text-blue-400 transition-colors duration-200",
                             "Drafts"
+                        }
+                    }
+                    li {
+                        Link {
+                            to: Route::Stats {},
+                            class: "hover:text-blue-400 transition-colors duration-200",
+                            "Stats"
                         }
                     }
                     li {

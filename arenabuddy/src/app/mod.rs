@@ -6,6 +6,7 @@ mod error_logs;
 mod match_details;
 mod matches;
 mod pages;
+mod stats;
 use dioxus::prelude::*;
 use pages::Route;
 const TAILWIND_CSS: Asset = asset!("/assets/tailwind.css");

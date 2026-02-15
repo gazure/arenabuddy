@@ -204,7 +204,7 @@ impl MatchReplay {
                         } else {
                             "Draw"
                         };
-                        info!("game_number: {}, play_or_draw: {}", game_number, pd);
+                        debug!("game_number: {}, play_or_draw: {}", game_number, pd);
                         play_or_draw.insert(game_number, pd.to_string());
                     }
 
@@ -274,7 +274,7 @@ impl MatchReplay {
                     return None;
                 }
 
-                let play_draw = play_or_draw.get(&game_number).cloned().unwrap_or("Unknown".to_string());
+                let play_draw = play_or_draw.get(&gn).cloned().unwrap_or("Unknown".to_string());
 
                 let hand_string = hand
                     .iter()
@@ -295,12 +295,7 @@ impl MatchReplay {
                     None => "Match Ended",
                 }
                 .to_string();
-                let opp_identity = if game_number == 1 {
-                    "Unknown"
-                } else {
-                    &opponent_color_identity
-                }
-                .to_string();
+                let opp_identity = if gn == 1 { "Unknown" } else { &opponent_color_identity }.to_string();
 
                 MulliganBuilder::default()
                     .match_id(self.match_id.clone())

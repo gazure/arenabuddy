@@ -8,6 +8,7 @@ use arenabuddy_core::{
         game::GameResultDisplay,
         match_details::MatchDetails,
         mulligan::Mulligan,
+        stats::MatchStats,
     },
     models::{Draft, MTGAMatch},
 };
@@ -148,6 +149,10 @@ where
 
         let draft = self.db.get_draft(&draft_id).await?;
         Ok(DraftDetailsDisplay::new(draft, &self.cards))
+    }
+
+    pub async fn get_stats(&self) -> Result<MatchStats> {
+        Ok(self.db.get_match_stats(None).await?)
     }
 
     pub async fn get_error_logs(&self) -> Result<Vec<String>> {

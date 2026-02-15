@@ -44,6 +44,8 @@ struct EventLogRow {
     events_json: String,
 }
 
+use arenabuddy_core::display::stats::{MatchStats, MulliganBucket, OpponentRecord};
+
 use crate::{Error, Result, db::repository::ArenabuddyRepository};
 
 #[derive(Debug, Clone)]
@@ -742,6 +744,166 @@ impl PostgresMatchDB {
         Ok(())
     }
 
+    async fn query_record(&self, user_id: Option<Uuid>, scope: &str) -> Result<(i64, i64)> {
+        #[derive(FromRow)]
+        struct RecordRow {
+            total: i64,
+            wins: i64,
+        }
+
+        let row: RecordRow = sqlx::query_as(
+            r"SELECT
+                COUNT(DISTINCT m.id) AS total,
+                COUNT(DISTINCT CASE WHEN mr.winning_team_id = m.controller_seat_id THEN m.id END) AS wins
+            FROM match m
+            JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = $2
+            WHERE ($1::uuid IS NULL OR m.user_id = $1)",
+        )
+        .bind(user_id)
+        .bind(scope)
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok((row.total, row.wins))
+    }
+
+    async fn query_play_draw_stats(&self, user_id: Option<Uuid>) -> Result<(i64, i64, i64, i64)> {
+        #[derive(FromRow)]
+        struct PlayDrawRow {
+            play_draw: String,
+            wins: i64,
+            losses: i64,
+        }
+
+        let rows: Vec<PlayDrawRow> = sqlx::query_as(
+            r"SELECT
+                mul.play_draw,
+                COUNT(CASE WHEN mr.winning_team_id = m.controller_seat_id THEN 1 END) AS wins,
+                COUNT(CASE WHEN mr.winning_team_id != m.controller_seat_id THEN 1 END) AS losses
+            FROM match m
+            JOIN mulligan mul ON m.id = mul.match_id AND mul.decision = 'keep'
+                AND mul.play_draw IN ('Play', 'Draw')
+            JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Game' AND mr.game_number = mul.game_number
+            WHERE ($1::uuid IS NULL OR m.user_id = $1)
+            GROUP BY mul.play_draw",
+        )
+        .bind(user_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        let mut play_wins = 0i64;
+        let mut play_losses = 0i64;
+        let mut draw_wins = 0i64;
+        let mut draw_losses = 0i64;
+        for row in &rows {
+            if row.play_draw == "Play" {
+                play_wins = row.wins;
+                play_losses = row.losses;
+            } else {
+                draw_wins = row.wins;
+                draw_losses = row.losses;
+            }
+        }
+        Ok((play_wins, play_losses, draw_wins, draw_losses))
+    }
+
+    async fn query_mulligan_stats(&self, user_id: Option<Uuid>) -> Result<Vec<MulliganBucket>> {
+        #[derive(FromRow)]
+        struct MulliganRow {
+            number_to_keep: i32,
+            count: i64,
+            wins: i64,
+            losses: i64,
+        }
+
+        let rows: Vec<MulliganRow> = sqlx::query_as(
+            r"SELECT
+                mul.number_to_keep,
+                COUNT(*) AS count,
+                COUNT(CASE WHEN mr.winning_team_id = m.controller_seat_id THEN 1 END) AS wins,
+                COUNT(CASE WHEN mr.winning_team_id != m.controller_seat_id THEN 1 END) AS losses
+            FROM match m
+            JOIN mulligan mul ON m.id = mul.match_id AND mul.decision = 'keep'
+            JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Game' AND mr.game_number = mul.game_number
+            WHERE ($1::uuid IS NULL OR m.user_id = $1)
+            GROUP BY mul.number_to_keep
+            ORDER BY mul.number_to_keep DESC",
+        )
+        .bind(user_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(rows
+            .into_iter()
+            .map(|row| MulliganBucket {
+                cards_kept: row.number_to_keep,
+                count: row.count,
+                wins: row.wins,
+                losses: row.losses,
+            })
+            .collect())
+    }
+
+    async fn query_opponent_stats(&self, user_id: Option<Uuid>) -> Result<Vec<OpponentRecord>> {
+        #[derive(FromRow)]
+        struct OpponentRow {
+            opponent_player_name: String,
+            matches: i64,
+            wins: i64,
+            losses: i64,
+        }
+
+        let rows: Vec<OpponentRow> = sqlx::query_as(
+            r"SELECT
+                m.opponent_player_name,
+                COUNT(DISTINCT m.id) AS matches,
+                COUNT(DISTINCT CASE WHEN mr.winning_team_id = m.controller_seat_id THEN m.id END) AS wins,
+                COUNT(DISTINCT CASE WHEN mr.winning_team_id != m.controller_seat_id THEN m.id END) AS losses
+            FROM match m
+            JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Match'
+            WHERE ($1::uuid IS NULL OR m.user_id = $1)
+            GROUP BY m.opponent_player_name
+            ORDER BY matches DESC
+            LIMIT 10",
+        )
+        .bind(user_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(rows
+            .into_iter()
+            .map(|row| OpponentRecord {
+                name: row.opponent_player_name,
+                matches: row.matches,
+                wins: row.wins,
+                losses: row.losses,
+            })
+            .collect())
+    }
+
+    async fn do_get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats> {
+        let (total_matches, match_wins) = self.query_record(user_id, "MatchScope_Match").await?;
+        let (total_games, game_wins) = self.query_record(user_id, "MatchScope_Game").await?;
+        let (play_wins, play_losses, draw_wins, draw_losses) = self.query_play_draw_stats(user_id).await?;
+        let mulligan_stats = self.query_mulligan_stats(user_id).await?;
+        let opponents = self.query_opponent_stats(user_id).await?;
+
+        Ok(MatchStats {
+            total_matches,
+            match_wins,
+            match_losses: total_matches - match_wins,
+            total_games,
+            game_wins,
+            game_losses: total_games - game_wins,
+            play_wins,
+            play_losses,
+            draw_wins,
+            draw_losses,
+            mulligan_stats,
+            opponents,
+        })
+    }
+
     async fn do_delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
         info!("Deleting match: {}", match_id);
         let match_id = Uuid::parse_str(match_id)?;
@@ -826,6 +988,10 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
     async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
         self.do_delete_match(match_id, user_id).await
+    }
+
+    async fn get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats> {
+        self.do_get_match_stats(user_id).await
     }
 }
 
