@@ -44,6 +44,8 @@ struct EventLogRow {
     events_json: String,
 }
 
+use std::sync::Arc;
+
 use arenabuddy_core::display::stats::{MatchStats, MulliganBucket, OpponentRecord};
 
 use crate::{Error, Result, db::repository::ArenabuddyRepository};
@@ -51,7 +53,7 @@ use crate::{Error, Result, db::repository::ArenabuddyRepository};
 #[derive(Debug, Clone)]
 pub struct PostgresMatchDB {
     pool: PgPool,
-    _db: Option<PostgreSQL>,
+    _db: Option<Arc<PostgreSQL>>,
     cards: CardsDatabase,
 }
 
@@ -114,7 +116,7 @@ impl PostgresMatchDB {
             let pool = PgPool::connect(&db.settings().url("arenabuddy")).await?;
             Ok(Self {
                 pool,
-                _db: Some(db),
+                _db: Some(Arc::new(db)),
                 cards,
             })
         }
