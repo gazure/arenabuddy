@@ -101,12 +101,12 @@ pub(crate) fn Matches() -> Element {
                                     page_size: PAGE_SIZE,
                                 }
                                 div { class: "overflow-x-auto",
-                                    table { class: "min-w-full table-auto",
+                                    table { class: "min-w-full table-fixed",
                                         thead {
                                             tr { class: "bg-gray-100 text-left",
-                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Controller" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Opponent" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Date" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700 w-1/3", "Controller" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700 w-1/3", "Opponent" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700 w-1/3", "Date" }
                                             }
                                         }
                                         tbody {
