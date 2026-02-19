@@ -11,6 +11,7 @@ const PAGE_SIZE: usize = 25;
 
 #[component]
 fn MatchRow(m: MTGAMatch) -> Element {
+    let date = m.created_at().format("%b %-d, %Y %-I:%M %p").to_string();
     rsx! {
         Link {
             to: Route::MatchDetails { id: m.id().to_string() },
@@ -21,7 +22,7 @@ fn MatchRow(m: MTGAMatch) -> Element {
                 }
             }
             td { class: "py-3 px-4 border-b", "{m.opponent_player_name()}" }
-            td { class: "py-3 px-4 border-b text-gray-500", "{m.created_at()}" }
+            td { class: "py-3 px-4 border-b text-gray-500", "{date}" }
         }
     }
 }
