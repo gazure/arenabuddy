@@ -2,7 +2,12 @@ use arenabuddy_core::models::Draft;
 use dioxus::prelude::*;
 use dioxus_router::Link;
 
-use crate::{app::Route, backend::Service};
+use crate::{
+    app::{Route, components::Pagination},
+    backend::Service,
+};
+
+const PAGE_SIZE: usize = 25;
 
 #[component]
 fn DraftRow(draft: Draft) -> Element {
@@ -29,8 +34,8 @@ fn DraftRow(draft: Draft) -> Element {
 #[component]
 pub fn Drafts() -> Element {
     let service = use_context::<Service>();
+    let mut current_page = use_signal(|| 0usize);
 
-    // Load drafts using use_resource
     let mut drafts_resource = use_resource({
         let service = service.clone();
         move || {
@@ -40,6 +45,7 @@ pub fn Drafts() -> Element {
     });
 
     let refresh_drafts = move |_| {
+        current_page.set(0);
         drafts_resource.restart();
     };
 
@@ -74,31 +80,39 @@ pub fn Drafts() -> Element {
                             p { "Failed to load drafts: {err}" }
                         }
                     },
-                    Some(Ok(drafts_data)) => rsx! {
-                        div { class: "p-4 border-b bg-gray-50",
-                            p { class: "text-gray-600",
-                                span { class: "font-medium", "{drafts_data.len()}" }
-                                " drafts found"
-                            }
-                        }
-                        if drafts_data.is_empty() {
-                            div { class: "p-12 text-center text-gray-500",
-                                "No drafts found. Start a draft in MTG Arena!"
-                            }
-                        } else {
-                            div { class: "overflow-x-auto",
-                                table { class: "min-w-full table-auto",
-                                    thead {
-                                        tr { class: "bg-gray-100 text-left",
-                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Set" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Format" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Status" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Date" }
+                    Some(Ok(drafts_data)) => {
+                        let total_items = drafts_data.len();
+                        let total_pages = total_items.div_ceil(PAGE_SIZE).max(1);
+                        let page = current_page().min(total_pages.saturating_sub(1));
+                        let start = page * PAGE_SIZE;
+                        let end = (start + PAGE_SIZE).min(total_items);
+
+                        rsx! {
+                            if drafts_data.is_empty() {
+                                div { class: "p-12 text-center text-gray-500",
+                                    "No drafts found. Start a draft in MTG Arena!"
+                                }
+                            } else {
+                                Pagination {
+                                    current_page,
+                                    total_pages,
+                                    total_items,
+                                    page_size: PAGE_SIZE,
+                                }
+                                div { class: "overflow-x-auto",
+                                    table { class: "min-w-full table-auto",
+                                        thead {
+                                            tr { class: "bg-gray-100 text-left",
+                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Set" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Format" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Status" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Date" }
+                                            }
                                         }
-                                    }
-                                    tbody {
-                                        for draft in drafts_data {
-                                            DraftRow { key: "{draft.id()}", draft: draft.clone() }
+                                        tbody {
+                                            for draft in &drafts_data[start..end] {
+                                                DraftRow { key: "{draft.id()}", draft: draft.clone() }
+                                            }
                                         }
                                     }
                                 }

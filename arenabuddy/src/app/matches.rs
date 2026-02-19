@@ -2,7 +2,12 @@ use arenabuddy_core::models::MTGAMatch;
 use dioxus::prelude::*;
 use dioxus_router::Link;
 
-use crate::{app::Route, backend::Service};
+use crate::{
+    app::{Route, components::Pagination},
+    backend::Service,
+};
+
+const PAGE_SIZE: usize = 25;
 
 #[component]
 fn MatchRow(m: MTGAMatch) -> Element {
@@ -24,12 +29,14 @@ fn MatchRow(m: MTGAMatch) -> Element {
 #[component]
 pub(crate) fn Matches() -> Element {
     let service = use_context::<Service>();
+    let mut current_page = use_signal(|| 0usize);
     let mut matches_resource = use_resource(move || {
         let service = service.clone();
         async move { service.get_matches().await }
     });
 
     let refresh_matches = move |_| {
+        current_page.set(0);
         matches_resource.restart();
     };
 
@@ -72,31 +79,39 @@ pub(crate) fn Matches() -> Element {
                     }
                 },
 
-                Some(Ok(matches_data)) => rsx! {
-                    div { class: "bg-white rounded-lg shadow-md overflow-hidden",
-                        div { class: "p-4 border-b bg-gray-50",
-                            p { class: "text-gray-600",
-                                span { class: "font-medium", "{matches_data.len()}" }
-                                " matches found"
-                            }
-                        }
-                        if matches_data.is_empty() {
-                            div { class: "p-12 text-center text-gray-500",
-                                "No matches found. Play some games in MTG Arena!"
-                            }
-                        } else {
-                            div { class: "overflow-x-auto",
-                                table { class: "min-w-full table-auto",
-                                    thead {
-                                        tr { class: "bg-gray-100 text-left",
-                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Controller" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Opponent" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-700", "Date" }
+                Some(Ok(matches_data)) => {
+                    let total_items = matches_data.len();
+                    let total_pages = total_items.div_ceil(PAGE_SIZE).max(1);
+                    let page = current_page().min(total_pages.saturating_sub(1));
+                    let start = page * PAGE_SIZE;
+                    let end = (start + PAGE_SIZE).min(total_items);
+
+                    rsx! {
+                        div { class: "bg-white rounded-lg shadow-md overflow-hidden",
+                            if matches_data.is_empty() {
+                                div { class: "p-12 text-center text-gray-500",
+                                    "No matches found. Play some games in MTG Arena!"
+                                }
+                            } else {
+                                Pagination {
+                                    current_page,
+                                    total_pages,
+                                    total_items,
+                                    page_size: PAGE_SIZE,
+                                }
+                                div { class: "overflow-x-auto",
+                                    table { class: "min-w-full table-auto",
+                                        thead {
+                                            tr { class: "bg-gray-100 text-left",
+                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Controller" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Opponent" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-700", "Date" }
+                                            }
                                         }
-                                    }
-                                    tbody {
-                                        for m in matches_data.iter().rev() {
-                                            MatchRow { key: "{m.id()}", m: m.clone() }
+                                        tbody {
+                                            for m in &matches_data[start..end] {
+                                                MatchRow { key: "{m.id()}", m: m.clone() }
+                                            }
                                         }
                                     }
                                 }

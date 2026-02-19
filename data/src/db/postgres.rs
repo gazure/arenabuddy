@@ -424,7 +424,7 @@ impl PostgresMatchDB {
     /// will return an error if the database cannot be contacted for some reason
     async fn get_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
         let results: Vec<MatchRow> = sqlx::query_as(
-            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match WHERE ($1::uuid IS NULL OR user_id = $1)",
+            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match WHERE ($1::uuid IS NULL OR user_id = $1) ORDER BY created_at DESC",
         )
         .bind(user_id)
         .fetch_all(&self.pool)
@@ -631,6 +631,7 @@ impl PostgresMatchDB {
             r#"
                 SELECT id, set_code, draft_format, status, created_at
                 FROM draft
+                ORDER BY created_at DESC
             "#
         )
         .fetch_all(&self.pool)
