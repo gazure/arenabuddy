@@ -261,7 +261,7 @@ async fn build_match_details(
 
 /// Spawn an async task to sync a match to Google Sheets.
 /// This runs in the background and does not block the gRPC response.
-pub fn spawn_sheets_sync(
+pub(crate) fn spawn_sheets_sync(
     db: MatchDB,
     cards: CardsDatabase,
     match_id: String,

@@ -10,6 +10,10 @@ rust-version.workspace = true
 keywords.workspace = true
 license.workspace = true
 
+[lib]
+name = "arenabuddy_server"
+path = "src/lib.rs"
+
 [dependencies]
 arenabuddy_core = { path = "../core/" }
 arenabuddy_data = { path = "../data" }
