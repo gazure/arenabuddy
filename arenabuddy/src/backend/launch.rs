@@ -1,7 +1,7 @@
 use std::{path::Path, sync::Arc};
 
 use arenabuddy_core::cards::CardsDatabase;
-use arenabuddy_data::{DirectoryStorage, MatchDB};
+use arenabuddy_data::{ArenabuddyRepository, DirectoryStorage, MatchDB};
 use dioxus::{
     LaunchBuilder,
     desktop::{Config, WindowBuilder},
@@ -141,7 +141,7 @@ async fn create_app_service() -> Result<Service> {
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
     info!("using matches db: {:?}", url);
     let db = MatchDB::new(url.as_deref(), cards_db.clone()).await?;
-    db.initialize().await?;
+    db.init().await?;
     let log_collector = Arc::new(tokio::sync::Mutex::new(Vec::<String>::new()));
     let debug_backend = Arc::new(tokio::sync::Mutex::new(None::<DirectoryStorage>));
     Ok(AppService::new(db, cards_db, log_collector, debug_backend))

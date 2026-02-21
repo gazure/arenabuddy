@@ -4,12 +4,11 @@ use arenabuddy_core::services::auth_service::{
     ExchangeTokenRequest, ExchangeTokenResponse, GetCurrentUserRequest, GetCurrentUserResponse, LogoutRequest,
     LogoutResponse, RefreshTokenRequest, RefreshTokenResponse, User, auth_service_server::AuthService,
 };
-use arenabuddy_data::MatchDB;
+use arenabuddy_data::{AuthRepository, MatchDB};
 use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use sqlx::PgPool;
 use tonic::{Request, Response, Status};
 use tracingx::{error, info};
 use uuid::Uuid;
@@ -44,15 +43,15 @@ pub struct AuthConfig {
 }
 
 pub struct AuthServiceImpl {
-    pool: PgPool,
+    db: MatchDB,
     config: Arc<AuthConfig>,
     http: reqwest::Client,
 }
 
 impl AuthServiceImpl {
-    pub fn new(db: &MatchDB, config: Arc<AuthConfig>) -> Self {
+    pub fn new(db: MatchDB, config: Arc<AuthConfig>) -> Self {
         Self {
-            pool: db.pool().clone(),
+            db,
             config,
             http: reqwest::Client::new(),
         }
@@ -122,34 +121,6 @@ impl AuthServiceImpl {
         })
     }
 
-    async fn upsert_user(&self, discord_user: &DiscordUser) -> Result<Uuid, Status> {
-        let avatar_url = discord_user
-            .avatar
-            .as_ref()
-            .map(|hash| format!("https://cdn.discordapp.com/avatars/{}/{hash}.png", discord_user.id));
-
-        let row: (Uuid,) = sqlx::query_as(
-            r"
-            INSERT INTO app_user (discord_id, username, avatar_url)
-            VALUES ($1, $2, $3)
-            ON CONFLICT (discord_id)
-            DO UPDATE SET username = excluded.username, avatar_url = excluded.avatar_url, updated_at = now()
-            RETURNING id
-            ",
-        )
-        .bind(&discord_user.id)
-        .bind(&discord_user.username)
-        .bind(&avatar_url)
-        .fetch_one(&self.pool)
-        .await
-        .map_err(|e| {
-            error!("Failed to upsert user: {e}");
-            Status::internal("failed to create user")
-        })?;
-
-        Ok(row.0)
-    }
-
     fn mint_jwt(&self, user_id: &Uuid, discord_id: &str) -> Result<(String, i64), Status> {
         let exp = chrono::Utc::now()
             .checked_add_signed(chrono::Duration::minutes(ACCESS_TOKEN_LIFETIME_MINUTES))
@@ -182,11 +153,8 @@ impl AuthServiceImpl {
             .checked_add_signed(chrono::Duration::days(REFRESH_TOKEN_LIFETIME_DAYS))
             .ok_or_else(|| Status::internal("failed to compute refresh token expiry"))?;
 
-        sqlx::query("INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, $3)")
-            .bind(user_id)
-            .bind(&token_hash)
-            .bind(expires_at)
-            .execute(&self.pool)
+        self.db
+            .create_refresh_token(*user_id, &token_hash, expires_at)
             .await
             .map_err(|e| {
                 error!("Failed to store refresh token: {e}");
@@ -202,13 +170,7 @@ impl AuthServiceImpl {
         let token_hash = hash_token(raw_token);
 
         // Look up the token by hash
-        let row: Option<RefreshTokenRow> = sqlx::query_as(
-            "SELECT id, user_id, revoked FROM refresh_token WHERE token_hash = $1 AND expires_at > now()",
-        )
-        .bind(&token_hash)
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(|e| {
+        let row = self.db.find_refresh_token(&token_hash).await.map_err(|e| {
             error!("Failed to look up refresh token: {e}");
             Status::internal("failed to validate refresh token")
         })?;
@@ -222,43 +184,26 @@ impl AuthServiceImpl {
         // Revoke ALL tokens for this user as a precaution.
         if row.revoked {
             error!("Revoked refresh token reuse detected for user {}", row.user_id);
-            self.revoke_all_user_tokens(row.user_id).await?;
+            self.db.revoke_all_user_tokens(row.user_id).await.map_err(|e| {
+                error!("Failed to revoke all tokens for user {}: {e}", row.user_id);
+                Status::internal("failed to revoke tokens")
+            })?;
             return Err(Status::unauthenticated("token reuse detected"));
         }
 
         // Revoke the old token
-        sqlx::query("UPDATE refresh_token SET revoked = true WHERE id = $1")
-            .bind(row.id)
-            .execute(&self.pool)
-            .await
-            .map_err(|e| {
-                error!("Failed to revoke old refresh token: {e}");
-                Status::internal("failed to rotate refresh token")
-            })?;
+        self.db.revoke_refresh_token(row.id).await.map_err(|e| {
+            error!("Failed to revoke old refresh token: {e}");
+            Status::internal("failed to rotate refresh token")
+        })?;
 
         // Issue a new refresh token
         let (new_token, new_expires_at) = self.create_refresh_token(&row.user_id).await?;
 
         // Opportunistic cleanup: delete expired tokens for this user
-        let _ = sqlx::query("DELETE FROM refresh_token WHERE user_id = $1 AND expires_at < now()")
-            .bind(row.user_id)
-            .execute(&self.pool)
-            .await;
+        let _ = self.db.cleanup_expired_tokens(row.user_id).await;
 
         Ok((row.user_id, new_token, new_expires_at))
-    }
-
-    async fn revoke_all_user_tokens(&self, user_id: Uuid) -> Result<(), Status> {
-        sqlx::query("UPDATE refresh_token SET revoked = true WHERE user_id = $1")
-            .bind(user_id)
-            .execute(&self.pool)
-            .await
-            .map_err(|e| {
-                error!("Failed to revoke all tokens for user {user_id}: {e}");
-                Status::internal("failed to revoke tokens")
-            })?;
-        info!("Revoked all refresh tokens for user {user_id}");
-        Ok(())
     }
 }
 
@@ -340,13 +285,22 @@ impl AuthService for AuthServiceImpl {
             discord_user.username, discord_user.id
         );
 
-        let user_id = self.upsert_user(&discord_user).await?;
+        let avatar_url = discord_user
+            .avatar
+            .as_ref()
+            .map(|hash| format!("https://cdn.discordapp.com/avatars/{}/{hash}.png", discord_user.id));
+
+        let user_id = self
+            .db
+            .upsert_user(&discord_user.id, &discord_user.username, avatar_url.as_deref())
+            .await
+            .map_err(|e| {
+                error!("Failed to upsert user: {e}");
+                Status::internal("failed to create user")
+            })?;
+
         let (jwt, expires_at) = self.mint_jwt(&user_id, &discord_user.id)?;
         let (refresh_token, refresh_expires_at) = self.create_refresh_token(&user_id).await?;
-
-        let avatar_url = discord_user.avatar.as_ref().map_or_else(String::new, |hash| {
-            format!("https://cdn.discordapp.com/avatars/{}/{hash}.png", discord_user.id)
-        });
 
         Ok(Response::new(ExchangeTokenResponse {
             access_token: jwt,
@@ -355,7 +309,7 @@ impl AuthService for AuthServiceImpl {
                 id: user_id.to_string(),
                 discord_id: discord_user.id,
                 username: discord_user.username,
-                avatar_url,
+                avatar_url: avatar_url.unwrap_or_default(),
             }),
             refresh_token,
             refresh_expires_at,
@@ -377,18 +331,14 @@ impl AuthService for AuthServiceImpl {
             self.validate_and_rotate_refresh_token(&req.refresh_token).await?;
 
         // Fetch user to get discord_id for JWT claims
-        let user_row: AppUserRow =
-            sqlx::query_as("SELECT id, discord_id, username, avatar_url FROM app_user WHERE id = $1")
-                .bind(user_id)
-                .fetch_optional(&self.pool)
-                .await
-                .map_err(|e| {
-                    error!("Failed to fetch user for refresh: {e}");
-                    Status::internal("failed to fetch user")
-                })?
-                .ok_or_else(|| Status::not_found("user not found"))?;
+        let user = self.db.get_user(user_id).await.map_err(|e| {
+            error!("Failed to fetch user for refresh: {e}");
+            Status::internal("failed to fetch user")
+        })?;
 
-        let (jwt, expires_at) = self.mint_jwt(&user_id, &user_row.discord_id)?;
+        let user = user.ok_or_else(|| Status::not_found("user not found"))?;
+
+        let (jwt, expires_at) = self.mint_jwt(&user_id, &user.discord_id)?;
 
         info!("Refreshed tokens for user {user_id}");
         Ok(Response::new(RefreshTokenResponse {
@@ -410,17 +360,17 @@ impl AuthService for AuthServiceImpl {
         let token_hash = hash_token(&req.refresh_token);
 
         // Find the user who owns this token and revoke all their tokens
-        let row: Option<(Uuid,)> = sqlx::query_as("SELECT user_id FROM refresh_token WHERE token_hash = $1")
-            .bind(&token_hash)
-            .fetch_optional(&self.pool)
-            .await
-            .map_err(|e| {
-                error!("Failed to look up refresh token for logout: {e}");
-                Status::internal("failed to process logout")
-            })?;
+        let user_id = self.db.find_token_owner(&token_hash).await.map_err(|e| {
+            error!("Failed to look up refresh token for logout: {e}");
+            Status::internal("failed to process logout")
+        })?;
 
-        if let Some((user_id,)) = row {
-            self.revoke_all_user_tokens(user_id).await?;
+        if let Some(user_id) = user_id {
+            self.db.revoke_all_user_tokens(user_id).await.map_err(|e| {
+                error!("Failed to revoke all tokens for user {user_id}: {e}");
+                Status::internal("failed to revoke tokens")
+            })?;
+            info!("Revoked all refresh tokens for user {user_id}");
         }
 
         Ok(Response::new(LogoutResponse {}))
@@ -435,22 +385,19 @@ impl AuthService for AuthServiceImpl {
             .get::<UserId>()
             .ok_or_else(|| Status::unauthenticated("not authenticated"))?;
 
-        let row: AppUserRow = sqlx::query_as("SELECT id, discord_id, username, avatar_url FROM app_user WHERE id = $1")
-            .bind(user_id.0)
-            .fetch_optional(&self.pool)
-            .await
-            .map_err(|e| {
-                error!("Failed to fetch user: {e}");
-                Status::internal("failed to fetch user")
-            })?
-            .ok_or_else(|| Status::not_found("user not found"))?;
+        let user = self.db.get_user(user_id.0).await.map_err(|e| {
+            error!("Failed to fetch user: {e}");
+            Status::internal("failed to fetch user")
+        })?;
+
+        let user = user.ok_or_else(|| Status::not_found("user not found"))?;
 
         Ok(Response::new(GetCurrentUserResponse {
             user: Some(User {
-                id: row.id.to_string(),
-                discord_id: row.discord_id,
-                username: row.username,
-                avatar_url: row.avatar_url.unwrap_or_default(),
+                id: user.id.to_string(),
+                discord_id: user.discord_id,
+                username: user.username,
+                avatar_url: user.avatar_url.unwrap_or_default(),
             }),
         }))
     }
@@ -458,18 +405,3 @@ impl AuthService for AuthServiceImpl {
 
 #[derive(Debug, Clone)]
 pub struct UserId(pub Uuid);
-
-#[derive(Debug, sqlx::FromRow)]
-struct AppUserRow {
-    id: Uuid,
-    discord_id: String,
-    username: String,
-    avatar_url: Option<String>,
-}
-
-#[derive(Debug, sqlx::FromRow)]
-struct RefreshTokenRow {
-    id: Uuid,
-    user_id: Uuid,
-    revoked: bool,
-}

@@ -14,7 +14,7 @@ use arenabuddy_core::{
         replay::MatchReplay,
     },
 };
-use chrono::{NaiveDateTime, Utc};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
 use sqlx::{FromRow, PgPool, Postgres, Transaction, types::Uuid};
 use tracingx::{debug, error, info};
@@ -48,6 +48,11 @@ use std::sync::Arc;
 
 use arenabuddy_core::display::stats::{MatchStats, MulliganBucket, OpponentRecord};
 
+use super::{
+    auth_repository::AuthRepository,
+    debug_repository::DebugRepository,
+    models::{AppUser, RefreshToken},
+};
 use crate::{Error, Result, db::repository::ArenabuddyRepository};
 
 #[derive(Debug, Clone)]
@@ -144,15 +149,6 @@ impl PostgresMatchDB {
         };
 
         Ok(db_path)
-    }
-
-    pub fn pool(&self) -> &PgPool {
-        &self.pool
-    }
-
-    pub async fn initialize(&self) -> Result<()> {
-        sqlx::migrate!("./migrations/postgres").run(&self.pool).await?;
-        Ok(())
     }
 
     /// # Errors
@@ -304,254 +300,6 @@ impl PostgresMatchDB {
         Ok(())
     }
 
-    async fn get_event_logs(&self, match_id: &str) -> Result<Vec<GameEventLog>> {
-        let match_id = Uuid::parse_str(match_id)?;
-        let rows: Vec<EventLogRow> = sqlx::query_as(
-            "SELECT game_number, events_json FROM match_event_log WHERE match_id = $1 ORDER BY game_number",
-        )
-        .bind(match_id)
-        .fetch_all(&self.pool)
-        .await?;
-
-        let event_logs = rows
-            .into_iter()
-            .map(|row| {
-                let events = serde_json::from_str(&row.events_json).unwrap_or_default();
-                GameEventLog {
-                    game_number: row.game_number,
-                    events,
-                }
-            })
-            .collect();
-
-        Ok(event_logs)
-    }
-
-    /// # Errors
-    ///
-    /// will return an error if the database cannot be contacted for some reason
-    async fn get_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
-        let match_id = Uuid::parse_str(match_id)?;
-        let results = sqlx::query!(
-            "SELECT game_number, winning_team_id, result_scope FROM match_result WHERE match_id = $1 AND game_number > 0",
-            match_id
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        let match_results = results
-            .into_iter()
-            .map(|row| {
-                MatchResult::new(
-                    match_id.to_string(),
-                    row.game_number,
-                    row.winning_team_id,
-                    row.result_scope,
-                )
-            })
-            .collect();
-
-        Ok(match_results)
-    }
-
-    /// # Errors
-    ///
-    /// will return an error if the database cannot be contacted for some reason
-    async fn get_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
-        let match_id = Uuid::parse_str(match_id)?;
-        let results = sqlx::query!(
-            "SELECT game_number, deck_cards, sideboard_cards FROM deck WHERE match_id = $1",
-            match_id
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        let decks = results
-            .into_iter()
-            .map(|row| {
-                Deck::from_raw(
-                    "Found Deck".to_string(),
-                    row.game_number,
-                    &row.deck_cards,
-                    &row.sideboard_cards,
-                )
-            })
-            .collect();
-
-        Ok(decks)
-    }
-
-    async fn do_get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
-        let match_id = Uuid::parse_str(match_id)?;
-        let result = sqlx::query!("SELECT cards FROM opponent_deck WHERE match_id = $1", match_id)
-            .fetch_one(&self.pool)
-            .await?;
-
-        Ok(Deck::from_raw("Opponent_deck".to_string(), 0, &result.cards, ""))
-    }
-
-    /// # Errors
-    // will return an error if the database cannot be contacted for some reason
-    async fn get_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>> {
-        let match_id = Uuid::parse_str(match_id)?;
-        let results = sqlx::query!(
-            "SELECT game_number, number_to_keep, hand, play_draw, opponent_identity, decision FROM mulligan WHERE match_id = $1",
-            match_id
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        let mulligans = results
-            .into_iter()
-            .map(|row| {
-                Mulligan::new(
-                    match_id.to_string(),
-                    row.game_number,
-                    row.number_to_keep,
-                    row.hand,
-                    row.play_draw,
-                    row.opponent_identity,
-                    row.decision,
-                )
-            })
-            .collect();
-
-        Ok(mulligans)
-    }
-
-    /// # Errors
-    ///
-    /// will return an error if the database cannot be contacted for some reason
-    async fn get_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
-        let results: Vec<MatchRow> = sqlx::query_as(
-            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match WHERE ($1::uuid IS NULL OR user_id = $1) ORDER BY created_at DESC",
-        )
-        .bind(user_id)
-        .fetch_all(&self.pool)
-        .await?;
-
-        let matches: Vec<_> = results
-            .into_iter()
-            .map(|row| {
-                MTGAMatch::new_with_timestamp(
-                    row.id,
-                    row.controller_seat_id,
-                    row.controller_player_name,
-                    row.opponent_player_name,
-                    row.created_at
-                        .map(|naive: NaiveDateTime| naive.and_utc())
-                        .unwrap_or_default(),
-                )
-            })
-            .collect();
-
-        info!("found {} matches", matches.len());
-        Ok(matches)
-    }
-
-    /// # Errors
-    ///
-    /// Errors if underlying data is malformed
-    async fn retrieve_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<(MTGAMatch, Option<MatchResult>)> {
-        info!("Getting match details for match_id: {}", match_id);
-        let match_id = Uuid::parse_str(match_id)?;
-
-        let result: Option<MatchWithResultRow> = sqlx::query_as(
-            r"
-            SELECT
-                m.id, m.controller_player_name, m.opponent_player_name, mr.winning_team_id, m.controller_seat_id, m.created_at
-            FROM match m JOIN match_result mr ON m.id = mr.match_id
-            WHERE m.id = $1 AND mr.result_scope = 'MatchScope_Match' AND ($2::uuid IS NULL OR m.user_id = $2) LIMIT 1
-            ",
-        )
-        .bind(match_id)
-        .bind(user_id)
-        .fetch_optional(&self.pool)
-        .await?;
-
-        if let Some(row) = result {
-            Ok((
-                MTGAMatch::new_with_timestamp(
-                    row.id,
-                    row.controller_seat_id,
-                    row.controller_player_name,
-                    row.opponent_player_name,
-                    row.created_at
-                        .map(|naive: NaiveDateTime| naive.and_utc())
-                        .unwrap_or_default(),
-                ),
-                Some(MatchResult::new_match_result(row.id, row.winning_team_id)),
-            ))
-        } else {
-            error!("Error getting match details for match_id: {}", match_id);
-            Ok((MTGAMatch::default(), None))
-        }
-    }
-
-    /// # Errors
-    ///
-    /// will return an error if if the match replay cannot be written to the database due to missing data
-    /// or connection error
-    async fn write(&self, match_replay: &MatchReplay) -> crate::Result<()> {
-        info!("Writing match replay to database");
-        let controller_seat_id = match_replay.get_controller_seat_id();
-        let match_id = Uuid::parse_str(&match_replay.match_id)?;
-        let (controller_name, opponent_name) = match_replay.get_player_names(controller_seat_id)?;
-        let event_start = match_replay.match_start_time().unwrap_or(Utc::now());
-
-        let mtga_match = MTGAMatchBuilder::default()
-            .id(match_id.to_string())
-            .controller_seat_id(controller_seat_id)
-            .controller_player_name(controller_name)
-            .opponent_player_name(opponent_name)
-            .created_at(event_start)
-            .build()?;
-
-        let mut tx = self.pool.begin().await.map_err(Error::from)?;
-
-        Self::insert_match(&match_id, &mtga_match, None, &mut tx).await?;
-
-        let decklists = match_replay.get_decklists()?;
-        for deck in &decklists {
-            Self::insert_deck(&match_id, deck, &mut tx).await?;
-        }
-
-        let mulligan_infos = match_replay.get_mulligan_infos(&self.cards)?;
-        for mulligan_info in &mulligan_infos {
-            Self::insert_mulligan_info(&match_id, mulligan_info, &mut tx).await?;
-        }
-
-        // not too keen on this data model
-        let match_results = match_replay.get_match_results()?;
-        debug!("{:?}", match_results);
-        for (i, result) in match_results.result_list.iter().enumerate() {
-            let game_number = if result.scope == "MatchScope_Game" {
-                i32::try_from(i + 1).unwrap_or(0)
-            } else {
-                0
-            };
-
-            let match_result = MatchResultBuilder::default()
-                .match_id(match_id.to_string())
-                .game_number(game_number)
-                .winning_team_id(result.winning_team_id)
-                .result_scope(result.scope.clone())
-                .build()?;
-
-            Self::insert_match_result(&match_id, &match_result, &mut tx).await?;
-        }
-
-        Self::insert_opponent_deck(&match_id, &match_replay.get_opponent_cards(), &mut tx).await?;
-
-        let event_logs = match_replay.get_event_logs(&self.cards);
-        for event_log in &event_logs {
-            Self::insert_event_log(&match_id, event_log, &mut tx).await?;
-        }
-
-        tx.commit().await?;
-        Ok(())
-    }
-
     async fn insert_draft(draft: &Draft, tx: &mut Transaction<'_, Postgres>) -> Result<()> {
         sqlx::query!(
             r#"
@@ -620,127 +368,6 @@ impl PostgresMatchDB {
                 &mut tx,
             )
             .await?;
-        }
-
-        tx.commit().await?;
-        Ok(())
-    }
-
-    async fn do_list_drafts(&self) -> Result<Vec<Draft>> {
-        let result = sqlx::query!(
-            r#"
-                SELECT id, set_code, draft_format, status, created_at
-                FROM draft
-                ORDER BY created_at DESC
-            "#
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        Ok(result
-            .into_iter()
-            .map(|row| {
-                Draft::new(
-                    row.id,
-                    row.set_code,
-                    row.status.map(Format::from_str).unwrap_or_default(),
-                    row.draft_format.unwrap_or_default(),
-                )
-                .with_created_at(row.created_at.unwrap_or_default().and_utc())
-            })
-            .collect())
-    }
-
-    async fn do_get_draft(&self, draft_id: &str) -> Result<MTGADraft> {
-        let draft_id = Uuid::parse_str(draft_id)?;
-
-        // Get the draft details
-        let draft_row = sqlx::query!(
-            r#"
-            SELECT id, set_code, draft_format, status, created_at
-            FROM draft
-            WHERE id = $1
-            "#,
-            draft_id
-        )
-        .fetch_one(&self.pool)
-        .await?;
-
-        // Get all packs for this draft
-        let pack_rows = sqlx::query!(
-            r#"
-            SELECT id, pack_number, pick_number, selection_number, cards, card_id
-            FROM draft_pack
-            WHERE draft_id = $1
-            ORDER BY pack_number, pick_number, selection_number
-            "#,
-            draft_id
-        )
-        .fetch_all(&self.pool)
-        .await?;
-
-        // Construct the Draft model
-        let draft = Draft::new(
-            draft_row.id,
-            draft_row.set_code,
-            draft_row.draft_format.map(Format::from_str).unwrap_or_default(),
-            draft_row.status.unwrap_or_default(),
-        )
-        .with_created_at(draft_row.created_at.unwrap_or_default().and_utc());
-
-        // Construct the packs
-        let mut packs = Vec::new();
-        for row in pack_rows {
-            let cards: Vec<ArenaId> = serde_json::from_str(&row.cards)?;
-            let pack = DraftPack::new(
-                draft.id(),
-                row.pack_number as u8,
-                row.pick_number as u8,
-                row.selection_number as u8,
-                row.card_id.into(),
-                cards,
-            )
-            .with_id(row.id as u64);
-            packs.push(pack);
-        }
-
-        Ok(MTGADraft::new(draft, packs))
-    }
-
-    #[expect(clippy::too_many_arguments)]
-    async fn do_upsert_match_data(
-        &self,
-        mtga_match: &MTGAMatch,
-        decks: &[Deck],
-        mulligans: &[Mulligan],
-        results: &[MatchResult],
-        opponent_cards: &[ArenaId],
-        event_logs: &[GameEventLog],
-        user_id: Option<Uuid>,
-    ) -> Result<()> {
-        info!("Upserting match data for match_id: {}", mtga_match.id());
-        let match_id = Uuid::parse_str(mtga_match.id())?;
-
-        let mut tx = self.pool.begin().await.map_err(Error::from)?;
-
-        Self::insert_match(&match_id, mtga_match, user_id, &mut tx).await?;
-
-        for deck in decks {
-            Self::insert_deck(&match_id, deck, &mut tx).await?;
-        }
-
-        for mulligan in mulligans {
-            Self::insert_mulligan_info(&match_id, mulligan, &mut tx).await?;
-        }
-
-        for result in results {
-            Self::insert_match_result(&match_id, result, &mut tx).await?;
-        }
-
-        Self::insert_opponent_deck(&match_id, opponent_cards, &mut tx).await?;
-
-        for event_log in event_logs {
-            Self::insert_event_log(&match_id, event_log, &mut tx).await?;
         }
 
         tx.commit().await?;
@@ -883,8 +510,379 @@ impl PostgresMatchDB {
             })
             .collect())
     }
+}
 
-    async fn do_get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats> {
+#[async_trait::async_trait]
+impl ArenabuddyRepository for PostgresMatchDB {
+    async fn init(&self) -> Result<()> {
+        sqlx::migrate!("./migrations/postgres").run(&self.pool).await?;
+        Ok(())
+    }
+
+    async fn write_replay(&self, replay: &MatchReplay) -> Result<()> {
+        info!("Writing match replay to database");
+        let controller_seat_id = replay.get_controller_seat_id();
+        let match_id = Uuid::parse_str(&replay.match_id)?;
+        let (controller_name, opponent_name) = replay.get_player_names(controller_seat_id)?;
+        let event_start = replay.match_start_time().unwrap_or(Utc::now());
+
+        let mtga_match = MTGAMatchBuilder::default()
+            .id(match_id.to_string())
+            .controller_seat_id(controller_seat_id)
+            .controller_player_name(controller_name)
+            .opponent_player_name(opponent_name)
+            .created_at(event_start)
+            .build()?;
+
+        let mut tx = self.pool.begin().await.map_err(Error::from)?;
+
+        Self::insert_match(&match_id, &mtga_match, None, &mut tx).await?;
+
+        let decklists = replay.get_decklists()?;
+        for deck in &decklists {
+            Self::insert_deck(&match_id, deck, &mut tx).await?;
+        }
+
+        let mulligan_infos = replay.get_mulligan_infos(&self.cards)?;
+        for mulligan_info in &mulligan_infos {
+            Self::insert_mulligan_info(&match_id, mulligan_info, &mut tx).await?;
+        }
+
+        // not too keen on this data model
+        let match_results = replay.get_match_results()?;
+        debug!("{:?}", match_results);
+        for (i, result) in match_results.result_list.iter().enumerate() {
+            let game_number = if result.scope == "MatchScope_Game" {
+                i32::try_from(i + 1).unwrap_or(0)
+            } else {
+                0
+            };
+
+            let match_result = MatchResultBuilder::default()
+                .match_id(match_id.to_string())
+                .game_number(game_number)
+                .winning_team_id(result.winning_team_id)
+                .result_scope(result.scope.clone())
+                .build()?;
+
+            Self::insert_match_result(&match_id, &match_result, &mut tx).await?;
+        }
+
+        Self::insert_opponent_deck(&match_id, &replay.get_opponent_cards(), &mut tx).await?;
+
+        let event_logs = replay.get_event_logs(&self.cards);
+        for event_log in &event_logs {
+            Self::insert_event_log(&match_id, event_log, &mut tx).await?;
+        }
+
+        tx.commit().await?;
+        Ok(())
+    }
+
+    async fn get_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<(MTGAMatch, Option<MatchResult>)> {
+        info!("Getting match details for match_id: {}", match_id);
+        let match_id = Uuid::parse_str(match_id)?;
+
+        let result: Option<MatchWithResultRow> = sqlx::query_as(
+            r"
+            SELECT
+                m.id, m.controller_player_name, m.opponent_player_name, mr.winning_team_id, m.controller_seat_id, m.created_at
+            FROM match m JOIN match_result mr ON m.id = mr.match_id
+            WHERE m.id = $1 AND mr.result_scope = 'MatchScope_Match' AND ($2::uuid IS NULL OR m.user_id = $2) LIMIT 1
+            ",
+        )
+        .bind(match_id)
+        .bind(user_id)
+        .fetch_optional(&self.pool)
+        .await?;
+
+        if let Some(row) = result {
+            Ok((
+                MTGAMatch::new_with_timestamp(
+                    row.id,
+                    row.controller_seat_id,
+                    row.controller_player_name,
+                    row.opponent_player_name,
+                    row.created_at
+                        .map(|naive: NaiveDateTime| naive.and_utc())
+                        .unwrap_or_default(),
+                ),
+                Some(MatchResult::new_match_result(row.id, row.winning_team_id)),
+            ))
+        } else {
+            error!("Error getting match details for match_id: {}", match_id);
+            Ok((MTGAMatch::default(), None))
+        }
+    }
+
+    async fn list_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
+        let results: Vec<MatchRow> = sqlx::query_as(
+            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match WHERE ($1::uuid IS NULL OR user_id = $1) ORDER BY created_at DESC",
+        )
+        .bind(user_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        let matches: Vec<_> = results
+            .into_iter()
+            .map(|row| {
+                MTGAMatch::new_with_timestamp(
+                    row.id,
+                    row.controller_seat_id,
+                    row.controller_player_name,
+                    row.opponent_player_name,
+                    row.created_at
+                        .map(|naive: NaiveDateTime| naive.and_utc())
+                        .unwrap_or_default(),
+                )
+            })
+            .collect();
+
+        info!("found {} matches", matches.len());
+        Ok(matches)
+    }
+
+    async fn list_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
+        let match_id = Uuid::parse_str(match_id)?;
+        let results = sqlx::query!(
+            "SELECT game_number, deck_cards, sideboard_cards FROM deck WHERE match_id = $1",
+            match_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let decks = results
+            .into_iter()
+            .map(|row| {
+                Deck::from_raw(
+                    "Found Deck".to_string(),
+                    row.game_number,
+                    &row.deck_cards,
+                    &row.sideboard_cards,
+                )
+            })
+            .collect();
+
+        Ok(decks)
+    }
+
+    async fn list_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>> {
+        let match_id = Uuid::parse_str(match_id)?;
+        let results = sqlx::query!(
+            "SELECT game_number, number_to_keep, hand, play_draw, opponent_identity, decision FROM mulligan WHERE match_id = $1",
+            match_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let mulligans = results
+            .into_iter()
+            .map(|row| {
+                Mulligan::new(
+                    match_id.to_string(),
+                    row.game_number,
+                    row.number_to_keep,
+                    row.hand,
+                    row.play_draw,
+                    row.opponent_identity,
+                    row.decision,
+                )
+            })
+            .collect();
+
+        Ok(mulligans)
+    }
+
+    async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
+        let match_id = Uuid::parse_str(match_id)?;
+        let results = sqlx::query!(
+            "SELECT game_number, winning_team_id, result_scope FROM match_result WHERE match_id = $1 AND game_number > 0",
+            match_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let match_results = results
+            .into_iter()
+            .map(|row| {
+                MatchResult::new(
+                    match_id.to_string(),
+                    row.game_number,
+                    row.winning_team_id,
+                    row.result_scope,
+                )
+            })
+            .collect();
+
+        Ok(match_results)
+    }
+
+    async fn get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
+        let match_id = Uuid::parse_str(match_id)?;
+        let result = sqlx::query!("SELECT cards FROM opponent_deck WHERE match_id = $1", match_id)
+            .fetch_one(&self.pool)
+            .await?;
+
+        Ok(Deck::from_raw("Opponent_deck".to_string(), 0, &result.cards, ""))
+    }
+
+    async fn list_drafts(&self) -> Result<Vec<Draft>> {
+        let result = sqlx::query!(
+            r#"
+                SELECT id, set_code, draft_format, status, created_at
+                FROM draft
+                ORDER BY created_at DESC
+            "#
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(result
+            .into_iter()
+            .map(|row| {
+                Draft::new(
+                    row.id,
+                    row.set_code,
+                    row.status.map(Format::from_str).unwrap_or_default(),
+                    row.draft_format.unwrap_or_default(),
+                )
+                .with_created_at(row.created_at.unwrap_or_default().and_utc())
+            })
+            .collect())
+    }
+
+    async fn get_draft(&self, draft_id: &str) -> Result<MTGADraft> {
+        let draft_id = Uuid::parse_str(draft_id)?;
+
+        // Get the draft details
+        let draft_row = sqlx::query!(
+            r#"
+            SELECT id, set_code, draft_format, status, created_at
+            FROM draft
+            WHERE id = $1
+            "#,
+            draft_id
+        )
+        .fetch_one(&self.pool)
+        .await?;
+
+        // Get all packs for this draft
+        let pack_rows = sqlx::query!(
+            r#"
+            SELECT id, pack_number, pick_number, selection_number, cards, card_id
+            FROM draft_pack
+            WHERE draft_id = $1
+            ORDER BY pack_number, pick_number, selection_number
+            "#,
+            draft_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        // Construct the Draft model
+        let draft = Draft::new(
+            draft_row.id,
+            draft_row.set_code,
+            draft_row.draft_format.map(Format::from_str).unwrap_or_default(),
+            draft_row.status.unwrap_or_default(),
+        )
+        .with_created_at(draft_row.created_at.unwrap_or_default().and_utc());
+
+        // Construct the packs
+        let mut packs = Vec::new();
+        for row in pack_rows {
+            let cards: Vec<ArenaId> = serde_json::from_str(&row.cards)?;
+            let pack = DraftPack::new(
+                draft.id(),
+                row.pack_number as u8,
+                row.pick_number as u8,
+                row.selection_number as u8,
+                row.card_id.into(),
+                cards,
+            )
+            .with_id(row.id as u64);
+            packs.push(pack);
+        }
+
+        Ok(MTGADraft::new(draft, packs))
+    }
+
+    async fn upsert_match_data(
+        &self,
+        mtga_match: &MTGAMatch,
+        decks: &[Deck],
+        mulligans: &[Mulligan],
+        results: &[MatchResult],
+        opponent_cards: &[ArenaId],
+        event_logs: &[GameEventLog],
+        user_id: Option<Uuid>,
+    ) -> Result<()> {
+        info!("Upserting match data for match_id: {}", mtga_match.id());
+        let match_id = Uuid::parse_str(mtga_match.id())?;
+
+        let mut tx = self.pool.begin().await.map_err(Error::from)?;
+
+        Self::insert_match(&match_id, mtga_match, user_id, &mut tx).await?;
+
+        for deck in decks {
+            Self::insert_deck(&match_id, deck, &mut tx).await?;
+        }
+
+        for mulligan in mulligans {
+            Self::insert_mulligan_info(&match_id, mulligan, &mut tx).await?;
+        }
+
+        for result in results {
+            Self::insert_match_result(&match_id, result, &mut tx).await?;
+        }
+
+        Self::insert_opponent_deck(&match_id, opponent_cards, &mut tx).await?;
+
+        for event_log in event_logs {
+            Self::insert_event_log(&match_id, event_log, &mut tx).await?;
+        }
+
+        tx.commit().await?;
+        Ok(())
+    }
+
+    async fn list_event_logs(&self, match_id: &str) -> Result<Vec<GameEventLog>> {
+        let match_id = Uuid::parse_str(match_id)?;
+        let rows: Vec<EventLogRow> = sqlx::query_as(
+            "SELECT game_number, events_json FROM match_event_log WHERE match_id = $1 ORDER BY game_number",
+        )
+        .bind(match_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        let event_logs = rows
+            .into_iter()
+            .map(|row| {
+                let events = serde_json::from_str(&row.events_json).unwrap_or_default();
+                GameEventLog {
+                    game_number: row.game_number,
+                    events,
+                }
+            })
+            .collect();
+
+        Ok(event_logs)
+    }
+
+    async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
+        info!("Deleting match: {}", match_id);
+        let match_id = Uuid::parse_str(match_id)?;
+
+        sqlx::query("DELETE FROM match WHERE id = $1 AND ($2::uuid IS NULL OR user_id = $2)")
+            .bind(match_id)
+            .bind(user_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    async fn get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats> {
         let (total_matches, match_wins) = self.query_record(user_id, "MatchScope_Match").await?;
         let (total_games, game_wins) = self.query_record(user_id, "MatchScope_Game").await?;
         let (play_wins, play_losses, draw_wins, draw_losses) = self.query_play_draw_stats(user_id).await?;
@@ -906,96 +904,6 @@ impl PostgresMatchDB {
             opponents,
         })
     }
-
-    async fn do_delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
-        info!("Deleting match: {}", match_id);
-        let match_id = Uuid::parse_str(match_id)?;
-
-        sqlx::query("DELETE FROM match WHERE id = $1 AND ($2::uuid IS NULL OR user_id = $2)")
-            .bind(match_id)
-            .bind(user_id)
-            .execute(&self.pool)
-            .await?;
-
-        Ok(())
-    }
-}
-
-#[async_trait::async_trait]
-impl ArenabuddyRepository for PostgresMatchDB {
-    async fn init(&self) -> Result<()> {
-        self.initialize().await
-    }
-
-    async fn write_replay(&self, replay: &MatchReplay) -> Result<()> {
-        self.write(replay).await
-    }
-
-    async fn get_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<(MTGAMatch, Option<MatchResult>)> {
-        self.retrieve_match(match_id, user_id).await
-    }
-
-    async fn list_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
-        self.get_matches(user_id).await
-    }
-
-    async fn list_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
-        self.get_decklists(match_id).await
-    }
-
-    async fn list_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>> {
-        self.get_mulligans(match_id).await
-    }
-
-    async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
-        self.get_match_results(match_id).await
-    }
-
-    async fn get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
-        self.do_get_opponent_deck(match_id).await
-    }
-
-    async fn list_drafts(&self) -> Result<Vec<Draft>> {
-        self.do_list_drafts().await
-    }
-
-    async fn get_draft(&self, draft_id: &str) -> Result<MTGADraft> {
-        self.do_get_draft(draft_id).await
-    }
-
-    async fn upsert_match_data(
-        &self,
-        mtga_match: &MTGAMatch,
-        decks: &[Deck],
-        mulligans: &[Mulligan],
-        results: &[MatchResult],
-        opponent_cards: &[ArenaId],
-        event_logs: &[GameEventLog],
-        user_id: Option<Uuid>,
-    ) -> Result<()> {
-        self.do_upsert_match_data(
-            mtga_match,
-            decks,
-            mulligans,
-            results,
-            opponent_cards,
-            event_logs,
-            user_id,
-        )
-        .await
-    }
-
-    async fn list_event_logs(&self, match_id: &str) -> Result<Vec<GameEventLog>> {
-        self.get_event_logs(match_id).await
-    }
-
-    async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
-        self.do_delete_match(match_id, user_id).await
-    }
-
-    async fn get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats> {
-        self.do_get_match_stats(user_id).await
-    }
 }
 
 #[async_trait::async_trait]
@@ -1015,5 +923,114 @@ impl DraftWriter for PostgresMatchDB {
             error!("Failed to write draft: {}", e);
             arenabuddy_core::Error::Io(e.to_string())
         })
+    }
+}
+
+#[async_trait::async_trait]
+impl AuthRepository for PostgresMatchDB {
+    async fn upsert_user(&self, discord_id: &str, username: &str, avatar_url: Option<&str>) -> Result<Uuid> {
+        let row: (Uuid,) = sqlx::query_as(
+            r"
+            INSERT INTO app_user (discord_id, username, avatar_url)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (discord_id)
+            DO UPDATE SET username = excluded.username, avatar_url = excluded.avatar_url, updated_at = now()
+            RETURNING id
+            ",
+        )
+        .bind(discord_id)
+        .bind(username)
+        .bind(avatar_url)
+        .fetch_one(&self.pool)
+        .await?;
+
+        Ok(row.0)
+    }
+
+    async fn get_user(&self, user_id: Uuid) -> Result<Option<AppUser>> {
+        let row: Option<AppUser> =
+            sqlx::query_as("SELECT id, discord_id, username, avatar_url FROM app_user WHERE id = $1")
+                .bind(user_id)
+                .fetch_optional(&self.pool)
+                .await?;
+
+        Ok(row)
+    }
+
+    async fn create_refresh_token(&self, user_id: Uuid, token_hash: &[u8], expires_at: DateTime<Utc>) -> Result<()> {
+        sqlx::query("INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, $3)")
+            .bind(user_id)
+            .bind(token_hash)
+            .bind(expires_at)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    async fn find_refresh_token(&self, token_hash: &[u8]) -> Result<Option<RefreshToken>> {
+        let row: Option<RefreshToken> = sqlx::query_as(
+            "SELECT id, user_id, revoked FROM refresh_token WHERE token_hash = $1 AND expires_at > now()",
+        )
+        .bind(token_hash)
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(row)
+    }
+
+    async fn revoke_refresh_token(&self, token_id: Uuid) -> Result<()> {
+        sqlx::query("UPDATE refresh_token SET revoked = true WHERE id = $1")
+            .bind(token_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    async fn revoke_all_user_tokens(&self, user_id: Uuid) -> Result<()> {
+        sqlx::query("UPDATE refresh_token SET revoked = true WHERE user_id = $1")
+            .bind(user_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+
+    async fn find_token_owner(&self, token_hash: &[u8]) -> Result<Option<Uuid>> {
+        let row: Option<(Uuid,)> = sqlx::query_as("SELECT user_id FROM refresh_token WHERE token_hash = $1")
+            .bind(token_hash)
+            .fetch_optional(&self.pool)
+            .await?;
+
+        Ok(row.map(|(user_id,)| user_id))
+    }
+
+    async fn cleanup_expired_tokens(&self, user_id: Uuid) -> Result<()> {
+        sqlx::query("DELETE FROM refresh_token WHERE user_id = $1 AND expires_at < now()")
+            .bind(user_id)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl DebugRepository for PostgresMatchDB {
+    async fn insert_parse_error(
+        &self,
+        user_id: Option<Uuid>,
+        raw_json: &str,
+        reported_at: DateTime<Utc>,
+    ) -> Result<()> {
+        sqlx::query("INSERT INTO parse_error (user_id, raw_json, reported_at) VALUES ($1, $2, $3)")
+            .bind(user_id)
+            .bind(raw_json)
+            .bind(reported_at)
+            .execute(&self.pool)
+            .await?;
+
+        Ok(())
     }
 }

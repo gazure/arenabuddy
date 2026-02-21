@@ -16,15 +16,14 @@ use arenabuddy_core::{
         },
     },
 };
-use arenabuddy_data::{ArenabuddyRepository, MatchDB};
-use sqlx::PgPool;
+use arenabuddy_data::{ArenabuddyRepository, DebugRepository, MatchDB};
 use tonic::{Request, Response, Status, transport::Server};
 use tracingx::{error, info};
 
+use crate::auth::{AuthConfig, AuthServiceImpl, UserId, auth_interceptor};
+
 mod auth;
 mod sheets_sync;
-
-use auth::{AuthConfig, AuthServiceImpl, UserId, auth_interceptor};
 
 struct MatchServiceImpl {
     db: MatchDB,
@@ -33,7 +32,7 @@ struct MatchServiceImpl {
 }
 
 struct DebugServiceImpl {
-    pool: PgPool,
+    db: MatchDB,
 }
 
 #[tonic::async_trait]
@@ -189,11 +188,8 @@ impl DebugService for DebugServiceImpl {
         for err in &errors {
             let reported_at = chrono::DateTime::from_timestamp(err.timestamp, 0).unwrap_or_else(chrono::Utc::now);
 
-            sqlx::query("INSERT INTO parse_error (user_id, raw_json, reported_at) VALUES ($1, $2, $3)")
-                .bind(user_id)
-                .bind(&err.raw_json)
-                .bind(reported_at)
-                .execute(&self.pool)
+            self.db
+                .insert_parse_error(user_id, &err.raw_json, reported_at)
                 .await
                 .map_err(|e| {
                     error!("Failed to insert parse error: {e}");
@@ -241,10 +237,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cards: cards.clone(),
         spreadsheet_id,
     };
-    let debug_service = DebugServiceImpl {
-        pool: db.pool().clone(),
-    };
-    let auth_service = AuthServiceImpl::new(&db, auth_config.clone());
+    let debug_service = DebugServiceImpl { db: db.clone() };
+    let auth_service = AuthServiceImpl::new(db, auth_config.clone());
 
     let interceptor = auth_interceptor(auth_config.jwt_secret.clone());
 

@@ -4,7 +4,7 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     player_log::ingest::{IngestionConfig, LogIngestionService},
 };
-use arenabuddy_data::{DirectoryStorage, MatchDB};
+use arenabuddy_data::{ArenabuddyRepository, DirectoryStorage, MatchDB};
 use tracingx::info;
 
 use crate::Result;
@@ -41,7 +41,7 @@ pub async fn execute(
     if let Some(db_url) = db {
         info!("Writing replays to database: {}", db_url);
         let db = MatchDB::new(Some(db_url), cards_db).await?;
-        db.initialize().await?;
+        db.init().await?;
         service = service.add_writer(Box::new(db));
     }
 
