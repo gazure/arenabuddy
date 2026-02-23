@@ -23,9 +23,9 @@ pub enum Error {
     DatabaseNotFound,
     #[error("IO error: {0}")]
     Io(String),
-    #[error("proto decoding error")]
+    #[error("proto encoding error: {0}")]
     ProtoEncodeError(#[from] prost::EncodeError),
-    #[error("proto decoding error")]
+    #[error("proto decoding error: {0}")]
     ProtoDecodeError(#[from] prost::DecodeError),
     #[error("Could not decode data")]
     DecodeError,
@@ -48,7 +48,7 @@ pub enum Error {
 }
 
 impl From<std::io::Error> for Error {
-    fn from(_: std::io::Error) -> Self {
-        Error::DatabaseNotFound
+    fn from(e: std::io::Error) -> Self {
+        Error::Io(e.to_string())
     }
 }

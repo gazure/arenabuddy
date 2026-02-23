@@ -141,13 +141,15 @@ impl From<&GameEventLogDomain> for GameEventLogProto {
 
 // --- MatchData ↔ MatchData proto ---
 
-impl From<&MatchDataProto> for MatchDataDomain {
-    fn from(proto: &MatchDataProto) -> Self {
-        let mtga_match_proto = proto.mtga_match.as_ref().expect("MatchData must have mtga_match");
+impl TryFrom<&MatchDataProto> for MatchDataDomain {
+    type Error = crate::Error;
+
+    fn try_from(proto: &MatchDataProto) -> crate::Result<Self> {
+        let mtga_match_proto = proto.mtga_match.as_ref().ok_or_else(|| crate::Error::DecodeError)?;
         let mtga_match = MTGAMatch::from(mtga_match_proto);
         let match_id = mtga_match.id().to_string();
 
-        Self {
+        Ok(Self {
             mtga_match,
             decks: proto.decks.clone(),
             mulligans: proto
@@ -165,7 +167,7 @@ impl From<&MatchDataProto> for MatchDataDomain {
                 .as_ref()
                 .map_or_else(OpponentDeck::empty, OpponentDeck::from),
             event_logs: proto.event_logs.iter().map(GameEventLogDomain::from).collect(),
-        }
+        })
     }
 }
 

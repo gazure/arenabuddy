@@ -131,8 +131,7 @@ pub async fn start(
 
     // Add gRPC writer and debug reporter
     let mut debug_reporter: Option<Arc<Mutex<DebugReporter>>> = None;
-    let grpc_url =
-        std::env::var("ARENABUDDY_GRPC_URL").unwrap_or_else(|_| "https://arenabuddy.grantazure.com".to_string());
+    let grpc_url = super::paths::grpc_url();
     let service = {
         match GrpcReplayWriter::connect(&grpc_url, cards, auth_state.clone()).await {
             Ok(writer) => {

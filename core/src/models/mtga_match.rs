@@ -100,13 +100,13 @@ impl MTGAMatch {
         self.controller_seat_id == seat_id
     }
 
-    /// Returns the player name for the given seat ID
-    pub fn player_name_for_seat(&self, seat_id: i32) -> Option<&str> {
+    /// Returns the player name for the given seat ID.
+    /// If the seat is the controller, returns the controller's name; otherwise the opponent's.
+    pub fn player_name_for_seat(&self, seat_id: i32) -> &str {
         if self.is_controller(seat_id) {
-            Some(&self.controller_player_name)
+            &self.controller_player_name
         } else {
-            // We don't know the exact opponent seat ID, but we know it's not the controller
-            Some(&self.opponent_player_name)
+            &self.opponent_player_name
         }
     }
 }

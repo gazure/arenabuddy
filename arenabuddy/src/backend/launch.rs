@@ -26,7 +26,7 @@ pub type BackgroundRuntime = Arc<tokio::runtime::Runtime>;
 
 pub fn launch() -> Result<()> {
     let data_dir = get_app_data_dir()?;
-    let home = std::env::home_dir().ok_or(Error::NoHomeDir)?;
+    let home = dirs::home_dir().ok_or(Error::NoHomeDir)?;
     let player_log_path = match std::env::consts::OS {
         "macos" => Ok(home.join("Library/Logs/Wizards of the Coast/MTGA/Player.log")),
         "windows" => Ok(home.join("AppData/LocalLow/Wizards of the Coast/MTGA/Player.log")),
@@ -69,15 +69,7 @@ pub fn launch() -> Result<()> {
 }
 
 fn get_app_data_dir() -> Result<std::path::PathBuf> {
-    let home = std::env::home_dir().ok_or(Error::NoHomeDir)?;
-
-    let app_data = match std::env::consts::OS {
-        "macos" => home.join("Library/Application Support/com.gazure.dev.arenabuddy.app"),
-        "windows" => home.join("AppData/Roaming/com.gazure.dev.arenabuddy.app"),
-        "linux" => home.join(".local/share/com.gazure.dev.arenabuddy.app"),
-        _ => return Err(Error::UnsupportedOS),
-    };
-
+    let app_data = super::paths::app_data_dir().ok_or(Error::NoHomeDir)?;
     std::fs::create_dir_all(&app_data).map_err(|_| Error::CorruptedAppData)?;
     Ok(app_data)
 }

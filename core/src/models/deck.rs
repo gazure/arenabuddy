@@ -78,20 +78,22 @@ impl Display for Deck {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}\nMainboard: {} cards\n{}\nSideboard: {} cards\n{}",
+            "{}\nMainboard: {} cards\n{}\n\nSideboard: {} cards\n{}\n",
             self.name(),
             self.mainboard_size(),
             &self
                 .mainboard
                 .iter()
                 .map(ToString::to_string)
-                .fold(String::new(), |acc, i| acc + &i + "\n"),
+                .collect::<Vec<_>>()
+                .join("\n"),
             self.sideboard_size(),
             &self
                 .sideboard
                 .iter()
                 .map(ToString::to_string)
-                .fold(String::new(), |acc, i| acc + &i + "\n")
+                .collect::<Vec<_>>()
+                .join("\n")
         )
     }
 }

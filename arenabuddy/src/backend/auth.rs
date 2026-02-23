@@ -46,14 +46,7 @@ struct SavedAuth {
 }
 
 fn auth_file_path() -> Option<PathBuf> {
-    let home = std::env::home_dir()?;
-    let dir = match std::env::consts::OS {
-        "macos" => home.join("Library/Application Support/com.gazure.dev.arenabuddy.app"),
-        "windows" => home.join("AppData/Roaming/com.gazure.dev.arenabuddy.app"),
-        "linux" => home.join(".local/share/com.gazure.dev.arenabuddy.app"),
-        _ => return None,
-    };
-    Some(dir.join("auth.json"))
+    Some(super::paths::app_data_dir()?.join("auth.json"))
 }
 
 /// Save auth state to disk.

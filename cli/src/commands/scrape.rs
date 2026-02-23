@@ -1,7 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
     path::Path,
-    thread::sleep,
     time::Duration,
 };
 
@@ -99,14 +98,14 @@ async fn extract_set(
     let mut data: serde_json::Value = response.json().await?;
     let mut ret = HashMap::new();
     extract_set_cards(&mut ret, &data);
-    while let Some(next_page) = data["next_page"].as_str() {
-        let response = client.get(next_page).send().await?;
-        response.error_for_status_ref()?;
-
-        data = response.json().await?;
-        extract_set_cards(&mut ret, &data);
-        sleep(Duration::from_millis(150));
-    }
+    super::scryfall::paginate(
+        client,
+        &mut data,
+        &mut ret,
+        Duration::from_millis(150),
+        extract_set_cards,
+    )
+    .await?;
     debug!("Extracted {} cards from {set}", ret.len());
     Ok(ret)
 }

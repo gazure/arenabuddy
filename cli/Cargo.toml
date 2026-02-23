@@ -15,6 +15,7 @@ arenabuddy_core = { path = "../core" }
 arenabuddy_data = { path = "../data" }
 clap = { workspace = true }
 csv = { workspace = true }
+dirs = { workspace = true }
 ctrlc = { workspace = true }
 prost = { workspace = true }
 reqwest = { workspace = true, features = ["json", "stream", "default-tls"] }

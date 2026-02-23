@@ -10,7 +10,7 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tonic::{Request, Response, Status};
-use tracingx::{error, info};
+use tracingx::{debug, error, info};
 use uuid::Uuid;
 
 const ACCESS_TOKEN_LIFETIME_MINUTES: i64 = 15;
@@ -228,7 +228,7 @@ pub fn validate_jwt(token: &str, jwt_secret: &str) -> Result<Claims, jsonwebtoke
 
 pub fn auth_interceptor(jwt_secret: String) -> impl Fn(Request<()>) -> Result<Request<()>, Status> + Clone {
     move |mut req: Request<()>| {
-        info!("Incoming authenticated request");
+        debug!("Incoming authenticated request");
 
         let token = req
             .metadata()
@@ -250,7 +250,7 @@ pub fn auth_interceptor(jwt_secret: String) -> impl Fn(Request<()>) -> Result<Re
             .parse::<Uuid>()
             .map_err(|_| Status::unauthenticated("invalid token claims"))?;
 
-        info!("Authorized user {user_id}");
+        debug!("Authorized user {user_id}");
         req.extensions_mut().insert(UserId(user_id));
         Ok(req)
     }
@@ -380,12 +380,27 @@ impl AuthService for AuthServiceImpl {
         &self,
         request: Request<GetCurrentUserRequest>,
     ) -> Result<Response<GetCurrentUserResponse>, Status> {
-        let user_id = request
-            .extensions()
-            .get::<UserId>()
-            .ok_or_else(|| Status::unauthenticated("not authenticated"))?;
+        // AuthService is not behind the auth interceptor (because exchange_token,
+        // refresh_token, and logout must be callable without a JWT), so we validate
+        // the JWT manually here.
+        let token = request
+            .metadata()
+            .get("authorization")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|v| v.strip_prefix("Bearer "))
+            .ok_or_else(|| Status::unauthenticated("missing authorization token"))?;
 
-        let user = self.db.get_user(user_id.0).await.map_err(|e| {
+        let claims = validate_jwt(token, &self.config.jwt_secret).map_err(|e| {
+            error!("get_current_user: JWT validation failed: {e}");
+            Status::unauthenticated("invalid token")
+        })?;
+
+        let user_id: Uuid = claims
+            .sub
+            .parse()
+            .map_err(|_| Status::unauthenticated("invalid token claims"))?;
+
+        let user = self.db.get_user(user_id).await.map_err(|e| {
             error!("Failed to fetch user: {e}");
             Status::internal("failed to fetch user")
         })?;
