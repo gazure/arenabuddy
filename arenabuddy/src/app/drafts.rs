@@ -23,7 +23,7 @@ fn DraftRow(draft: Draft) -> Element {
             td { class: "py-3 px-4 border-b", "{draft.format()}" }
             td { class: "py-3 px-4 border-b",
                 span { class: if draft.status() == "DraftStatus_Complete" { "text-green-600" } else { "text-yellow-600" },
-                    "COMPLETE"
+                    if draft.status() == "DraftStatus_Complete" { "COMPLETE" } else { "IN PROGRESS" }
                 }
             }
             td { class: "py-3 px-4 border-b text-gray-500", "{draft.created_at()}" }

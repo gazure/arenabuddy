@@ -175,10 +175,17 @@ pub enum Format {
     Other,
 }
 
+impl std::str::FromStr for Format {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+        Ok(Self::parse_format(s))
+    }
+}
+
 impl Format {
-    /// Parse a format string into the Format enum. Infallible
-    #[expect(clippy::should_implement_trait)]
-    pub fn from_str(s: impl AsRef<str>) -> Self {
+    /// Parse a format string into the Format enum. Infallible — returns `Other` for unknown values.
+    pub fn parse_format(s: impl AsRef<str>) -> Self {
         match s.as_ref() {
             "PickTwoDraft" => Format::PickTwoDraft,
             "PremierDraft" => Format::PremierDraft,

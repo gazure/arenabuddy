@@ -37,9 +37,7 @@ impl CardsDatabase {
         Ok(Self { db: Arc::new(cards_db) })
     }
 
-    /// # Errors
-    ///
-    /// Will return an error if the card cannot be found in the database
+    /// Returns the pretty name of the card, or `None` if not found.
     pub fn get_pretty_name<T>(&self, grp_id: &T) -> Option<String>
     where
         T: AsRef<str>,

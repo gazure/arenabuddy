@@ -2,7 +2,6 @@
 use std::{
     collections::{HashMap, HashSet},
     path::{Path, PathBuf},
-    thread::sleep,
     time::Duration,
 };
 
@@ -70,7 +69,7 @@ fn find_mtga_database(mtga_path: Option<&PathBuf>) -> Result<PathBuf> {
     } else {
         // Get home directory using std
         let home_dir =
-            std::env::home_dir().ok_or_else(|| Error::Config("Could not determine home directory".to_string()))?;
+            dirs::home_dir().ok_or_else(|| Error::Config("Could not determine home directory".to_string()))?;
 
         // Default paths by platform
         #[cfg(target_os = "macos")]
@@ -261,7 +260,7 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
                     );
 
                     // Rate limit before the request
-                    sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS));
+                    tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
 
                     // Fetch and cache
                     if let Some(json) = fetch_scryfall_card_by_arena_id(&client, scryfall_host, fallback_id).await? {
@@ -299,7 +298,7 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
         }
 
         // Rate limiting between sets
-        sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS));
+        tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
     }
 
     if !failed_cards.is_empty() {
@@ -353,14 +352,14 @@ async fn fetch_scryfall_set(
     extract_set_cards(&mut cards_by_collector_number, &data);
 
     // Handle pagination
-    while let Some(next_page) = data["next_page"].as_str() {
-        sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS));
-
-        let response = client.get(next_page).send().await?;
-        response.error_for_status_ref()?;
-        data = response.json().await?;
-        extract_set_cards(&mut cards_by_collector_number, &data);
-    }
+    super::scryfall::paginate(
+        client,
+        &mut data,
+        &mut cards_by_collector_number,
+        Duration::from_millis(SCRYFALL_RATE_LIMIT_MS),
+        extract_set_cards,
+    )
+    .await?;
 
     debug!("Fetched {} cards for set {}", cards_by_collector_number.len(), set);
 

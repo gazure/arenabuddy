@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use arenabuddy_core::{
     Result,
@@ -17,7 +17,7 @@ impl DirectoryStorage {
         Self { path }
     }
 
-    pub fn path(&self) -> &PathBuf {
+    pub fn path(&self) -> &Path {
         &self.path
     }
 

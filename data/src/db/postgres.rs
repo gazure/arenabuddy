@@ -129,7 +129,7 @@ impl PostgresMatchDB {
 
     fn get_embedded_db_path() -> Result<std::path::PathBuf> {
         // Use platform-appropriate application data directory
-        let home = std::env::home_dir().ok_or_else(|| {
+        let home = dirs::home_dir().ok_or_else(|| {
             Error::IoError(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
                 "Could not determine home directory",
@@ -743,8 +743,8 @@ impl ArenabuddyRepository for PostgresMatchDB {
                 Draft::new(
                     row.id,
                     row.set_code,
-                    row.status.map(Format::from_str).unwrap_or_default(),
-                    row.draft_format.unwrap_or_default(),
+                    row.draft_format.map(Format::parse_format).unwrap_or_default(),
+                    row.status.unwrap_or_default(),
                 )
                 .with_created_at(row.created_at.unwrap_or_default().and_utc())
             })
@@ -783,7 +783,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         let draft = Draft::new(
             draft_row.id,
             draft_row.set_code,
-            draft_row.draft_format.map(Format::from_str).unwrap_or_default(),
+            draft_row.draft_format.map(Format::parse_format).unwrap_or_default(),
             draft_row.status.unwrap_or_default(),
         )
         .with_created_at(draft_row.created_at.unwrap_or_default().and_utc());

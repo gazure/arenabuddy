@@ -2,6 +2,7 @@ pub(crate) mod auth;
 pub(crate) mod grpc_writer;
 pub(crate) mod ingest;
 mod launch;
+pub(crate) mod paths;
 mod service;
 
 pub use auth::{SharedAuthState, new_shared_auth_state};

@@ -37,7 +37,7 @@ use crate::{
 pub struct EnrichedDraftPack {
     pack_number: u8,
     pick_number: u8,
-    selection_nubmer: u8,
+    selection_number: u8,
     picked_card: Option<CardDisplayRecord>,
     available_cards: Vec<CardDisplayRecord>,
 }
@@ -47,7 +47,7 @@ impl PartialEq for EnrichedDraftPack {
         // Compare pack/pick numbers and card counts since Card doesn't implement PartialEq
         self.pack_number == other.pack_number
             && self.pick_number == other.pick_number
-            && self.selection_nubmer == other.selection_nubmer
+            && self.selection_number == other.selection_number
             && self.picked_card.is_some() == other.picked_card.is_some()
             && self.available_cards.len() == other.available_cards.len()
     }
@@ -66,7 +66,7 @@ impl EnrichedDraftPack {
         Self {
             pack_number: pack.pack_number(),
             pick_number: pack.pick_number(),
-            selection_nubmer: pack.selection_number(),
+            selection_number: pack.selection_number(),
             picked_card,
             available_cards,
         }

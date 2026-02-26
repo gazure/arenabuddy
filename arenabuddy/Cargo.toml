@@ -19,6 +19,7 @@ axum = { workspace = true }
 base64 = { workspace = true }
 chrono = { workspace = true }
 console-subscriber = { workspace = true, optional = true }
+dirs = { workspace = true }
 dioxus = { workspace = true, features = ["desktop", "router"] }
 itertools = { workspace = true }
 notify = { workspace = true }

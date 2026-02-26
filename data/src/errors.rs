@@ -19,7 +19,7 @@ pub enum Error {
     DataError(#[from] arenabuddy_core::Error),
     #[error("match result error: {0}")]
     MatchResultError(#[from] MatchResultBuilderError),
-    #[error("match result error: {0}")]
+    #[error("match build error: {0}")]
     MatchError(#[from] MTGAMatchBuilderError),
     #[error("uuid parse error: {0}")]
     ParseError(#[from] uuid::Error),

@@ -134,5 +134,5 @@ fn parse_event_id(event_id: &str) -> (Format, String) {
         return (Format::default(), String::default());
     }
 
-    (Format::from_str(parts[0]), parts[1].to_string())
+    (Format::parse_format(parts[0]), parts[1].to_string())
 }

@@ -6,7 +6,7 @@ use std::{
 
 fn main() -> Result<()> {
     // Tell Cargo to rerun this script if any .proto files change
-    println!("cargo:rerun-if-changed=protos/");
+    println!("cargo:rerun-if-changed=proto/");
 
     let proto_dir = "proto";
     let proto_files = find_proto_files(proto_dir)?;

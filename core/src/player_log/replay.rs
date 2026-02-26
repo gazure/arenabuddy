@@ -433,7 +433,7 @@ impl MatchReplayBuilder {
                 self.client_server_messages.push(Event::Client(client_message));
                 false
             }
-            ParseOutput::MGRSCMessage(mgrsc_event) => self.ingest_mgrc_event(mgrsc_event),
+            ParseOutput::MGRSCMessage(mgrsc_event) => self.ingest_mgrsc_event(mgrsc_event),
             ParseOutput::BusinessMessage(business_message) => {
                 if business_message.is_relevant() {
                     self.business_messages.push(business_message.request);
@@ -451,7 +451,7 @@ impl MatchReplayBuilder {
         Ok(None)
     }
 
-    fn ingest_mgrc_event(&mut self, mgrsc_event: RequestTypeMGRSCEvent) -> bool {
+    fn ingest_mgrsc_event(&mut self, mgrsc_event: RequestTypeMGRSCEvent) -> bool {
         let state_type = mgrsc_event.mgrsc_event.game_room_info.state_type.clone();
         let match_id = mgrsc_event.mgrsc_event.game_room_info.game_room_config.match_id.clone();
         match state_type {
