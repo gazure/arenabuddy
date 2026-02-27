@@ -26,6 +26,7 @@ sqlx = { workspace = true, features = [
 ] }
 tokio = { workspace = true, features = ["full"] }
 thiserror = { workspace = true }
+tracing = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
 
 [lints]

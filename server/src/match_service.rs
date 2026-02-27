@@ -8,7 +8,7 @@ use arenabuddy_core::{
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tonic::{Request, Response, Status};
-use tracingx::{error, info};
+use tracingx::{error, info, instrument};
 
 use crate::auth::UserId;
 
@@ -20,6 +20,7 @@ pub(crate) struct MatchServiceImpl {
 
 #[tonic::async_trait]
 impl MatchService for MatchServiceImpl {
+    #[instrument(skip(self, request))]
     async fn upsert_match_data(
         &self,
         request: Request<UpsertMatchDataRequest>,
@@ -68,6 +69,7 @@ impl MatchService for MatchServiceImpl {
         Ok(Response::new(UpsertMatchDataResponse {}))
     }
 
+    #[instrument(skip(self, request))]
     async fn get_match_data(
         &self,
         request: Request<GetMatchDataRequest>,
@@ -130,6 +132,7 @@ impl MatchService for MatchServiceImpl {
         }))
     }
 
+    #[instrument(skip(self, request))]
     async fn list_matches(
         &self,
         request: Request<ListMatchesRequest>,
@@ -145,6 +148,7 @@ impl MatchService for MatchServiceImpl {
         }))
     }
 
+    #[instrument(skip(self, request))]
     async fn delete_match(
         &self,
         request: Request<DeleteMatchRequest>,
