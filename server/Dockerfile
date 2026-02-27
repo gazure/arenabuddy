@@ -9,9 +9,9 @@ RUN cargo chef prepare --recipe-path recipe.json --bin arenabuddy_server
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN apt-get update && apt-get install -y protobuf-compiler && rm -rf /var/lib/apt/lists/*
-RUN cargo chef cook --release --recipe-path recipe.json --package arenabuddy_server
+RUN cargo chef cook --release --recipe-path recipe.json --package arenabuddy_server --features otel
 COPY . .
-RUN cargo build --release --bin arenabuddy_server
+RUN cargo build --release --bin arenabuddy_server --features otel
 
 FROM debian:bookworm-slim AS runtime
 RUN apt-get update && apt-get install -y ca-certificates tini && rm -rf /var/lib/apt/lists/*
