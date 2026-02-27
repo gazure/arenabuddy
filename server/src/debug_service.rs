@@ -3,7 +3,7 @@ use arenabuddy_core::services::debug_service::{
 };
 use arenabuddy_data::{DebugRepository, MatchDB};
 use tonic::{Request, Response, Status};
-use tracingx::{error, info};
+use tracingx::{error, info, instrument};
 
 use crate::auth::UserId;
 
@@ -13,6 +13,7 @@ pub(crate) struct DebugServiceImpl {
 
 #[tonic::async_trait]
 impl DebugService for DebugServiceImpl {
+    #[instrument(skip(self, request))]
     async fn report_parse_errors(
         &self,
         request: Request<ReportParseErrorsRequest>,

@@ -29,10 +29,15 @@ serde_json = { workspace = true }
 sha2 = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tonic = { workspace = true }
+tracing = { workspace = true }
 tonic-prost = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
 uuid = { workspace = true }
 yup-oauth2 = { workspace = true }
+
+[features]
+default = []
+otel = ["tracingx/otel"]
 
 [lints]
 workspace = true

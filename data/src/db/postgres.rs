@@ -17,7 +17,7 @@ use arenabuddy_core::{
 use chrono::{DateTime, NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
 use sqlx::{FromRow, PgPool, Postgres, Transaction, types::Uuid};
-use tracingx::{debug, error, info};
+use tracingx::{debug, error, info, instrument};
 
 #[derive(FromRow)]
 struct MatchRow {
@@ -350,6 +350,7 @@ impl PostgresMatchDB {
         Ok(())
     }
 
+    #[instrument(skip(self, draft), fields(draft_id = %draft.draft().id()))]
     pub async fn write_draft(&mut self, draft: &MTGADraft) -> Result<()> {
         info!("Writing draft to database!");
 
@@ -514,11 +515,13 @@ impl PostgresMatchDB {
 
 #[async_trait::async_trait]
 impl ArenabuddyRepository for PostgresMatchDB {
+    #[instrument(skip(self))]
     async fn init(&self) -> Result<()> {
         sqlx::migrate!("./migrations/postgres").run(&self.pool).await?;
         Ok(())
     }
 
+    #[instrument(skip(self, replay), fields(match_id = %replay.match_id))]
     async fn write_replay(&self, replay: &MatchReplay) -> Result<()> {
         info!("Writing match replay to database");
         let controller_seat_id = replay.get_controller_seat_id();
@@ -579,6 +582,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(())
     }
 
+    #[instrument(skip(self))]
     async fn get_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<(MTGAMatch, Option<MatchResult>)> {
         info!("Getting match details for match_id: {}", match_id);
         let match_id = Uuid::parse_str(match_id)?;
@@ -615,6 +619,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         }
     }
 
+    #[instrument(skip(self))]
     async fn list_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
         let results: Vec<MatchRow> = sqlx::query_as(
             "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match WHERE ($1::uuid IS NULL OR user_id = $1) ORDER BY created_at DESC",
@@ -642,6 +647,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(matches)
     }
 
+    #[instrument(skip(self))]
     async fn list_decklists(&self, match_id: &str) -> Result<Vec<Deck>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
@@ -666,6 +672,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(decks)
     }
 
+    #[instrument(skip(self))]
     async fn list_mulligans(&self, match_id: &str) -> Result<Vec<Mulligan>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
@@ -693,6 +700,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(mulligans)
     }
 
+    #[instrument(skip(self))]
     async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
@@ -717,6 +725,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(match_results)
     }
 
+    #[instrument(skip(self))]
     async fn get_opponent_deck(&self, match_id: &str) -> Result<Deck> {
         let match_id = Uuid::parse_str(match_id)?;
         let result = sqlx::query!("SELECT cards FROM opponent_deck WHERE match_id = $1", match_id)
@@ -726,6 +735,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(Deck::from_raw("Opponent_deck".to_string(), 0, &result.cards, ""))
     }
 
+    #[instrument(skip(self))]
     async fn list_drafts(&self) -> Result<Vec<Draft>> {
         let result = sqlx::query!(
             r#"
@@ -751,6 +761,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
             .collect())
     }
 
+    #[instrument(skip(self))]
     async fn get_draft(&self, draft_id: &str) -> Result<MTGADraft> {
         let draft_id = Uuid::parse_str(draft_id)?;
 
@@ -807,6 +818,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(MTGADraft::new(draft, packs))
     }
 
+    #[instrument(skip(self, mtga_match, decks, mulligans, results, opponent_cards, event_logs), fields(match_id = %mtga_match.id()))]
     async fn upsert_match_data(
         &self,
         mtga_match: &MTGAMatch,
@@ -846,6 +858,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(())
     }
 
+    #[instrument(skip(self))]
     async fn list_event_logs(&self, match_id: &str) -> Result<Vec<GameEventLog>> {
         let match_id = Uuid::parse_str(match_id)?;
         let rows: Vec<EventLogRow> = sqlx::query_as(
@@ -869,6 +882,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(event_logs)
     }
 
+    #[instrument(skip(self))]
     async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()> {
         info!("Deleting match: {}", match_id);
         let match_id = Uuid::parse_str(match_id)?;
@@ -882,6 +896,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         Ok(())
     }
 
+    #[instrument(skip(self))]
     async fn get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats> {
         let (total_matches, match_wins) = self.query_record(user_id, "MatchScope_Match").await?;
         let (total_games, game_wins) = self.query_record(user_id, "MatchScope_Game").await?;
@@ -928,6 +943,7 @@ impl DraftWriter for PostgresMatchDB {
 
 #[async_trait::async_trait]
 impl AuthRepository for PostgresMatchDB {
+    #[instrument(skip(self, avatar_url))]
     async fn upsert_user(&self, discord_id: &str, username: &str, avatar_url: Option<&str>) -> Result<Uuid> {
         let row: (Uuid,) = sqlx::query_as(
             r"
@@ -947,6 +963,7 @@ impl AuthRepository for PostgresMatchDB {
         Ok(row.0)
     }
 
+    #[instrument(skip(self))]
     async fn get_user(&self, user_id: Uuid) -> Result<Option<AppUser>> {
         let row: Option<AppUser> =
             sqlx::query_as("SELECT id, discord_id, username, avatar_url FROM app_user WHERE id = $1")
@@ -957,6 +974,7 @@ impl AuthRepository for PostgresMatchDB {
         Ok(row)
     }
 
+    #[instrument(skip(self, token_hash))]
     async fn create_refresh_token(&self, user_id: Uuid, token_hash: &[u8], expires_at: DateTime<Utc>) -> Result<()> {
         sqlx::query("INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, $3)")
             .bind(user_id)
@@ -968,6 +986,7 @@ impl AuthRepository for PostgresMatchDB {
         Ok(())
     }
 
+    #[instrument(skip(self, token_hash))]
     async fn find_refresh_token(&self, token_hash: &[u8]) -> Result<Option<RefreshToken>> {
         let row: Option<RefreshToken> = sqlx::query_as(
             "SELECT id, user_id, revoked FROM refresh_token WHERE token_hash = $1 AND expires_at > now()",
@@ -979,6 +998,7 @@ impl AuthRepository for PostgresMatchDB {
         Ok(row)
     }
 
+    #[instrument(skip(self))]
     async fn revoke_refresh_token(&self, token_id: Uuid) -> Result<()> {
         sqlx::query("UPDATE refresh_token SET revoked = true WHERE id = $1")
             .bind(token_id)
@@ -988,6 +1008,7 @@ impl AuthRepository for PostgresMatchDB {
         Ok(())
     }
 
+    #[instrument(skip(self))]
     async fn revoke_all_user_tokens(&self, user_id: Uuid) -> Result<()> {
         sqlx::query("UPDATE refresh_token SET revoked = true WHERE user_id = $1")
             .bind(user_id)
@@ -997,6 +1018,7 @@ impl AuthRepository for PostgresMatchDB {
         Ok(())
     }
 
+    #[instrument(skip(self, token_hash))]
     async fn find_token_owner(&self, token_hash: &[u8]) -> Result<Option<Uuid>> {
         let row: Option<(Uuid,)> = sqlx::query_as("SELECT user_id FROM refresh_token WHERE token_hash = $1")
             .bind(token_hash)
@@ -1006,6 +1028,7 @@ impl AuthRepository for PostgresMatchDB {
         Ok(row.map(|(user_id,)| user_id))
     }
 
+    #[instrument(skip(self))]
     async fn cleanup_expired_tokens(&self, user_id: Uuid) -> Result<()> {
         sqlx::query("DELETE FROM refresh_token WHERE user_id = $1 AND expires_at < now()")
             .bind(user_id)
@@ -1018,6 +1041,7 @@ impl AuthRepository for PostgresMatchDB {
 
 #[async_trait::async_trait]
 impl DebugRepository for PostgresMatchDB {
+    #[instrument(skip(self, raw_json))]
     async fn insert_parse_error(
         &self,
         user_id: Option<Uuid>,

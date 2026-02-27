@@ -10,7 +10,7 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tonic::{Request, Response, Status};
-use tracingx::{debug, error, info};
+use tracingx::{debug, error, info, instrument};
 use uuid::Uuid;
 
 const ACCESS_TOKEN_LIFETIME_MINUTES: i64 = 15;
@@ -258,6 +258,7 @@ pub fn auth_interceptor(jwt_secret: String) -> impl Fn(Request<()>) -> Result<Re
 
 #[tonic::async_trait]
 impl AuthService for AuthServiceImpl {
+    #[instrument(skip(self, request))]
     async fn exchange_token(
         &self,
         request: Request<ExchangeTokenRequest>,
@@ -316,6 +317,7 @@ impl AuthService for AuthServiceImpl {
         }))
     }
 
+    #[instrument(skip(self, request))]
     async fn refresh_token(
         &self,
         request: Request<RefreshTokenRequest>,
@@ -349,6 +351,7 @@ impl AuthService for AuthServiceImpl {
         }))
     }
 
+    #[instrument(skip(self, request))]
     async fn logout(&self, request: Request<LogoutRequest>) -> Result<Response<LogoutResponse>, Status> {
         info!("Logout request received");
         let req = request.into_inner();
@@ -376,6 +379,7 @@ impl AuthService for AuthServiceImpl {
         Ok(Response::new(LogoutResponse {}))
     }
 
+    #[instrument(skip(self, request))]
     async fn get_current_user(
         &self,
         request: Request<GetCurrentUserRequest>,

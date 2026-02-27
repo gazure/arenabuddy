@@ -32,7 +32,19 @@ mod sheets_sync;
 /// Panics if required environment variables are missing: `DATABASE_URL`,
 /// `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, or `JWT_SECRET`.
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(feature = "otel")]
+    let otel_guard = tracingx::otel::init_compact_with_otel("arenabuddy-server");
+    #[cfg(not(feature = "otel"))]
     tracingx::init_compact();
+
+    #[cfg(feature = "otel")]
+    {
+        let endpoint =
+            std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT").unwrap_or_else(|_| "http://localhost:4317".to_string());
+        info!("OpenTelemetry enabled, exporting traces to {endpoint}");
+    }
+    #[cfg(not(feature = "otel"))]
+    info!("OpenTelemetry disabled (compile with --features otel to enable)");
 
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL environment variable must be set");
 
@@ -74,8 +86,17 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .add_service(MatchServiceServer::with_interceptor(match_service, interceptor.clone()))
         .add_service(DebugServiceServer::with_interceptor(debug_service, interceptor))
         .add_service(AuthServiceServer::new(auth_service))
-        .serve(addr)
+        .serve_with_shutdown(addr, async {
+            tokio::signal::ctrl_c().await.ok();
+            info!("Received shutdown signal");
+        })
         .await?;
+
+    #[cfg(feature = "otel")]
+    {
+        info!("Flushing OpenTelemetry traces...");
+        otel_guard.shutdown();
+    }
 
     Ok(())
 }
