@@ -614,7 +614,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
                 Some(MatchResult::new_match_result(row.id, row.winning_team_id)),
             ))
         } else {
-            error!("Error getting match details for match_id: {}", match_id);
+            debug!("No match-level result found for match_id: {}", match_id);
             Ok((MTGAMatch::default(), None))
         }
     }
@@ -704,7 +704,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
     async fn list_match_results(&self, match_id: &str) -> Result<Vec<MatchResult>> {
         let match_id = Uuid::parse_str(match_id)?;
         let results = sqlx::query!(
-            "SELECT game_number, winning_team_id, result_scope FROM match_result WHERE match_id = $1 AND game_number > 0",
+            "SELECT game_number, winning_team_id, result_scope FROM match_result WHERE match_id = $1",
             match_id
         )
         .fetch_all(&self.pool)

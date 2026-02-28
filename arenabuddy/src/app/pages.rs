@@ -6,7 +6,7 @@ use crate::{
         debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
         match_details::MatchDetails, matches::Matches, stats::Stats,
     },
-    backend::{BackgroundRuntime, SharedAuthState},
+    backend::{BackgroundRuntime, Service, SharedAuthState},
 };
 
 fn open_github() {
@@ -98,12 +98,15 @@ fn Layout() -> Element {
     });
 
     let bg_runtime = use_context::<BackgroundRuntime>();
+    let service = use_context::<Service>();
     let on_login = {
         let auth_state = auth_state.clone();
         let bg_runtime = bg_runtime.clone();
+        let service = service.clone();
         move |_| {
             let auth_state = auth_state.clone();
             let bg = bg_runtime.clone();
+            let service = service.clone();
             spawn(async move {
                 let grpc_url = crate::backend::paths::grpc_url();
                 let client_id =
@@ -123,6 +126,16 @@ fn Layout() -> Element {
                         let username = state.user.username.clone();
                         *auth_state.lock().await = Some(state);
                         login_status.set(Some(username));
+
+                        // Sync matches from server after login
+                        let sync_db = service.db.clone();
+                        let sync_auth = auth_state.clone();
+                        bg.spawn(async move {
+                            match crate::backend::sync::sync_matches(&sync_db, &sync_auth).await {
+                                Ok(n) => tracingx::info!("Post-login sync complete: {n} new matches"),
+                                Err(e) => tracingx::error!("Post-login sync failed: {e}"),
+                            }
+                        });
                     }
                     Ok(Err(e)) => {
                         tracingx::error!("Login failed: {e}");

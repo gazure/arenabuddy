@@ -115,6 +115,7 @@ where
                 Vec::default()
             })
             .iter()
+            .filter(|mr| mr.game_number() > 0)
             .map(|mr| {
                 GameResultDisplay::from_match_result(
                     mr,

@@ -9,7 +9,7 @@ use dioxus::{
 use start::AppMeta;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracingx::{
-    EnvFilter, Layer, Level, SubscriberExt, SubscriberInitExt,
+    EnvFilter, Layer, Level, SubscriberExt, SubscriberInitExt, error,
     fmt::{self, writer::MakeWriterExt},
     info,
 };
@@ -40,6 +40,16 @@ pub fn launch() -> Result<()> {
     if let Some(saved) = crate::backend::auth::load_auth() {
         info!("Restored auth session for {}", saved.user.username);
         *auth_state.blocking_lock() = Some(saved);
+
+        // Sync matches from server in background
+        let sync_db = service.db.clone();
+        let sync_auth = auth_state.clone();
+        background.spawn(async move {
+            match crate::backend::sync::sync_matches(&sync_db, &sync_auth).await {
+                Ok(n) => info!("Initial sync complete: {n} new matches"),
+                Err(e) => error!("Initial sync failed: {e}"),
+            }
+        });
     }
     let service2 = service.clone();
     let auth_state2 = auth_state.clone();
