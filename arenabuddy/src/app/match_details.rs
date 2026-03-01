@@ -34,7 +34,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
             div { class: "mb-4",
                 Link {
                     to: Route::Matches{},
-                    class: "inline-flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-sm hover:shadow-md",
+                    class: "inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold py-2 px-4 rounded-full transition-all duration-200",
                     svg {
                         xmlns: "http://www.w3.org/2000/svg",
                         class: "h-5 w-5 mr-2",
@@ -51,7 +51,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                 }
             }
 
-            div { class: "bg-gradient-to-r from-purple-700 to-blue-600 rounded-lg shadow-lg mb-8 p-6 text-white",
+            div { class: "bg-gradient-to-r from-violet-900 to-purple-800 rounded-lg shadow-lg shadow-black/20 mb-8 p-6 text-white",
                 div { class: "flex justify-between items-center",
                     h1 { class: "text-3xl font-bold", "Match Details" }
                     div { class: "flex gap-2",
@@ -87,18 +87,18 @@ pub(crate) fn MatchDetails(id: String) -> Element {
 
             match data.as_ref() {
                 None => rsx! {
-                    div { class: "bg-white rounded-lg shadow-md p-8 text-center",
+                    div { class: "bg-gray-800 rounded-lg border border-gray-700 p-8 text-center",
                         div { class: "animate-pulse flex flex-col items-center",
-                            div { class: "w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" }
-                            p { class: "text-gray-600", "Loading match details..." }
+                            div { class: "w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin mb-4" }
+                            p { class: "text-gray-400", "Loading match details..." }
                         }
                     }
                 },
 
                 Some(Err(err)) => rsx! {
-                    div { class: "bg-white rounded-lg shadow-md p-8",
+                    div { class: "bg-gray-800 rounded-lg border border-gray-700 p-8",
                         div {
-                            class: "bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded",
+                            class: "bg-red-900/30 border-l-4 border-red-500 text-red-300 p-4 rounded",
                             role: "alert",
                             p { class: "font-bold", "Error" }
                             p { "Could not find match details for ID: {id}: {err}" }
@@ -117,26 +117,26 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                             did_controller_win: details.did_controller_win
                         }
 
-                        div { class: "flex gap-1 mb-6 border-b border-gray-200",
+                        div { class: "flex gap-1 mb-6 border-b border-gray-700",
                             button {
                                 class: if active_tab() == 0 {
-                                    "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600"
+                                    "px-4 py-2 font-medium text-amber-400 border-b-2 border-amber-400"
                                 } else {
-                                    "px-4 py-2 font-medium text-gray-500 hover:text-gray-700"
+                                    "px-4 py-2 font-medium text-gray-500 hover:text-gray-300"
                                 },
                                 onclick: move |_| active_tab.set(0),
                                 "Overview"
                             }
                             button {
                                 class: if active_tab() == 1 {
-                                    "px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600"
+                                    "px-4 py-2 font-medium text-amber-400 border-b-2 border-amber-400"
                                 } else {
-                                    "px-4 py-2 font-medium text-gray-500 hover:text-gray-700"
+                                    "px-4 py-2 font-medium text-gray-500 hover:text-gray-300"
                                 },
                                 onclick: move |_| active_tab.set(1),
                                 "Event Log"
                                 if event_count > 0 {
-                                    span { class: "ml-2 px-2 py-0.5 text-xs rounded-full bg-emerald-100 text-emerald-800",
+                                    span { class: "ml-2 px-2 py-0.5 text-xs rounded-full bg-emerald-900/40 text-emerald-300",
                                         "{event_count}"
                                     }
                                 }

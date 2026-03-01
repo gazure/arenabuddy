@@ -7,22 +7,22 @@ pub fn Pagination(current_page: Signal<usize>, total_pages: usize, total_items: 
     let end = ((page + 1) * page_size).min(total_items);
 
     rsx! {
-        div { class: "flex justify-between items-center py-3 px-4 border-b bg-gray-50",
-            p { class: "text-sm text-gray-600",
+        div { class: "flex justify-between items-center py-3 px-4 border-b border-gray-700 bg-gray-900",
+            p { class: "text-sm text-gray-400",
                 "Showing {start}–{end} of {total_items}"
             }
             div { class: "flex items-center space-x-2",
                 button {
-                    class: "px-3 py-1 rounded text-sm bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150",
+                    class: "px-3 py-1 rounded text-sm bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150",
                     disabled: page == 0,
                     onclick: move |_| current_page.set(page.saturating_sub(1)),
                     "Previous"
                 }
-                span { class: "px-3 py-1 text-sm text-gray-600",
+                span { class: "px-3 py-1 text-sm text-gray-400",
                     "Page {page + 1} of {total_pages}"
                 }
                 button {
-                    class: "px-3 py-1 rounded text-sm bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150",
+                    class: "px-3 py-1 rounded text-sm bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150",
                     disabled: page + 1 >= total_pages,
                     onclick: move |_| current_page.set(page + 1),
                     "Next"

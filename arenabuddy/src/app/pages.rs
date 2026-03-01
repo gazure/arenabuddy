@@ -45,9 +45,9 @@ pub enum Route {
 #[component]
 fn Home() -> Element {
     rsx! {
-        div { class: "bg-white rounded-lg shadow-md p-6",
-            h1 { class: "text-2xl font-bold mb-4 text-gray-800", "Home Page" }
-            p { class: "text-gray-600",
+        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
+            h1 { class: "text-2xl font-bold mb-4 text-gray-100", "Home Page" }
+            p { class: "text-gray-400",
                 "Welcome to ArenaBuddy. Track and analyze your Arena matches."
             }
         }
@@ -57,12 +57,12 @@ fn Home() -> Element {
 #[component]
 fn Contact() -> Element {
     rsx! {
-        div { class: "bg-white rounded-lg shadow-md p-6",
-            h1 { class: "text-2xl font-bold mb-4 text-gray-800", "Contact" }
+        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
+            h1 { class: "text-2xl font-bold mb-4 text-gray-100", "Contact" }
             a {
                 href: "#",
                 onclick: move |_| open_github(),
-                class: "text-blue-600 hover:text-blue-800 transition-colors duration-200",
+                class: "text-amber-400 hover:text-amber-300 transition-colors duration-200",
                 "Github Repo"
             }
         }
@@ -73,8 +73,8 @@ fn Contact() -> Element {
 fn PageNotFound(route: Vec<String>) -> Element {
     rsx! {
         div { class: "text-center mt-8",
-            h1 { class: "text-2xl font-bold text-red-600", "Page Not Found" }
-            p { class: "mt-2 text-gray-600",
+            h1 { class: "text-2xl font-bold text-red-400", "Page Not Found" }
+            p { class: "mt-2 text-gray-400",
                 "The page you're looking for doesn't exist."
             }
         }
@@ -184,62 +184,62 @@ fn Layout() -> Element {
     };
 
     rsx! {
-        nav { class: "bg-gray-800 p-4 shadow-md",
+        nav { class: "bg-gray-950 p-4 border-b border-gray-800",
             div { class: "container mx-auto flex justify-between items-center",
                 ul { class: "flex space-x-6 text-white",
                     li {
                         Link {
                             to: Route::Home {},
-                            class: "hover:text-blue-400 transition-colors duration-200",
+                            class: "hover:text-amber-400 transition-colors duration-200",
                             "Home"
                         }
                     }
                     li {
                         Link {
                             to: Route::Matches {},
-                            class: "hover:text-blue-400 transition-colors duration-200",
+                            class: "hover:text-amber-400 transition-colors duration-200",
                             "Matches"
                         }
                     }
                     li {
                         Link {
                             to: Route::Drafts { },
-                            class: "hover:text-blue-400 transition-colors duration-200",
+                            class: "hover:text-amber-400 transition-colors duration-200",
                             "Drafts"
                         }
                     }
                     li {
                         Link {
                             to: Route::Stats {},
-                            class: "hover:text-blue-400 transition-colors duration-200",
+                            class: "hover:text-amber-400 transition-colors duration-200",
                             "Stats"
                         }
                     }
                     li {
                         Link {
                             to: Route::ErrorLogs {},
-                            class: "hover:text-blue-400 transition-colors duration-200",
+                            class: "hover:text-amber-400 transition-colors duration-200",
                             "Error Logs"
                         }
                     }
                     li {
                         Link {
                             to: Route::DebugLogs {},
-                            class: "hover:text-blue-400 transition-colors duration-200",
+                            class: "hover:text-amber-400 transition-colors duration-200",
                             "Debug Logs"
                         }
                     }
                     li {
                         Link {
                             to: Route::Contact {},
-                            class: "hover:text-blue-400 transition-colors duration-200",
+                            class: "hover:text-amber-400 transition-colors duration-200",
                             "Contact"
                         }
                     }
                 }
                 div { class: "text-white flex items-center space-x-3",
                     if let Some(username) = login_status() {
-                        span { class: "text-green-400 text-sm", "Logged in as {username}" }
+                        span { class: "text-emerald-400 text-sm", "Logged in as {username}" }
                         button {
                             class: "bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200",
                             onclick: on_logout,
@@ -249,7 +249,7 @@ fn Layout() -> Element {
                         span { class: "text-yellow-400 text-sm", "Logging in..." }
                     } else {
                         button {
-                            class: "bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200",
+                            class: "bg-violet-600 hover:bg-violet-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200",
                             onclick: on_login,
                             "Login with Discord"
                         }

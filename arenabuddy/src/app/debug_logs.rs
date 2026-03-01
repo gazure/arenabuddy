@@ -80,18 +80,18 @@ pub fn DebugLogs() -> Element {
     };
 
     rsx! {
-        div { class: "bg-white rounded-lg shadow-md p-6",
-            h1 { class: "text-2xl font-bold mb-4 text-gray-800", "Debug Logs Configuration" }
+        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
+            h1 { class: "text-2xl font-bold mb-4 text-gray-100", "Debug Logs Configuration" }
 
             div { class: "mb-6",
-                p { class: "text-gray-600 mb-4",
+                p { class: "text-gray-400 mb-4",
                     "Select a directory where debug logs will be saved. This helps with troubleshooting and debugging Arena Buddy."
                 }
 
                 button {
                     onclick: on_select_directory,
                     disabled: is_loading() || is_initial_load(),
-                    class: "bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200",
+                    class: "bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200",
                     if is_initial_load() {
                         "Loading..."
                     } else if is_loading() {
@@ -105,13 +105,13 @@ pub fn DebugLogs() -> Element {
             }
 
             if let Some(logs) = selected_dir() {
-                div { class: "mb-4 p-3 bg-gray-100 rounded-lg",
-                    p { class: "text-sm font-medium text-gray-700",
+                div { class: "mb-4 p-3 bg-gray-900 rounded-lg",
+                    p { class: "text-sm font-medium text-gray-300",
                         "Debug Logs ({logs.len()} entries):"
                     }
                     div { class: "max-h-48 overflow-y-auto",
                         for log in logs {
-                            p { class: "text-sm text-gray-600 break-all font-mono", "{log}" }
+                            p { class: "text-sm text-gray-400 break-all font-mono", "{log}" }
                         }
                     }
                 }
@@ -123,11 +123,11 @@ pub fn DebugLogs() -> Element {
                     let is_info = msg.contains("Loaded current")
                         || msg.contains("No debug logs directory configured");
                     let class = if is_error {
-                        "p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg"
+                        "p-3 bg-red-900/30 border border-red-700 text-red-300 rounded-lg"
                     } else if is_info {
-                        "p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded-lg"
+                        "p-3 bg-blue-900/30 border border-blue-700 text-blue-300 rounded-lg"
                     } else {
-                        "p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg"
+                        "p-3 bg-emerald-900/30 border border-emerald-700 text-emerald-300 rounded-lg"
                     };
 
                     rsx! {

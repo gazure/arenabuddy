@@ -185,7 +185,7 @@ pub fn ManaCost(cost: Cost) -> Element {
                 } else {
                     // Fallback for missing SVGs
                     div {
-                        class: "w-4 h-4 bg-gray-200 rounded-full flex items-center justify-center text-xs flex-shrink-0",
+                        class: "w-4 h-4 bg-gray-600 rounded-full flex items-center justify-center text-xs flex-shrink-0",
                         "{symbol}"
                     }
                 }

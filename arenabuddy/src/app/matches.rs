@@ -15,14 +15,14 @@ fn MatchRow(m: MTGAMatch) -> Element {
     rsx! {
         Link {
             to: Route::MatchDetails { id: m.id().to_string() },
-            class: "table-row hover:bg-gray-100 transition-colors duration-150 cursor-pointer",
-            td { class: "py-3 px-4 border-b",
-                span { class: "text-blue-600 font-medium",
+            class: "table-row hover:bg-gray-700/50 transition-colors duration-150 cursor-pointer",
+            td { class: "py-3 px-4 border-b border-gray-700",
+                span { class: "text-amber-400 font-medium",
                     "{m.controller_player_name()}"
                 }
             }
-            td { class: "py-3 px-4 border-b", "{m.opponent_player_name()}" }
-            td { class: "py-3 px-4 border-b text-gray-500", "{date}" }
+            td { class: "py-3 px-4 border-b border-gray-700", "{m.opponent_player_name()}" }
+            td { class: "py-3 px-4 border-b border-gray-700 text-gray-500", "{date}" }
         }
     }
 }
@@ -47,10 +47,10 @@ pub(crate) fn Matches() -> Element {
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-5xl",
             div { class: "flex justify-between items-center mb-6",
-                h1 { class: "text-2xl font-bold text-gray-800", "Match History" }
+                h1 { class: "text-2xl font-bold text-gray-100", "Match History" }
                 button {
                     onclick: refresh_matches,
-                    class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow transition-colors duration-150 flex items-center",
+                    class: "bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded transition-colors duration-150 flex items-center",
                     disabled: data.is_none(),
                     if data.is_none() {
                         "Loading..."
@@ -62,7 +62,7 @@ pub(crate) fn Matches() -> Element {
 
             match &*data {
                 None => rsx! {
-                    div { class: "bg-white rounded-lg shadow-md overflow-hidden",
+                    div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
                         div { class: "p-12 text-center text-gray-500",
                             div { class: "animate-pulse", "Loading match data..." }
                         }
@@ -70,10 +70,10 @@ pub(crate) fn Matches() -> Element {
                 },
 
                 Some(Err(err)) => rsx! {
-                    div { class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4",
+                    div { class: "bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded mb-4",
                         p { "Failed to load matches: {err}" }
                     }
-                    div { class: "bg-white rounded-lg shadow-md overflow-hidden",
+                    div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
                         div { class: "p-12 text-center text-gray-500",
                             "No match data available"
                         }
@@ -88,7 +88,7 @@ pub(crate) fn Matches() -> Element {
                     let end = (start + PAGE_SIZE).min(total_items);
 
                     rsx! {
-                        div { class: "bg-white rounded-lg shadow-md overflow-hidden",
+                        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
                             if matches_data.is_empty() {
                                 div { class: "p-12 text-center text-gray-500",
                                     "No matches found. Play some games in MTG Arena!"
@@ -103,10 +103,10 @@ pub(crate) fn Matches() -> Element {
                                 div { class: "overflow-x-auto",
                                     table { class: "min-w-full table-fixed",
                                         thead {
-                                            tr { class: "bg-gray-100 text-left",
-                                                th { class: "py-3 px-4 font-semibold text-gray-700 w-1/3", "Controller" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-700 w-1/3", "Opponent" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-700 w-1/3", "Date" }
+                                            tr { class: "bg-gray-900 text-left",
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Controller" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Opponent" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Date" }
                                             }
                                         }
                                         tbody {

@@ -17,8 +17,8 @@ pub fn DeckList(
     let hovered_card = use_signal(|| None::<(CardDisplayRecord, (f64, f64))>);
 
     rsx! {
-        div { class: "bg-white rounded-lg shadow-md overflow-hidden",
-            div { class: "bg-gradient-to-r from-indigo-500 to-indigo-600 py-4 px-6",
+        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
+            div { class: "bg-gradient-to-r from-violet-800 to-indigo-900 py-4 px-6",
                 h2 { class: "text-xl font-bold text-white", "{title}" }
             }
             div { class: "p-6",
@@ -48,17 +48,17 @@ pub fn DeckList(
                 }}
 
                 .deck-scrollbar::-webkit-scrollbar-track {{
-                    background: #f1f1f1;
+                    background: #1f2937;
                     border-radius: 8px;
                 }}
 
                 .deck-scrollbar::-webkit-scrollbar-thumb {{
-                    background: #c5c5c5;
+                    background: #4b5563;
                     border-radius: 8px;
                 }}
 
                 .deck-scrollbar::-webkit-scrollbar-thumb:hover {{
-                    background: #a0a0a0;
+                    background: #6b7280;
                 }}
                 "#
             }
@@ -95,7 +95,7 @@ fn NonLandCards(
             if let Some(cards) = main_deck.get(&card_type) {
                 if !cards.is_empty() {
                     div { class: "mb-4",
-                        h4 { class: "text-md font-medium text-gray-700 mb-2",
+                        h4 { class: "text-md font-medium text-gray-300 mb-2",
                             if show_quantities {
                                 "{card_type} ({deck.total_by_type(card_type)})"
                             } else {
@@ -124,7 +124,7 @@ fn Lands(
     if let Some(lands) = main_deck.get(&CardType::Land).filter(|l| !l.is_empty()) {
         rsx! {
             div {
-                h3 { class: "text-lg font-semibold text-gray-800 border-b pb-2",
+                h3 { class: "text-lg font-semibold text-gray-200 border-b border-gray-700 pb-2",
                     if show_quantities {
                         "Lands ({deck.total_by_type(CardType::Land)})"
                     } else {
@@ -155,7 +155,7 @@ fn Sideboard(
     } else {
         rsx! {
             div {
-                h3 { class: "text-lg font-semibold text-gray-800 border-b pb-2",
+                h3 { class: "text-lg font-semibold text-gray-200 border-b border-gray-700 pb-2",
                     if show_quantities {
                         "Sideboard ({sideboard.len()})"
                     } else {
@@ -180,7 +180,7 @@ fn CardRow(
 ) -> Element {
     rsx! {
         div {
-            class: "flex items-center justify-between py-1 px-2 hover:bg-gray-50 rounded text-sm cursor-pointer",
+            class: "flex items-center justify-between py-1 px-2 hover:bg-gray-700/50 rounded text-sm cursor-pointer",
             onmouseenter: move |event| {
                 let coords = event.client_coordinates();
                 hovered_card.set(Some((card.clone(), (coords.x, coords.y))));
@@ -190,7 +190,7 @@ fn CardRow(
             },
             div { class: "flex items-center space-x-2",
                 if show_quantities {
-                    span { class: "font-medium text-gray-600 w-6 text-center",
+                    span { class: "font-medium text-gray-400 w-6 text-center",
                         "{card.quantity}"
                     }
                 }

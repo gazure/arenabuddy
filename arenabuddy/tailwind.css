@@ -4,3 +4,8 @@
 @source "./src/**/*.{rs,html,css}";
 @source "./dist/**/*.html";
 @source "./index.html";
+
+body {
+    background-color: var(--color-gray-950);
+    color: var(--color-gray-200);
+}

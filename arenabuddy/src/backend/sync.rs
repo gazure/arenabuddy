@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use arenabuddy_core::{
-    models::{MTGAMatch, MatchData},
+    models::MatchData,
     services::match_service::{GetMatchDataRequest, ListMatchesRequest, match_service_client::MatchServiceClient},
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};

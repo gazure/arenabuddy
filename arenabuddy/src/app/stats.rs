@@ -10,8 +10,8 @@ fn format_rate(rate: Option<f64>) -> String {
 #[component]
 fn StatCard(title: &'static str, children: Element) -> Element {
     rsx! {
-        div { class: "bg-white rounded-lg shadow-md p-6",
-            h2 { class: "text-lg font-semibold text-gray-700 mb-4", "{title}" }
+        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
+            h2 { class: "text-lg font-semibold text-gray-300 mb-4", "{title}" }
             {children}
         }
     }
@@ -20,12 +20,12 @@ fn StatCard(title: &'static str, children: Element) -> Element {
 #[component]
 fn RecordLine(label: &'static str, wins: i64, losses: i64, rate: Option<f64>) -> Element {
     rsx! {
-        div { class: "flex justify-between items-center py-2 border-b border-gray-100 last:border-0",
-            span { class: "text-gray-600", "{label}" }
+        div { class: "flex justify-between items-center py-2 border-b border-gray-700 last:border-0",
+            span { class: "text-gray-400", "{label}" }
             div { class: "flex items-center space-x-3",
-                span { class: "text-green-600 font-medium", "{wins}W" }
-                span { class: "text-gray-400", "-" }
-                span { class: "text-red-600 font-medium", "{losses}L" }
+                span { class: "text-amber-400 font-medium", "{wins}W" }
+                span { class: "text-gray-600", "-" }
+                span { class: "text-red-400 font-medium", "{losses}L" }
                 span { class: "text-gray-500 text-sm ml-2", "({format_rate(rate)})" }
             }
         }
@@ -99,12 +99,12 @@ fn StatsDisplay(stats: MatchStats) -> Element {
             if !stats.opponents.is_empty() {
                 StatCard { title: "Top Opponents",
                     for opp in stats.opponents.iter() {
-                        div { class: "flex justify-between items-center py-2 border-b border-gray-100 last:border-0",
-                            span { class: "text-gray-600 truncate mr-4", "{opp.name}" }
+                        div { class: "flex justify-between items-center py-2 border-b border-gray-700 last:border-0",
+                            span { class: "text-gray-400 truncate mr-4", "{opp.name}" }
                             div { class: "flex items-center space-x-3 flex-shrink-0",
-                                span { class: "text-green-600 font-medium", "{opp.wins}W" }
-                                span { class: "text-gray-400", "-" }
-                                span { class: "text-red-600 font-medium", "{opp.losses}L" }
+                                span { class: "text-amber-400 font-medium", "{opp.wins}W" }
+                                span { class: "text-gray-600", "-" }
+                                span { class: "text-red-400 font-medium", "{opp.losses}L" }
                                 span { class: "text-gray-500 text-sm ml-2",
                                     "({opp.matches} matches)"
                                 }
@@ -135,10 +135,10 @@ pub(crate) fn Stats() -> Element {
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-5xl",
             div { class: "flex justify-between items-center mb-6",
-                h1 { class: "text-2xl font-bold text-gray-800", "Match Statistics" }
+                h1 { class: "text-2xl font-bold text-gray-100", "Match Statistics" }
                 button {
                     onclick: refresh,
-                    class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded shadow transition-colors duration-150",
+                    class: "bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded transition-colors duration-150",
                     disabled: data.is_none(),
                     if data.is_none() {
                         "Loading..."
@@ -150,13 +150,13 @@ pub(crate) fn Stats() -> Element {
 
             match &*data {
                 None => rsx! {
-                    div { class: "bg-white rounded-lg shadow-md p-12 text-center text-gray-500",
+                    div { class: "bg-gray-800 rounded-lg border border-gray-700 p-12 text-center text-gray-500",
                         div { class: "animate-pulse", "Loading statistics..." }
                     }
                 },
 
                 Some(Err(err)) => rsx! {
-                    div { class: "bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded",
+                    div { class: "bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded",
                         p { "Failed to load statistics: {err}" }
                     }
                 },
@@ -164,7 +164,7 @@ pub(crate) fn Stats() -> Element {
                 Some(Ok(stats)) => {
                     if stats.total_matches == 0 {
                         rsx! {
-                            div { class: "bg-white rounded-lg shadow-md p-12 text-center text-gray-500",
+                            div { class: "bg-gray-800 rounded-lg border border-gray-700 p-12 text-center text-gray-500",
                                 "No match data available. Play some games in MTG Arena!"
                             }
                         }
