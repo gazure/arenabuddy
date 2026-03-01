@@ -108,7 +108,7 @@ fn find_mtga_database(mtga_path: Option<&PathBuf>) -> Result<PathBuf> {
         let path = entry.path();
         if let Some(name) = path.file_name().and_then(|n| n.to_str())
             && name.starts_with("Raw_CardDatabase_")
-            && path.extension().is_some_and(|ext| ext.eq_ignore_ascii_case("rs"))
+            && path.extension().is_some_and(|ext| ext.eq_ignore_ascii_case("mtga"))
         {
             return Ok(path);
         }
