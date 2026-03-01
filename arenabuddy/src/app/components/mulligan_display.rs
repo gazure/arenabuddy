@@ -85,8 +85,8 @@ fn MulliganCard(mulligan: Mulligan) -> Element {
 
 fn get_decision_class(decision: &str) -> &'static str {
     match decision {
-        "keep" => "bg-emerald-900/40 text-emerald-300",
-        "mulligan" => "bg-red-900/40 text-red-300",
+        "Keep" => "bg-emerald-900/40 text-emerald-300",
+        "Mulligan" => "bg-red-900/40 text-red-300",
         _ => "bg-gray-700 text-gray-300",
     }
 }

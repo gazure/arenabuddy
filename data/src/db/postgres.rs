@@ -412,7 +412,7 @@ impl PostgresMatchDB {
                 COUNT(CASE WHEN mr.winning_team_id = m.controller_seat_id THEN 1 END) AS wins,
                 COUNT(CASE WHEN mr.winning_team_id != m.controller_seat_id THEN 1 END) AS losses
             FROM match m
-            JOIN mulligan mul ON m.id = mul.match_id AND mul.decision = 'keep'
+            JOIN mulligan mul ON m.id = mul.match_id AND mul.decision = 'Keep'
                 AND mul.play_draw IN ('Play', 'Draw')
             JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Game' AND mr.game_number = mul.game_number
             WHERE ($1::uuid IS NULL OR m.user_id = $1)
@@ -454,7 +454,7 @@ impl PostgresMatchDB {
                 COUNT(CASE WHEN mr.winning_team_id = m.controller_seat_id THEN 1 END) AS wins,
                 COUNT(CASE WHEN mr.winning_team_id != m.controller_seat_id THEN 1 END) AS losses
             FROM match m
-            JOIN mulligan mul ON m.id = mul.match_id AND mul.decision = 'keep'
+            JOIN mulligan mul ON m.id = mul.match_id AND mul.decision = 'Keep'
             JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Game' AND mr.game_number = mul.game_number
             WHERE ($1::uuid IS NULL OR m.user_id = $1)
             GROUP BY mul.number_to_keep

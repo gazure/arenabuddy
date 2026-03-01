@@ -247,10 +247,10 @@ impl MatchReplay {
             }
         })?;
 
-        let mulligan_responses: BTreeMap<i32, &MulliganRespWrapper> = self
+        let mulligan_responses: Vec<&MulliganRespWrapper> = self
             .client_messages_iter()
             .filter_map(|client_message| match &client_message.payload {
-                ClientMessage::MulliganResp(wrapper) => Some((wrapper.meta.game_state_id?, wrapper)),
+                ClientMessage::MulliganResp(wrapper) => Some(wrapper),
                 _ => None,
             })
             .collect();
@@ -268,9 +268,10 @@ impl MatchReplay {
         Ok(opening_hands
             .into_iter()
             .zip(mulligan_requests)
-            .filter_map(|((gn, hand), (gn2, mulligan_request))| {
+            .enumerate()
+            .filter_map(|(i, ((gn, hand), (gn2, mulligan_request)))| {
                 if gn != gn2 {
-                    warn!("invalid mulilgan data for {}", self.match_id);
+                    warn!("invalid mulligan data for {}", self.match_id);
                     return None;
                 }
 
@@ -282,12 +283,8 @@ impl MatchReplay {
                     .collect::<Vec<String>>()
                     .join(",");
 
-                let Some(game_state_id) = mulligan_request.meta.game_state_id else {
-                    warn!("No game state ID found for mulligan request");
-                    return None;
-                };
                 let number_to_keep = DEFAULT_HAND_SIZE - mulligan_request.mulligan_req.mulligan_count;
-                let decision = match mulligan_responses.get(&game_state_id) {
+                let decision = match mulligan_responses.get(i) {
                     Some(mulligan_response) => match mulligan_response.mulligan_resp.decision {
                         MulliganOption::AcceptHand => "Keep",
                         MulliganOption::Mulligan => "Mulligan",
