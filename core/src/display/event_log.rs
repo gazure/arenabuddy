@@ -65,14 +65,10 @@ impl ActionDisplay {
                 action_type,
             } => {
                 let is_you = player.seat_id == controller_seat_id;
+                let verb = action_type_verb(action_type);
                 Self {
                     icon: "\u{1F0CF}",
-                    description: format!(
-                        "{} plays {} ({})",
-                        player_display(player),
-                        card_display(card),
-                        action_type
-                    ),
+                    description: format!("{} {} {}", player_display(player), verb, card_display(card)),
                     style: if is_you {
                         ActionStyle::PlayerAction
                     } else {
@@ -86,14 +82,7 @@ impl ActionDisplay {
                 from_zone,
                 to_zone,
                 category,
-            } => {
-                let cat = category.as_ref().map_or(String::new(), |c| format!(" ({c})"));
-                Self {
-                    icon: "\u{27A1}",
-                    description: format!("{}: {} \u{2192} {}{}", card_display(card), from_zone, to_zone, cat),
-                    style: ActionStyle::Normal,
-                }
-            }
+            } => zone_transfer_display(card, from_zone, to_zone, category.as_deref()),
 
             GameAction::AttackersDeclared { attackers } => {
                 let names: Vec<String> = attackers.iter().map(|a| card_display(&a.card)).collect();
@@ -217,5 +206,142 @@ pub fn damage_target_display(target: &DamageTarget) -> String {
     match target {
         DamageTarget::Player { player } => player_display(player),
         DamageTarget::Permanent { card } => card_display(card),
+    }
+}
+
+/// Map a raw `ActionType` debug string to a player-friendly MTG verb.
+fn action_type_verb(action_type: &str) -> &'static str {
+    match action_type {
+        "Cast" | "CastAdventure" | "CastLeftRoom" | "CastRightRoom" | "CastLeft" | "CastRight" | "CastOmen" => "casts",
+        "Activate" => "activates",
+        "Special" | "SpecialTurnFaceUp" => "uses special ability on",
+        _ => "plays",
+    }
+}
+
+/// Check whether a category string contains a substring (case-insensitive).
+fn category_contains(category: Option<&str>, needle: &str) -> bool {
+    category.is_some_and(|c| c.to_ascii_lowercase().contains(&needle.to_ascii_lowercase()))
+}
+
+/// Map a zone transfer to player-friendly MTG terminology.
+fn zone_transfer_display(card: &CardRef, from_zone: &str, to_zone: &str, category: Option<&str>) -> ActionDisplay {
+    let name = card_display(card);
+
+    match (from_zone, to_zone) {
+        // Casting: Hand → Stack
+        ("Hand", "Stack") => ActionDisplay {
+            icon: "\u{1F0CF}",
+            description: format!("{name} is cast"),
+            style: ActionStyle::Normal,
+        },
+        // Drawing: Library → Hand
+        ("Library", "Hand") => ActionDisplay {
+            icon: "\u{1F4E5}",
+            description: format!("{name} drawn"),
+            style: ActionStyle::Normal,
+        },
+        // Resolving onto battlefield: Stack → Battlefield
+        ("Stack", "Battlefield") => ActionDisplay {
+            icon: "\u{2B07}",
+            description: format!("{name} enters the battlefield"),
+            style: ActionStyle::Normal,
+        },
+        // Countered: Stack → Graveyard with counter category
+        ("Stack", "Graveyard") if category_contains(category, "counter") => ActionDisplay {
+            icon: "\u{1F6AB}",
+            description: format!("{name} is countered"),
+            style: ActionStyle::Negative,
+        },
+        // Instant/sorcery resolves: Stack → Graveyard
+        ("Stack", "Graveyard") => ActionDisplay {
+            icon: "\u{2705}",
+            description: format!("{name} resolves"),
+            style: ActionStyle::Normal,
+        },
+        // Destroyed: Battlefield → Graveyard
+        ("Battlefield", "Graveyard") if category_contains(category, "destroy") => ActionDisplay {
+            icon: "\u{1F480}",
+            description: format!("{name} is destroyed"),
+            style: ActionStyle::Negative,
+        },
+        // Sacrificed: Battlefield → Graveyard
+        ("Battlefield", "Graveyard") if category_contains(category, "sacrifice") => ActionDisplay {
+            icon: "\u{1F480}",
+            description: format!("{name} is sacrificed"),
+            style: ActionStyle::Negative,
+        },
+        // Dies (generic): Battlefield → Graveyard
+        ("Battlefield", "Graveyard") => ActionDisplay {
+            icon: "\u{1F480}",
+            description: format!("{name} dies"),
+            style: ActionStyle::Negative,
+        },
+        // Discarded: Hand → Graveyard
+        ("Hand", "Graveyard") => ActionDisplay {
+            icon: "\u{274C}",
+            description: format!("{name} discarded"),
+            style: ActionStyle::Negative,
+        },
+        // Bounced: Battlefield → Hand
+        ("Battlefield", "Hand") => ActionDisplay {
+            icon: "\u{21A9}",
+            description: format!("{name} returned to hand"),
+            style: ActionStyle::Normal,
+        },
+        // Tucked: Battlefield → Library
+        ("Battlefield", "Library") => ActionDisplay {
+            icon: "\u{21A9}",
+            description: format!("{name} put on top of library"),
+            style: ActionStyle::Normal,
+        },
+        // Enters from library (e.g. ramp, Collected Company)
+        ("Library", "Battlefield") => ActionDisplay {
+            icon: "\u{2B07}",
+            description: format!("{name} enters the battlefield from library"),
+            style: ActionStyle::Normal,
+        },
+        // Milled: Library → Graveyard
+        ("Library", "Graveyard") => ActionDisplay {
+            icon: "\u{2B07}",
+            description: format!("{name} milled"),
+            style: ActionStyle::Normal,
+        },
+        // Recursion: Graveyard → Battlefield
+        ("Graveyard", "Battlefield") => ActionDisplay {
+            icon: "\u{21A9}",
+            description: format!("{name} returns from graveyard"),
+            style: ActionStyle::Positive,
+        },
+        // Graveyard → Hand
+        ("Graveyard", "Hand") => ActionDisplay {
+            icon: "\u{21A9}",
+            description: format!("{name} returned to hand from graveyard"),
+            style: ActionStyle::Positive,
+        },
+        // Enters from exile
+        ("Exile", "Battlefield") => ActionDisplay {
+            icon: "\u{2B07}",
+            description: format!("{name} enters the battlefield from exile"),
+            style: ActionStyle::Positive,
+        },
+        // Exile → Hand
+        ("Exile", "Hand") => ActionDisplay {
+            icon: "\u{21A9}",
+            description: format!("{name} returned to hand from exile"),
+            style: ActionStyle::Positive,
+        },
+        // Catch-all: anything → Exile
+        (_, "Exile") => ActionDisplay {
+            icon: "\u{1F6AB}",
+            description: format!("{name} is exiled"),
+            style: ActionStyle::Negative,
+        },
+        // Fallback: show raw zones for unmapped transitions
+        _ => ActionDisplay {
+            icon: "\u{27A1}",
+            description: format!("{name}: {from_zone} \u{2192} {to_zone}"),
+            style: ActionStyle::Normal,
+        },
     }
 }
