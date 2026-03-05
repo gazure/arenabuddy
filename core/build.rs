@@ -24,6 +24,7 @@ fn main() -> Result<()> {
         .build_server(true)
         .build_client(true)
         .btree_map(".")
+        .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
         .compile_protos(&proto_paths, &[proto_dir])?;
 
     Ok(())

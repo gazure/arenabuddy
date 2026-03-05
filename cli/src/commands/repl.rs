@@ -19,6 +19,7 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
     println!("Arenabuddy REPL");
     println!("Available commands:");
     println!("  find <arena_id> - Find a card by Arena ID");
+    println!("  dump <arena_id> - Dump full card proto as JSON");
     println!("  search <name_prefix> - Search cards by name prefix");
     println!("  count [set_code] - Count cards, optionally filtered by set code");
     println!("  sets - List all set codes");
@@ -38,15 +39,19 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                 }
 
                 match parts[0] {
-                    "find" => {
+                    "find" | "dump" => {
                         if parts.len() < 2 {
-                            println!("Usage: find <arena_id>");
+                            println!("Usage: {} <arena_id>", parts[0]);
                             continue;
                         }
 
                         match parts[1].parse::<i64>() {
                             Ok(arena_id) => {
-                                find_card(&cards_db, arena_id);
+                                if parts[0] == "dump" {
+                                    dump_card(&cards_db, arena_id);
+                                } else {
+                                    find_card(&cards_db, arena_id);
+                                }
                             }
                             Err(_) => {
                                 println!("Invalid Arena ID: {}", parts[1]);
@@ -58,7 +63,8 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                             println!("Usage: search <name_prefix>");
                             continue;
                         }
-                        search_cards_by_name(&cards_db, parts[1]);
+                        let query = parts[1..].join(" ");
+                        search_cards_by_name(&cards_db, &query);
                     }
                     "count" => {
                         if parts.len() > 1 {
@@ -74,6 +80,7 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                     "help" => {
                         println!("Available commands:");
                         println!("  find <arena_id> - Find a card by Arena ID");
+                        println!("  dump <arena_id> - Dump full card proto as JSON");
                         println!("  search <name_prefix> - Search cards by name prefix");
                         println!("  count [set_code] - Count cards, optionally filtered by set code");
                         println!("  sets - List all set codes");
@@ -99,6 +106,16 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn dump_card(cards_db: &CardsDatabase, arena_id: i64) {
+    match cards_db.get(&arena_id.to_string()) {
+        Some(card) => match serde_json::to_string_pretty(card) {
+            Ok(json) => println!("{json}"),
+            Err(e) => println!("Failed to serialize card: {e}"),
+        },
+        None => println!("No card found with Arena ID: {arena_id}"),
+    }
 }
 
 fn find_card(cards_db: &CardsDatabase, arena_id: i64) {
