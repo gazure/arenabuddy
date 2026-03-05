@@ -186,8 +186,8 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
     let mut failed_cards = Vec::new();
     let mut processed_sets = 0;
 
-    // Cache basic land data to avoid repeated fetches
-    let mut basic_land_cache: HashMap<i64, serde_json::Value> = HashMap::new();
+    // Cache arena_id lookups to avoid repeated Scryfall fetches
+    let mut arena_id_cache: HashMap<i64, serde_json::Value> = HashMap::new();
 
     // Process each set
     for (set_code, mtga_set_cards) in cards_by_set {
@@ -244,56 +244,47 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
 
                 cards.push(card);
                 cards_by_id.insert(mtga_card.grp_id);
-            } else if let Some(fallback_id) = get_basic_land_fallback_id(&mtga_card.name) {
-                // For basic lands, fetch the canonical card from Scryfall for metadata/images
-                // Use cache to avoid repeated fetches
-                let basic_land_json = if let Some(cached) = basic_land_cache.get(&fallback_id) {
-                    debug!(
-                        "Using cached basic land data for '{}' (fallback ID: {})",
-                        mtga_card.name, fallback_id
-                    );
-                    Some(cached.clone())
-                } else {
-                    debug!(
-                        "Fetching canonical basic land data for '{}' (fallback ID: {}, actual ID: {})",
-                        mtga_card.name, fallback_id, mtga_card.grp_id
-                    );
+            } else {
+                // Collector number miss — try fetching by the card's actual arena ID
+                let card_json =
+                    fetch_or_cache_by_arena_id(&client, scryfall_host, &mut arena_id_cache, mtga_card.grp_id).await?;
 
-                    // Rate limit before the request
-                    tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
-
-                    // Fetch and cache
-                    if let Some(json) = fetch_scryfall_card_by_arena_id(&client, scryfall_host, fallback_id).await? {
-                        basic_land_cache.insert(fallback_id, json.clone());
-                        Some(json)
-                    } else {
-                        None
+                // If that failed and it's a basic land, try the canonical fallback ID
+                let card_json = match (card_json, get_basic_land_fallback_id(&mtga_card.name)) {
+                    (Some(json), _) => Some(json),
+                    (None, Some(fallback_id)) => {
+                        debug!(
+                            "Actual arena ID {} not found for '{}', trying fallback ID {}",
+                            mtga_card.grp_id, mtga_card.name, fallback_id
+                        );
+                        fetch_or_cache_by_arena_id(&client, scryfall_host, &mut arena_id_cache, fallback_id).await?
                     }
+                    (None, None) => None,
                 };
 
-                if let Some(json) = basic_land_json {
+                if let Some(json) = card_json {
                     let mut card = Card::from_json(&json);
-                    // Override with MTGA's actual GrpId so each variant has unique ID
                     card.id = mtga_card.grp_id;
-                    // Update the set to match MTGA's set
                     card.set = mtga_card.expansion_code.clone();
-
                     cards.push(card);
                     cards_by_id.insert(mtga_card.grp_id);
-                } else {
-                    // If even the fallback fetch fails, create minimal entry
-                    debug!("Fallback fetch failed for {}, using minimal card", mtga_card.name);
+                } else if get_basic_land_fallback_id(&mtga_card.name).is_some() {
+                    // Last resort for basic lands: create minimal entry
+                    debug!(
+                        "All fetches failed for basic land '{}', using minimal card",
+                        mtga_card.name
+                    );
                     let mut card = Card::new(mtga_card.grp_id, &mtga_card.expansion_code, &mtga_card.name);
                     card.type_line = format!("Basic Land — {}", mtga_card.name.replace("Snow-Covered ", ""));
                     cards.push(card);
                     cards_by_id.insert(mtga_card.grp_id);
+                } else {
+                    warn!(
+                        "Card not found in Scryfall set '{}': '{}' (number={})",
+                        set_code, mtga_card.name, mtga_card.collector_number
+                    );
+                    failed_cards.push(mtga_card);
                 }
-            } else {
-                warn!(
-                    "Card not found in Scryfall set '{}': '{}' (number={})",
-                    set_code, mtga_card.name, mtga_card.collector_number
-                );
-                failed_cards.push(mtga_card);
             }
         }
 
@@ -315,6 +306,28 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
     }
 
     Ok(cards)
+}
+
+/// Fetch a card by arena ID, using a cache to avoid redundant Scryfall requests
+async fn fetch_or_cache_by_arena_id(
+    client: &reqwest::Client,
+    scryfall_host: &str,
+    cache: &mut HashMap<i64, serde_json::Value>,
+    arena_id: i64,
+) -> Result<Option<serde_json::Value>> {
+    if let Some(cached) = cache.get(&arena_id) {
+        debug!("Using cached Scryfall data for arena ID {}", arena_id);
+        return Ok(Some(cached.clone()));
+    }
+
+    tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
+
+    if let Some(json) = fetch_scryfall_card_by_arena_id(client, scryfall_host, arena_id).await? {
+        cache.insert(arena_id, json.clone());
+        Ok(Some(json))
+    } else {
+        Ok(None)
+    }
 }
 
 /// Fetch all cards from a set via Scryfall, indexed by collector number
