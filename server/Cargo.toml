@@ -21,7 +21,6 @@ base64 = { workspace = true }
 chrono = { workspace = true }
 google-sheets4 = { workspace = true }
 jsonwebtoken = { workspace = true }
-prost = { workspace = true }
 rand = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
@@ -30,7 +29,6 @@ sha2 = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tonic = { workspace = true }
 tracing = { workspace = true }
-tonic-prost = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
 uuid = { workspace = true }
 yup-oauth2 = { workspace = true }

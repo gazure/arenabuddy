@@ -21,10 +21,7 @@ chrono = { workspace = true }
 console-subscriber = { workspace = true, optional = true }
 dirs = { workspace = true }
 dioxus = { workspace = true, features = ["desktop", "router"] }
-itertools = { workspace = true }
-notify = { workspace = true }
 open = { workspace = true }
-postgresql_embedded = { workspace = true, features = ["bundled"] }
 rand = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

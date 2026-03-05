@@ -17,16 +17,13 @@ clap = { workspace = true }
 csv = { workspace = true }
 dirs = { workspace = true }
 ctrlc = { workspace = true }
-prost = { workspace = true }
 reqwest = { workspace = true, features = ["json", "stream", "default-tls"] }
 rusqlite = { workspace = true }
 rustyline = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 thiserror = { workspace = true }
 tracingx = { path = "../../lib/tracingx" }
-urlencoding = { workspace = true }
 
 [[bin]]
 name = "arenabuddyctl"
