@@ -7,10 +7,11 @@ use arenabuddy_core::{
         draft::DraftDetailsDisplay,
         game::GameResultDisplay,
         match_details::MatchDetails,
+        match_summary::MatchSummary,
         mulligan::Mulligan,
         stats::{MatchStats, TimeWindow},
     },
-    models::{Draft, MTGAMatch},
+    models::Draft,
 };
 use arenabuddy_data::DirectoryStorage;
 use tokio::sync::Mutex;
@@ -61,8 +62,8 @@ where
         }
     }
 
-    pub async fn get_matches(&self) -> Result<Vec<MTGAMatch>> {
-        Ok(self.db.list_matches(None).await?)
+    pub async fn get_match_summaries(&self) -> Result<Vec<MatchSummary>> {
+        Ok(self.db.list_match_summaries(None).await?)
     }
 
     pub async fn get_match_details(&self, id: String) -> Result<MatchDetails> {

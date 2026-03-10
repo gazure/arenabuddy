@@ -1,4 +1,4 @@
-use arenabuddy_core::models::MTGAMatch;
+use arenabuddy_core::display::match_summary::MatchSummary;
 use dioxus::prelude::*;
 use dioxus_router::Link;
 
@@ -10,18 +10,26 @@ use crate::{
 const PAGE_SIZE: usize = 25;
 
 #[component]
-fn MatchRow(m: MTGAMatch) -> Element {
-    let date = m.created_at().format("%b %-d, %Y %-I:%M %p").to_string();
+fn MatchRow(m: MatchSummary) -> Element {
+    let date = m.created_at.format("%b %-d, %Y %-I:%M %p").to_string();
+
+    let (result_text, result_class) = match m.did_controller_win {
+        Some(true) => ("Win", "text-green-400 font-medium"),
+        Some(false) => ("Loss", "text-red-400 font-medium"),
+        None => ("—", "text-gray-500"),
+    };
+
+    let score = m.game_score();
+
     rsx! {
         Link {
-            to: Route::MatchDetails { id: m.id().to_string() },
+            to: Route::MatchDetails { id: m.id.clone() },
             class: "table-row hover:bg-gray-700/50 transition-colors duration-150 cursor-pointer",
             td { class: "py-3 px-4 border-b border-gray-700",
-                span { class: "text-amber-400 font-medium",
-                    "{m.controller_player_name()}"
-                }
+                span { class: "{result_class}", "{result_text}" }
             }
-            td { class: "py-3 px-4 border-b border-gray-700", "{m.opponent_player_name()}" }
+            td { class: "py-3 px-4 border-b border-gray-700 text-gray-300", "{score}" }
+            td { class: "py-3 px-4 border-b border-gray-700", "{m.opponent_player_name}" }
             td { class: "py-3 px-4 border-b border-gray-700 text-gray-500", "{date}" }
         }
     }
@@ -33,7 +41,7 @@ pub(crate) fn Matches() -> Element {
     let mut current_page = use_signal(|| 0usize);
     let mut matches_resource = use_resource(move || {
         let service = service.clone();
-        async move { service.get_matches().await }
+        async move { service.get_match_summaries().await }
     });
 
     let refresh_matches = move |_| {
@@ -104,14 +112,15 @@ pub(crate) fn Matches() -> Element {
                                     table { class: "min-w-full table-fixed",
                                         thead {
                                             tr { class: "bg-gray-900 text-left",
-                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Controller" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/6", "Result" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/6", "Score" }
                                                 th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Opponent" }
                                                 th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Date" }
                                             }
                                         }
                                         tbody {
                                             for m in &matches_data[start..end] {
-                                                MatchRow { key: "{m.id()}", m: m.clone() }
+                                                MatchRow { key: "{m.id}", m: m.clone() }
                                             }
                                         }
                                     }

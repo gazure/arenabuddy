@@ -39,6 +39,18 @@ struct MatchWithResultRow {
 }
 
 #[derive(FromRow)]
+struct MatchSummaryRow {
+    id: Uuid,
+    controller_seat_id: i32,
+    controller_player_name: String,
+    opponent_player_name: String,
+    created_at: Option<NaiveDateTime>,
+    match_winning_team_id: Option<i32>,
+    game_wins: i64,
+    game_losses: i64,
+}
+
+#[derive(FromRow)]
 struct EventLogRow {
     game_number: i32,
     events_json: String,
@@ -46,7 +58,10 @@ struct EventLogRow {
 
 use std::sync::Arc;
 
-use arenabuddy_core::display::stats::{MatchStats, MulliganBucket, OpponentRecord, TimeWindow};
+use arenabuddy_core::display::{
+    match_summary::MatchSummary,
+    stats::{MatchStats, MulliganBucket, OpponentRecord, TimeWindow},
+};
 
 use super::{
     auth_repository::AuthRepository,
@@ -670,6 +685,54 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
         info!("found {} matches", matches.len());
         Ok(matches)
+    }
+
+    #[instrument(skip(self))]
+    async fn list_match_summaries(&self, user_id: Option<Uuid>) -> Result<Vec<MatchSummary>> {
+        let rows: Vec<MatchSummaryRow> = sqlx::query_as(
+            r"SELECT
+                m.id,
+                m.controller_seat_id,
+                m.controller_player_name,
+                m.opponent_player_name,
+                m.created_at,
+                match_mr.winning_team_id AS match_winning_team_id,
+                COALESCE(gs.game_wins, 0) AS game_wins,
+                COALESCE(gs.game_losses, 0) AS game_losses
+            FROM match m
+            LEFT JOIN match_result match_mr
+                ON m.id = match_mr.match_id AND match_mr.result_scope = 'MatchScope_Match'
+            LEFT JOIN LATERAL (
+                SELECT
+                    COUNT(CASE WHEN gr.winning_team_id = m.controller_seat_id THEN 1 END) AS game_wins,
+                    COUNT(CASE WHEN gr.winning_team_id != m.controller_seat_id THEN 1 END) AS game_losses
+                FROM match_result gr
+                WHERE gr.match_id = m.id AND gr.result_scope = 'MatchScope_Game'
+            ) gs ON true
+            WHERE ($1::uuid IS NULL OR m.user_id = $1)
+            ORDER BY m.created_at DESC",
+        )
+        .bind(user_id)
+        .fetch_all(&self.pool)
+        .await?;
+
+        let summaries = rows
+            .into_iter()
+            .map(|row| MatchSummary {
+                id: row.id.to_string(),
+                controller_player_name: row.controller_player_name,
+                opponent_player_name: row.opponent_player_name,
+                created_at: row
+                    .created_at
+                    .map(|naive: NaiveDateTime| naive.and_utc())
+                    .unwrap_or_default(),
+                did_controller_win: row.match_winning_team_id.map(|wt| wt == row.controller_seat_id),
+                game_wins: row.game_wins,
+                game_losses: row.game_losses,
+            })
+            .collect();
+
+        Ok(summaries)
     }
 
     #[instrument(skip(self))]

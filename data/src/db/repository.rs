@@ -1,5 +1,8 @@
 use arenabuddy_core::{
-    display::stats::{MatchStats, TimeWindow},
+    display::{
+        match_summary::MatchSummary,
+        stats::{MatchStats, TimeWindow},
+    },
     models::{ArenaId, Deck, Draft, GameEventLog, MTGADraft, MTGAMatch, MatchResult, Mulligan},
     player_log::replay::MatchReplay,
 };
@@ -12,6 +15,7 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
     async fn init(&self) -> Result<()>;
     async fn write_replay(&self, replay: &MatchReplay) -> Result<()>;
     async fn list_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>>;
+    async fn list_match_summaries(&self, user_id: Option<Uuid>) -> Result<Vec<MatchSummary>>;
     async fn get_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<(MTGAMatch, Option<MatchResult>)>;
     async fn get_draft(&self, draft_id: &str) -> Result<MTGADraft>;
     async fn get_opponent_deck(&self, match_id: &str) -> Result<Deck>;
