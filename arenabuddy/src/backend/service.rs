@@ -77,6 +77,7 @@ where
             controller_player_name: mtga_match.controller_player_name().to_string(),
             opponent_player_name: mtga_match.opponent_player_name().to_string(),
             created_at: mtga_match.created_at(),
+            format: mtga_match.format().map(ToString::to_string),
             did_controller_win: result.is_some_and(|r| r.is_winner(mtga_match.controller_seat_id())),
             ..Default::default()
         };

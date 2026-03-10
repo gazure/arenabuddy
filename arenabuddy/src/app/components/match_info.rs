@@ -1,7 +1,15 @@
+use arenabuddy_core::display::match_summary::format_event_id;
 use dioxus::prelude::*;
 
 #[component]
-pub fn MatchInfo(controller_player_name: String, opponent_player_name: String, did_controller_win: bool) -> Element {
+pub fn MatchInfo(
+    controller_player_name: String,
+    opponent_player_name: String,
+    did_controller_win: bool,
+    format: Option<String>,
+) -> Element {
+    let display_format = format.as_deref().map_or("Unknown", format_event_id);
+
     rsx! {
         div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
             div { class: "bg-gradient-to-r from-amber-900 to-amber-800 py-4 px-6",
@@ -27,7 +35,7 @@ pub fn MatchInfo(controller_player_name: String, opponent_player_name: String, d
                     div { class: "grid grid-cols-2 gap-2",
                         div { class: "bg-gray-900/50 p-3 rounded-md",
                             span { class: "text-sm text-gray-500 block", "Format" }
-                            span { class: "font-medium", "unknown" }
+                            span { class: "font-medium", "{display_format}" }
                         }
                         div { class: "bg-gray-900/50 p-3 rounded-md",
                             span { class: "text-sm text-gray-500 block", "Result" }

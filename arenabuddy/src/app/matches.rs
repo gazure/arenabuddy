@@ -16,10 +16,11 @@ fn MatchRow(m: MatchSummary) -> Element {
     let (result_text, result_class) = match m.did_controller_win {
         Some(true) => ("Win", "text-green-400 font-medium"),
         Some(false) => ("Loss", "text-red-400 font-medium"),
-        None => ("—", "text-gray-500"),
+        None => ("\u{2014}", "text-gray-500"),
     };
 
     let score = m.game_score();
+    let format = m.display_format().to_string();
 
     rsx! {
         Link {
@@ -29,6 +30,7 @@ fn MatchRow(m: MatchSummary) -> Element {
                 span { class: "{result_class}", "{result_text}" }
             }
             td { class: "py-3 px-4 border-b border-gray-700 text-gray-300", "{score}" }
+            td { class: "py-3 px-4 border-b border-gray-700 text-gray-400 text-sm", "{format}" }
             td { class: "py-3 px-4 border-b border-gray-700", "{m.opponent_player_name}" }
             td { class: "py-3 px-4 border-b border-gray-700 text-gray-500", "{date}" }
         }
@@ -112,10 +114,11 @@ pub(crate) fn Matches() -> Element {
                                     table { class: "min-w-full table-fixed",
                                         thead {
                                             tr { class: "bg-gray-900 text-left",
-                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/6", "Result" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/6", "Score" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Opponent" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-1/3", "Date" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-[10%]", "Result" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-[10%]", "Score" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-[22%]", "Format" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-[28%]", "Opponent" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400 w-[30%]", "Date" }
                                             }
                                         }
                                         tbody {

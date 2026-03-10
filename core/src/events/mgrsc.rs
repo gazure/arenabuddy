@@ -53,7 +53,23 @@ pub struct FinalMatchResult {
 #[serde(rename_all = "camelCase")]
 pub struct GameRoomConfig {
     pub match_id: String,
+    #[serde(default)]
+    pub reserved_players: Vec<ReservedPlayer>,
 }
+
+impl GameRoomConfig {
+    pub fn event_id(&self) -> Option<&str> {
+        self.reserved_players.first().map(|p| p.event_id.as_str())
+    }
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReservedPlayer {
+    #[serde(default)]
+    pub event_id: String,
+}
+
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MatchPlayer {

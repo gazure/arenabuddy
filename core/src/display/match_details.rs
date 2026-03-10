@@ -18,6 +18,7 @@ pub struct MatchDetails {
     pub controller_player_name: String,
     pub opponent_player_name: String,
     pub created_at: DateTime<Utc>,
+    pub format: Option<String>,
     pub primary_decklist: Option<DeckDisplayRecord>,
     pub differences: Option<Vec<Difference>>,
     pub game_results: Vec<GameResultDisplay>,

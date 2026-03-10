@@ -316,13 +316,16 @@ impl MatchReplay {
         })
     }
 
-    /// Gets the format for this match if found (e.g. "`Traditional_Explorer_Ranked`")
-    /// MTGA usually underscore-spaces format names
+    /// Gets the format for this match if found (e.g. "`Traditional_Ladder`")
+    /// Extracted from the `reservedPlayers` in the match start MGRSC event.
     pub fn match_format(&self) -> Option<String> {
-        self.business_messages.iter().find_map(|message| match message {
-            BusinessEvent::Game(game_business_event) => Some(game_business_event.event_id.clone()),
-            _ => None,
-        })
+        self.match_start_message
+            .mgrsc_event
+            .game_room_info
+            .game_room_config
+            .event_id()
+            .filter(|s| !s.is_empty())
+            .map(ToString::to_string)
     }
 
     /// Builds a structured event log for each game in this match.

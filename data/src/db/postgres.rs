@@ -26,6 +26,7 @@ struct MatchRow {
     controller_player_name: String,
     opponent_player_name: String,
     created_at: Option<NaiveDateTime>,
+    format: Option<String>,
 }
 
 #[derive(FromRow)]
@@ -36,6 +37,7 @@ struct MatchWithResultRow {
     opponent_player_name: String,
     winning_team_id: i32,
     created_at: Option<NaiveDateTime>,
+    format: Option<String>,
 }
 
 #[derive(FromRow)]
@@ -45,6 +47,7 @@ struct MatchSummaryRow {
     controller_player_name: String,
     opponent_player_name: String,
     created_at: Option<NaiveDateTime>,
+    format: Option<String>,
     match_winning_team_id: Option<i32>,
     game_wins: i64,
     game_losses: i64,
@@ -177,8 +180,8 @@ impl PostgresMatchDB {
     ) -> Result<()> {
         sqlx::query(
             r"INSERT INTO match
-            (id, controller_seat_id, controller_player_name, opponent_player_name, created_at, user_id)
-            VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT(id) DO NOTHING",
+            (id, controller_seat_id, controller_player_name, opponent_player_name, created_at, user_id, format)
+            VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT(id) DO UPDATE SET format = COALESCE(excluded.format, match.format)",
         )
         .bind(match_id)
         .bind(mtga_match.controller_seat_id())
@@ -186,6 +189,7 @@ impl PostgresMatchDB {
         .bind(mtga_match.opponent_player_name())
         .bind(mtga_match.created_at().naive_utc())
         .bind(user_id)
+        .bind(mtga_match.format())
         .execute(&mut **tx)
         .await?;
         Ok(())
@@ -575,6 +579,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
             .controller_player_name(controller_name)
             .opponent_player_name(opponent_name)
             .created_at(event_start)
+            .format(replay.match_format())
             .build()?;
 
         let mut tx = self.pool.begin().await.map_err(Error::from)?;
@@ -630,7 +635,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         let result: Option<MatchWithResultRow> = sqlx::query_as(
             r"
             SELECT
-                m.id, m.controller_player_name, m.opponent_player_name, mr.winning_team_id, m.controller_seat_id, m.created_at
+                m.id, m.controller_player_name, m.opponent_player_name, mr.winning_team_id, m.controller_seat_id, m.created_at, m.format
             FROM match m JOIN match_result mr ON m.id = mr.match_id
             WHERE m.id = $1 AND mr.result_scope = 'MatchScope_Match' AND ($2::uuid IS NULL OR m.user_id = $2) LIMIT 1
             ",
@@ -641,16 +646,21 @@ impl ArenabuddyRepository for PostgresMatchDB {
         .await?;
 
         if let Some(row) = result {
-            Ok((
-                MTGAMatch::new_with_timestamp(
-                    row.id,
-                    row.controller_seat_id,
-                    row.controller_player_name,
-                    row.opponent_player_name,
+            let mtga_match = MTGAMatchBuilder::default()
+                .id(row.id.to_string())
+                .controller_seat_id(row.controller_seat_id)
+                .controller_player_name(row.controller_player_name)
+                .opponent_player_name(row.opponent_player_name)
+                .created_at(
                     row.created_at
                         .map(|naive: NaiveDateTime| naive.and_utc())
                         .unwrap_or_default(),
-                ),
+                )
+                .format(row.format)
+                .build()
+                .expect("all fields provided");
+            Ok((
+                mtga_match,
                 Some(MatchResult::new_match_result(row.id, row.winning_team_id)),
             ))
         } else {
@@ -662,7 +672,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
     #[instrument(skip(self))]
     async fn list_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>> {
         let results: Vec<MatchRow> = sqlx::query_as(
-            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at FROM match WHERE ($1::uuid IS NULL OR user_id = $1) ORDER BY created_at DESC",
+            "SELECT id, controller_seat_id, controller_player_name, opponent_player_name, created_at, format FROM match WHERE ($1::uuid IS NULL OR user_id = $1) ORDER BY created_at DESC",
         )
         .bind(user_id)
         .fetch_all(&self.pool)
@@ -671,15 +681,19 @@ impl ArenabuddyRepository for PostgresMatchDB {
         let matches: Vec<_> = results
             .into_iter()
             .map(|row| {
-                MTGAMatch::new_with_timestamp(
-                    row.id,
-                    row.controller_seat_id,
-                    row.controller_player_name,
-                    row.opponent_player_name,
-                    row.created_at
-                        .map(|naive: NaiveDateTime| naive.and_utc())
-                        .unwrap_or_default(),
-                )
+                MTGAMatchBuilder::default()
+                    .id(row.id.to_string())
+                    .controller_seat_id(row.controller_seat_id)
+                    .controller_player_name(row.controller_player_name)
+                    .opponent_player_name(row.opponent_player_name)
+                    .created_at(
+                        row.created_at
+                            .map(|naive: NaiveDateTime| naive.and_utc())
+                            .unwrap_or_default(),
+                    )
+                    .format(row.format)
+                    .build()
+                    .expect("all fields provided")
             })
             .collect();
 
@@ -696,6 +710,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
                 m.controller_player_name,
                 m.opponent_player_name,
                 m.created_at,
+                m.format,
                 match_mr.winning_team_id AS match_winning_team_id,
                 COALESCE(gs.game_wins, 0) AS game_wins,
                 COALESCE(gs.game_losses, 0) AS game_losses
@@ -726,6 +741,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
                     .created_at
                     .map(|naive: NaiveDateTime| naive.and_utc())
                     .unwrap_or_default(),
+                format: row.format,
                 did_controller_win: row.match_winning_team_id.map(|wt| wt == row.controller_seat_id),
                 game_wins: row.game_wins,
                 game_losses: row.game_losses,

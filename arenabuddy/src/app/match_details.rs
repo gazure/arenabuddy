@@ -114,7 +114,8 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                         MatchInfo {
                             controller_player_name: details.controller_player_name.clone(),
                             opponent_player_name: details.opponent_player_name.clone(),
-                            did_controller_win: details.did_controller_win
+                            did_controller_win: details.did_controller_win,
+                            format: details.format.clone()
                         }
 
                         div { class: "flex gap-1 mb-6 border-b border-gray-700",
