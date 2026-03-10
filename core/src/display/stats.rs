@@ -1,5 +1,50 @@
 #![expect(clippy::cast_precision_loss)]
 
+use chrono::{DateTime, Utc};
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum TimeWindow {
+    Last24Hours,
+    Last7Days,
+    Last30Days,
+    #[default]
+    AllTime,
+}
+
+impl TimeWindow {
+    pub const ALL: [TimeWindow; 4] = [
+        TimeWindow::Last24Hours,
+        TimeWindow::Last7Days,
+        TimeWindow::Last30Days,
+        TimeWindow::AllTime,
+    ];
+
+    pub fn label(self) -> &'static str {
+        match self {
+            TimeWindow::Last24Hours => "Last 24 Hours",
+            TimeWindow::Last7Days => "Last 7 Days",
+            TimeWindow::Last30Days => "Last 30 Days",
+            TimeWindow::AllTime => "All Time",
+        }
+    }
+
+    pub fn cutoff(self) -> Option<DateTime<Utc>> {
+        let now = Utc::now();
+        match self {
+            TimeWindow::Last24Hours => Some(now - chrono::Duration::hours(24)),
+            TimeWindow::Last7Days => Some(now - chrono::Duration::days(7)),
+            TimeWindow::Last30Days => Some(now - chrono::Duration::days(30)),
+            TimeWindow::AllTime => None,
+        }
+    }
+}
+
+impl std::fmt::Display for TimeWindow {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.label())
+    }
+}
+
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct MatchStats {
     pub total_matches: i64,

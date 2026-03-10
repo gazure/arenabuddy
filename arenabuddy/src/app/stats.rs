@@ -1,4 +1,4 @@
-use arenabuddy_core::display::stats::MatchStats;
+use arenabuddy_core::display::stats::{MatchStats, TimeWindow};
 use dioxus::prelude::*;
 
 use crate::backend::Service;
@@ -120,9 +120,12 @@ fn StatsDisplay(stats: MatchStats) -> Element {
 #[component]
 pub(crate) fn Stats() -> Element {
     let service = use_context::<Service>();
+    let mut time_window = use_signal(TimeWindow::default);
+
     let mut stats_resource = use_resource(move || {
         let service = service.clone();
-        async move { service.get_stats().await }
+        let tw = time_window();
+        async move { service.get_stats(tw).await }
     });
 
     let refresh = move |_| {
@@ -136,14 +139,30 @@ pub(crate) fn Stats() -> Element {
         div { class: "container mx-auto px-4 py-8 max-w-5xl",
             div { class: "flex justify-between items-center mb-6",
                 h1 { class: "text-2xl font-bold text-gray-100", "Match Statistics" }
-                button {
-                    onclick: refresh,
-                    class: "bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded transition-colors duration-150",
-                    disabled: data.is_none(),
-                    if data.is_none() {
-                        "Loading..."
-                    } else {
-                        "Refresh"
+                div { class: "flex items-center space-x-3",
+                    select {
+                        class: "bg-gray-700 text-gray-200 border border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500",
+                        onchange: move |evt| {
+                            let idx: usize = evt.value().parse().unwrap_or(3);
+                            time_window.set(TimeWindow::ALL[idx]);
+                        },
+                        for (i, tw) in TimeWindow::ALL.iter().enumerate() {
+                            option {
+                                value: "{i}",
+                                selected: *tw == time_window(),
+                                "{tw.label()}"
+                            }
+                        }
+                    }
+                    button {
+                        onclick: refresh,
+                        class: "bg-amber-600 hover:bg-amber-700 text-white py-2 px-4 rounded transition-colors duration-150",
+                        disabled: data.is_none(),
+                        if data.is_none() {
+                            "Loading..."
+                        } else {
+                            "Refresh"
+                        }
                     }
                 }
             }

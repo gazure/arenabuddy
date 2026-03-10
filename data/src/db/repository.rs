@@ -1,5 +1,5 @@
 use arenabuddy_core::{
-    display::stats::MatchStats,
+    display::stats::{MatchStats, TimeWindow},
     models::{ArenaId, Deck, Draft, GameEventLog, MTGADraft, MTGAMatch, MatchResult, Mulligan},
     player_log::replay::MatchReplay,
 };
@@ -36,5 +36,5 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
 
     async fn delete_match(&self, match_id: &str, user_id: Option<Uuid>) -> Result<()>;
 
-    async fn get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats>;
+    async fn get_match_stats(&self, user_id: Option<Uuid>, time_window: TimeWindow) -> Result<MatchStats>;
 }

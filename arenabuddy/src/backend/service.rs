@@ -8,7 +8,7 @@ use arenabuddy_core::{
         game::GameResultDisplay,
         match_details::MatchDetails,
         mulligan::Mulligan,
-        stats::MatchStats,
+        stats::{MatchStats, TimeWindow},
     },
     models::{Draft, MTGAMatch},
 };
@@ -152,8 +152,8 @@ where
         Ok(DraftDetailsDisplay::new(draft, &self.cards))
     }
 
-    pub async fn get_stats(&self) -> Result<MatchStats> {
-        Ok(self.db.get_match_stats(None).await?)
+    pub async fn get_stats(&self, time_window: TimeWindow) -> Result<MatchStats> {
+        Ok(self.db.get_match_stats(None, time_window).await?)
     }
 
     pub async fn get_error_logs(&self) -> Result<Vec<String>> {

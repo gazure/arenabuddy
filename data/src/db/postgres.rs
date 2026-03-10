@@ -46,7 +46,7 @@ struct EventLogRow {
 
 use std::sync::Arc;
 
-use arenabuddy_core::display::stats::{MatchStats, MulliganBucket, OpponentRecord};
+use arenabuddy_core::display::stats::{MatchStats, MulliganBucket, OpponentRecord, TimeWindow};
 
 use super::{
     auth_repository::AuthRepository,
@@ -375,7 +375,12 @@ impl PostgresMatchDB {
         Ok(())
     }
 
-    async fn query_record(&self, user_id: Option<Uuid>, scope: &str) -> Result<(i64, i64)> {
+    async fn query_record(
+        &self,
+        user_id: Option<Uuid>,
+        scope: &str,
+        cutoff: Option<DateTime<Utc>>,
+    ) -> Result<(i64, i64)> {
         #[derive(FromRow)]
         struct RecordRow {
             total: i64,
@@ -388,17 +393,23 @@ impl PostgresMatchDB {
                 COUNT(DISTINCT CASE WHEN mr.winning_team_id = m.controller_seat_id THEN m.id END) AS wins
             FROM match m
             JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = $2
-            WHERE ($1::uuid IS NULL OR m.user_id = $1)",
+            WHERE ($1::uuid IS NULL OR m.user_id = $1)
+              AND ($3::timestamptz IS NULL OR m.created_at >= $3)",
         )
         .bind(user_id)
         .bind(scope)
+        .bind(cutoff)
         .fetch_one(&self.pool)
         .await?;
 
         Ok((row.total, row.wins))
     }
 
-    async fn query_play_draw_stats(&self, user_id: Option<Uuid>) -> Result<(i64, i64, i64, i64)> {
+    async fn query_play_draw_stats(
+        &self,
+        user_id: Option<Uuid>,
+        cutoff: Option<DateTime<Utc>>,
+    ) -> Result<(i64, i64, i64, i64)> {
         #[derive(FromRow)]
         struct PlayDrawRow {
             play_draw: String,
@@ -416,9 +427,11 @@ impl PostgresMatchDB {
                 AND mul.play_draw IN ('Play', 'Draw')
             JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Game' AND mr.game_number = mul.game_number
             WHERE ($1::uuid IS NULL OR m.user_id = $1)
+              AND ($2::timestamptz IS NULL OR m.created_at >= $2)
             GROUP BY mul.play_draw",
         )
         .bind(user_id)
+        .bind(cutoff)
         .fetch_all(&self.pool)
         .await?;
 
@@ -438,7 +451,11 @@ impl PostgresMatchDB {
         Ok((play_wins, play_losses, draw_wins, draw_losses))
     }
 
-    async fn query_mulligan_stats(&self, user_id: Option<Uuid>) -> Result<Vec<MulliganBucket>> {
+    async fn query_mulligan_stats(
+        &self,
+        user_id: Option<Uuid>,
+        cutoff: Option<DateTime<Utc>>,
+    ) -> Result<Vec<MulliganBucket>> {
         #[derive(FromRow)]
         struct MulliganRow {
             number_to_keep: i32,
@@ -457,10 +474,12 @@ impl PostgresMatchDB {
             JOIN mulligan mul ON m.id = mul.match_id AND mul.decision = 'Keep'
             JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Game' AND mr.game_number = mul.game_number
             WHERE ($1::uuid IS NULL OR m.user_id = $1)
+              AND ($2::timestamptz IS NULL OR m.created_at >= $2)
             GROUP BY mul.number_to_keep
             ORDER BY mul.number_to_keep DESC",
         )
         .bind(user_id)
+        .bind(cutoff)
         .fetch_all(&self.pool)
         .await?;
 
@@ -475,7 +494,11 @@ impl PostgresMatchDB {
             .collect())
     }
 
-    async fn query_opponent_stats(&self, user_id: Option<Uuid>) -> Result<Vec<OpponentRecord>> {
+    async fn query_opponent_stats(
+        &self,
+        user_id: Option<Uuid>,
+        cutoff: Option<DateTime<Utc>>,
+    ) -> Result<Vec<OpponentRecord>> {
         #[derive(FromRow)]
         struct OpponentRow {
             opponent_player_name: String,
@@ -493,11 +516,13 @@ impl PostgresMatchDB {
             FROM match m
             JOIN match_result mr ON m.id = mr.match_id AND mr.result_scope = 'MatchScope_Match'
             WHERE ($1::uuid IS NULL OR m.user_id = $1)
+              AND ($2::timestamptz IS NULL OR m.created_at >= $2)
             GROUP BY m.opponent_player_name
             ORDER BY matches DESC
             LIMIT 10",
         )
         .bind(user_id)
+        .bind(cutoff)
         .fetch_all(&self.pool)
         .await?;
 
@@ -897,12 +922,13 @@ impl ArenabuddyRepository for PostgresMatchDB {
     }
 
     #[instrument(skip(self))]
-    async fn get_match_stats(&self, user_id: Option<Uuid>) -> Result<MatchStats> {
-        let (total_matches, match_wins) = self.query_record(user_id, "MatchScope_Match").await?;
-        let (total_games, game_wins) = self.query_record(user_id, "MatchScope_Game").await?;
-        let (play_wins, play_losses, draw_wins, draw_losses) = self.query_play_draw_stats(user_id).await?;
-        let mulligan_stats = self.query_mulligan_stats(user_id).await?;
-        let opponents = self.query_opponent_stats(user_id).await?;
+    async fn get_match_stats(&self, user_id: Option<Uuid>, time_window: TimeWindow) -> Result<MatchStats> {
+        let cutoff = time_window.cutoff();
+        let (total_matches, match_wins) = self.query_record(user_id, "MatchScope_Match", cutoff).await?;
+        let (total_games, game_wins) = self.query_record(user_id, "MatchScope_Game", cutoff).await?;
+        let (play_wins, play_losses, draw_wins, draw_losses) = self.query_play_draw_stats(user_id, cutoff).await?;
+        let mulligan_stats = self.query_mulligan_stats(user_id, cutoff).await?;
+        let opponents = self.query_opponent_stats(user_id, cutoff).await?;
 
         Ok(MatchStats {
             total_matches,
