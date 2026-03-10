@@ -26,7 +26,9 @@ fn DraftRow(draft: Draft) -> Element {
                     if draft.status() == "DraftStatus_Complete" { "COMPLETE" } else { "IN PROGRESS" }
                 }
             }
-            td { class: "py-3 px-4 border-b border-gray-700 text-gray-500", "{draft.created_at()}" }
+            td { class: "py-3 px-4 border-b border-gray-700 text-gray-500",
+                    "{super::format_local_datetime(*draft.created_at())}"
+                }
         }
     }
 }

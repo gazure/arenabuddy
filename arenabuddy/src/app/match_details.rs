@@ -160,6 +160,49 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                                     }
                                 }
 
+                                if let Some(ref diffs) = details.differences {
+                                    if !diffs.is_empty() {
+                                        div { class: "mt-8",
+                                            h2 { class: "text-xl font-bold text-gray-100 mb-4", "Sideboard Changes" }
+                                            div { class: "grid grid-cols-1 md:grid-cols-2 gap-4",
+                                                for (i, diff) in diffs.iter().enumerate() {
+                                                    div { class: "bg-gray-800 rounded-lg border border-gray-700 p-4",
+                                                        h3 { class: "text-lg font-semibold text-gray-300 mb-3",
+                                                            "Game {i + 1} → Game {i + 2}"
+                                                        }
+                                                        if diff.added.is_empty() && diff.removed.is_empty() {
+                                                            p { class: "text-gray-500 text-sm", "No changes" }
+                                                        } else {
+                                                            if !diff.removed.is_empty() {
+                                                                div { class: "mb-3",
+                                                                    p { class: "text-sm font-medium text-red-400 mb-1", "Out" }
+                                                                    for card in diff.removed.iter() {
+                                                                        div { class: "flex justify-between text-sm py-0.5",
+                                                                            span { class: "text-gray-300", "{card.name}" }
+                                                                            span { class: "text-red-400", "-{card.quantity}" }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            if !diff.added.is_empty() {
+                                                                div {
+                                                                    p { class: "text-sm font-medium text-green-400 mb-1", "In" }
+                                                                    for card in diff.added.iter() {
+                                                                        div { class: "flex justify-between text-sm py-0.5",
+                                                                            span { class: "text-gray-300", "{card.name}" }
+                                                                            span { class: "text-green-400", "+{card.quantity}" }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
                                 div { class: "mt-8 col-span-full",
                                     MulliganDisplay { mulligans: details.mulligans.clone() }
                                 }

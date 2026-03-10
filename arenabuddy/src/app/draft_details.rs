@@ -94,7 +94,9 @@ fn DraftHeader(draft: DraftDetailsDisplay) -> Element {
                 }
                 div {
                     p { class: "text-sm text-gray-400", "Date" }
-                    p { class: "font-semibold", "{draft.metadata().created_at()}" }
+                    p { class: "font-semibold",
+                            "{super::format_local_datetime(*draft.metadata().created_at())}"
+                        }
                 }
                 div {
                     p { class: "text-sm text-gray-400", "Total Picks" }

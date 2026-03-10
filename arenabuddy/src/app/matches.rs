@@ -11,7 +11,7 @@ const PAGE_SIZE: usize = 25;
 
 #[component]
 fn MatchRow(m: MatchSummary) -> Element {
-    let date = m.created_at.format("%b %-d, %Y %-I:%M %p").to_string();
+    let date = super::format_local_datetime(m.created_at);
 
     let (result_text, result_class) = match m.did_controller_win {
         Some(true) => ("Win", "text-green-400 font-medium"),
