@@ -105,6 +105,8 @@ pub enum ClientMessage {
     GroupResp(GroupRespWrapper),
     #[serde(rename = "ClientMessageType_UndoReq")]
     UndoReq(UndoReqWrapper),
+    #[serde(rename = "ClientMessageType_SelectCountersResp")]
+    SelectCountersResp(SelectCountersRespWrapper),
 }
 
 wrapper!(AssignDamageRespWrapper, AssignDamageResp, assign_damage_resp);
@@ -155,6 +157,14 @@ wrapper!(
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 pub struct UndoReqWrapper {
+    #[serde(flatten)]
+    pub extra: HashMap<String, Value>,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
+pub struct SelectCountersRespWrapper {
+    #[serde(flatten)]
+    pub meta: ClientMeta,
     #[serde(flatten)]
     pub extra: HashMap<String, Value>,
 }
@@ -223,6 +233,7 @@ pub enum OptionResponse {
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchResp {
+    #[serde(default)]
     pub items_found: Vec<i32>,
 }
 
