@@ -1,0 +1,5 @@
+[application]
+name = "arenabuddy_web"
+
+[web.app]
+title = "Arena Buddy"
