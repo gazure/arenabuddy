@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-const DEFAULT_GRPC_URL: &str = "https://arenabuddy.grantazure.com";
+const DEFAULT_GRPC_URL: &str = "https://api.arenabuddy.io";
 
 /// Returns the platform-specific application data directory for `ArenaBuddy`.
 pub fn app_data_dir() -> Option<PathBuf> {
