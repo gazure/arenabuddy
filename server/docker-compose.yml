@@ -38,11 +38,18 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
 
+  web:
+    image: ${WEB_IMAGE:-arenabuddy-web:latest}
+    restart: unless-stopped
+    expose:
+      - "8080"
+
   caddy:
     image: caddy:2
     restart: unless-stopped
     depends_on:
       - server
+      - web
     ports:
       - "80:80"
       - "443:443"

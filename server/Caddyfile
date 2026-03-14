@@ -1,3 +1,7 @@
+arenabuddy.io, www.arenabuddy.io {
+	reverse_proxy web:8080
+}
+
 api.arenabuddy.io {
 	reverse_proxy h2c://server:50051 {
 		flush_interval -1

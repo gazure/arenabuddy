@@ -1,0 +1,17 @@
+[package]
+name = "arenabuddy_web"
+description = "Web splash page for arenabuddy"
+authors.workspace = true
+categories.workspace = true
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+[dependencies]
+dioxus = { workspace = true, features = ["web"] }
+
+[lints]
+workspace = true
