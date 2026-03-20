@@ -10,6 +10,8 @@ pub struct MatchSummary {
     pub did_controller_win: Option<bool>,
     pub game_wins: i64,
     pub game_losses: i64,
+    pub controller_archetype: Option<String>,
+    pub opponent_archetype: Option<String>,
 }
 
 impl MatchSummary {
