@@ -206,17 +206,40 @@ impl MetagameRepository for PostgresMatchDB {
     }
 
     async fn get_unclassified_matches(&self, format: &str) -> Result<Vec<UnclassifiedMatchRow>> {
-        let rows: Vec<UnclassifiedMatchRow> = sqlx::query_as(
-            r"SELECT m.id AS match_id, m.format
-              FROM match m
-              WHERE m.format IS NOT NULL
-                AND m.id NOT IN (SELECT match_id FROM match_archetype WHERE side = 'controller')
-                AND ($1 = '' OR m.format ILIKE '%' || $1 || '%')
-              ORDER BY m.created_at DESC",
-        )
-        .bind(format)
-        .fetch_all(self.pool())
-        .await?;
+        // MTGA stores event IDs like 'Ladder', 'Traditional_Ladder', etc.
+        // Map metagame format names to matching MTGA event ID patterns.
+        let format_patterns = match format.to_lowercase().as_str() {
+            "standard" => vec!["Ladder", "Traditional_Ladder"],
+            "explorer" => vec!["Explorer_Ladder", "Traditional_Explorer_Ladder"],
+            "historic" => vec!["Historic_Ladder", "Traditional_Historic_Ladder"],
+            "timeless" => vec!["Timeless_Ladder", "Traditional_Timeless_Ladder"],
+            _ => vec![],
+        };
+
+        let rows: Vec<UnclassifiedMatchRow> = if format_patterns.is_empty() {
+            // No filter or unknown format — return all unclassified matches
+            sqlx::query_as(
+                r"SELECT m.id AS match_id, m.format
+                  FROM match m
+                  WHERE m.format IS NOT NULL
+                    AND m.id NOT IN (SELECT match_id FROM match_archetype WHERE side = 'controller')
+                  ORDER BY m.created_at DESC",
+            )
+            .fetch_all(self.pool())
+            .await?
+        } else {
+            sqlx::query_as(
+                r"SELECT m.id AS match_id, m.format
+                  FROM match m
+                  WHERE m.format IS NOT NULL
+                    AND m.id NOT IN (SELECT match_id FROM match_archetype WHERE side = 'controller')
+                    AND m.format = ANY($1)
+                  ORDER BY m.created_at DESC",
+            )
+            .bind(&format_patterns)
+            .fetch_all(self.pool())
+            .await?
+        };
 
         Ok(rows)
     }
