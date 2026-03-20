@@ -2,8 +2,9 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     models::{MTGAMatch, MatchData, MatchResult, OpponentDeck},
     player_log::replay::MatchReplay,
-    services::match_service::{UpsertMatchDataRequest, match_service_client::MatchServiceClient},
+    services::match_service::{ClassifyMatchRequest, UpsertMatchDataRequest, match_service_client::MatchServiceClient},
 };
+use arenabuddy_data::{MatchDB, MetagameRepository, metagame_models::MatchArchetype};
 use chrono::Utc;
 use tonic::transport::Channel;
 use tracingx::{error, info};
@@ -15,6 +16,7 @@ pub struct GrpcReplayWriter {
     cards: CardsDatabase,
     auth_state: SharedAuthState,
     grpc_url: String,
+    local_db: MatchDB,
 }
 
 impl GrpcReplayWriter {
@@ -22,6 +24,7 @@ impl GrpcReplayWriter {
         url: &str,
         cards: CardsDatabase,
         auth_state: SharedAuthState,
+        local_db: MatchDB,
     ) -> Result<Self, tonic::transport::Error> {
         let client = MatchServiceClient::connect(url.to_string()).await?;
         Ok(Self {
@@ -29,6 +32,7 @@ impl GrpcReplayWriter {
             cards,
             auth_state,
             grpc_url: url.to_string(),
+            local_db,
         })
     }
 
@@ -76,14 +80,57 @@ impl GrpcReplayWriter {
             }
         };
 
-        let request = build_request(match_data, Some(new_token));
+        let request = build_request(match_data, Some(new_token.clone()));
         self.client.upsert_match_data(request).await.map_err(|e| {
             error!("gRPC retry failed for match {match_id}: {e}");
             arenabuddy_core::Error::Io(format!("gRPC retry failed: {e}"))
         })?;
 
         info!("Sent match {match_id} to gRPC backend (after refresh)");
+        self.classify_and_cache(match_id, Some(new_token)).await;
         Ok(())
+    }
+
+    /// Request classification from the server and cache results locally.
+    /// Best-effort: errors are logged but not propagated.
+    async fn classify_and_cache(&mut self, match_id: &str, token: Option<String>) {
+        let mut request = tonic::Request::new(ClassifyMatchRequest {
+            match_id: match_id.to_string(),
+        });
+
+        if let Some(token) = token {
+            let bearer = format!("Bearer {token}");
+            if let Ok(value) = bearer.parse() {
+                request.metadata_mut().insert("authorization", value);
+            }
+        }
+
+        match self.client.classify_match(request).await {
+            Ok(response) => {
+                let classifications = response.into_inner().classifications;
+                for c in &classifications {
+                    let ma = MatchArchetype {
+                        match_id: match_id.to_string(),
+                        side: c.side.clone(),
+                        archetype_id: None,
+                        archetype_name: c.archetype_name.clone(),
+                        confidence: c.confidence,
+                    };
+                    if let Err(e) = self.local_db.upsert_match_archetype(&ma).await {
+                        error!("Failed to cache archetype for match {match_id}: {e}");
+                    }
+                }
+                if !classifications.is_empty() {
+                    info!(
+                        "Cached {} archetype classification(s) for match {match_id}",
+                        classifications.len()
+                    );
+                }
+            }
+            Err(e) => {
+                error!("Classification request failed for match {match_id}: {e}");
+            }
+        }
     }
 }
 
@@ -134,11 +181,12 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
         };
 
         let token = self.current_token().await;
-        let request = build_request(&match_data, token);
+        let request = build_request(&match_data, token.clone());
 
         match self.client.upsert_match_data(request).await {
             Ok(_) => {
                 info!("Sent match {match_id} to gRPC backend");
+                self.classify_and_cache(&match_id, token).await;
                 Ok(())
             }
             Err(e) if e.code() == tonic::Code::Unauthenticated => {

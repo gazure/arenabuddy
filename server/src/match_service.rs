@@ -2,8 +2,9 @@ use arenabuddy_core::{
     cards::CardsDatabase,
     models::{ArenaId, MatchData, OpponentDeck},
     services::match_service::{
-        DeleteMatchRequest, DeleteMatchResponse, GetMatchDataRequest, GetMatchDataResponse, ListMatchesRequest,
-        ListMatchesResponse, UpsertMatchDataRequest, UpsertMatchDataResponse, match_service_server::MatchService,
+        ArchetypeClassification, ClassifyMatchRequest, ClassifyMatchResponse, DeleteMatchRequest, DeleteMatchResponse,
+        GetMatchDataRequest, GetMatchDataResponse, ListMatchesRequest, ListMatchesResponse, UpsertMatchDataRequest,
+        UpsertMatchDataResponse, match_service_server::MatchService,
     },
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
@@ -166,5 +167,51 @@ impl MatchService for MatchServiceImpl {
 
         info!("Deleted match: {match_id}");
         Ok(Response::new(DeleteMatchResponse {}))
+    }
+
+    #[instrument(skip(self, request))]
+    async fn classify_match(
+        &self,
+        request: Request<ClassifyMatchRequest>,
+    ) -> Result<Response<ClassifyMatchResponse>, Status> {
+        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
+        let match_id = request.into_inner().match_id;
+        if match_id.is_empty() {
+            return Err(Status::invalid_argument("match_id is required"));
+        }
+
+        // Get the match to determine its format
+        let (mtga_match, _) = self.db.get_match(&match_id, user_id).await.map_err(|e| {
+            error!("Failed to get match for classification: {e}");
+            Status::internal("failed to get match")
+        })?;
+
+        if mtga_match.id().is_empty() {
+            return Err(Status::not_found(format!("match not found: {match_id}")));
+        }
+
+        let Some(format) = mtga_match.format() else {
+            return Ok(Response::new(ClassifyMatchResponse {
+                classifications: vec![],
+            }));
+        };
+
+        let archetypes = arenabuddy_metagame::classification::classify_single_match(&self.db, &match_id, format)
+            .await
+            .map_err(|e| {
+                error!("Classification failed for match {match_id}: {e}");
+                Status::internal("classification failed")
+            })?;
+
+        let classifications = archetypes
+            .into_iter()
+            .map(|a| ArchetypeClassification {
+                side: a.side,
+                archetype_name: a.archetype_name,
+                confidence: a.confidence,
+            })
+            .collect();
+
+        Ok(Response::new(ClassifyMatchResponse { classifications }))
     }
 }

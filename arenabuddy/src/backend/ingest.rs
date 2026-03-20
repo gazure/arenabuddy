@@ -123,6 +123,7 @@ pub async fn start(
     };
 
     // Add database writer
+    let grpc_local_db = db.clone();
     let service = service.add_writer(Box::new(db.clone())).add_draft_writer(Box::new(db));
 
     // Add directory storage writer (handles None internally via the adapter)
@@ -133,7 +134,7 @@ pub async fn start(
     let mut debug_reporter: Option<Arc<Mutex<DebugReporter>>> = None;
     let grpc_url = super::paths::grpc_url();
     let service = {
-        match GrpcReplayWriter::connect(&grpc_url, cards, auth_state.clone()).await {
+        match GrpcReplayWriter::connect(&grpc_url, cards, auth_state.clone(), grpc_local_db).await {
             Ok(writer) => {
                 info!("Connected to gRPC backend at {grpc_url}");
 

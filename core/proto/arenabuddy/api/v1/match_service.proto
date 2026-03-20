@@ -32,6 +32,20 @@ message DeleteMatchRequest {
 
 message DeleteMatchResponse {}
 
+message ClassifyMatchRequest {
+  string match_id = 1;
+}
+
+message ArchetypeClassification {
+  string side = 1;           // "controller" or "opponent"
+  string archetype_name = 2;
+  float confidence = 3;
+}
+
+message ClassifyMatchResponse {
+  repeated ArchetypeClassification classifications = 1;
+}
+
 // --- Service ---
 
 service MatchService {
@@ -39,4 +53,5 @@ service MatchService {
   rpc GetMatchData(GetMatchDataRequest) returns (GetMatchDataResponse);
   rpc ListMatches(ListMatchesRequest) returns (ListMatchesResponse);
   rpc DeleteMatch(DeleteMatchRequest) returns (DeleteMatchResponse);
+  rpc ClassifyMatch(ClassifyMatchRequest) returns (ClassifyMatchResponse);
 }
