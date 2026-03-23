@@ -17,6 +17,7 @@ path = "src/lib.rs"
 [dependencies]
 arenabuddy_core = { path = "../core/" }
 arenabuddy_data = { path = "../data" }
+arenabuddy_metagame = { path = "../metagame" }
 base64 = { workspace = true }
 chrono = { workspace = true }
 google-sheets4 = { workspace = true }
