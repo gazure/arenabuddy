@@ -110,12 +110,17 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                     let mut active_tab = use_signal(|| 0u8);
                     let event_count: usize = details.event_logs.iter().map(|l| l.events.len()).sum();
 
+                    let controller_archetype = details.controller_archetype.clone();
+                    let opponent_archetype = details.opponent_archetype.clone();
+
                     rsx! {
                         MatchInfo {
                             controller_player_name: details.controller_player_name.clone(),
                             opponent_player_name: details.opponent_player_name.clone(),
                             did_controller_win: details.did_controller_win,
-                            format: details.format.clone()
+                            format: details.format.clone(),
+                            controller_archetype: details.controller_archetype.clone(),
+                            opponent_archetype: details.opponent_archetype.clone(),
                         }
 
                         div { class: "flex gap-1 mb-6 border-b border-gray-700",
@@ -149,6 +154,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                                 if let Some(ref deck) = details.primary_decklist {
                                     DeckList {
                                         title: "Your deck",
+                                        archetype: controller_archetype.clone(),
                                         deck: deck.clone()
                                     }
                                 }
@@ -156,6 +162,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                                 if let Some(ref opponent_deck) = details.opponent_deck {
                                     DeckList {
                                         title: "Opponent's cards",
+                                        archetype: opponent_archetype.clone(),
                                         deck: opponent_deck.clone(),
                                         show_quantities: false
                                     }

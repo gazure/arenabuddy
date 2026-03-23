@@ -26,4 +26,6 @@ pub struct MatchDetails {
     pub opponent_deck: Option<DeckDisplayRecord>,
     pub mulligans: Vec<Mulligan>,
     pub event_logs: Vec<GameEventLog>,
+    pub controller_archetype: Option<String>,
+    pub opponent_archetype: Option<String>,
 }

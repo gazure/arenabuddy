@@ -25,6 +25,7 @@ pub trait MetagameRepository: Send + Sync + 'static {
     async fn upsert_match_archetype(&self, archetype: &MatchArchetype) -> Result<()>;
     async fn get_match_deck_cards(&self, match_id: &str) -> Result<Vec<String>>;
     async fn get_match_opponent_cards(&self, match_id: &str) -> Result<Vec<String>>;
+    async fn get_match_archetypes(&self, match_id: &str) -> Result<(Option<String>, Option<String>)>;
 }
 
 #[derive(Debug, Clone)]
