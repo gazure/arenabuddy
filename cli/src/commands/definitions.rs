@@ -59,6 +59,12 @@ pub enum Commands {
         cards_db: PathBuf,
     },
 
+    /// Metagame scraping and archetype classification
+    Metagame {
+        #[command(subcommand)]
+        command: MetagameCommands,
+    },
+
     /// Generate a structured event log from a Player.log file
     EventLog {
         #[arg(short, long, help = "Location of Player.log file")]
@@ -72,5 +78,83 @@ pub enum Commands {
 
         #[arg(long, help = "Filter to a specific game number")]
         game: Option<i32>,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum MetagameCommands {
+    /// Scrape tournament decklists from `MTGGoldfish`
+    ScrapeTournaments {
+        /// MTG format (standard, pioneer, explorer, historic)
+        #[arg(long, default_value = "standard")]
+        format: String,
+
+        /// Start date (MM/DD/YYYY). Defaults to 14 days ago.
+        #[arg(long)]
+        from: Option<String>,
+
+        /// End date (MM/DD/YYYY). Defaults to today.
+        #[arg(long)]
+        to: Option<String>,
+
+        /// Database URL
+        #[arg(long, env = "DATABASE_URL")]
+        db: String,
+
+        /// Read pages from a local directory instead of fetching from the web
+        #[arg(long)]
+        local_dir: Option<PathBuf>,
+    },
+
+    /// Scrape metagame archetype index from `MTGGoldfish`
+    ScrapeMetagame {
+        /// MTG format (standard, pioneer, explorer, historic)
+        #[arg(long, default_value = "standard")]
+        format: String,
+
+        /// Database URL
+        #[arg(long, env = "DATABASE_URL")]
+        db: String,
+
+        /// Read pages from a local directory instead of fetching from the web
+        #[arg(long)]
+        local_dir: Option<PathBuf>,
+    },
+
+    /// Compute signature cards from scraped metagame data
+    ComputeSignatures {
+        /// MTG format (standard, pioneer, explorer, historic)
+        #[arg(long, default_value = "standard")]
+        format: String,
+
+        /// Database URL
+        #[arg(long, env = "DATABASE_URL")]
+        db: String,
+    },
+
+    /// Classify unclassified matches using signature cards
+    Classify {
+        /// MTG format (standard, pioneer, explorer, historic)
+        #[arg(long, default_value = "standard")]
+        format: String,
+
+        /// Database URL
+        #[arg(long, env = "DATABASE_URL")]
+        db: String,
+
+        /// Path to cards database file
+        #[arg(short, long)]
+        cards_db: Option<PathBuf>,
+    },
+
+    /// Show metagame database statistics
+    Stats {
+        /// MTG format (standard, pioneer, explorer, historic)
+        #[arg(long, default_value = "standard")]
+        format: String,
+
+        /// Database URL
+        #[arg(long, env = "DATABASE_URL")]
+        db: String,
     },
 }

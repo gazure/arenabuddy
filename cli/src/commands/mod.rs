@@ -1,5 +1,6 @@
 pub mod definitions;
 pub mod event_log;
+pub mod metagame;
 pub mod parse;
 pub mod repl;
 pub mod scrape;

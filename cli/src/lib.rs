@@ -58,6 +58,10 @@ pub async fn run() -> Result<()> {
             commands::repl::execute(cards_db)?;
         }
 
+        Commands::Metagame { command } => {
+            commands::metagame::execute(command).await?;
+        }
+
         Commands::EventLog {
             player_log,
             cards_db,

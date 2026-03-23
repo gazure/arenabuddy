@@ -51,6 +51,8 @@ struct MatchSummaryRow {
     match_winning_team_id: Option<i32>,
     game_wins: i64,
     game_losses: i64,
+    controller_archetype: Option<String>,
+    opponent_archetype: Option<String>,
 }
 
 #[derive(FromRow)]
@@ -81,6 +83,25 @@ pub struct PostgresMatchDB {
 }
 
 impl PostgresMatchDB {
+    pub(crate) fn pool(&self) -> &PgPool {
+        &self.pool
+    }
+
+    /// Map Arena IDs to card names using the cards database.
+    pub(crate) fn arena_ids_to_card_names(&self, arena_ids: &[i32]) -> Vec<String> {
+        let mut names = Vec::new();
+        let mut seen = std::collections::HashSet::new();
+        for id in arena_ids {
+            if !seen.insert(id) {
+                continue;
+            }
+            if let Some(card) = self.cards.get(id) {
+                names.push(card.name.clone());
+            }
+        }
+        names
+    }
+
     pub async fn new(url: Option<&str>, cards: CardsDatabase) -> Result<Self> {
         if let Some(url) = url {
             let pool = PgPool::connect(url).await?;
@@ -713,7 +734,9 @@ impl ArenabuddyRepository for PostgresMatchDB {
                 m.format,
                 match_mr.winning_team_id AS match_winning_team_id,
                 COALESCE(gs.game_wins, 0) AS game_wins,
-                COALESCE(gs.game_losses, 0) AS game_losses
+                COALESCE(gs.game_losses, 0) AS game_losses,
+                ca.archetype_name AS controller_archetype,
+                oa.archetype_name AS opponent_archetype
             FROM match m
             LEFT JOIN match_result match_mr
                 ON m.id = match_mr.match_id AND match_mr.result_scope = 'MatchScope_Match'
@@ -724,6 +747,8 @@ impl ArenabuddyRepository for PostgresMatchDB {
                 FROM match_result gr
                 WHERE gr.match_id = m.id AND gr.result_scope = 'MatchScope_Game'
             ) gs ON true
+            LEFT JOIN match_archetype ca ON m.id = ca.match_id AND ca.side = 'controller'
+            LEFT JOIN match_archetype oa ON m.id = oa.match_id AND oa.side = 'opponent'
             WHERE ($1::uuid IS NULL OR m.user_id = $1)
             ORDER BY m.created_at DESC",
         )
@@ -745,6 +770,8 @@ impl ArenabuddyRepository for PostgresMatchDB {
                 did_controller_win: row.match_winning_team_id.map(|wt| wt == row.controller_seat_id),
                 game_wins: row.game_wins,
                 game_losses: row.game_losses,
+                controller_archetype: row.controller_archetype,
+                opponent_archetype: row.opponent_archetype,
             })
             .collect();
 
