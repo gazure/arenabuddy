@@ -1,4 +1,4 @@
-use sqlx::types::Uuid;
+use sqlx::{FromRow, types::Uuid};
 
 use super::{
     metagame_models::{
@@ -9,6 +9,12 @@ use super::{
     postgres::PostgresMatchDB,
 };
 use crate::Result;
+
+#[derive(FromRow)]
+struct MatchArchetypeRow {
+    side: String,
+    archetype_name: String,
+}
 
 #[async_trait::async_trait]
 impl MetagameRepository for PostgresMatchDB {
@@ -298,5 +304,27 @@ impl MetagameRepository for PostgresMatchDB {
         let arena_ids: Vec<i32> = serde_json::from_str(&row.0).unwrap_or_default();
         let card_names = self.arena_ids_to_card_names(&arena_ids);
         Ok(card_names)
+    }
+
+    async fn get_match_archetypes(&self, match_id: &str) -> Result<(Option<String>, Option<String>)> {
+        let match_uuid = Uuid::parse_str(match_id)?;
+
+        let rows: Vec<MatchArchetypeRow> =
+            sqlx::query_as("SELECT side, archetype_name FROM match_archetype WHERE match_id = $1")
+                .bind(match_uuid)
+                .fetch_all(self.pool())
+                .await?;
+
+        let mut controller = None;
+        let mut opponent = None;
+        for row in rows {
+            match row.side.as_str() {
+                "controller" => controller = Some(row.archetype_name),
+                "opponent" => opponent = Some(row.archetype_name),
+                _ => {}
+            }
+        }
+
+        Ok((controller, opponent))
     }
 }

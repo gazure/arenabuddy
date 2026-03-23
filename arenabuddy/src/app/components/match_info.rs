@@ -7,6 +7,8 @@ pub fn MatchInfo(
     opponent_player_name: String,
     did_controller_win: bool,
     format: Option<String>,
+    #[props(optional)] controller_archetype: Option<String>,
+    #[props(optional)] opponent_archetype: Option<String>,
 ) -> Element {
     let display_format = format.as_deref().map_or("Unknown", format_event_id);
 
@@ -22,10 +24,20 @@ pub fn MatchInfo(
                         div { class: "bg-blue-900/20 p-3 rounded-md",
                             span { class: "font-semibold", "You" }
                             " {controller_player_name}"
+                            if let Some(ref archetype) = controller_archetype {
+                                span { class: "ml-2 px-2 py-0.5 text-xs rounded-full bg-violet-900/40 text-violet-300",
+                                    "{archetype}"
+                                }
+                            }
                         }
                         div { class: "bg-red-900/20 p-3 rounded-md",
                             span { class: "font-semibold", "Opponent" }
                             " {opponent_player_name}"
+                            if let Some(ref archetype) = opponent_archetype {
+                                span { class: "ml-2 px-2 py-0.5 text-xs rounded-full bg-violet-900/40 text-violet-300",
+                                    "{archetype}"
+                                }
+                            }
                         }
                     }
                 }

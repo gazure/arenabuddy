@@ -13,7 +13,7 @@ use arenabuddy_core::{
     },
     models::Draft,
 };
-use arenabuddy_data::DirectoryStorage;
+use arenabuddy_data::{DirectoryStorage, MetagameRepository};
 use tokio::sync::Mutex;
 use tracingx::{error, info};
 
@@ -32,7 +32,7 @@ pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
 
 impl<D> std::fmt::Debug for AppService<D>
 where
-    D: arenabuddy_data::ArenabuddyRepository,
+    D: arenabuddy_data::ArenabuddyRepository + MetagameRepository,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("AppService")
@@ -46,7 +46,7 @@ where
 
 impl<D> AppService<D>
 where
-    D: arenabuddy_data::ArenabuddyRepository,
+    D: arenabuddy_data::ArenabuddyRepository + MetagameRepository,
 {
     pub fn new(
         db: D,
@@ -139,6 +139,10 @@ where
             error!("Error retrieving event logs: {}", e);
             Vec::default()
         });
+
+        let (controller_archetype, opponent_archetype) = self.db.get_match_archetypes(&id).await.unwrap_or_default();
+        match_details.controller_archetype = controller_archetype;
+        match_details.opponent_archetype = opponent_archetype;
 
         Ok(match_details)
     }

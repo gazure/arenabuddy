@@ -10,6 +10,7 @@ use crate::app::components::ManaCost;
 pub fn DeckList(
     deck: DeckDisplayRecord,
     #[props(optional)] title: Option<&'static str>,
+    #[props(optional)] archetype: Option<String>,
     #[props(default = true)] show_quantities: bool,
 ) -> Element {
     let title = title.unwrap_or("Your Deck");
@@ -20,6 +21,9 @@ pub fn DeckList(
         div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
             div { class: "bg-gradient-to-r from-violet-800 to-indigo-900 py-4 px-6",
                 h2 { class: "text-xl font-bold text-white", "{title}" }
+                if let Some(ref archetype) = archetype {
+                    p { class: "text-sm text-violet-200 mt-1", "{archetype}" }
+                }
             }
             div { class: "p-6",
                 div { class: "deck-content",
