@@ -1,0 +1,110 @@
+name: Release Desktop Builds
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  SQLX_OFFLINE: "true"
+  DX_VERSION: "0.7.3"
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            target: aarch64-apple-darwin
+            platform: macos
+            package_type: macos
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            platform: windows
+            package_type: msi
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install protobuf compiler (macOS)
+        if: runner.os == 'macOS'
+        run: brew install protobuf
+
+      - name: Install protobuf compiler (Windows)
+        if: runner.os == 'Windows'
+        run: choco install protoc
+
+      - name: Install cargo-binstall
+        uses: cargo-bins/cargo-binstall@main
+
+      - name: Install Dioxus CLI
+        run: cargo binstall dioxus-cli --version ${{ env.DX_VERSION }} --no-confirm --locked
+
+      - name: Cache cargo registry
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-${{ matrix.target }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.target }}-cargo-release-
+
+      - name: Bundle desktop app
+        run: dx bundle --release --package arenabuddy --target ${{ matrix.target }} --package-types ${{ matrix.package_type }}
+
+      - name: Extract version from tag
+        id: version
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="dev-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Package .app bundle (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          cd target/dx/arenabuddy/bundle/macos/bundle/macos
+          zip -r "${GITHUB_WORKSPACE}/arenabuddy-v${{ steps.version.outputs.version }}-${{ matrix.target }}.zip" Arenabuddy.app
+          echo "ASSET_PATH=${GITHUB_WORKSPACE}/arenabuddy-v${{ steps.version.outputs.version }}-${{ matrix.target }}.zip" >> "$GITHUB_ENV"
+
+      - name: Package .msi bundle (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          MSI_FILE=$(find target/dx/arenabuddy/bundle -name '*.msi' | head -1)
+          ASSET_NAME="arenabuddy-v${{ steps.version.outputs.version }}-${{ matrix.target }}.msi"
+          cp "$MSI_FILE" "$ASSET_NAME"
+          echo "ASSET_PATH=$ASSET_NAME" >> "$GITHUB_ENV"
+
+      - name: Upload release asset
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ASSET_PATH }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v7
+        with:
+          name: arenabuddy-${{ matrix.target }}
+          path: ${{ env.ASSET_PATH }}

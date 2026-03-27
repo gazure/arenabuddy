@@ -1,0 +1,43 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO pitching_lines (\n                game_id, player_id, team_id, pitch_order, decision,\n                ip, h, r, er, bb, so, hr, era,\n                batters_faced, pitches, strikes,\n                strikes_contact, strikes_swinging, strikes_looking,\n                ground_balls, fly_balls, line_drives,\n                game_score, inherited_runners, inherited_scored,\n                wpa, ali, cwpa, acli, re24\n            )\n            VALUES (\n                $1, $2, $3, $4, $5,\n                $6, $7, $8, $9, $10, $11, $12, $13,\n                $14, $15, $16,\n                $17, $18, $19,\n                $20, $21, $22,\n                $23, $24, $25,\n                $26, $27, $28, $29, $30\n            )\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Varchar",
+        "Numeric",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Numeric",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Numeric",
+        "Numeric",
+        "Numeric",
+        "Numeric",
+        "Numeric"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "24efb8e5f6e9285d5ada7d9db8009690f2b077e00dc392e61c697414f8d7c8e4"
+}

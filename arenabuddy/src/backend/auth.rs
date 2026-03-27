@@ -7,7 +7,7 @@ use base64::{Engine, engine::general_purpose::URL_SAFE_NO_PAD};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
-use tracingx::{error, info};
+use tracing::{error, info};
 
 /// Stored authentication state for the current session.
 #[derive(Debug, Clone)]

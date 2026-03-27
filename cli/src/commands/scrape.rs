@@ -6,7 +6,7 @@ use std::{
 
 use arenabuddy_core::models::{Card, CardCollection};
 use reqwest::StatusCode;
-use tracingx::{debug, info};
+use tracing::{debug, info};
 
 use crate::{Error, Result, errors::ParseError};
 

@@ -3,7 +3,7 @@ use arenabuddy_core::services::debug_service::{
 };
 use arenabuddy_data::{DebugRepository, MatchDB};
 use tonic::{Request, Response, Status};
-use tracingx::{error, info, instrument};
+use tracing::{error, info, instrument};
 
 use crate::auth::UserId;
 

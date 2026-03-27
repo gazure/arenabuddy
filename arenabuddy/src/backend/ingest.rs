@@ -11,7 +11,7 @@ use arenabuddy_core::{
 use arenabuddy_data::{DirectoryStorage, MatchDB};
 use tokio::sync::Mutex;
 use tonic::transport::Channel;
-use tracingx::{error, info};
+use tracing::{error, info};
 
 use super::{auth::SharedAuthState, grpc_writer::GrpcReplayWriter};
 
@@ -54,7 +54,7 @@ fn handle_ingestion_event(
     debug_client: Option<Arc<Mutex<DebugReporter>>>,
 ) -> PinnedFuture {
     Box::pin(async move {
-        tracingx::debug!("{event}");
+        tracing::debug!("{event}");
         if let IngestionEvent::ParseError(raw_json) = event {
             {
                 let mut collector = log_collector.lock().await;

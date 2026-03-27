@@ -6,12 +6,14 @@ use dioxus::{
     LaunchBuilder,
     desktop::{Config, WindowBuilder},
 };
-use start::AppMeta;
+use tracing::{Level, error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
-use tracingx::{
-    EnvFilter, Layer, Level, SubscriberExt, SubscriberInitExt, error,
+use tracing_subscriber::{
+    EnvFilter,
     fmt::{self, writer::MakeWriterExt},
-    info,
+    layer::{Layer, SubscriberExt},
+    registry,
+    util::SubscriberInitExt,
 };
 
 use crate::{
@@ -85,7 +87,7 @@ fn get_app_data_dir() -> Result<std::path::PathBuf> {
 }
 
 fn setup_logging(app_data_dir: &Path) -> Result<()> {
-    let registry = tracingx::registry();
+    let registry = registry();
     let log_dir = app_data_dir.join("logs");
     std::fs::create_dir_all(&log_dir).map_err(|_| Error::CorruptedAppData)?;
 
@@ -136,8 +138,8 @@ async fn create_app_service() -> Result<Service> {
     let data_dir = get_app_data_dir()?;
     setup_logging(&data_dir)?;
 
-    let app_meta = AppMeta::from_env().with_app_name("arenabuddy");
-    let root_span = tracingx::info_span!("app", app = %app_meta.app);
+    let app_name = std::env::var("APP_NAME").unwrap_or_else(|_| "arenabuddy".to_string());
+    let root_span = tracing::info_span!("app", app = %app_name);
     let _span = root_span.enter();
     let cards_db = CardsDatabase::default();
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();

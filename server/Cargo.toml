@@ -30,13 +30,22 @@ sha2 = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tonic = { workspace = true }
 tracing = { workspace = true }
-tracingx = { path = "../../lib/tracingx" }
+tracing-subscriber = { workspace = true, features = ["env-filter", "fmt", "registry"] }
+tracing-opentelemetry = { workspace = true, optional = true }
+opentelemetry = { workspace = true, optional = true }
+opentelemetry_sdk = { workspace = true, optional = true }
+opentelemetry-otlp = { workspace = true, optional = true }
 uuid = { workspace = true }
 yup-oauth2 = { workspace = true }
 
 [features]
 default = []
-otel = ["tracingx/otel"]
+otel = [
+    "dep:tracing-opentelemetry",
+    "dep:opentelemetry",
+    "dep:opentelemetry_sdk",
+    "dep:opentelemetry-otlp",
+]
 
 [lints]
 workspace = true

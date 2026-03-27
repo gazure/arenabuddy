@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use tracingx::debug;
+use tracing::debug;
 
 use crate::{
     cards::CardsDatabase,

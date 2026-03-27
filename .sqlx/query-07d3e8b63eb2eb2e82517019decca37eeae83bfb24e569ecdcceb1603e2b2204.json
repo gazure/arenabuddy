@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO draft(id, set_code, draft_format, status, created_at)\n            VALUES ($1, $2, $3, $4, $5)\n            ON CONFLICT (id)\n            DO UPDATE SET set_code = excluded.set_code, draft_format = excluded.draft_format, status = excluded.status, created_at = excluded.created_at\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamp"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "07d3e8b63eb2eb2e82517019decca37eeae83bfb24e569ecdcceb1603e2b2204"
+}

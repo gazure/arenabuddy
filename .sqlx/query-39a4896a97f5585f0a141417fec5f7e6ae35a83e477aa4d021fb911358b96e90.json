@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM failed_scrapes WHERE bbref_game_id = $1",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "39a4896a97f5585f0a141417fec5f7e6ae35a83e477aa4d021fb911358b96e90"
+}

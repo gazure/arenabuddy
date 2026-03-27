@@ -8,7 +8,7 @@ use std::{
 use arenabuddy_core::models::{Card, CardCollection};
 use reqwest::StatusCode;
 use rusqlite::Connection;
-use tracingx::{debug, info, warn};
+use tracing::{debug, info, warn};
 
 use crate::{Error, Result};
 

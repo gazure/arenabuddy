@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO failed_scrapes (bbref_game_id, error_message, failed_at, attempt_count)\n            VALUES ($1, $2, NOW(), 1)\n            ON CONFLICT (bbref_game_id)\n            DO UPDATE SET\n                error_message = EXCLUDED.error_message,\n                failed_at = NOW(),\n                attempt_count = failed_scrapes.attempt_count + 1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "83ca2327fbbac4e7ce5cd48ee87ddb4c9e47e27ecdd5634cd4ab5f57edcb294a"
+}

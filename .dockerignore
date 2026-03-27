@@ -1,0 +1,54 @@
+# Build artifacts
+**/target/
+target/
+
+# Git
+.git/
+.gitignore
+
+# IDE files
+.vscode/
+.idea/
+.zed/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.backup
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Docker files
+**/Dockerfile
+**/.dockerignore
+.dockerignore
+docker-compose*.yml
+Dockerfile
+
+# Development files
+.env*
+test_results/
+coverage/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Other package managers
+node_modules/
+*.lock
+!Cargo.lock
+
+# Development scripts
+scripts/
+tools/
+.cargo/

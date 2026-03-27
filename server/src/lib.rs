@@ -9,7 +9,7 @@ use arenabuddy_core::{
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tonic::transport::Server;
-use tracingx::info;
+use tracing::info;
 
 use crate::{
     auth::{AuthConfig, AuthServiceImpl, auth_interceptor},
@@ -20,6 +20,8 @@ use crate::{
 pub mod auth;
 mod debug_service;
 mod match_service;
+#[cfg(feature = "otel")]
+mod otel;
 mod sheets_sync;
 
 /// Start the gRPC server with all services.
@@ -33,9 +35,20 @@ mod sheets_sync;
 /// `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, or `JWT_SECRET`.
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     #[cfg(feature = "otel")]
-    let otel_guard = tracingx::otel::init_compact_with_otel("arenabuddy-server");
+    let otel_guard = otel::init_compact_with_otel("arenabuddy-server");
     #[cfg(not(feature = "otel"))]
-    tracingx::init_compact();
+    {
+        use tracing_subscriber::{EnvFilter, Registry, fmt, layer::SubscriberExt, util::SubscriberInitExt};
+        let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+        let fmt_layer = fmt::layer()
+            .compact()
+            .with_target(true)
+            .with_level(true)
+            .with_thread_names(false)
+            .with_file(false)
+            .with_line_number(false);
+        Registry::default().with(env_filter).with(fmt_layer).init();
+    }
 
     #[cfg(feature = "otel")]
     {

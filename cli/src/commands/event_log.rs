@@ -7,7 +7,7 @@ use arenabuddy_core::{
         replay::MatchReplay,
     },
 };
-use tracingx::info;
+use tracing::info;
 
 use crate::Result;
 

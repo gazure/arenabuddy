@@ -11,7 +11,7 @@ use crate::{
 
 fn open_github() {
     if let Err(e) = open::that("https://github.com/gazure/monorepo") {
-        tracingx::error!("Failed to open URL: {}", e);
+        tracing::error!("Failed to open URL: {}", e);
     }
 }
 
@@ -132,16 +132,16 @@ fn Layout() -> Element {
                         let sync_auth = auth_state.clone();
                         bg.spawn(async move {
                             match crate::backend::sync::sync_matches(&sync_db, &sync_auth).await {
-                                Ok(n) => tracingx::info!("Post-login sync complete: {n} new matches"),
-                                Err(e) => tracingx::error!("Post-login sync failed: {e}"),
+                                Ok(n) => tracing::info!("Post-login sync complete: {n} new matches"),
+                                Err(e) => tracing::error!("Post-login sync failed: {e}"),
                             }
                         });
                     }
                     Ok(Err(e)) => {
-                        tracingx::error!("Login failed: {e}");
+                        tracing::error!("Login failed: {e}");
                     }
                     Err(_) => {
-                        tracingx::error!("Login task was dropped");
+                        tracing::error!("Login task was dropped");
                     }
                 }
                 login_loading.set(false);
@@ -167,13 +167,13 @@ fn Layout() -> Element {
                     });
                     match rx.await {
                         Ok(Ok(())) => {
-                            tracingx::info!("Logged out successfully");
+                            tracing::info!("Logged out successfully");
                         }
                         Ok(Err(e)) => {
-                            tracingx::error!("Logout failed: {e}");
+                            tracing::error!("Logout failed: {e}");
                         }
                         Err(_) => {
-                            tracingx::error!("Logout task was dropped");
+                            tracing::error!("Logout task was dropped");
                         }
                     }
                 }

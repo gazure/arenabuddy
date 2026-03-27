@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT pack_number, pick_number, cards, card_id\n            FROM draft_pack\n            WHERE draft_id = $1\n            ORDER BY pack_number, pick_number\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "pack_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "pack_number"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "pick_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "pick_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "cards",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "cards"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "card_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "card_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "7b265007ad0b6d6c8a483d247c4bc7bcd906bc9c69387c1f6ab1d1c7945475ee"
+}

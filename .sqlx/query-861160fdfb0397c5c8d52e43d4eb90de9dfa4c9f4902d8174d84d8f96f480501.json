@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, pack_number, pick_number, selection_number, cards, card_id\n            FROM draft_pack\n            WHERE draft_id = $1\n            ORDER BY pack_number, pick_number, selection_number\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "pack_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "pack_number"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "pick_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "pick_number"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "selection_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "selection_number"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "cards",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "cards"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "card_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "draft_pack",
+            "name": "card_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "861160fdfb0397c5c8d52e43d4eb90de9dfa4c9f4902d8174d84d8f96f480501"
+}

@@ -1,5 +1,10 @@
+/target
+.DS_Store
+/.zed
+**/*.rs.bk
+keys/
+/.claude
 /dist/
-/.zed/
 /.idea
 /.ropeproject
 /scrape_data/
