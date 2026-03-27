@@ -10,7 +10,7 @@ use crate::{
 };
 
 fn open_github() {
-    if let Err(e) = open::that("https://github.com/gazure/monorepo") {
+    if let Err(e) = open::that("https://github.com/gazure/arenabuddy") {
         tracing::error!("Failed to open URL: {}", e);
     }
 }
