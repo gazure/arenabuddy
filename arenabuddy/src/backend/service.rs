@@ -15,7 +15,7 @@ use arenabuddy_core::{
 };
 use arenabuddy_data::{DirectoryStorage, MetagameRepository};
 use tokio::sync::Mutex;
-use tracingx::{error, info};
+use tracing::{error, info};
 
 use crate::Result;
 

@@ -9,6 +9,7 @@ pub mod display;
 pub mod errors;
 pub mod events;
 pub mod models;
+pub mod multimap;
 pub mod player_log;
 pub(crate) mod proto;
 pub mod services;

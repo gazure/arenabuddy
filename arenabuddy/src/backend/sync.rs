@@ -5,7 +5,7 @@ use arenabuddy_core::{
     services::match_service::{GetMatchDataRequest, ListMatchesRequest, match_service_client::MatchServiceClient},
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
-use tracingx::{error, info};
+use tracing::{error, info};
 
 use super::auth::{SharedAuthState, needs_refresh, refresh};
 

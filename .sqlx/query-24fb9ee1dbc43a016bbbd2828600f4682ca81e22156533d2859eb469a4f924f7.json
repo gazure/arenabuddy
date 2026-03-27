@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT game_number, winning_team_id, result_scope FROM match_result WHERE match_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "game_number",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "match_result",
+            "name": "game_number"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "winning_team_id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "match_result",
+            "name": "winning_team_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "result_scope",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "match_result",
+            "name": "result_scope"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "24fb9ee1dbc43a016bbbd2828600f4682ca81e22156533d2859eb469a4f924f7"
+}

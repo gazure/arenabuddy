@@ -6,7 +6,7 @@ use arenabuddy_core::{
 };
 use async_trait::async_trait;
 use tokio::fs::File;
-use tracingx::info;
+use tracing::info;
 
 pub struct DirectoryStorage {
     path: PathBuf,

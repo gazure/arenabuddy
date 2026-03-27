@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO draft_pack(draft_id, pack_number, pick_number, selection_number, cards, card_id, created_at)\n            VALUES ($1, $2, $3, $4, $5, $6, $7)\n            ON CONFLICT (draft_id, pack_number, pick_number, selection_number)\n            DO UPDATE SET cards = excluded.cards, card_id = excluded.card_id\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Int4",
+        "Text",
+        "Int4",
+        "Timestamp"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8e81b2905e621b830ccf9e0eb3b364e85535aa918f36cc8511bd1c840bd3ea77"
+}

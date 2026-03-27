@@ -7,7 +7,7 @@ use arenabuddy_core::{
 use arenabuddy_data::{MatchDB, MetagameRepository, metagame_models::MatchArchetype};
 use chrono::Utc;
 use tonic::transport::Channel;
-use tracingx::{error, info};
+use tracing::{error, info};
 
 use super::auth::{SharedAuthState, needs_refresh, refresh};
 

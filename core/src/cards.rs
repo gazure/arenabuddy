@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, fmt::Display, fs::File, io::Read, path::Path, sync::Arc};
 
 use prost::Message;
-use tracingx::debug;
+use tracing::debug;
 
 use crate::models::{Card, CardCollection};
 

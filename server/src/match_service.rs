@@ -9,7 +9,7 @@ use arenabuddy_core::{
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tonic::{Request, Response, Status};
-use tracingx::{error, info, instrument};
+use tracing::{error, info, instrument};
 
 use crate::auth::UserId;
 

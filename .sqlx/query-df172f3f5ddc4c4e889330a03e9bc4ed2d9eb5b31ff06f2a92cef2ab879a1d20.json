@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, bbref_game_id, error_message, failed_at, attempt_count\n            FROM failed_scrapes\n            ORDER BY failed_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "failed_scrapes",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "bbref_game_id",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "failed_scrapes",
+            "name": "bbref_game_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "error_message",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "failed_scrapes",
+            "name": "error_message"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "failed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "failed_scrapes",
+            "name": "failed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "attempt_count",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "failed_scrapes",
+            "name": "attempt_count"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "df172f3f5ddc4c4e889330a03e9bc4ed2d9eb5b31ff06f2a92cef2ab879a1d20"
+}

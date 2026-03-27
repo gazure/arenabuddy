@@ -17,7 +17,7 @@ use arenabuddy_core::{
 use chrono::{DateTime, NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
 use sqlx::{FromRow, PgPool, Postgres, Transaction, types::Uuid};
-use tracingx::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument};
 
 #[derive(FromRow)]
 struct MatchRow {

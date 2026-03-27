@@ -1,11 +1,11 @@
 #![expect(clippy::similar_names)]
-use multimap::MultiMap;
 use uuid::Uuid;
 
 use crate::{
     Error, Result,
     events::business::{BusinessEvent, DraftPackInfoEvent},
     models::{ArenaId, Draft, DraftPack, Format, MTGADraft},
+    multimap::MultiMap,
     player_log::ingest::DraftWriter,
 };
 
@@ -47,7 +47,7 @@ impl DraftBuilder {
     /// errors if there is an issue writing the draft results to storage
     pub async fn process_event(&mut self, event: &BusinessEvent) -> Result<()> {
         if let BusinessEvent::Draft(e) = event {
-            tracingx::debug!("Processing draft event: {e:?}");
+            tracing::debug!("Processing draft event: {e:?}");
             let format = parse_event_id(&e.event_id).0;
             self.process_pack_event(e);
 
@@ -69,7 +69,7 @@ impl DraftBuilder {
             pick_number: draft_pack_info_event.pick_number,
         };
 
-        tracingx::info!("Pack #{}, Pick #{}", pack.pack_number, pack.pick_number);
+        tracing::info!("Pack #{}, Pick #{}", pack.pack_number, pack.pick_number);
         let last_pack = pack.pack_number;
         let last_pick = pack.pick_number;
         let pp = PackPick(last_pack, last_pick);
@@ -90,7 +90,7 @@ impl DraftBuilder {
                             pack.pack_number,
                             pack.pick_number,
                             selection_num.try_into().unwrap_or_else(|e| {
-                                tracingx::warn!(
+                                tracing::warn!(
                                     "Could not identify selection number for PackPick: {pack:?}. error: {e}"
                                 );
                                 0u8

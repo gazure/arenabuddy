@@ -10,7 +10,7 @@ use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode}
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tonic::{Request, Response, Status};
-use tracingx::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument};
 use uuid::Uuid;
 
 const ACCESS_TOKEN_LIFETIME_MINUTES: i64 = 15;

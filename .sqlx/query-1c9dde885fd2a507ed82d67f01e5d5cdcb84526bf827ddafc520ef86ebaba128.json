@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT cards FROM opponent_deck WHERE match_id = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "cards",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "opponent_deck",
+            "name": "cards"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1c9dde885fd2a507ed82d67f01e5d5cdcb84526bf827ddafc520ef86ebaba128"
+}

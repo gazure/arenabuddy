@@ -24,7 +24,6 @@ chrono = { workspace = true, features = ["serde"] }
 ctrlc = { workspace = true }
 derive_builder = { workspace = true }
 itertools = { workspace = true }
-multimap = { path = "../../lib/multimap" }
 notify = { workspace = true }
 prost = { workspace = true }
 prost-types = { workspace = true }
@@ -35,7 +34,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-tracingx = { path = "../../lib/tracingx" }
+tracing = { workspace = true }
 uuid = { workspace = true }
 
 

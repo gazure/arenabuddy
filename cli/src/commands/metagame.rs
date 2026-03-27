@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Context;
 use arenabuddy_core::cards::CardsDatabase;
 use arenabuddy_data::{ArenabuddyRepository, MatchDB, MetagameRepository};
-use tracingx::info;
+use tracing::info;
 
 use super::definitions::MetagameCommands;
 use crate::Result;
