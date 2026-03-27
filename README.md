@@ -49,4 +49,7 @@ To get started with the ArenaBuddy development environment, follow these steps:
    - `/core` - common modules
    - `/cli` - Consolidated command line tool for log parsing and card scraping
    - `/data` - data layer
-   - `/arenabuddy` - Dioxus app
+   - `/arenabuddy` - Dioxus desktop app
+   - `/server` - gRPC backend service
+   - `/web` - Web splash page
+   - `/metagame` - Metagame scraping and deck classification

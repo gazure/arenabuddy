@@ -18,7 +18,7 @@ fn app() -> Element {
                 "A companion app for Magic: The Gathering Arena"
             }
             a {
-                href: "https://github.com/gazure/monorepo/releases",
+                href: "https://github.com/gazure/arenabuddy/releases",
                 target: "_blank",
                 rel: "noopener noreferrer",
                 style: "padding: 0.75rem 1.5rem; background: #4a90d9; color: #ffffff; text-decoration: none; border-radius: 0.5rem; font-size: 1.1rem; transition: background 0.2s;",
