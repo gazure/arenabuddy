@@ -6,11 +6,11 @@ use dioxus::{
     LaunchBuilder,
     desktop::{Config, WindowBuilder},
 };
-use tracing::{Level, error, info};
+use tracing::{error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{
     EnvFilter,
-    fmt::{self, writer::MakeWriterExt},
+    fmt,
     layer::{Layer, SubscriberExt},
     registry,
     util::SubscriberInitExt,
@@ -26,7 +26,11 @@ use crate::{
 /// can run async work that requires a real tokio I/O driver (e.g. tonic gRPC).
 pub type BackgroundRuntime = Arc<tokio::runtime::Runtime>;
 
-pub fn launch() -> Result<()> {
+#[tracing::instrument(name = "app")]
+pub fn launch(app: String) -> Result<()> {
+    let background: BackgroundRuntime = Arc::new(tokio::runtime::Runtime::new()?);
+    let service = background.block_on(create_app_service())?;
+
     let data_dir = get_app_data_dir()?;
     let home = dirs::home_dir().ok_or(Error::NoHomeDir)?;
     let player_log_path = match std::env::consts::OS {
@@ -35,9 +39,6 @@ pub fn launch() -> Result<()> {
         _ => Err(Error::UnsupportedOS),
     }?;
     info!("Processing logs from : {}", player_log_path.to_string_lossy());
-
-    let background: BackgroundRuntime = Arc::new(tokio::runtime::Runtime::new()?);
-    let service = background.block_on(create_app_service())?;
     let auth_state = new_shared_auth_state();
     if let Some(saved) = crate::backend::auth::load_auth() {
         info!("Restored auth session for {}", saved.user.username);
@@ -95,8 +96,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
         .rotation(Rotation::DAILY)
         .filename_prefix("arena-buddy")
         .build(log_dir)
-        .map_err(|_| Error::LogFailure)?
-        .with_max_level(Level::INFO);
+        .map_err(|_| Error::LogFailure)?;
 
     let file_layer = fmt::layer()
         .with_writer(file_appender)
@@ -104,7 +104,8 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
         .with_target(false)
         .with_line_number(true)
         .with_file(true)
-        .with_level(true);
+        .with_level(true)
+        .with_filter(EnvFilter::new("info"));
 
     let console_layer = fmt::Layer::new()
         .with_target(true)
@@ -112,7 +113,8 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
         .with_file(true)
         .with_level(true);
 
-    let console_filter = EnvFilter::new("info");
+    let console_filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
     let registry = registry
         .with(file_layer)
@@ -138,9 +140,6 @@ async fn create_app_service() -> Result<Service> {
     let data_dir = get_app_data_dir()?;
     setup_logging(&data_dir)?;
 
-    let app_name = std::env::var("APP_NAME").unwrap_or_else(|_| "arenabuddy".to_string());
-    let root_span = tracing::info_span!("app", app = %app_name);
-    let _span = root_span.enter();
     let cards_db = CardsDatabase::default();
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
     info!("using matches db: {:?}", url);
