@@ -9,8 +9,7 @@ use dioxus::{
 use tracing::{error, info};
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::{
-    EnvFilter,
-    fmt,
+    EnvFilter, fmt,
     layer::{Layer, SubscriberExt},
     registry,
     util::SubscriberInitExt,
@@ -27,7 +26,7 @@ use crate::{
 pub type BackgroundRuntime = Arc<tokio::runtime::Runtime>;
 
 #[tracing::instrument(name = "app")]
-pub fn launch(app: String) -> Result<()> {
+pub fn launch(app: &str) -> Result<()> {
     let background: BackgroundRuntime = Arc::new(tokio::runtime::Runtime::new()?);
     let service = background.block_on(create_app_service())?;
 
@@ -113,8 +112,7 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
         .with_file(true)
         .with_level(true);
 
-    let console_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    let console_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
     let registry = registry
         .with(file_layer)
