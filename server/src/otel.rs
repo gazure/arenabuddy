@@ -42,15 +42,7 @@ pub fn init_compact_with_otel(service_name: &str) -> OtelGuard {
 
     Registry::default()
         .with(env_filter)
-        .with(
-            fmt::layer()
-                .compact()
-                .with_target(true)
-                .with_level(true)
-                .with_file(false)
-                .with_line_number(false)
-                .with_thread_names(false),
-        )
+        .with(fmt::layer().json())
         .with(otel_layer)
         .init();
 
