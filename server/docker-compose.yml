@@ -24,6 +24,24 @@ services:
       - ./tempo.yaml:/etc/tempo.yaml:ro
       - tempo_data:/var/tempo
 
+  loki:
+    image: grafana/loki:3.4.2
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - loki_data:/loki
+
+  promtail:
+    image: grafana/promtail:3.4.2
+    restart: unless-stopped
+    depends_on:
+      - loki
+    command: ["-config.file=/etc/promtail/promtail.yaml"]
+    volumes:
+      - ./promtail.yaml:/etc/promtail/promtail.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+
   server:
     image: ${SERVER_IMAGE:-arenabuddy-server:latest}
     restart: unless-stopped
@@ -65,6 +83,7 @@ services:
     restart: unless-stopped
     depends_on:
       - tempo
+      - loki
     expose:
       - "3000"
     volumes:
@@ -79,4 +98,5 @@ volumes:
   caddy_data:
   caddy_config:
   tempo_data:
+  loki_data:
   grafana_data:
