@@ -32,6 +32,7 @@ datasources:
     secureJsonData:
       password: ${POSTGRES_PASSWORD}
     jsonData:
+      database: arenabuddy
       sslmode: disable
       postgresVersion: 1700
     editable: true
