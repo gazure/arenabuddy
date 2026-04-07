@@ -107,6 +107,8 @@ pub enum ClientMessage {
     UndoReq(UndoReqWrapper),
     #[serde(rename = "ClientMessageType_SelectCountersResp")]
     SelectCountersResp(SelectCountersRespWrapper),
+    #[serde(rename =  "ClientMessageType_DistributionResp")]
+    DistributionResp(DistributionRespWrapper)
 }
 
 wrapper!(AssignDamageRespWrapper, AssignDamageResp, assign_damage_resp);
@@ -154,6 +156,8 @@ wrapper!(
     OrderCombatDamageResp,
     order_combat_damage_resp
 );
+wrapper!(DistributionRespWrapper, DistributionResp, distribution_resp);
+
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 pub struct UndoReqWrapper {
@@ -499,6 +503,12 @@ pub enum MulliganOption {
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 pub struct PerformActionResp {
     pub actions: Vec<Action>,
+}
+
+#[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
+pub struct DistributionResp {
+    #[serde(flatten)]
+    pub extra: HashMap<String, Value>
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
