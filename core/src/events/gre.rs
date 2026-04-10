@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use crate::{
     events::primitives::{
@@ -14,28 +11,6 @@ use crate::{
 // GRE refers to the server-side MTGA engine
 //
 // Probably stands for GameRulesEngine
-
-macro_rules! wrapper {
-    ($wrapperName:ident, $name:ident, $snake:ident) => {
-        #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct $wrapperName {
-            #[serde(flatten)]
-            pub meta: GreMeta,
-            pub $snake: $name,
-        }
-    };
-    ($wrapperName:ident) => {
-        #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct $wrapperName {
-            #[serde(flatten)]
-            pub meta: GreMeta,
-            #[serde(flatten)]
-            pub extra: HashMap<String, Value>,
-        }
-    };
-}
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -145,42 +120,42 @@ pub struct GreMeta {
     pub game_state_id: Option<i32>,
 }
 
-wrapper!(DistributionReqWrapper);
-wrapper!(IllegalRequestWrapper);
-wrapper!(SelectCountersReqWrapper);
-wrapper!(AssignDamageReqWrapper);
-wrapper!(AssignDamageConfirmationWrapper);
-wrapper!(OrderDamageConfirmationWrapper);
-wrapper!(OrderCombatDamageReqWrapper);
-wrapper!(EdictalMessageWrapper);
-wrapper!(TimeoutMessageWrapper);
-wrapper!(GroupRespWrapper);
-wrapper!(GroupReqWrapper);
-wrapper!(OptionalActionMessageWrapper);
-wrapper!(SearchReqWrapper);
-wrapper!(SubmitDeckWrapper);
-wrapper!(OrderReqWrapper);
-wrapper!(SubmitBlockersRespWrapper);
-wrapper!(DeclareBlockersReqWrapper);
-wrapper!(UIMessageWrapper);
-wrapper!(SubmitDeckConfirmationWrapper);
-wrapper!(SubmitDeckReqWrapper);
-wrapper!(SubmitAttackersRespWrapper);
-wrapper!(DeclareAttackersReqWrapper);
-wrapper!(SelectNRespWrapper);
-wrapper!(PayCostsReqWrapper);
-wrapper!(IntermissionReqWrapper, IntermissionReq, intermission_req);
-wrapper!(CastingTimeOptionsReqWrapper);
-wrapper!(ChooseStartingPlayerReqWrapper);
-wrapper!(SubmitTargetsRespWrapper, SubmitTargetsResp, submit_targets_resp);
-wrapper!(ConnectRespWrapper, ConnectResp, connect_resp);
-wrapper!(DieRollResultsRespWrapper, DieRollResultsResp, die_roll_results_resp);
-wrapper!(ActionsAvailableReqWrapper, ActionsAvailableReq, actions_available_req);
-wrapper!(PromptReqWrapper, Prompt, prompt);
-wrapper!(SetSettingsRespWrapper, SetSettingsResp, set_settings_resp);
-wrapper!(QueuedStateMessageWrapper);
-wrapper!(TimerStateMessageWrapper);
-wrapper!(GameStateMessageWrapper, GameStateMessage, game_state_message);
+gre_extra_wrapper!(DistributionReqWrapper);
+gre_extra_wrapper!(IllegalRequestWrapper);
+gre_extra_wrapper!(SelectCountersReqWrapper);
+gre_extra_wrapper!(AssignDamageReqWrapper);
+gre_extra_wrapper!(AssignDamageConfirmationWrapper);
+gre_extra_wrapper!(OrderDamageConfirmationWrapper);
+gre_extra_wrapper!(OrderCombatDamageReqWrapper);
+gre_extra_wrapper!(EdictalMessageWrapper);
+gre_extra_wrapper!(TimeoutMessageWrapper);
+gre_extra_wrapper!(GroupRespWrapper);
+gre_extra_wrapper!(GroupReqWrapper);
+gre_extra_wrapper!(OptionalActionMessageWrapper);
+gre_extra_wrapper!(SearchReqWrapper);
+gre_extra_wrapper!(SubmitDeckWrapper);
+gre_extra_wrapper!(OrderReqWrapper);
+gre_extra_wrapper!(SubmitBlockersRespWrapper);
+gre_extra_wrapper!(DeclareBlockersReqWrapper);
+gre_extra_wrapper!(UIMessageWrapper);
+gre_extra_wrapper!(SubmitDeckConfirmationWrapper);
+gre_extra_wrapper!(SubmitDeckReqWrapper);
+gre_extra_wrapper!(SubmitAttackersRespWrapper);
+gre_extra_wrapper!(DeclareAttackersReqWrapper);
+gre_extra_wrapper!(SelectNRespWrapper);
+gre_extra_wrapper!(PayCostsReqWrapper);
+gre_payload_wrapper!(IntermissionReqWrapper, IntermissionReq, intermission_req);
+gre_extra_wrapper!(CastingTimeOptionsReqWrapper);
+gre_extra_wrapper!(ChooseStartingPlayerReqWrapper);
+gre_payload_wrapper!(SubmitTargetsRespWrapper, SubmitTargetsResp, submit_targets_resp);
+gre_payload_wrapper!(ConnectRespWrapper, ConnectResp, connect_resp);
+gre_payload_wrapper!(DieRollResultsRespWrapper, DieRollResultsResp, die_roll_results_resp);
+gre_payload_wrapper!(ActionsAvailableReqWrapper, ActionsAvailableReq, actions_available_req);
+gre_payload_wrapper!(PromptReqWrapper, Prompt, prompt);
+gre_payload_wrapper!(SetSettingsRespWrapper, SetSettingsResp, set_settings_resp);
+gre_extra_wrapper!(QueuedStateMessageWrapper);
+gre_extra_wrapper!(TimerStateMessageWrapper);
+gre_payload_wrapper!(GameStateMessageWrapper, GameStateMessage, game_state_message);
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

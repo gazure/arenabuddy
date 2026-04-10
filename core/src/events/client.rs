@@ -11,18 +11,6 @@ use crate::events::{
 // Client messages to the game server
 //
 
-macro_rules! wrapper {
-    ($wrapperName:ident, $name:ident, $snake:ident) => {
-        #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
-        #[serde(rename_all = "camelCase")]
-        pub struct $wrapperName {
-            #[serde(flatten)]
-            pub meta: ClientMeta,
-            pub $snake: $name,
-        }
-    };
-}
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct RequestTypeClientToMatchServiceMessage {
     #[serde(rename = "clientToMatchServiceMessageType")]
@@ -111,52 +99,52 @@ pub enum ClientMessage {
     DistributionResp(DistributionRespWrapper),
 }
 
-wrapper!(AssignDamageRespWrapper, AssignDamageResp, assign_damage_resp);
-wrapper!(SetSettingsReqWrapper, SetSettingsReq, set_settings_req);
-wrapper!(SubmitDeckRespWrapper, SubmitDeckResp, submit_deck_resp);
-wrapper!(MulliganRespWrapper, MulliganResp, mulligan_resp);
-wrapper!(PerformActionRespWrapper, PerformActionResp, perform_action_resp);
-wrapper!(UIMessageWrapper, UIMessage, ui_message);
-wrapper!(SelectNRespWrapper, SelectNResp, select_n_resp);
-wrapper!(SelectTargetsRespWrapper, SelectTargetsResp, select_targets_resp);
-wrapper!(
+client_payload_wrapper!(AssignDamageRespWrapper, AssignDamageResp, assign_damage_resp);
+client_payload_wrapper!(SetSettingsReqWrapper, SetSettingsReq, set_settings_req);
+client_payload_wrapper!(SubmitDeckRespWrapper, SubmitDeckResp, submit_deck_resp);
+client_payload_wrapper!(MulliganRespWrapper, MulliganResp, mulligan_resp);
+client_payload_wrapper!(PerformActionRespWrapper, PerformActionResp, perform_action_resp);
+client_payload_wrapper!(UIMessageWrapper, UIMessage, ui_message);
+client_payload_wrapper!(SelectNRespWrapper, SelectNResp, select_n_resp);
+client_payload_wrapper!(SelectTargetsRespWrapper, SelectTargetsResp, select_targets_resp);
+client_payload_wrapper!(
     DeclareAttackersRespWrapper,
     DeclareAttackersResp,
     declare_attackers_resp
 );
-wrapper!(ConcedeReqWrapper, ConcedeReq, concede_req);
-wrapper!(EffectCostRespWrapper, EffectCostResp, effect_cost_resp);
-wrapper!(
+client_payload_wrapper!(ConcedeReqWrapper, ConcedeReq, concede_req);
+client_payload_wrapper!(EffectCostRespWrapper, EffectCostResp, effect_cost_resp);
+client_payload_wrapper!(
     ChooseStartingPlayerRespWrapper,
     ChooseStartingPlayerResp,
     choose_starting_player_resp
 );
-wrapper!(CancelActionReqWrapper, CancelActionReq, cancel_action_req);
-wrapper!(
+client_payload_wrapper!(CancelActionReqWrapper, CancelActionReq, cancel_action_req);
+client_payload_wrapper!(
     CastingTimeOptionRespWrapper,
     CastingTimeOptionResp,
     casting_time_option_resp
 );
-wrapper!(
+client_payload_wrapper!(
     CastingTimeOptionsRespWrapperWrapper,
     CastingTimeOptionRespWrapper,
     casting_time_options_resp
 );
-wrapper!(
+client_payload_wrapper!(
     PerformAutoTapActionsRespWrapper,
     PerformAutoTapActionsResp,
     perform_auto_tap_actions_resp
 );
-wrapper!(OrderRespWrapper, OrderResp, order_resp);
-wrapper!(SearchRespWrapper, SearchResp, search_resp);
-wrapper!(OptionalActionRespWrapper, OptionalActionResp, optional_resp);
-wrapper!(GroupRespWrapper, GroupResp, group_resp);
-wrapper!(
+client_payload_wrapper!(OrderRespWrapper, OrderResp, order_resp);
+client_payload_wrapper!(SearchRespWrapper, SearchResp, search_resp);
+client_payload_wrapper!(OptionalActionRespWrapper, OptionalActionResp, optional_resp);
+client_payload_wrapper!(GroupRespWrapper, GroupResp, group_resp);
+client_payload_wrapper!(
     OrderCombatDamageRespWrapper,
     OrderCombatDamageResp,
     order_combat_damage_resp
 );
-wrapper!(DistributionRespWrapper, DistributionResp, distribution_resp);
+client_payload_wrapper!(DistributionRespWrapper, DistributionResp, distribution_resp);
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 pub struct UndoReqWrapper {
