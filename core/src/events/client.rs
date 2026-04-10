@@ -107,8 +107,8 @@ pub enum ClientMessage {
     UndoReq(UndoReqWrapper),
     #[serde(rename = "ClientMessageType_SelectCountersResp")]
     SelectCountersResp(SelectCountersRespWrapper),
-    #[serde(rename =  "ClientMessageType_DistributionResp")]
-    DistributionResp(DistributionRespWrapper)
+    #[serde(rename = "ClientMessageType_DistributionResp")]
+    DistributionResp(DistributionRespWrapper),
 }
 
 wrapper!(AssignDamageRespWrapper, AssignDamageResp, assign_damage_resp);
@@ -157,7 +157,6 @@ wrapper!(
     order_combat_damage_resp
 );
 wrapper!(DistributionRespWrapper, DistributionResp, distribution_resp);
-
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 pub struct UndoReqWrapper {
@@ -508,7 +507,7 @@ pub struct PerformActionResp {
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
 pub struct DistributionResp {
     #[serde(flatten)]
-    pub extra: HashMap<String, Value>
+    pub extra: HashMap<String, Value>,
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Deserialize, Serialize)]
