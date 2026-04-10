@@ -13,8 +13,7 @@ use crate::{
 
 // GRE refers to the server-side MTGA engine
 //
-// no clue what it actually stands for, but these are a bunch of events that come from
-// the server to the game client
+// Probably stands for GameRulesEngine
 
 macro_rules! wrapper {
     ($wrapperName:ident, $name:ident, $snake:ident) => {
@@ -130,6 +129,8 @@ pub enum GREToClientMessage {
     IllegalRequest(IllegalRequestWrapper),
     #[serde(rename = "GREMessageType_SelectCountersReq")]
     SelectCountersReq(SelectCountersReqWrapper),
+    #[serde(rename = "GREMessageType_DistributionReq")]
+    DistributionReq(DistributionReqWrapper),
     #[default]
     Default,
 }
@@ -144,6 +145,7 @@ pub struct GreMeta {
     pub game_state_id: Option<i32>,
 }
 
+wrapper!(DistributionReqWrapper);
 wrapper!(IllegalRequestWrapper);
 wrapper!(SelectCountersReqWrapper);
 wrapper!(AssignDamageReqWrapper);
