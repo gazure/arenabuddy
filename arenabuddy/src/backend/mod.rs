@@ -1,4 +1,5 @@
 pub(crate) mod auth;
+pub(crate) mod auth_controller;
 pub(crate) mod grpc_writer;
 pub(crate) mod ingest;
 mod launch;
