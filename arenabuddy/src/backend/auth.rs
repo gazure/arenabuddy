@@ -231,7 +231,7 @@ pub async fn login(
     }
 
     // Wait for the callback with the auth code (with timeout)
-    let code = tokio::time::timeout(std::time::Duration::from_secs(300), rx)
+    let code = tokio::time::timeout(std::time::Duration::from_mins(5), rx)
         .await
         .map_err(|_| "Login timed out after 5 minutes")?
         .map_err(|_| "Login callback channel closed")?;
