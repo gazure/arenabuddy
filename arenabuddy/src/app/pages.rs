@@ -6,7 +6,7 @@ use crate::{
         debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
         match_details::MatchDetails, matches::Matches, stats::Stats,
     },
-    backend::{BackgroundRuntime, Service, SharedAuthState},
+    backend::{BackgroundRuntime, Service, SharedAuthState, auth_controller},
 };
 
 fn open_github() {
@@ -108,41 +108,10 @@ fn Layout() -> Element {
             let bg = bg_runtime.clone();
             let service = service.clone();
             spawn(async move {
-                let grpc_url = crate::backend::paths::grpc_url();
-                let client_id =
-                    std::env::var("DISCORD_CLIENT_ID").unwrap_or_else(|_| "1469498901886271663".to_string());
-
                 login_loading.set(true);
-                // Run login on the background tokio runtime which has a real I/O
-                // driver — Dioxus's async executor lacks one, so tonic channels
-                // fail with "transport error" if spawned directly.
-                let (tx, rx) = tokio::sync::oneshot::channel();
-                bg.spawn(async move {
-                    let result = crate::backend::auth::login(&grpc_url, &client_id).await;
-                    let _ = tx.send(result);
-                });
-                match rx.await {
-                    Ok(Ok(state)) => {
-                        let username = state.user.username.clone();
-                        *auth_state.lock().await = Some(state);
-                        login_status.set(Some(username));
-
-                        // Sync matches from server after login
-                        let sync_db = service.db.clone();
-                        let sync_auth = auth_state.clone();
-                        bg.spawn(async move {
-                            match crate::backend::sync::sync_matches(&sync_db, &sync_auth).await {
-                                Ok(n) => tracing::info!("Post-login sync complete: {n} new matches"),
-                                Err(e) => tracing::error!("Post-login sync failed: {e}"),
-                            }
-                        });
-                    }
-                    Ok(Err(e)) => {
-                        tracing::error!("Login failed: {e}");
-                    }
-                    Err(_) => {
-                        tracing::error!("Login task was dropped");
-                    }
+                match auth_controller::login(auth_state, service, bg).await {
+                    Ok(outcome) => login_status.set(Some(outcome.username)),
+                    Err(e) => tracing::error!("Login failed: {e}"),
                 }
                 login_loading.set(false);
             });
@@ -156,29 +125,10 @@ fn Layout() -> Element {
             let auth_state = auth_state.clone();
             let bg = bg_runtime.clone();
             spawn(async move {
-                let grpc_url = crate::backend::paths::grpc_url();
-
-                let refresh_token = auth_state.lock().await.as_ref().map(|s| s.refresh_token.clone());
-                if let Some(refresh_token) = refresh_token {
-                    let (tx, rx) = tokio::sync::oneshot::channel();
-                    bg.spawn(async move {
-                        let result = crate::backend::auth::logout(&grpc_url, &refresh_token).await;
-                        let _ = tx.send(result);
-                    });
-                    match rx.await {
-                        Ok(Ok(())) => {
-                            tracing::info!("Logged out successfully");
-                        }
-                        Ok(Err(e)) => {
-                            tracing::error!("Logout failed: {e}");
-                        }
-                        Err(_) => {
-                            tracing::error!("Logout task was dropped");
-                        }
-                    }
+                match auth_controller::logout(auth_state, bg).await {
+                    Ok(()) => login_status.set(None),
+                    Err(e) => tracing::error!("Logout failed: {e}"),
                 }
-                *auth_state.lock().await = None;
-                login_status.set(None);
             });
         }
     };
