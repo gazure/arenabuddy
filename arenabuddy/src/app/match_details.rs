@@ -5,12 +5,15 @@ use crate::{
         Route,
         components::{DeckList, EventLogDisplay, MatchInfo, MulliganDisplay},
     },
-    backend::Service,
+    backend::{Service, SharedAuthState, sync},
 };
 
 #[component]
 pub(crate) fn MatchDetails(id: String) -> Element {
     let service = use_context::<Service>();
+    let auth_state = use_context::<SharedAuthState>();
+    let mut sync_loading = use_signal(|| false);
+    let mut sync_status = use_signal(|| None::<String>);
 
     let mut match_details = use_resource({
         let service = service.clone();
@@ -24,6 +27,36 @@ pub(crate) fn MatchDetails(id: String) -> Element {
 
     let refresh = move |_| {
         match_details.restart();
+    };
+
+    let on_sync = {
+        let auth_state = auth_state.clone();
+        let service = service.clone();
+        let id = id.clone();
+        move |_| {
+            let auth_state = auth_state.clone();
+            let service = service.clone();
+            let id = id.clone();
+            spawn(async move {
+                sync_loading.set(true);
+                sync_status.set(None);
+
+                match sync::push_match(&service.db, &auth_state, &id).await {
+                    Ok(true) => {
+                        sync_status.set(Some("Pushed local match to server".to_string()));
+                        match_details.restart();
+                    }
+                    Ok(false) => {
+                        sync_status.set(Some("Local match not found".to_string()));
+                    }
+                    Err(e) => {
+                        sync_status.set(Some(format!("Push failed: {e}")));
+                    }
+                }
+
+                sync_loading.set(false);
+            });
+        }
     };
 
     let resource_value = match_details.value();
@@ -56,9 +89,30 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                     h1 { class: "text-3xl font-bold", "Match Details" }
                     div { class: "flex gap-2",
                         button {
+                            onclick: on_sync,
+                            class: "bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center disabled:opacity-60 disabled:cursor-not-allowed",
+                            disabled: sync_loading(),
+                            span { class: "mr-2",
+                                if sync_loading() { "Syncing..." } else { "Sync" }
+                            }
+                            svg {
+                                xmlns: "http://www.w3.org/2000/svg",
+                                class: "h-5 w-5",
+                                fill: "none",
+                                view_box: "0 0 24 24",
+                                stroke: "currentColor",
+                                path {
+                                    stroke_linecap: "round",
+                                    stroke_linejoin: "round",
+                                    stroke_width: "2",
+                                    d: "M12 4v16m8-8H4"
+                                }
+                            }
+                        }
+                        button {
                             onclick: refresh,
                             class: "bg-black bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-4 rounded-full transition-all duration-200 shadow-md hover:shadow-lg flex items-center",
-                            disabled: data.is_none(),
+                            disabled: data.is_none() || sync_loading(),
                             span { class: "mr-2",
                                 if data.is_none() { "Loading..." } else { "Refresh" }
                             }
@@ -82,6 +136,9 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                 p { class: "text-lg opacity-80 mt-2",
                     span { class: "font-semibold", "Match ID:" }
                     " {id}"
+                }
+                if let Some(message) = sync_status() {
+                    p { class: "text-sm opacity-90 mt-2", "{message}" }
                 }
             }
 
