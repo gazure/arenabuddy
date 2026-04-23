@@ -48,8 +48,7 @@ pub async fn login(
         crate::backend::auth::login(&grpc_url, &client_id).await
     })
     .await?
-    .map_err(|err| to_error_string(err.as_ref()))
-    .map_err(AuthControllerError::LoginFailed)?;
+    .map_err(|e| AuthControllerError::LoginFailed(to_error_string(&*e)))?;
 
     let username = state.user.username.clone();
     *auth_state.lock().await = Some(state);
@@ -76,8 +75,7 @@ pub async fn logout(auth_state: SharedAuthState, background: BackgroundRuntime) 
             crate::backend::auth::logout(&grpc_url, &refresh_token).await
         })
         .await?
-        .map_err(|err| to_error_string(err.as_ref()))
-        .map_err(AuthControllerError::LogoutFailed)?;
+        .map_err(|e| AuthControllerError::LogoutFailed(to_error_string(&*e)))?;
     } else {
         crate::backend::auth::delete_saved_auth();
     }
