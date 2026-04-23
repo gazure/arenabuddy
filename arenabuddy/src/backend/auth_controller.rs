@@ -32,7 +32,7 @@ where
     rx.await.map_err(|_| AuthControllerError::TaskDropped)
 }
 
-fn to_error_string(err: Box<dyn StdError + Send + Sync>) -> String {
+fn to_error_string(err: &(dyn StdError + Send + Sync)) -> String {
     err.to_string()
 }
 
@@ -48,7 +48,7 @@ pub async fn login(
         crate::backend::auth::login(&grpc_url, &client_id).await
     })
     .await?
-    .map_err(to_error_string)
+    .map_err(|err| to_error_string(err.as_ref()))
     .map_err(AuthControllerError::LoginFailed)?;
 
     let username = state.user.username.clone();
@@ -76,7 +76,7 @@ pub async fn logout(auth_state: SharedAuthState, background: BackgroundRuntime) 
             crate::backend::auth::logout(&grpc_url, &refresh_token).await
         })
         .await?
-        .map_err(to_error_string)
+        .map_err(|err| to_error_string(err.as_ref()))
         .map_err(AuthControllerError::LogoutFailed)?;
     } else {
         crate::backend::auth::delete_saved_auth();
