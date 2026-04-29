@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use arenabuddy_core::{
     cards::CardsDatabase,
     models::{MTGAMatch, MatchData, MatchResult, OpponentDeck},
@@ -7,9 +9,27 @@ use arenabuddy_core::{
 use arenabuddy_data::{MatchDB, MetagameRepository, metagame_models::MatchArchetype};
 use chrono::Utc;
 use tonic::transport::Channel;
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 use super::auth::{SharedAuthState, needs_refresh, refresh};
+
+/// Outcome of [`GrpcReplayWriter::send_upsert_with_retries`].
+enum UpsertWithRetries {
+    Success,
+    Unauthenticated,
+}
+
+/// gRPC status codes that are worth retrying for an idempotent upsert.
+fn upsert_is_retryable(status: &tonic::Status) -> bool {
+    match status.code() {
+        tonic::Code::Unavailable
+        | tonic::Code::DeadlineExceeded
+        | tonic::Code::ResourceExhausted
+        | tonic::Code::Aborted => true,
+        tonic::Code::Unknown if status.message() == "transport error" => true,
+        _ => false,
+    }
+}
 
 pub struct GrpcReplayWriter {
     client: MatchServiceClient<Channel>,
@@ -59,6 +79,48 @@ impl GrpcReplayWriter {
         Some(state.token.clone())
     }
 
+    /// Send `upsert_match_data` with up to 3 attempts and exponential backoff on retryable errors.
+    async fn send_upsert_with_retries(
+        &mut self,
+        match_data: &MatchData,
+        token: Option<String>,
+        match_id: &str,
+    ) -> Result<UpsertWithRetries, arenabuddy_core::Error> {
+        const MAX_ATTEMPTS: u32 = 3;
+        const BACKOFF_BASE_MS: u64 = 200;
+
+        let mut attempt: u32 = 0;
+        while attempt < MAX_ATTEMPTS {
+            let request = build_request(match_data, token.clone());
+            match self.client.upsert_match_data(request).await {
+                Ok(_) => return Ok(UpsertWithRetries::Success),
+                Err(e) if e.code() == tonic::Code::Unauthenticated => {
+                    return Ok(UpsertWithRetries::Unauthenticated);
+                }
+                Err(e) if upsert_is_retryable(&e) => {
+                    if attempt + 1 >= MAX_ATTEMPTS {
+                        error!("gRPC upsert failed for match {match_id} after {MAX_ATTEMPTS} attempts: {e}");
+                        return Err(arenabuddy_core::Error::Io(format!("gRPC upsert failed: {e}")));
+                    }
+                    let backoff_ms = BACKOFF_BASE_MS * 2_u64.pow(attempt);
+                    warn!(
+                        "gRPC upsert attempt {} of {MAX_ATTEMPTS} failed for match {match_id}: {e}, \
+                         retrying after {backoff_ms}ms",
+                        attempt + 1,
+                    );
+                    tokio::time::sleep(Duration::from_millis(backoff_ms)).await;
+                    attempt += 1;
+                }
+                Err(e) => {
+                    error!("gRPC upsert failed for match {match_id}: {e}");
+                    return Err(arenabuddy_core::Error::Io(format!("gRPC upsert failed: {e}")));
+                }
+            }
+        }
+
+        unreachable!("send_upsert_with_retries always returns from inside the loop");
+    }
+
     /// Attempt to refresh and retry the request once after an UNAUTHENTICATED error.
     async fn refresh_and_retry(&mut self, match_data: &MatchData, match_id: &str) -> arenabuddy_core::Result<()> {
         let new_token = {
@@ -80,11 +142,17 @@ impl GrpcReplayWriter {
             }
         };
 
-        let request = build_request(match_data, Some(new_token.clone()));
-        self.client.upsert_match_data(request).await.map_err(|e| {
-            error!("gRPC retry failed for match {match_id}: {e}");
-            arenabuddy_core::Error::Io(format!("gRPC retry failed: {e}"))
-        })?;
+        match self
+            .send_upsert_with_retries(match_data, Some(new_token.clone()), match_id)
+            .await?
+        {
+            UpsertWithRetries::Success => {}
+            UpsertWithRetries::Unauthenticated => {
+                return Err(arenabuddy_core::Error::Io(
+                    "gRPC upsert still unauthenticated after token refresh".to_string(),
+                ));
+            }
+        }
 
         info!("Sent match {match_id} to gRPC backend (after refresh)");
         self.classify_and_cache(match_id, Some(new_token)).await;
@@ -181,21 +249,19 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
         };
 
         let token = self.current_token().await;
-        let request = build_request(&match_data, token.clone());
 
-        match self.client.upsert_match_data(request).await {
-            Ok(_) => {
+        match self
+            .send_upsert_with_retries(&match_data, token.clone(), &match_id)
+            .await?
+        {
+            UpsertWithRetries::Success => {
                 info!("Sent match {match_id} to gRPC backend");
                 self.classify_and_cache(&match_id, token).await;
                 Ok(())
             }
-            Err(e) if e.code() == tonic::Code::Unauthenticated => {
+            UpsertWithRetries::Unauthenticated => {
                 info!("Got UNAUTHENTICATED, attempting refresh and retry");
                 self.refresh_and_retry(&match_data, &match_id).await
-            }
-            Err(e) => {
-                error!("gRPC upsert failed for match {match_id}: {e}");
-                Err(arenabuddy_core::Error::Io(format!("gRPC upsert failed: {e}")))
             }
         }
     }
