@@ -1077,53 +1077,58 @@ impl DraftWriter for PostgresMatchDB {
 impl AuthRepository for PostgresMatchDB {
     #[instrument(skip(self, avatar_url))]
     async fn upsert_user(&self, discord_id: &str, username: &str, avatar_url: Option<&str>) -> Result<Uuid> {
-        let row: (Uuid,) = sqlx::query_as(
-            r"
+        let row = sqlx::query!(
+            r#"
             INSERT INTO app_user (discord_id, username, avatar_url)
             VALUES ($1, $2, $3)
             ON CONFLICT (discord_id)
             DO UPDATE SET username = excluded.username, avatar_url = excluded.avatar_url, updated_at = now()
             RETURNING id
-            ",
+            "#,
+            discord_id,
+            username,
+            avatar_url
         )
-        .bind(discord_id)
-        .bind(username)
-        .bind(avatar_url)
         .fetch_one(&self.pool)
         .await?;
 
-        Ok(row.0)
+        Ok(row.id)
     }
 
     #[instrument(skip(self))]
     async fn get_user(&self, user_id: Uuid) -> Result<Option<AppUser>> {
-        let row: Option<AppUser> =
-            sqlx::query_as("SELECT id, discord_id, username, avatar_url FROM app_user WHERE id = $1")
-                .bind(user_id)
-                .fetch_optional(&self.pool)
-                .await?;
+        let row = sqlx::query_as!(
+            AppUser,
+            r#"SELECT id, discord_id, username, avatar_url FROM app_user WHERE id = $1"#,
+            user_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
 
         Ok(row)
     }
 
     #[instrument(skip(self, token_hash))]
     async fn create_refresh_token(&self, user_id: Uuid, token_hash: &[u8], expires_at: DateTime<Utc>) -> Result<()> {
-        sqlx::query("INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, $3)")
-            .bind(user_id)
-            .bind(token_hash)
-            .bind(expires_at)
-            .execute(&self.pool)
-            .await?;
+        sqlx::query!(
+            r#"INSERT INTO refresh_token (user_id, token_hash, expires_at) VALUES ($1, $2, $3)"#,
+            user_id,
+            token_hash,
+            expires_at
+        )
+        .execute(&self.pool)
+        .await?;
 
         Ok(())
     }
 
     #[instrument(skip(self, token_hash))]
     async fn find_refresh_token(&self, token_hash: &[u8]) -> Result<Option<RefreshToken>> {
-        let row: Option<RefreshToken> = sqlx::query_as(
-            "SELECT id, user_id, revoked FROM refresh_token WHERE token_hash = $1 AND expires_at > now()",
+        let row = sqlx::query_as!(
+            RefreshToken,
+            r#"SELECT id, user_id, revoked FROM refresh_token WHERE token_hash = $1 AND expires_at > now()"#,
+            token_hash
         )
-        .bind(token_hash)
         .fetch_optional(&self.pool)
         .await?;
 
@@ -1132,8 +1137,7 @@ impl AuthRepository for PostgresMatchDB {
 
     #[instrument(skip(self))]
     async fn revoke_refresh_token(&self, token_id: Uuid) -> Result<()> {
-        sqlx::query("UPDATE refresh_token SET revoked = true WHERE id = $1")
-            .bind(token_id)
+        sqlx::query!(r#"UPDATE refresh_token SET revoked = true WHERE id = $1"#, token_id)
             .execute(&self.pool)
             .await?;
 
@@ -1142,20 +1146,24 @@ impl AuthRepository for PostgresMatchDB {
 
     #[instrument(skip(self, token_hash))]
     async fn revoke_refresh_token_by_hash(&self, token_hash: &[u8]) -> Result<()> {
-        sqlx::query("UPDATE refresh_token SET revoked = true WHERE token_hash = $1 AND revoked = false")
-            .bind(token_hash)
-            .execute(&self.pool)
-            .await?;
+        sqlx::query!(
+            r#"UPDATE refresh_token SET revoked = true WHERE token_hash = $1 AND revoked = false"#,
+            token_hash
+        )
+        .execute(&self.pool)
+        .await?;
 
         Ok(())
     }
 
     #[instrument(skip(self))]
     async fn cleanup_expired_tokens(&self, user_id: Uuid) -> Result<()> {
-        sqlx::query("DELETE FROM refresh_token WHERE user_id = $1 AND expires_at < now()")
-            .bind(user_id)
-            .execute(&self.pool)
-            .await?;
+        sqlx::query!(
+            r#"DELETE FROM refresh_token WHERE user_id = $1 AND expires_at < now()"#,
+            user_id
+        )
+        .execute(&self.pool)
+        .await?;
 
         Ok(())
     }
@@ -1170,12 +1178,14 @@ impl DebugRepository for PostgresMatchDB {
         raw_json: &str,
         reported_at: DateTime<Utc>,
     ) -> Result<()> {
-        sqlx::query("INSERT INTO parse_error (user_id, raw_json, reported_at) VALUES ($1, $2, $3)")
-            .bind(user_id)
-            .bind(raw_json)
-            .bind(reported_at)
-            .execute(&self.pool)
-            .await?;
+        sqlx::query!(
+            r#"INSERT INTO parse_error (user_id, raw_json, reported_at) VALUES ($1, $2, $3)"#,
+            user_id,
+            raw_json,
+            reported_at
+        )
+        .execute(&self.pool)
+        .await?;
 
         Ok(())
     }

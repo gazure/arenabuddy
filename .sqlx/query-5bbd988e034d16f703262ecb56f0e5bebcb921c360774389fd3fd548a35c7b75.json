@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM refresh_token WHERE user_id = $1 AND expires_at < now()",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5bbd988e034d16f703262ecb56f0e5bebcb921c360774389fd3fd548a35c7b75"
+}
