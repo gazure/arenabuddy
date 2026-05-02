@@ -1140,24 +1140,14 @@ impl AuthRepository for PostgresMatchDB {
         Ok(())
     }
 
-    #[instrument(skip(self))]
-    async fn revoke_all_user_tokens(&self, user_id: Uuid) -> Result<()> {
-        sqlx::query("UPDATE refresh_token SET revoked = true WHERE user_id = $1")
-            .bind(user_id)
+    #[instrument(skip(self, token_hash))]
+    async fn revoke_refresh_token_by_hash(&self, token_hash: &[u8]) -> Result<()> {
+        sqlx::query("UPDATE refresh_token SET revoked = true WHERE token_hash = $1 AND revoked = false")
+            .bind(token_hash)
             .execute(&self.pool)
             .await?;
 
         Ok(())
-    }
-
-    #[instrument(skip(self, token_hash))]
-    async fn find_token_owner(&self, token_hash: &[u8]) -> Result<Option<Uuid>> {
-        let row: Option<(Uuid,)> = sqlx::query_as("SELECT user_id FROM refresh_token WHERE token_hash = $1")
-            .bind(token_hash)
-            .fetch_optional(&self.pool)
-            .await?;
-
-        Ok(row.map(|(user_id,)| user_id))
     }
 
     #[instrument(skip(self))]

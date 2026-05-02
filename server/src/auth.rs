@@ -180,15 +180,11 @@ impl AuthServiceImpl {
             Status::unauthenticated("invalid or expired refresh token")
         })?;
 
-        // Reuse detection: if the token was already revoked, someone may have stolen it.
-        // Revoke ALL tokens for this user as a precaution.
+        // Reuse detection: token was already rotated or this session was logged out.
+        // Do not revoke other devices' sessions — only reject this request (same as unknown token).
         if row.revoked {
-            error!("Revoked refresh token reuse detected for user {}", row.user_id);
-            self.db.revoke_all_user_tokens(row.user_id).await.map_err(|e| {
-                error!("Failed to revoke all tokens for user {}: {e}", row.user_id);
-                Status::internal("failed to revoke tokens")
-            })?;
-            return Err(Status::unauthenticated("token reuse detected"));
+            info!("Rejected refresh using revoked token for user {}", row.user_id);
+            return Err(Status::unauthenticated("invalid or expired refresh token"));
         }
 
         // Revoke the old token
@@ -362,19 +358,11 @@ impl AuthService for AuthServiceImpl {
 
         let token_hash = hash_token(&req.refresh_token);
 
-        // Find the user who owns this token and revoke all their tokens
-        let user_id = self.db.find_token_owner(&token_hash).await.map_err(|e| {
-            error!("Failed to look up refresh token for logout: {e}");
+        // Revoke only this refresh token so other devices stay signed in.
+        self.db.revoke_refresh_token_by_hash(&token_hash).await.map_err(|e| {
+            error!("Failed to revoke refresh token for logout: {e}");
             Status::internal("failed to process logout")
         })?;
-
-        if let Some(user_id) = user_id {
-            self.db.revoke_all_user_tokens(user_id).await.map_err(|e| {
-                error!("Failed to revoke all tokens for user {user_id}: {e}");
-                Status::internal("failed to revoke tokens")
-            })?;
-            info!("Revoked all refresh tokens for user {user_id}");
-        }
 
         Ok(Response::new(LogoutResponse {}))
     }

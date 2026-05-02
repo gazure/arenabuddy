@@ -11,7 +11,7 @@ pub trait AuthRepository: Send + Sync + 'static {
     async fn create_refresh_token(&self, user_id: Uuid, token_hash: &[u8], expires_at: DateTime<Utc>) -> Result<()>;
     async fn find_refresh_token(&self, token_hash: &[u8]) -> Result<Option<RefreshToken>>;
     async fn revoke_refresh_token(&self, token_id: Uuid) -> Result<()>;
-    async fn revoke_all_user_tokens(&self, user_id: Uuid) -> Result<()>;
-    async fn find_token_owner(&self, token_hash: &[u8]) -> Result<Option<Uuid>>;
+    /// Revokes the refresh token row matching `token_hash` (including expired rows). Idempotent.
+    async fn revoke_refresh_token_by_hash(&self, token_hash: &[u8]) -> Result<()>;
     async fn cleanup_expired_tokens(&self, user_id: Uuid) -> Result<()>;
 }
