@@ -1,4 +1,6 @@
 pub mod auth_repository;
+mod card_postgres;
+pub mod card_repository;
 pub mod debug_repository;
 pub mod metagame_models;
 mod metagame_postgres;
@@ -8,6 +10,7 @@ mod postgres;
 mod repository;
 
 pub use auth_repository::AuthRepository;
+pub use card_repository::CardRepository;
 pub use debug_repository::DebugRepository;
 pub use metagame_repository::MetagameRepository;
 pub use models::{AppUser, RefreshToken};

@@ -65,6 +65,15 @@ pub enum Commands {
         command: MetagameCommands,
     },
 
+    /// Load card data into the database from a protobuf file or embedded defaults
+    LoadCards {
+        #[arg(short, long, help = "Path to cards protobuf file (uses embedded default if omitted)")]
+        cards_db: Option<PathBuf>,
+
+        #[arg(long, env = "ARENABUDDY_DATABASE_URL", help = "PostgreSQL database URL")]
+        db: String,
+    },
+
     /// Generate a structured event log from a Player.log file
     EventLog {
         #[arg(short, long, help = "Location of Player.log file")]
