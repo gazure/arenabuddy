@@ -26,6 +26,6 @@ SQLX_OFFLINE=true cargo test -p <crate>
 
 - The `data` crate uses `sqlx.toml` with `database-url-var = "ARENABUDDY_DATABASE_URL"` (not the standard `DATABASE_URL`). For offline mode set `SQLX_OFFLINE=true`.
 - Rust edition 2024 requires `rust-version = "1.94"`. The snapshot has stable 1.94+ and nightly installed.
-- The desktop app (`arenabuddy` crate) and web app (`web` crate) use Dioxus 0.7.3. Building them with `dx serve` requires the Dioxus CLI, but `cargo check`/`clippy`/`test` work without it.
+- The desktop app (`arenabuddy` crate) and web app (`web` crate) use Dioxus 0.7.7. Building them with `dx serve` requires the Dioxus CLI, but `cargo check`/`clippy`/`test` work without it.
 - The server requires PostgreSQL, Discord OAuth credentials, and a JWT secret to run. For compile/test, `SQLX_OFFLINE=true` is sufficient.
 - Integration tests for `arenabuddy_data` may attempt to start an embedded PostgreSQL; this is handled by the `postgresql_embedded` crate with the `bundled` feature.
