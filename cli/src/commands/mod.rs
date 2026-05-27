@@ -1,3 +1,4 @@
+pub mod deck;
 pub mod definitions;
 pub mod event_log;
 pub mod metagame;
@@ -7,4 +8,4 @@ pub mod scrape;
 pub mod scrape_mtga;
 pub mod scryfall;
 
-pub use definitions::Commands;
+pub use definitions::{Commands, DeckCommands};

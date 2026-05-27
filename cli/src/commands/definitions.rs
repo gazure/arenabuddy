@@ -79,6 +79,51 @@ pub enum Commands {
         #[arg(long, help = "Filter to a specific game number")]
         game: Option<i32>,
     },
+
+    /// Pretty-print decks from Postgres or JSON Arena card ID lists
+    Deck {
+        #[command(subcommand)]
+        command: DeckCommands,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum DeckCommands {
+    /// Print a deck using `DeckDisplayRecord` names (Protobuf card DB)
+    Show {
+        #[arg(
+            short = 'c',
+            long,
+            default_value = "data/cards-full.pb",
+            help = "Protobuf card database (same as parse --cards-db)"
+        )]
+        cards_db: PathBuf,
+
+        #[arg(
+            long,
+            env = "ARENABUDDY_DATABASE_URL",
+            help = "PostgreSQL URL (required with --match-id)"
+        )]
+        db: Option<String>,
+
+        #[arg(long, conflicts_with_all = ["clipboard", "main", "input"], help = "Match UUID (controller rows in `deck` table)")]
+        match_id: Option<String>,
+
+        #[arg(long, help = "Game number (`deck.game_number`); omit to print every game")]
+        game: Option<i32>,
+
+        #[arg(long, conflicts_with_all = ["match_id", "main", "input"], help = "Deck JSON from macOS clipboard (`pbpaste`)")]
+        clipboard: bool,
+
+        #[arg(value_name = "FILE", conflicts_with_all = ["match_id", "clipboard", "main"], help = "Deck JSON file, or `-` for stdin")]
+        input: Option<PathBuf>,
+
+        #[arg(long, conflicts_with_all = ["match_id", "clipboard", "input"], help = "Mainboard as JSON integer array")]
+        main: Option<String>,
+
+        #[arg(long, requires = "main", help = "Sideboard as JSON integer array")]
+        side: Option<String>,
+    },
 }
 
 #[derive(Debug, Subcommand)]
