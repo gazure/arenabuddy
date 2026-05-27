@@ -4,7 +4,7 @@ use clap::Parser;
 mod commands;
 mod errors;
 
-use commands::Commands;
+use commands::{Commands, DeckCommands};
 pub use errors::{Error, ParseError, Result};
 
 #[derive(Debug, Parser)]
@@ -80,6 +80,31 @@ pub async fn run() -> Result<()> {
         } => {
             commands::event_log::execute(player_log, cards_db.as_ref(), output.as_ref(), *game).await?;
         }
+
+        Commands::Deck { command } => match command {
+            DeckCommands::Show {
+                cards_db,
+                db,
+                match_id,
+                game,
+                clipboard,
+                input,
+                main,
+                side,
+            } => {
+                commands::deck::show(commands::deck::DeckShowOpts {
+                    cards_db: cards_db.as_path(),
+                    db_url: db.as_deref(),
+                    match_id: match_id.as_deref(),
+                    game: *game,
+                    input: input.as_ref().map(std::path::PathBuf::as_path),
+                    clipboard: *clipboard,
+                    main: main.as_deref(),
+                    side: side.as_deref(),
+                })
+                .await?;
+            }
+        },
     }
 
     Ok(())

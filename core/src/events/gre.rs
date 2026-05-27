@@ -441,6 +441,8 @@ pub enum GameObjectType {
     RoomRight,
     #[serde(rename = "GameObjectType_SplitLeft")]
     SplitLeft,
+    #[serde(rename = "GameObjectType_SplitRight")]
+    SplitRight,
     #[serde(rename = "GameObjectType_Omen")]
     Omen,
     #[serde(rename = "GameObjectType_Emblem")]
