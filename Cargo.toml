@@ -57,7 +57,7 @@ reqwest = { version = "0.13.4", features = [
     "query",
     "default-tls",
 ] }
-rusqlite = { version = "=0.36", features = ["bundled"] }
+rusqlite = { version = "=0.39", features = ["bundled"] }
 rustyline = "18.0.0"
 scraper = "0.27.0"
 serde = { version = "1.0.228", features = ["derive"] }
