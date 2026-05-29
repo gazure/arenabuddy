@@ -136,3 +136,115 @@ fn parse_event_id(event_id: &str) -> (Format, String) {
 
     (Format::parse_format(parts[0]), parts[1].to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::Format;
+
+    #[test]
+    fn parse_event_id_premier_draft() {
+        let (format, set_code) = parse_event_id("PremierDraft_FDN_20250101");
+        assert_eq!(format, Format::PremierDraft);
+        assert_eq!(set_code, "FDN");
+    }
+
+    #[test]
+    fn parse_event_id_quick_draft() {
+        let (format, set_code) = parse_event_id("QuickDraft_DSK_20241015");
+        assert_eq!(format, Format::QuickDraft);
+        assert_eq!(set_code, "DSK");
+    }
+
+    #[test]
+    fn parse_event_id_traditional_draft() {
+        let (format, set_code) = parse_event_id("TraditionalDraft_MKM_20240301");
+        assert_eq!(format, Format::TraditionalDraft);
+        assert_eq!(set_code, "MKM");
+    }
+
+    #[test]
+    fn parse_event_id_pick_two_draft() {
+        let (format, set_code) = parse_event_id("PickTwoDraft_BLB_20240801");
+        assert_eq!(format, Format::PickTwoDraft);
+        assert_eq!(set_code, "BLB");
+    }
+
+    #[test]
+    fn parse_event_id_too_few_parts() {
+        let (format, set_code) = parse_event_id("PremierDraft_FDN");
+        assert_eq!(format, Format::TraditionalDraft); // default
+        assert_eq!(set_code, "");
+    }
+
+    #[test]
+    fn parse_event_id_too_many_parts() {
+        let (format, set_code) = parse_event_id("a_b_c_d");
+        assert_eq!(format, Format::TraditionalDraft); // default
+        assert_eq!(set_code, "");
+    }
+
+    #[test]
+    fn parse_event_id_empty() {
+        let (format, set_code) = parse_event_id("");
+        assert_eq!(format, Format::TraditionalDraft); // default
+        assert_eq!(set_code, "");
+    }
+
+    #[test]
+    fn parse_event_id_unknown_format() {
+        let (format, set_code) = parse_event_id("CubeDraft_VOW_20220101");
+        assert_eq!(format, Format::Other);
+        assert_eq!(set_code, "VOW");
+    }
+
+    #[test]
+    fn finish_draft_regular_format_needs_pack3_pick13() {
+        let mut builder = DraftBuilder::new();
+        assert!(!builder.finish_draft(Format::PremierDraft));
+
+        let pp = PackPick(3, 13);
+        builder.packs.entry(pp).or_default().push(RawPack {
+            pack_number: 3,
+            pick_number: 13,
+            card_id: ArenaId::new(1),
+            cards: vec![],
+        });
+        assert!(builder.finish_draft(Format::PremierDraft));
+    }
+
+    #[test]
+    fn finish_draft_pick_two_needs_pack3_pick7_twice() {
+        let mut builder = DraftBuilder::new();
+        let pp = PackPick(3, 7);
+
+        builder.packs.entry(pp).or_default().push(RawPack {
+            pack_number: 3,
+            pick_number: 7,
+            card_id: ArenaId::new(1),
+            cards: vec![],
+        });
+        assert!(!builder.finish_draft(Format::PickTwoDraft), "need 2 picks");
+
+        builder.packs.entry(pp).or_default().push(RawPack {
+            pack_number: 3,
+            pick_number: 7,
+            card_id: ArenaId::new(2),
+            cards: vec![],
+        });
+        assert!(builder.finish_draft(Format::PickTwoDraft));
+    }
+
+    #[test]
+    fn finish_draft_wrong_pack_pick_returns_false() {
+        let mut builder = DraftBuilder::new();
+        let pp = PackPick(2, 13);
+        builder.packs.entry(pp).or_default().push(RawPack {
+            pack_number: 2,
+            pick_number: 13,
+            card_id: ArenaId::new(1),
+            cards: vec![],
+        });
+        assert!(!builder.finish_draft(Format::PremierDraft));
+    }
+}

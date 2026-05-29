@@ -345,3 +345,404 @@ fn zone_transfer_display(card: &CardRef, from_zone: &str, to_zone: &str, categor
         },
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::ArenaId;
+
+    fn named_card(name: &str) -> CardRef {
+        CardRef {
+            instance_id: 1,
+            arena_id: Some(ArenaId::new(100)),
+            name: Some(name.to_string()),
+        }
+    }
+
+    fn unnamed_card_with_arena_id(arena_id: i32) -> CardRef {
+        CardRef {
+            instance_id: 42,
+            arena_id: Some(ArenaId::new(arena_id)),
+            name: None,
+        }
+    }
+
+    fn unnamed_card_instance_only(instance_id: i32) -> CardRef {
+        CardRef {
+            instance_id,
+            arena_id: None,
+            name: None,
+        }
+    }
+
+    fn named_player(name: &str, seat: i32) -> PlayerRef {
+        PlayerRef {
+            seat_id: seat,
+            name: Some(name.to_string()),
+        }
+    }
+
+    fn anonymous_player(seat: i32) -> PlayerRef {
+        PlayerRef {
+            seat_id: seat,
+            name: None,
+        }
+    }
+
+    // -- card_display ---------------------------------------------------------
+
+    #[test]
+    fn card_display_with_name() {
+        assert_eq!(card_display(&named_card("Lightning Bolt")), "Lightning Bolt");
+    }
+
+    #[test]
+    fn card_display_fallback_to_arena_id() {
+        assert_eq!(card_display(&unnamed_card_with_arena_id(12345)), "Card #12345");
+    }
+
+    #[test]
+    fn card_display_fallback_to_instance_id() {
+        assert_eq!(card_display(&unnamed_card_instance_only(99)), "#99");
+    }
+
+    // -- player_display -------------------------------------------------------
+
+    #[test]
+    fn player_display_with_name() {
+        assert_eq!(player_display(&named_player("Alice", 1)), "Alice");
+    }
+
+    #[test]
+    fn player_display_without_name() {
+        assert_eq!(player_display(&anonymous_player(2)), "Player 2");
+    }
+
+    // -- damage_target_display ------------------------------------------------
+
+    #[test]
+    fn damage_target_player() {
+        let target = DamageTarget::Player {
+            player: named_player("Bob", 2),
+        };
+        assert_eq!(damage_target_display(&target), "Bob");
+    }
+
+    #[test]
+    fn damage_target_permanent() {
+        let target = DamageTarget::Permanent {
+            card: named_card("Grizzly Bears"),
+        };
+        assert_eq!(damage_target_display(&target), "Grizzly Bears");
+    }
+
+    // -- action_type_verb -----------------------------------------------------
+
+    #[test]
+    fn action_type_verb_cast_variants() {
+        for variant in [
+            "Cast",
+            "CastAdventure",
+            "CastLeftRoom",
+            "CastRightRoom",
+            "CastLeft",
+            "CastRight",
+            "CastOmen",
+        ] {
+            assert_eq!(action_type_verb(variant), "casts", "failed for {variant}");
+        }
+    }
+
+    #[test]
+    fn action_type_verb_activate() {
+        assert_eq!(action_type_verb("Activate"), "activates");
+    }
+
+    #[test]
+    fn action_type_verb_special() {
+        assert_eq!(action_type_verb("Special"), "uses special ability on");
+        assert_eq!(action_type_verb("SpecialTurnFaceUp"), "uses special ability on");
+    }
+
+    #[test]
+    fn action_type_verb_unknown_defaults_to_plays() {
+        assert_eq!(action_type_verb("SomethingNew"), "plays");
+        assert_eq!(action_type_verb("Play"), "plays");
+    }
+
+    // -- category_contains ----------------------------------------------------
+
+    #[test]
+    fn category_contains_case_insensitive() {
+        assert!(category_contains(Some("CounterSpell"), "counter"));
+        assert!(category_contains(Some("DESTROY"), "destroy"));
+    }
+
+    #[test]
+    fn category_contains_none() {
+        assert!(!category_contains(None, "counter"));
+    }
+
+    // -- zone_transfer_display ------------------------------------------------
+
+    #[test]
+    fn zone_transfer_hand_to_stack_is_cast() {
+        let d = zone_transfer_display(&named_card("Bolt"), "Hand", "Stack", None);
+        assert!(d.description.contains("is cast"));
+        assert_eq!(d.style, ActionStyle::Normal);
+    }
+
+    #[test]
+    fn zone_transfer_library_to_hand_is_drawn() {
+        let d = zone_transfer_display(&named_card("Island"), "Library", "Hand", None);
+        assert!(d.description.contains("drawn"));
+    }
+
+    #[test]
+    fn zone_transfer_stack_to_battlefield_enters() {
+        let d = zone_transfer_display(&named_card("Bear"), "Stack", "Battlefield", None);
+        assert!(d.description.contains("enters the battlefield"));
+    }
+
+    #[test]
+    fn zone_transfer_stack_to_graveyard_countered() {
+        let d = zone_transfer_display(&named_card("Spell"), "Stack", "Graveyard", Some("CounterSpell"));
+        assert!(d.description.contains("is countered"));
+        assert_eq!(d.style, ActionStyle::Negative);
+    }
+
+    #[test]
+    fn zone_transfer_stack_to_graveyard_resolves() {
+        let d = zone_transfer_display(&named_card("Bolt"), "Stack", "Graveyard", None);
+        assert!(d.description.contains("resolves"));
+    }
+
+    #[test]
+    fn zone_transfer_battlefield_to_graveyard_destroyed() {
+        let d = zone_transfer_display(&named_card("Creature"), "Battlefield", "Graveyard", Some("Destroy"));
+        assert!(d.description.contains("is destroyed"));
+    }
+
+    #[test]
+    fn zone_transfer_battlefield_to_graveyard_sacrificed() {
+        let d = zone_transfer_display(&named_card("Token"), "Battlefield", "Graveyard", Some("Sacrifice"));
+        assert!(d.description.contains("is sacrificed"));
+    }
+
+    #[test]
+    fn zone_transfer_battlefield_to_graveyard_dies() {
+        let d = zone_transfer_display(&named_card("Creature"), "Battlefield", "Graveyard", None);
+        assert!(d.description.contains("dies"));
+    }
+
+    #[test]
+    fn zone_transfer_hand_to_graveyard_discarded() {
+        let d = zone_transfer_display(&named_card("Card"), "Hand", "Graveyard", None);
+        assert!(d.description.contains("discarded"));
+    }
+
+    #[test]
+    fn zone_transfer_battlefield_to_hand_bounced() {
+        let d = zone_transfer_display(&named_card("Perm"), "Battlefield", "Hand", None);
+        assert!(d.description.contains("returned to hand"));
+    }
+
+    #[test]
+    fn zone_transfer_battlefield_to_library_tucked() {
+        let d = zone_transfer_display(&named_card("Card"), "Battlefield", "Library", None);
+        assert!(d.description.contains("put on top of library"));
+    }
+
+    #[test]
+    fn zone_transfer_library_to_battlefield_ramp() {
+        let d = zone_transfer_display(&named_card("Land"), "Library", "Battlefield", None);
+        assert!(d.description.contains("enters the battlefield from library"));
+    }
+
+    #[test]
+    fn zone_transfer_library_to_graveyard_milled() {
+        let d = zone_transfer_display(&named_card("Card"), "Library", "Graveyard", None);
+        assert!(d.description.contains("milled"));
+    }
+
+    #[test]
+    fn zone_transfer_graveyard_to_battlefield_recursion() {
+        let d = zone_transfer_display(&named_card("Phoenix"), "Graveyard", "Battlefield", None);
+        assert!(d.description.contains("returns from graveyard"));
+        assert_eq!(d.style, ActionStyle::Positive);
+    }
+
+    #[test]
+    fn zone_transfer_graveyard_to_hand() {
+        let d = zone_transfer_display(&named_card("Card"), "Graveyard", "Hand", None);
+        assert!(d.description.contains("returned to hand from graveyard"));
+        assert_eq!(d.style, ActionStyle::Positive);
+    }
+
+    #[test]
+    fn zone_transfer_exile_to_battlefield() {
+        let d = zone_transfer_display(&named_card("Card"), "Exile", "Battlefield", None);
+        assert!(d.description.contains("enters the battlefield from exile"));
+        assert_eq!(d.style, ActionStyle::Positive);
+    }
+
+    #[test]
+    fn zone_transfer_exile_to_hand() {
+        let d = zone_transfer_display(&named_card("Card"), "Exile", "Hand", None);
+        assert!(d.description.contains("returned to hand from exile"));
+    }
+
+    #[test]
+    fn zone_transfer_anything_to_exile() {
+        let d = zone_transfer_display(&named_card("Creature"), "Battlefield", "Exile", None);
+        assert!(d.description.contains("is exiled"));
+        assert_eq!(d.style, ActionStyle::Negative);
+    }
+
+    #[test]
+    fn zone_transfer_fallback_shows_raw_zones() {
+        let d = zone_transfer_display(&named_card("Card"), "Limbo", "Sideboard", None);
+        assert!(d.description.contains("Limbo"));
+        assert!(d.description.contains("Sideboard"));
+    }
+
+    // -- ActionDisplay::from_game_action --------------------------------------
+
+    #[test]
+    fn from_game_action_new_turn_returns_none() {
+        let action = GameAction::NewTurn {
+            turn_number: 1,
+            active_player: named_player("Alice", 1),
+        };
+        assert!(ActionDisplay::from_game_action(&action, 1).is_none());
+    }
+
+    #[test]
+    fn from_game_action_phase_change() {
+        let action = GameAction::PhaseChange {
+            phase: crate::events::primitives::Phase::Combat,
+            step: Some(crate::events::primitives::Step::DeclareAttack),
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Phase);
+        assert!(display.description.contains("Combat"));
+    }
+
+    #[test]
+    fn from_game_action_card_played_by_controller() {
+        let action = GameAction::CardPlayed {
+            player: named_player("Me", 1),
+            card: named_card("Lightning Bolt"),
+            action_type: "Cast".to_string(),
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::PlayerAction);
+        assert!(display.description.contains("casts"));
+        assert!(display.description.contains("Lightning Bolt"));
+    }
+
+    #[test]
+    fn from_game_action_card_played_by_opponent() {
+        let action = GameAction::CardPlayed {
+            player: named_player("Opp", 2),
+            card: named_card("Counterspell"),
+            action_type: "Cast".to_string(),
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::OpponentAction);
+    }
+
+    #[test]
+    fn from_game_action_life_gained() {
+        let action = GameAction::LifeChanged {
+            player: named_player("Alice", 1),
+            old_total: 20,
+            new_total: 23,
+            change: 3,
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Positive);
+        assert!(display.description.contains("+3"));
+    }
+
+    #[test]
+    fn from_game_action_life_lost() {
+        let action = GameAction::LifeChanged {
+            player: named_player("Alice", 1),
+            old_total: 20,
+            new_total: 17,
+            change: -3,
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Negative);
+        assert!(display.description.contains("-3"));
+    }
+
+    #[test]
+    fn from_game_action_damage_dealt() {
+        let action = GameAction::DamageDealt {
+            source: named_card("Bolt"),
+            target: DamageTarget::Player {
+                player: named_player("Opp", 2),
+            },
+            amount: 3,
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Damage);
+        assert!(display.description.contains("3 damage"));
+    }
+
+    #[test]
+    fn from_game_action_game_over() {
+        let action = GameAction::GameOver {
+            losing_player: named_player("Opp", 2),
+            reason: Some("life total".to_string()),
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Emphasized);
+        assert!(display.description.contains("loses"));
+        assert!(display.description.contains("life total"));
+    }
+
+    #[test]
+    fn from_game_action_concede() {
+        let action = GameAction::PlayerConceded {
+            player: named_player("Opp", 2),
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Emphasized);
+        assert!(display.description.contains("concedes"));
+    }
+
+    #[test]
+    fn from_game_action_counter_added() {
+        let action = GameAction::CounterAdded {
+            card: named_card("Hydra"),
+            counter_type: Some("+1/+1".to_string()),
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Positive);
+        assert!(display.description.contains("+1/+1 counter"));
+    }
+
+    #[test]
+    fn from_game_action_counter_removed_generic() {
+        let action = GameAction::CounterRemoved {
+            card: named_card("Saga"),
+            counter_type: None,
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert_eq!(display.style, ActionStyle::Negative);
+        assert!(display.description.contains("counter"));
+    }
+
+    #[test]
+    fn from_game_action_token_created() {
+        let action = GameAction::TokenCreated {
+            card: named_card("Soldier Token"),
+            controller: named_player("Me", 1),
+        };
+        let display = ActionDisplay::from_game_action(&action, 1).expect("should produce display");
+        assert!(display.description.contains("creates token"));
+    }
+}

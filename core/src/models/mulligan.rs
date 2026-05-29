@@ -127,3 +127,129 @@ impl Mulligan {
         serde_json::from_str(&self.hand).unwrap_or_default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_mulligan(decision: &str, play_draw: &str, hand: &str) -> Mulligan {
+        Mulligan::new("match_123", 1, 7, hand, play_draw, "UW", decision)
+    }
+
+    #[test]
+    fn did_keep_true() {
+        assert!(make_mulligan("Keep", "Play", "").did_keep());
+    }
+
+    #[test]
+    fn did_keep_case_insensitive() {
+        assert!(make_mulligan("keep", "Play", "").did_keep());
+        assert!(make_mulligan("KEEP", "Play", "").did_keep());
+    }
+
+    #[test]
+    fn did_keep_false_for_mulligan() {
+        assert!(!make_mulligan("Mulligan", "Play", "").did_keep());
+    }
+
+    #[test]
+    fn did_mulligan_true() {
+        assert!(make_mulligan("Mulligan", "Play", "").did_mulligan());
+    }
+
+    #[test]
+    fn did_mulligan_case_insensitive() {
+        assert!(make_mulligan("mulligan", "Play", "").did_mulligan());
+    }
+
+    #[test]
+    fn did_mulligan_false_for_keep() {
+        assert!(!make_mulligan("Keep", "Play", "").did_mulligan());
+    }
+
+    #[test]
+    fn is_on_play() {
+        assert!(make_mulligan("Keep", "Play", "").is_on_play());
+        assert!(make_mulligan("Keep", "play", "").is_on_play());
+    }
+
+    #[test]
+    fn is_on_play_false_for_draw() {
+        assert!(!make_mulligan("Keep", "Draw", "").is_on_play());
+    }
+
+    #[test]
+    fn is_on_draw() {
+        assert!(make_mulligan("Keep", "Draw", "").is_on_draw());
+        assert!(make_mulligan("Keep", "draw", "").is_on_draw());
+    }
+
+    #[test]
+    fn is_on_draw_false_for_play() {
+        assert!(!make_mulligan("Keep", "Play", "").is_on_draw());
+    }
+
+    #[test]
+    fn initial_hand_size_parses_json() {
+        let m = make_mulligan("Keep", "Play", "[1,2,3,4,5,6,7]");
+        assert_eq!(m.initial_hand_size(), 7);
+    }
+
+    #[test]
+    fn initial_hand_size_empty_array() {
+        let m = make_mulligan("Keep", "Play", "[]");
+        assert_eq!(m.initial_hand_size(), 0);
+    }
+
+    #[test]
+    fn initial_hand_size_invalid_json() {
+        let m = make_mulligan("Keep", "Play", "not json");
+        assert_eq!(m.initial_hand_size(), 0);
+    }
+
+    #[test]
+    fn initial_hand_size_csv_format() {
+        let m = make_mulligan("Keep", "Play", "100,200,300");
+        assert_eq!(m.initial_hand_size(), 0);
+    }
+
+    #[test]
+    fn hand_cards_parses_json() {
+        let m = make_mulligan("Keep", "Play", "[10,20,30]");
+        assert_eq!(m.hand_cards(), vec![10, 20, 30]);
+    }
+
+    #[test]
+    fn hand_cards_invalid_returns_empty() {
+        let m = make_mulligan("Keep", "Play", "invalid");
+        assert!(m.hand_cards().is_empty());
+    }
+
+    #[test]
+    fn accessors_return_correct_values() {
+        let m = Mulligan::new("match_1", 2, 6, "hand_str", "Draw", "RG", "Mulligan");
+        assert_eq!(m.match_id(), "match_1");
+        assert_eq!(m.game_number(), 2);
+        assert_eq!(m.number_to_keep(), 6);
+        assert_eq!(m.hand(), "hand_str");
+        assert_eq!(m.play_draw(), "Draw");
+        assert_eq!(m.opponent_identity(), "RG");
+        assert_eq!(m.decision(), "Mulligan");
+    }
+
+    #[test]
+    fn builder_works() {
+        let m = MulliganBuilder::default()
+            .match_id("m1")
+            .game_number(1)
+            .number_to_keep(7)
+            .hand("[1,2,3]")
+            .play_draw("Play")
+            .opponent_identity("UB")
+            .decision("Keep")
+            .build()
+            .expect("builder should succeed");
+        assert_eq!(m.match_id(), "m1");
+        assert!(m.did_keep());
+    }
+}

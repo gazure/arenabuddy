@@ -38,7 +38,7 @@ impl PlayerLogProcessor {
 
     // try to find the json strings in the logs. ignoring all other info
     // purges whitespace from the internal json strings, but I don't think that will cause
-    // any issues given the log entries I've read
+    // any issues given the log entries seen
     pub fn process_line(&mut self, log_line: &str) -> Vec<String> {
         let mut completed_json_strings = Vec::new();
         log_line.chars().for_each(|char| match char {
@@ -133,5 +133,109 @@ pub fn parse(event: &str) -> Result<ParseOutput> {
         Ok(ParseOutput::DraftNotify(draft_event))
     } else {
         Ok(ParseOutput::NoEvent)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::VecDeque;
+
+    use tokio::{fs::File, io::BufReader};
+
+    use super::*;
+
+    async fn make_processor() -> PlayerLogProcessor {
+        let tmp = std::env::temp_dir().join("arenabuddy_test_empty.log");
+        tokio::fs::write(&tmp, b"").await.expect("write temp file");
+        PlayerLogProcessor {
+            player_log_reader: BufReader::new(File::open(&tmp).await.expect("open temp file")),
+            json_events: VecDeque::new(),
+            current_json_str: None,
+            bracket_depth: 0,
+        }
+    }
+
+    // -- process_line tests ---------------------------------------------------
+
+    #[tokio::test]
+    async fn process_line_extracts_single_json_object() {
+        let mut proc = make_processor().await;
+        let result = proc.process_line(r#"some log prefix {"key":"value"} trailing"#);
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], r#"{"key":"value"}"#);
+    }
+
+    #[tokio::test]
+    async fn process_line_extracts_multiple_json_objects() {
+        let mut proc = make_processor().await;
+        let result = proc.process_line(r#"{"a":1} noise {"b":2}"#);
+        assert_eq!(result.len(), 2);
+        assert_eq!(result[0], r#"{"a":1}"#);
+        assert_eq!(result[1], r#"{"b":2}"#);
+    }
+
+    #[tokio::test]
+    async fn process_line_handles_nested_braces() {
+        let mut proc = make_processor().await;
+        let result = proc.process_line(r#"{"outer":{"inner":1}}"#);
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], r#"{"outer":{"inner":1}}"#);
+    }
+
+    #[tokio::test]
+    async fn process_line_strips_whitespace() {
+        let mut proc = make_processor().await;
+        let result = proc.process_line(r#"{ "key" : "value" }"#);
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], r#"{"key":"value"}"#);
+    }
+
+    #[tokio::test]
+    async fn process_line_spans_multiple_calls() {
+        let mut proc = make_processor().await;
+        let r1 = proc.process_line(r#"prefix {"key":"#);
+        assert!(r1.is_empty(), "incomplete JSON should not produce output");
+
+        let r2 = proc.process_line(r#""value"}"#);
+        assert_eq!(r2.len(), 1);
+        assert_eq!(r2[0], r#"{"key":"value"}"#);
+    }
+
+    #[tokio::test]
+    async fn process_line_no_json() {
+        let mut proc = make_processor().await;
+        let result = proc.process_line("just some plain log text with no braces");
+        assert!(result.is_empty());
+    }
+
+    #[tokio::test]
+    async fn process_line_deeply_nested() {
+        let mut proc = make_processor().await;
+        let input = r#"{"a":{"b":{"c":{"d":1}}}}"#;
+        let result = proc.process_line(input);
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], input);
+    }
+
+    #[tokio::test]
+    async fn process_line_empty_object() {
+        let mut proc = make_processor().await;
+        let result = proc.process_line("{}");
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0], "{}");
+    }
+
+    // -- parse() dispatch tests -----------------------------------------------
+
+    #[test]
+    fn parse_unrecognized_json_returns_no_event() {
+        let result = parse(r#"{"someRandomField": 42}"#).expect("should not error");
+        assert!(matches!(result, ParseOutput::NoEvent));
+    }
+
+    #[test]
+    fn parse_non_json_returns_no_event() {
+        let result = parse("not json at all");
+        assert!(matches!(result, Ok(ParseOutput::NoEvent)));
     }
 }
