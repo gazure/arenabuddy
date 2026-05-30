@@ -81,15 +81,13 @@ impl Display for Deck {
             "{}\nMainboard: {} cards\n{}\n\nSideboard: {} cards\n{}\n",
             self.name(),
             self.mainboard_size(),
-            &self
-                .mainboard
+            self.mainboard
                 .iter()
                 .map(ToString::to_string)
                 .collect::<Vec<_>>()
                 .join("\n"),
             self.sideboard_size(),
-            &self
-                .sideboard
+            self.sideboard
                 .iter()
                 .map(ToString::to_string)
                 .collect::<Vec<_>>()
