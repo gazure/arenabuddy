@@ -3,7 +3,7 @@ use dioxus_router::{Link, Outlet, Routable};
 
 use crate::{
     app::{
-        debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
+        cards::Cards, debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
         match_details::MatchDetails, matches::Matches, stats::Stats,
     },
     backend::{BackgroundRuntime, Service, SharedAuthState, auth_controller},
@@ -23,6 +23,8 @@ pub enum Route {
         Home {},
         #[route("/matches")]
         Matches {},
+        #[route("/cards")]
+        Cards {},
         #[route("/errors")]
         ErrorLogs {},
         #[route("/contact")]
@@ -163,6 +165,13 @@ fn Layout() -> Element {
                             to: Route::Stats {},
                             class: "hover:text-amber-400 transition-colors duration-200",
                             "Stats"
+                        }
+                    }
+                    li {
+                        Link {
+                            to: Route::Cards {},
+                            class: "hover:text-amber-400 transition-colors duration-200",
+                            "Cards"
                         }
                     }
                     li {

@@ -22,6 +22,8 @@ pub enum Error {
     DbError(#[from] arenabuddy_data::Error),
     #[error(transparent)]
     CoreError(#[from] arenabuddy_core::Error),
+    #[error(transparent)]
+    JsonError(#[from] serde_json::Error),
     #[error("Io error: {0}")]
     IoError(String),
 }

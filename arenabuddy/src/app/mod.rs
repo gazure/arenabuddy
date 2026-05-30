@@ -1,3 +1,4 @@
+mod cards;
 mod components;
 mod debug_logs;
 mod draft_details;

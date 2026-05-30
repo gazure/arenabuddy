@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::BTreeMap, sync::Arc};
 
 use arenabuddy_core::{
     cards::CardsDatabase,
@@ -11,13 +11,86 @@ use arenabuddy_core::{
         mulligan::Mulligan,
         stats::{MatchStats, TimeWindow},
     },
-    models::Draft,
+    models::{Card, CardFace, Cost, Draft},
 };
 use arenabuddy_data::{DirectoryStorage, MetagameRepository};
 use tokio::sync::Mutex;
 use tracing::{error, info};
 
 use crate::Result;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct CardFaceSummary {
+    pub name: String,
+    pub type_line: String,
+    pub mana_cost: String,
+    pub image_uri: String,
+    pub colors: Vec<String>,
+}
+
+impl From<&CardFace> for CardFaceSummary {
+    fn from(face: &CardFace) -> Self {
+        Self {
+            name: face.name.clone(),
+            type_line: face.type_line.clone(),
+            mana_cost: face.mana_cost.clone(),
+            image_uri: face.image_uri.clone().unwrap_or_default(),
+            colors: face.colors.clone(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct CardSearchResult {
+    pub id: i64,
+    pub name: String,
+    pub set: String,
+    pub type_line: String,
+    pub mana_cost: String,
+    pub mana_value: i32,
+    pub image_uri: String,
+    pub colors: Vec<String>,
+    pub color_identity: Vec<String>,
+    pub layout: String,
+    pub faces: Vec<CardFaceSummary>,
+}
+
+impl CardSearchResult {
+    pub fn cost(&self) -> Cost {
+        self.mana_cost.parse().unwrap_or_default()
+    }
+}
+
+impl From<&Card> for CardSearchResult {
+    fn from(card: &Card) -> Self {
+        Self {
+            id: card.id,
+            name: card.name.clone(),
+            set: card.set.clone(),
+            type_line: card.type_line.clone(),
+            mana_cost: card.mana_cost.clone(),
+            mana_value: card.cmc,
+            image_uri: card.primary_image_uri().unwrap_or_default().to_string(),
+            colors: card.colors.clone(),
+            color_identity: card.color_identity.clone(),
+            layout: card.layout.clone(),
+            faces: card.card_faces.iter().map(CardFaceSummary::from).collect(),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct CardSetSummary {
+    pub set: String,
+    pub count: usize,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct CardDatabaseSummary {
+    pub total_cards: usize,
+    pub total_sets: usize,
+    pub sets: Vec<CardSetSummary>,
+}
 
 #[derive(Clone)]
 pub struct AppService<D: arenabuddy_data::ArenabuddyRepository> {
@@ -162,6 +235,26 @@ where
         Ok(self.db.get_match_stats(None, time_window).await?)
     }
 
+    pub async fn get_card_database_summary(&self) -> Result<CardDatabaseSummary> {
+        Ok(card_database_summary(&self.cards))
+    }
+
+    pub async fn search_cards(&self, query: String, set_filter: Option<String>) -> Result<Vec<CardSearchResult>> {
+        Ok(search_cards(&self.cards, &query, set_filter.as_deref()))
+    }
+
+    pub async fn get_card_by_arena_id(&self, arena_id: i64) -> Result<Option<CardSearchResult>> {
+        Ok(self.cards.get(&arena_id.to_string()).map(CardSearchResult::from))
+    }
+
+    pub async fn get_card_json(&self, arena_id: i64) -> Result<Option<String>> {
+        self.cards
+            .get(&arena_id.to_string())
+            .map(serde_json::to_string_pretty)
+            .transpose()
+            .map_err(Into::into)
+    }
+
     pub async fn get_error_logs(&self) -> Result<Vec<String>> {
         let logs = self.log_collector.lock().await;
         Ok(logs.clone())
@@ -181,5 +274,117 @@ where
         } else {
             Ok(None)
         }
+    }
+}
+
+fn card_database_summary(cards: &CardsDatabase) -> CardDatabaseSummary {
+    let mut set_counts = BTreeMap::<String, usize>::new();
+    for card in cards.values() {
+        *set_counts.entry(card.set.clone()).or_default() += 1;
+    }
+
+    let sets: Vec<_> = set_counts
+        .into_iter()
+        .map(|(set, count)| CardSetSummary { set, count })
+        .collect();
+
+    CardDatabaseSummary {
+        total_cards: cards.len(),
+        total_sets: sets.len(),
+        sets,
+    }
+}
+
+fn search_cards(cards: &CardsDatabase, query: &str, set_filter: Option<&str>) -> Vec<CardSearchResult> {
+    let normalized_query = query.trim().to_lowercase();
+    let normalized_set = set_filter
+        .map(str::trim)
+        .filter(|set| !set.is_empty())
+        .map(str::to_lowercase);
+
+    let mut matches: Vec<_> = cards
+        .values()
+        .filter(|card| {
+            let matches_query = normalized_query.is_empty() || card.name.to_lowercase().starts_with(&normalized_query);
+            let matches_set = normalized_set
+                .as_deref()
+                .is_none_or(|set| card.set.to_lowercase() == set);
+
+            matches_query && matches_set
+        })
+        .map(CardSearchResult::from)
+        .collect();
+
+    matches.sort_by(|a, b| {
+        a.name
+            .cmp(&b.name)
+            .then_with(|| a.set.cmp(&b.set))
+            .then_with(|| a.id.cmp(&b.id))
+    });
+    matches
+}
+
+#[cfg(test)]
+mod tests {
+    use arenabuddy_core::models::CardCollection;
+
+    use super::*;
+
+    fn test_database(cards: Vec<Card>) -> CardsDatabase {
+        CardsDatabase::from_bytes(&CardCollection::with_cards(cards).encode_to_vec()).expect("cards encode")
+    }
+
+    fn test_card(id: i64, set: &str, name: &str) -> Card {
+        let mut card = Card::new(id, set, name);
+        card.type_line = "Instant".to_string();
+        card.mana_cost = "{U}".to_string();
+        card.cmc = 1;
+        card
+    }
+
+    #[test]
+    fn summarizes_sets_in_code_order() {
+        let cards = test_database(vec![
+            test_card(3, "TDM", "Opt"),
+            test_card(1, "BRO", "Island"),
+            test_card(2, "BRO", "Forest"),
+        ]);
+
+        let summary = card_database_summary(&cards);
+
+        assert_eq!(summary.total_cards, 3);
+        assert_eq!(summary.total_sets, 2);
+        assert_eq!(summary.sets[0].set, "BRO");
+        assert_eq!(summary.sets[0].count, 2);
+        assert_eq!(summary.sets[1].set, "TDM");
+        assert_eq!(summary.sets[1].count, 1);
+    }
+
+    #[test]
+    fn searches_name_prefix_case_insensitively() {
+        let cards = test_database(vec![
+            test_card(1, "BRO", "Opt"),
+            test_card(2, "BRO", "Omenpath Journey"),
+            test_card(3, "TDM", "Lightning Strike"),
+        ]);
+
+        let matches = search_cards(&cards, "om", None);
+
+        assert_eq!(matches.len(), 1);
+        assert_eq!(matches[0].name, "Omenpath Journey");
+    }
+
+    #[test]
+    fn empty_query_can_filter_to_a_set() {
+        let cards = test_database(vec![
+            test_card(1, "BRO", "Opt"),
+            test_card(2, "TDM", "Omenpath Journey"),
+            test_card(3, "TDM", "Lightning Strike"),
+        ]);
+
+        let matches = search_cards(&cards, "", Some("tdm"));
+
+        assert_eq!(matches.len(), 2);
+        assert!(matches.iter().all(|card| card.set == "TDM"));
     }
 }
