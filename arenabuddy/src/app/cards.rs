@@ -1,3 +1,5 @@
+#![allow(clippy::useless_format)]
+
 use dioxus::prelude::*;
 
 use crate::{
@@ -36,7 +38,7 @@ pub fn Cards() -> Element {
         let service = service.clone();
         move || {
             let service = service.clone();
-            async move { service.get_card_database_summary().await }
+            async move { service.get_card_database_summary() }
         }
     });
 
@@ -47,8 +49,12 @@ pub fn Cards() -> Element {
             let query = search_query();
             let set = set_filter();
             async move {
-                let set_filter = if set.trim().is_empty() { None } else { Some(set) };
-                service.search_cards(query, set_filter).await
+                let set_filter = if set.trim().is_empty() {
+                    None
+                } else {
+                    Some(set.as_str())
+                };
+                service.search_cards(&query, set_filter)
             }
         }
     });
@@ -80,19 +86,12 @@ pub fn Cards() -> Element {
             lookup_status.set(None);
             let service = service.clone();
             spawn(async move {
-                match service.get_card_by_arena_id(arena_id).await {
-                    Ok(Some(card)) => {
-                        lookup_status.set(Some(format!("Found {} ({})", card.name, card.set)));
-                        selected_card.set(Some(card));
-                    }
-                    Ok(None) => {
-                        lookup_status.set(Some(format!("No card found with Arena ID {arena_id}.")));
-                        selected_card.set(None);
-                    }
-                    Err(err) => {
-                        lookup_status.set(Some(format!("Failed to look up card: {err}")));
-                        selected_card.set(None);
-                    }
+                if let Some(card) = service.get_card_by_arena_id(arena_id) {
+                    lookup_status.set(Some(format!("Found {} ({})", card.name, card.set)));
+                    selected_card.set(Some(card));
+                } else {
+                    lookup_status.set(Some(format!("No card found with Arena ID {arena_id}.")));
+                    selected_card.set(None);
                 }
                 lookup_loading.set(false);
             });
@@ -104,6 +103,8 @@ pub fn Cards() -> Element {
     let search_value = search_resource.value();
     let search_data = search_value.read();
     let filters_active = !search_query().trim().is_empty() || !set_filter().trim().is_empty();
+    let summary_panel = summary_data.as_ref().cloned();
+    let search_results = search_data.as_ref().cloned();
 
     rsx! {
         div { class: "container mx-auto px-4 py-8 max-w-6xl",
@@ -152,7 +153,7 @@ pub fn Cards() -> Element {
                                     selected: set_filter().is_empty(),
                                     "All sets"
                                 }
-                                if let Some(Ok(summary)) = summary_data.as_ref() {
+                                if let Some(summary) = summary_data.as_ref() {
                                     for set in summary.sets.iter() {
                                         option {
                                             value: "{set.set}",
@@ -197,9 +198,9 @@ pub fn Cards() -> Element {
 
             div { class: "grid grid-cols-1 md:grid-cols-2 gap-6",
                 div { class: "space-y-6",
-                    SummaryPanel { summary: summary_data.as_ref().cloned() }
+                    SummaryPanel { summary: summary_panel }
                     SearchResults {
-                        results: search_data.as_ref().cloned(),
+                        results: search_results,
                         current_page,
                         selected_card,
                         filters_active,
@@ -221,130 +222,120 @@ pub fn Cards() -> Element {
 }
 
 #[component]
-fn SummaryPanel(summary: Option<Result<CardDatabaseSummary, crate::Error>>) -> Element {
+fn SummaryPanel(summary: Option<CardDatabaseSummary>) -> Element {
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
-            div { class: "bg-gray-900 py-3 px-4 border-b border-gray-700",
-                h2 { class: "font-semibold text-gray-300", "Database info" }
-            }
-            match summary {
-                None => rsx! {
-                    div { class: "p-6 text-center text-gray-500",
-                        div { class: "animate-pulse", "Loading card database..." }
-                    }
-                },
-                Some(Err(err)) => rsx! {
-                    div { class: "bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded m-4",
-                        p { "Failed to load card database info: {err}" }
-                    }
-                },
-                Some(Ok(summary)) => rsx! {
-                    div { class: "p-6 space-y-4",
-                        div { class: "grid grid-cols-2 gap-4",
-                            div { class: "bg-gray-900 rounded-lg p-4",
-                                p { class: "text-sm text-gray-500", "Cards" }
-                                p { class: "text-2xl font-bold text-gray-100", "{summary.total_cards}" }
-                            }
-                            div { class: "bg-gray-900 rounded-lg p-4",
-                                p { class: "text-sm text-gray-500", "Sets" }
-                                p { class: "text-2xl font-bold text-gray-100", "{summary.total_sets}" }
-                            }
+            div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
+                div { class: "bg-gray-900 py-3 px-4 border-b border-gray-700",
+                    h2 { class: "font-semibold text-gray-300", "Database info" }
+                }
+                match summary {
+                    None => rsx! {
+                        div { class: "p-6 text-center text-gray-500",
+                            div { class: "animate-pulse", "Loading card database..." }
                         }
-                        div {
-                            h3 { class: "text-sm font-semibold text-gray-400 mb-2", "Set counts" }
-                            div { class: "max-h-48 overflow-y-auto border border-gray-700 rounded",
-                                table { class: "min-w-full table-auto",
-                                    tbody {
-                                        for set in summary.sets.iter() {
-                                            tr { class: "border-b border-gray-700 last:border-0",
-                                                td { class: "py-2 px-3 text-gray-300 font-mono text-sm", "{set.set}" }
-                                                td { class: "py-2 px-3 text-gray-500 text-sm text-right", "{set.count}" }
+                    },
+    Some(summary) => rsx! {
+                        div { class: "p-6 space-y-4",
+                            div { class: "grid grid-cols-2 gap-4",
+                                div { class: "bg-gray-900 rounded-lg p-4",
+                                    p { class: "text-sm text-gray-500", "Cards" }
+                                    p { class: "text-2xl font-bold text-gray-100", "{summary.total_cards}" }
+                                }
+                                div { class: "bg-gray-900 rounded-lg p-4",
+                                    p { class: "text-sm text-gray-500", "Sets" }
+                                    p { class: "text-2xl font-bold text-gray-100", "{summary.total_sets}" }
+                                }
+                            }
+                            div {
+                                h3 { class: "text-sm font-semibold text-gray-400 mb-2", "Set counts" }
+                                div { class: "max-h-48 overflow-y-auto border border-gray-700 rounded",
+                                    table { class: "min-w-full table-auto",
+                                        tbody {
+                                            for set in summary.sets.iter() {
+                                                tr { class: "border-b border-gray-700 last:border-0",
+                                                    td { class: "py-2 px-3 text-gray-300 font-mono text-sm", "{set.set}" }
+                                                    td { class: "py-2 px-3 text-gray-500 text-sm text-right", "{set.count}" }
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                },
+                    },
+                }
             }
         }
-    }
 }
 
 #[component]
 fn SearchResults(
-    results: Option<Result<Vec<CardSearchResult>, crate::Error>>,
+    results: Option<Vec<CardSearchResult>>,
     current_page: Signal<usize>,
     selected_card: Signal<Option<CardSearchResult>>,
     filters_active: bool,
 ) -> Element {
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
-            div { class: "bg-gray-900 py-3 px-4 border-b border-gray-700",
-                h2 { class: "font-semibold text-gray-300", "Search results" }
-            }
-            match results {
-                None => rsx! {
-                    div { class: "p-12 text-center text-gray-500",
-                        div { class: "animate-pulse", "Searching cards..." }
-                    }
-                },
-                Some(Err(err)) => rsx! {
-                    div { class: "bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded m-4",
-                        p { "Failed to search cards: {err}" }
-                    }
-                },
-                Some(Ok(results)) => {
-                    let total_items = results.len();
-                    let total_pages = total_items.div_ceil(PAGE_SIZE).max(1);
-                    let page = current_page().min(total_pages.saturating_sub(1));
-                    let start = page * PAGE_SIZE;
-                    let end = (start + PAGE_SIZE).min(total_items);
+            div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
+                div { class: "bg-gray-900 py-3 px-4 border-b border-gray-700",
+                    h2 { class: "font-semibold text-gray-300", "Search results" }
+                }
+                match results {
+                    None => rsx! {
+                        div { class: "p-12 text-center text-gray-500",
+                            div { class: "animate-pulse", "Searching cards..." }
+                        }
+                    },
+    Some(results) => {
+                        let total_items = results.len();
+                        let total_pages = total_items.div_ceil(PAGE_SIZE).max(1);
+                        let page = current_page().min(total_pages.saturating_sub(1));
+                        let start = page * PAGE_SIZE;
+                        let end = (start + PAGE_SIZE).min(total_items);
 
-                    rsx! {
-                        if results.is_empty() {
-                            div { class: "p-12 text-center text-gray-500",
-                                if filters_active {
-                                    "No cards matched the current filters."
-                                } else {
-                                    "Enter a name prefix or choose a set to start browsing."
-                                }
-                            }
-                        } else {
-                            Pagination {
-                                current_page,
-                                total_pages,
-                                total_items,
-                                page_size: PAGE_SIZE,
-                            }
-                            div { class: "overflow-x-auto",
-                                table { class: "min-w-full table-auto",
-                                    thead {
-                                        tr { class: "bg-gray-900 text-left",
-                                            th { class: "py-3 px-4 font-semibold text-gray-400", "Card" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-400", "Set" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-400", "Type" }
-                                            th { class: "py-3 px-4 font-semibold text-gray-400", "ID" }
-                                        }
+                        rsx! {
+                            if results.is_empty() {
+                                div { class: "p-12 text-center text-gray-500",
+                                    if filters_active {
+                                        "No cards matched the current filters."
+                                    } else {
+                                        "Enter a name prefix or choose a set to start browsing."
                                     }
-                                    tbody {
-                                        for card in &results[start..end] {
-                                            CardResultRow {
-                                                key: "{card.id}",
-                                                card: card.clone(),
-                                                selected_card,
+                                }
+                            } else {
+                                Pagination {
+                                    current_page,
+                                    total_pages,
+                                    total_items,
+                                    page_size: PAGE_SIZE,
+                                }
+                                div { class: "overflow-x-auto",
+                                    table { class: "min-w-full table-auto",
+                                        thead {
+                                            tr { class: "bg-gray-900 text-left",
+                                                th { class: "py-3 px-4 font-semibold text-gray-400", "Card" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400", "Set" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400", "Type" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-400", "ID" }
+                                            }
+                                        }
+                                        tbody {
+                                            for card in &results[start..end] {
+                                                CardResultRow {
+                                                    key: "{card.id}",
+                                                    card: card.clone(),
+                                                    selected_card,
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                },
+                    },
+                }
             }
         }
-    }
 }
 
 #[component]
@@ -386,7 +377,7 @@ fn CardDetails(card: CardSearchResult) -> Element {
             raw_json.set(None);
             let service = service.clone();
             spawn(async move {
-                match service.get_card_json(arena_id).await {
+                match service.get_card_json(arena_id) {
                     Ok(Some(json)) => raw_json.set(Some(json)),
                     Ok(None) => json_status.set(Some(format!("No card found with Arena ID {arena_id}."))),
                     Err(err) => json_status.set(Some(format!("Failed to load raw JSON: {err}"))),

@@ -235,19 +235,19 @@ where
         Ok(self.db.get_match_stats(None, time_window).await?)
     }
 
-    pub async fn get_card_database_summary(&self) -> Result<CardDatabaseSummary> {
-        Ok(card_database_summary(&self.cards))
+    pub fn get_card_database_summary(&self) -> CardDatabaseSummary {
+        card_database_summary(&self.cards)
     }
 
-    pub async fn search_cards(&self, query: String, set_filter: Option<String>) -> Result<Vec<CardSearchResult>> {
-        Ok(search_cards(&self.cards, &query, set_filter.as_deref()))
+    pub fn search_cards(&self, query: &str, set_filter: Option<&str>) -> Vec<CardSearchResult> {
+        search_cards(&self.cards, query, set_filter)
     }
 
-    pub async fn get_card_by_arena_id(&self, arena_id: i64) -> Result<Option<CardSearchResult>> {
-        Ok(self.cards.get(&arena_id.to_string()).map(CardSearchResult::from))
+    pub fn get_card_by_arena_id(&self, arena_id: i64) -> Option<CardSearchResult> {
+        self.cards.get(&arena_id.to_string()).map(CardSearchResult::from)
     }
 
-    pub async fn get_card_json(&self, arena_id: i64) -> Result<Option<String>> {
+    pub fn get_card_json(&self, arena_id: i64) -> Result<Option<String>> {
         self.cards
             .get(&arena_id.to_string())
             .map(serde_json::to_string_pretty)
