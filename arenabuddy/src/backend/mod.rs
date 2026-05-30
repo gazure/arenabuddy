@@ -9,4 +9,5 @@ pub(crate) mod sync;
 
 pub use auth::{SharedAuthState, new_shared_auth_state};
 pub use launch::{BackgroundRuntime, launch};
+pub(crate) use service::{CardDatabaseSummary, CardSearchResult};
 pub type Service = service::AppService<arenabuddy_data::MatchDB>;
