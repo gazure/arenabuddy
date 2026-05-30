@@ -24,6 +24,7 @@ datasources:
           url: "$${__value.raw}"
 
   - name: PostgreSQL
+    uid: arenabuddy_postgres
     type: postgres
     access: proxy
     url: postgres:5432
