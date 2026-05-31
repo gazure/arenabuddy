@@ -69,16 +69,12 @@ pub fn resolve_arenabuddy_path(configured_path: Option<&Path>) -> Result<PathBuf
 }
 
 pub fn sibling_arenabuddy_candidates(executable_dir: &Path) -> Vec<PathBuf> {
-    let mut candidates = Vec::new();
-
-    #[cfg(target_os = "macos")]
-    {
-        candidates.push(executable_dir.join("Arenabuddy.app"));
-    }
-
-    candidates.push(executable_dir.join(platform_executable_name("arenabuddy")));
-    candidates.push(executable_dir.join(platform_executable_name("Arenabuddy")));
-    candidates
+    vec![
+        #[cfg(target_os = "macos")]
+        executable_dir.join("Arenabuddy.app"),
+        executable_dir.join(platform_executable_name("arenabuddy")),
+        executable_dir.join(platform_executable_name("Arenabuddy")),
+    ]
 }
 
 pub fn process_name_matches(actual: &str, expected: &str) -> bool {
