@@ -10,9 +10,9 @@ use reqwest::StatusCode;
 use rusqlite::Connection;
 use tracing::{debug, info, warn};
 
+use super::scryfall::USER_AGENT;
 use crate::{Error, Result};
 
-const USER_AGENT: &str = "arenabuddy/1.0";
 const SCRYFALL_RATE_LIMIT_MS: u64 = 150;
 
 // Canonical Arena IDs for basic lands (used as fallback when not found in Scryfall)
@@ -42,19 +42,15 @@ struct MtgaCard {
 pub async fn execute(mtga_path: Option<&PathBuf>, scryfall_host: &str, output: &Path) -> Result<()> {
     info!("Starting MTGA database scrape...");
 
-    // 1. Find MTGA database
     let db_path = find_mtga_database(mtga_path)?;
     info!("Found MTGA database at: {}", db_path.display());
 
-    // 2. Extract cards from MTGA database
     let mtga_cards = extract_mtga_cards(&db_path)?;
     info!("Extracted {} cards from MTGA database", mtga_cards.len());
 
-    // 3. Enrich with Scryfall data
     let cards = enrich_with_scryfall(mtga_cards, scryfall_host).await?;
     info!("Successfully enriched {} cards with Scryfall data", cards.len());
 
-    // 4. Save to protobuf
     let collection = CardCollection::with_cards(cards);
     save_card_collection(collection, output).await?;
     info!("Saved card collection to: {}", output.display());
@@ -265,7 +261,7 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
                 if let Some(json) = card_json {
                     let mut card = Card::from_json(&json);
                     card.id = mtga_card.grp_id;
-                    card.set = mtga_card.expansion_code.clone();
+                    card.set.clone_from(&mtga_card.expansion_code);
                     cards.push(card);
                     cards_by_id.insert(mtga_card.grp_id);
                 } else if get_basic_land_fallback_id(&mtga_card.name).is_some() {
@@ -337,46 +333,15 @@ async fn fetch_scryfall_set(
     set: &str,
 ) -> Result<Option<HashMap<String, serde_json::Value>>> {
     debug!("Fetching set from Scryfall: {}", set);
-
-    let set_query = format!("e:{set}");
-    let query = vec![
-        ("include_variations", "true"),
-        ("order", "set"),
-        ("q", &set_query),
-        ("unique", "cards"),
-    ];
-
-    let response = client
-        .get(format!("{scryfall_host}/cards/search"))
-        .query(&query)
-        .send()
-        .await?;
-
-    if response.status() == StatusCode::NOT_FOUND {
-        debug!("Set '{}' returned 404 from Scryfall", set);
-        return Ok(None);
-    }
-
-    response.error_for_status_ref()?;
-    let mut data: serde_json::Value = response.json().await?;
-    let mut cards_by_collector_number = HashMap::new();
-
-    // Extract cards from first page
-    extract_set_cards(&mut cards_by_collector_number, &data);
-
-    // Handle pagination
-    super::scryfall::paginate(
+    let cards = super::scryfall::fetch_set(
         client,
-        &mut data,
-        &mut cards_by_collector_number,
+        scryfall_host,
+        set,
         Duration::from_millis(SCRYFALL_RATE_LIMIT_MS),
         extract_set_cards,
     )
     .await?;
-
-    debug!("Fetched {} cards for set {}", cards_by_collector_number.len(), set);
-
-    Ok(Some(cards_by_collector_number))
+    Ok(cards)
 }
 
 /// Extract cards from Scryfall response and index by collector number

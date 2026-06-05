@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Context;
 use arenabuddy_core::cards::CardsDatabase;
 use arenabuddy_data::{ArenabuddyRepository, MatchDB, MetagameRepository};
-use tracing::info;
+use tracing::{info, warn};
 
 use super::definitions::MetagameCommands;
 use crate::Result;
@@ -15,9 +15,16 @@ async fn connect(db_url: &str, cards: CardsDatabase) -> Result<MatchDB> {
 }
 
 fn load_cards(cards_db: Option<&Path>) -> CardsDatabase {
-    cards_db
-        .and_then(|path| CardsDatabase::new(path).ok())
-        .unwrap_or_default()
+    let Some(path) = cards_db else {
+        return CardsDatabase::default();
+    };
+    CardsDatabase::new(path).unwrap_or_else(|e| {
+        warn!(
+            "Failed to load cards database from {}: {e}; using empty database",
+            path.display()
+        );
+        CardsDatabase::default()
+    })
 }
 
 pub async fn execute(command: &MetagameCommands) -> Result<()> {

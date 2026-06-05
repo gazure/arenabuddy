@@ -9,7 +9,7 @@ use arenabuddy_core::{
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tonic::{Request, Response, Status};
-use tracing::{error, info, instrument};
+use tracing::{debug, error, info, instrument};
 
 use crate::auth::UserId;
 
@@ -109,6 +109,7 @@ impl MatchService for MatchServiceImpl {
             .db
             .get_opponent_deck(&match_id)
             .await
+            .inspect_err(|e| debug!("No opponent deck for match {match_id}: {e}"))
             .ok()
             .map_or_else(OpponentDeck::empty, |d| {
                 OpponentDeck::new(d.mainboard().iter().map(|&id| ArenaId::from(id)).collect())

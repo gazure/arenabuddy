@@ -122,7 +122,10 @@ impl From<&OpponentDeck> for OpponentDeckProto {
 
 impl From<&GameEventLogProto> for GameEventLogDomain {
     fn from(proto: &GameEventLogProto) -> Self {
-        let events = serde_json::from_str(&proto.events_json).unwrap_or_default();
+        let events = serde_json::from_str(&proto.events_json).unwrap_or_else(|e| {
+            tracing::warn!("Failed to parse events_json for game {}: {e}", proto.game_number);
+            Vec::new()
+        });
         Self {
             game_number: proto.game_number,
             events,

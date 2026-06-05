@@ -91,7 +91,7 @@ impl GrpcReplayWriter {
 
         let mut attempt: u32 = 0;
         while attempt < MAX_ATTEMPTS {
-            let request = build_request(match_data, token.clone());
+            let request = build_request(match_data, token.as_deref());
             match self.client.upsert_match_data(request).await {
                 Ok(_) => return Ok(UpsertWithRetries::Success),
                 Err(e) if e.code() == tonic::Code::Unauthenticated => {
@@ -166,12 +166,7 @@ impl GrpcReplayWriter {
             match_id: match_id.to_string(),
         });
 
-        if let Some(token) = token {
-            let bearer = format!("Bearer {token}");
-            if let Ok(value) = bearer.parse() {
-                request.metadata_mut().insert("authorization", value);
-            }
-        }
+        super::auth::attach_bearer(&mut request, token.as_deref());
 
         match self.client.classify_match(request).await {
             Ok(response) => {
@@ -267,17 +262,12 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for GrpcReplayWriter {
     }
 }
 
-fn build_request(match_data: &MatchData, token: Option<String>) -> tonic::Request<UpsertMatchDataRequest> {
+fn build_request(match_data: &MatchData, token: Option<&str>) -> tonic::Request<UpsertMatchDataRequest> {
     let mut request = tonic::Request::new(UpsertMatchDataRequest {
         match_data: Some(match_data.into()),
     });
 
-    if let Some(token) = token {
-        let bearer = format!("Bearer {token}");
-        if let Ok(value) = bearer.parse() {
-            request.metadata_mut().insert("authorization", value);
-        }
-    }
+    super::auth::attach_bearer(&mut request, token);
 
     request
 }

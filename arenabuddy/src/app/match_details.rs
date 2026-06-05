@@ -14,6 +14,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
     let auth_state = use_context::<SharedAuthState>();
     let mut sync_loading = use_signal(|| false);
     let mut sync_status = use_signal(|| None::<String>);
+    let mut active_tab = use_signal(|| 0u8);
 
     let mut match_details = use_resource({
         let service = service.clone();
@@ -164,7 +165,6 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                 },
 
                 Some(Ok(details)) => {
-                    let mut active_tab = use_signal(|| 0u8);
                     let event_count: usize = details.event_logs.iter().map(|l| l.events.len()).sum();
 
                     let controller_archetype = details.controller_archetype.clone();

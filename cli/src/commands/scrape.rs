@@ -5,12 +5,10 @@ use std::{
 };
 
 use arenabuddy_core::models::{Card, CardCollection};
-use reqwest::StatusCode;
 use tracing::{debug, info};
 
+use super::scryfall::USER_AGENT;
 use crate::{Error, Result, errors::ParseError};
-
-const USER_AGENT: &str = "arenabuddy/1.0";
 
 /// Execute the Scrape command
 pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output: &Path) -> Result<()> {
@@ -62,7 +60,7 @@ async fn find_sets(base_url: &str, client: &reqwest::Client) -> Result<Vec<Strin
             .iter()
             .filter_map(|set| {
                 if set["set_type"].as_str().is_some_and(|st| st != "token") {
-                    Some(set["code"].as_str().unwrap().to_owned())
+                    set["code"].as_str().map(ToOwned::to_owned)
                 } else {
                     None
                 }
@@ -78,34 +76,9 @@ async fn extract_set(
     set: &str,
 ) -> Result<HashMap<String, serde_json::Value>, Error> {
     debug!("Extracting set: {set}");
-    let set_query = format!("e:{set}");
-    let query = vec![
-        ("include_variations", "true"),
-        ("order", "set"),
-        ("q", &set_query),
-        ("unique", "cards"),
-    ];
-    let response = client
-        .get(format!("{base_url}/cards/search"))
-        .query(&query)
-        .send()
-        .await?;
-    if response.status() == StatusCode::NOT_FOUND {
-        debug!("Extracted {set} returned 404");
-        return Ok(HashMap::new());
-    }
-    response.error_for_status_ref()?;
-    let mut data: serde_json::Value = response.json().await?;
-    let mut ret = HashMap::new();
-    extract_set_cards(&mut ret, &data);
-    super::scryfall::paginate(
-        client,
-        &mut data,
-        &mut ret,
-        Duration::from_millis(150),
-        extract_set_cards,
-    )
-    .await?;
+    let ret = super::scryfall::fetch_set(client, base_url, set, Duration::from_millis(150), extract_set_cards)
+        .await?
+        .unwrap_or_default();
     debug!("Extracted {} cards from {set}", ret.len());
     Ok(ret)
 }
@@ -135,7 +108,7 @@ fn extract_set_cards(set_cards: &mut HashMap<String, serde_json::Value>, data: &
 
 /// Scrape card data from 17Lands
 async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, String>>> {
-    let client = reqwest::Client::builder().user_agent("arenabuddy/1.0").build()?;
+    let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
     let url = format!("{base_url}/analysis_data/cards/cards.csv");
 
     let response = client.get(&url).send().await?;

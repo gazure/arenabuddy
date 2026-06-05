@@ -1,4 +1,3 @@
-#![expect(clippy::assigning_clones)]
 use clap::Parser;
 
 mod commands;

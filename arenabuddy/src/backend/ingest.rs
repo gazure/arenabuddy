@@ -84,12 +84,7 @@ impl DebugReporter {
         });
 
         let token = self.auth_state.lock().await.as_ref().map(|s| s.token.clone());
-        if let Some(token) = &token {
-            let bearer = format!("Bearer {token}");
-            if let Ok(value) = bearer.parse() {
-                request.metadata_mut().insert("authorization", value);
-            }
-        }
+        super::auth::attach_bearer(&mut request, token.as_deref());
 
         if let Err(e) = self.client.report_parse_errors(request).await {
             error!("Failed to report parse error to server: {e}");

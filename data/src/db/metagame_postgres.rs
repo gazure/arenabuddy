@@ -1,4 +1,5 @@
 use sqlx::{FromRow, types::Uuid};
+use tracing::warn;
 
 use super::{
     metagame_models::{
@@ -285,7 +286,10 @@ impl MetagameRepository for PostgresMatchDB {
         };
 
         // deck_cards is JSON array of arena IDs
-        let arena_ids: Vec<i32> = serde_json::from_str(&row.0).unwrap_or_default();
+        let arena_ids: Vec<i32> = serde_json::from_str(&row.0).unwrap_or_else(|e| {
+            warn!("Failed to parse deck_cards for match {match_id}: {e}");
+            Vec::new()
+        });
         let card_names = self.arena_ids_to_card_names(&arena_ids);
         Ok(card_names)
     }
@@ -301,7 +305,10 @@ impl MetagameRepository for PostgresMatchDB {
             return Ok(Vec::new());
         };
 
-        let arena_ids: Vec<i32> = serde_json::from_str(&row.0).unwrap_or_default();
+        let arena_ids: Vec<i32> = serde_json::from_str(&row.0).unwrap_or_else(|e| {
+            warn!("Failed to parse opponent cards for match {match_id}: {e}");
+            Vec::new()
+        });
         let card_names = self.arena_ids_to_card_names(&arena_ids);
         Ok(card_names)
     }
