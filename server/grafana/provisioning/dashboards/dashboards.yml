@@ -1,0 +1,16 @@
+apiVersion: 1
+
+providers:
+  - name: ArenaBuddy
+    orgId: 1
+    folder: ArenaBuddy
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      # This directory is mounted into the container via the existing
+      # ./grafana/provisioning:/etc/grafana/provisioning bind mount.
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false

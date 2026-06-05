@@ -1,0 +1,161 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+      "fieldConfig": {
+        "defaults": { "custom": { "align": "auto", "filterable": true }, "mappings": [] },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "quantity" },
+            "properties": [{ "id": "custom.width", "value": 70 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "cmc" },
+            "properties": [{ "id": "custom.width", "value": 70 }]
+          }
+        ]
+      },
+      "gridPos": { "h": 18, "w": 16, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "displayName": "cmc", "desc": false }]
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  source,\n  game_number,\n  quantity,\n  name,\n  mana_cost,\n  cmc,\n  type_line,\n  colors,\n  set_code\nFROM match_decklist\nWHERE match_id = '$match_id'::uuid\n  AND player_name = '$player'\nORDER BY source, cmc, name;",
+          "refId": "A"
+        }
+      ],
+      "title": "Decklist — $player ($match_id)",
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "palette-classic" }, "custom": { "hideFrom": { "legend": false, "tooltip": false, "viz": false } } },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 0 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "pieType": "donut",
+        "reduceOptions": { "calcs": ["sum"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT cmc::text AS \"CMC\", sum(quantity)::int AS value\nFROM match_decklist\nWHERE match_id = '$match_id'::uuid\n  AND player_name = '$player'\n  AND source = 'main'\nGROUP BY cmc\nORDER BY cmc;",
+          "refId": "A"
+        }
+      ],
+      "title": "Mana curve (main, CMC)",
+      "type": "piechart"
+    },
+    {
+      "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+      "fieldConfig": {
+        "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 8, "x": 16, "y": 9 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "10.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  sum(quantity) FILTER (WHERE source = 'main')::int AS \"Main deck\",\n  sum(quantity) FILTER (WHERE source = 'sideboard')::int AS \"Sideboard\",\n  count(DISTINCT arena_id) FILTER (WHERE source = 'main')::int AS \"Unique (main)\"\nFROM match_decklist\nWHERE match_id = '$match_id'::uuid\n  AND player_name = '$player';",
+          "refId": "A"
+        }
+      ],
+      "title": "Counts",
+      "type": "stat"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["arenabuddy", "decklists"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+        "definition": "SELECT id::text AS __value, controller_player_name || ' vs ' || opponent_player_name || ' (' || left(id::text, 8) || ')' AS __text FROM match ORDER BY created_at DESC NULLS LAST LIMIT 500;",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Match",
+        "multi": false,
+        "name": "match_id",
+        "options": [],
+        "query": "SELECT id::text AS __value, controller_player_name || ' vs ' || opponent_player_name || ' (' || left(id::text, 8) || ')' AS __text FROM match ORDER BY created_at DESC NULLS LAST LIMIT 500;",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {},
+        "datasource": { "type": "postgres", "uid": "arenabuddy_postgres" },
+        "definition": "SELECT DISTINCT player_name FROM match_decklist WHERE match_id = '$match_id'::uuid ORDER BY player_name;",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Player",
+        "multi": false,
+        "name": "player",
+        "options": [],
+        "query": "SELECT DISTINCT player_name FROM match_decklist WHERE match_id = '$match_id'::uuid ORDER BY player_name;",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Match Decklists",
+  "uid": "arenabuddy-decklists",
+  "version": 1,
+  "weekStart": ""
+}

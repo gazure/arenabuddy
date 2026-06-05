@@ -7,7 +7,7 @@ use arenabuddy_core::{
         match_service::match_service_server::MatchServiceServer,
     },
 };
-use arenabuddy_data::{ArenabuddyRepository, MatchDB};
+use arenabuddy_data::{ArenabuddyRepository, CardRepository, MatchDB};
 use tonic::transport::Server;
 use tracing::info;
 
@@ -79,6 +79,8 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     db.init().await?;
     info!("Database initialized");
 
+    load_cards_on_startup(&db, &cards).await?;
+
     let spreadsheet_id = std::env::var("GOOGLE_SHEETS_SPREADSHEET_ID").ok();
     if spreadsheet_id.is_some() {
         info!("Google Sheets sync enabled");
@@ -111,5 +113,33 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         otel_guard.shutdown();
     }
 
+    Ok(())
+}
+
+/// Populate the `card` table from the embedded cards database.
+///
+/// By default this only loads when the table is empty, so normal restarts are
+/// cheap. Set `ARENABUDDY_RELOAD_CARDS=1` (or `true`) to force a full reload
+/// (TRUNCATE + reinsert) on startup, e.g. after shipping an updated
+/// `cards-full.pb`.
+async fn load_cards_on_startup(db: &MatchDB, cards: &CardsDatabase) -> Result<(), Box<dyn std::error::Error>> {
+    let force_reload =
+        std::env::var("ARENABUDDY_RELOAD_CARDS").is_ok_and(|v| matches!(v.trim(), "1" | "true" | "TRUE" | "yes"));
+
+    let existing = db.card_count().await?;
+    if existing > 0 && !force_reload {
+        info!(
+            "card table already populated ({existing} cards), skipping load (set ARENABUDDY_RELOAD_CARDS=1 to force)"
+        );
+        return Ok(());
+    }
+
+    let to_load: Vec<_> = cards.values().cloned().collect();
+    info!(
+        "Loading {} cards into Postgres (existing: {existing}, force_reload: {force_reload})",
+        to_load.len()
+    );
+    db.load_cards(&to_load).await?;
+    info!("Card load complete");
     Ok(())
 }
