@@ -657,3 +657,509 @@ impl<'a> EventLogBuilder<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::events::{
+        Event,
+        gre::{
+            GREToClientEvent, GameStateMessage, GameStateMessageWrapper, GreMeta, IntermissionReq,
+            IntermissionReqWrapper, RequestTypeGREToClientEvent,
+        },
+        primitives::{AnnotationDetail, Player, ResultListEntry, Visibility, Zone},
+    };
+
+    fn empty_cards_db() -> CardsDatabase {
+        CardsDatabase::from_bytes(&[]).unwrap_or_default()
+    }
+
+    fn make_player(seat_id: i32, life: i32) -> Player {
+        Player {
+            controller_seat_id: seat_id,
+            controller_type: "ControllerType_Player".to_string(),
+            life_total: life,
+            max_hand_size: 7,
+            starting_life_total: 20,
+            system_seat_number: seat_id,
+            team_id: seat_id,
+            timer_ids: vec![],
+            pending_message_type: None,
+            turn_number: None,
+        }
+    }
+
+    fn make_zone(zone_id: i32, zone_type: ZoneType, owner: Option<i32>) -> Zone {
+        Zone {
+            owner_seat_id: owner,
+            type_field: zone_type,
+            visibility: Visibility::Public,
+            zone_id,
+            viewers: vec![],
+            object_instance_ids: vec![],
+        }
+    }
+
+    fn wrap_gsm(gsm: GameStateMessage) -> Event {
+        Event::GRE(RequestTypeGREToClientEvent {
+            gre_to_client_event: GREToClientEvent {
+                gre_to_client_messages: vec![GREToClientMessage::GameStateMessage(GameStateMessageWrapper {
+                    meta: GreMeta::default(),
+                    game_state_message: gsm,
+                })],
+            },
+            request_id: None,
+            timestamp: String::new(),
+            transaction_id: None,
+        })
+    }
+
+    fn wrap_intermission() -> Event {
+        Event::GRE(RequestTypeGREToClientEvent {
+            gre_to_client_event: GREToClientEvent {
+                gre_to_client_messages: vec![GREToClientMessage::IntermissionReq(IntermissionReqWrapper {
+                    meta: GreMeta::default(),
+                    intermission_req: IntermissionReq {
+                        intermission_prompt: None,
+                        options: vec![],
+                        result: ResultListEntry::default(),
+                    },
+                })],
+            },
+            request_id: None,
+            timestamp: String::new(),
+            transaction_id: None,
+        })
+    }
+
+    fn builder() -> EventLogBuilder<'static> {
+        let cards_db: &'static CardsDatabase = Box::leak(Box::new(empty_cards_db()));
+        let mut names = HashMap::new();
+        names.insert(1, "Player1".to_string());
+        names.insert(2, "Player2".to_string());
+        EventLogBuilder::new(1, cards_db, names)
+    }
+
+    #[test]
+    fn life_change_emits_event() {
+        let events = vec![
+            wrap_gsm(GameStateMessage {
+                game_state_id: 1,
+                players: vec![make_player(1, 20), make_player(2, 20)],
+                update: "Full".to_string(),
+                ..Default::default()
+            }),
+            wrap_gsm(GameStateMessage {
+                game_state_id: 2,
+                players: vec![make_player(1, 17), make_player(2, 20)],
+                update: "Diff".to_string(),
+                ..Default::default()
+            }),
+        ];
+
+        let logs = builder().build(&events);
+        assert_eq!(logs.len(), 1);
+        let life_events: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::LifeChanged { .. }))
+            .collect();
+        assert_eq!(life_events.len(), 1);
+        match &life_events[0].action {
+            GameAction::LifeChanged {
+                player,
+                old_total,
+                new_total,
+                change,
+            } => {
+                assert_eq!(player.seat_id, 1);
+                assert_eq!(*old_total, 20);
+                assert_eq!(*new_total, 17);
+                assert_eq!(*change, -3);
+            }
+            _ => panic!("expected LifeChanged"),
+        }
+    }
+
+    #[test]
+    fn no_life_change_when_unchanged() {
+        let events = vec![
+            wrap_gsm(GameStateMessage {
+                game_state_id: 1,
+                players: vec![make_player(1, 20)],
+                turn_info: Some(TurnInfo {
+                    turn_number: Some(1),
+                    active_player: Some(1),
+                    phase: Some(Phase::PrecombatMain),
+                    ..Default::default()
+                }),
+                update: "Full".to_string(),
+                ..Default::default()
+            }),
+            wrap_gsm(GameStateMessage {
+                game_state_id: 2,
+                players: vec![make_player(1, 20)],
+                update: "Diff".to_string(),
+                ..Default::default()
+            }),
+        ];
+
+        let logs = builder().build(&events);
+        assert!(!logs.is_empty());
+        let life_events: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::LifeChanged { .. }))
+            .collect();
+        assert!(life_events.is_empty());
+    }
+
+    #[test]
+    fn turn_info_emits_new_turn_and_phase() {
+        let events = vec![wrap_gsm(GameStateMessage {
+            game_state_id: 1,
+            turn_info: Some(TurnInfo {
+                turn_number: Some(1),
+                active_player: Some(1),
+                phase: Some(Phase::PrecombatMain),
+                step: None,
+                ..Default::default()
+            }),
+            update: "Full".to_string(),
+            ..Default::default()
+        })];
+
+        let logs = builder().build(&events);
+        let new_turns: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::NewTurn { .. }))
+            .collect();
+        assert_eq!(new_turns.len(), 1);
+
+        let phases: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::PhaseChange { .. }))
+            .collect();
+        assert_eq!(phases.len(), 1);
+    }
+
+    #[test]
+    fn same_turn_number_does_not_repeat_new_turn() {
+        let events = vec![
+            wrap_gsm(GameStateMessage {
+                game_state_id: 1,
+                turn_info: Some(TurnInfo {
+                    turn_number: Some(1),
+                    active_player: Some(1),
+                    phase: Some(Phase::PrecombatMain),
+                    step: None,
+                    ..Default::default()
+                }),
+                update: "Full".to_string(),
+                ..Default::default()
+            }),
+            wrap_gsm(GameStateMessage {
+                game_state_id: 2,
+                turn_info: Some(TurnInfo {
+                    turn_number: Some(1),
+                    active_player: Some(1),
+                    phase: Some(Phase::Combat),
+                    step: Some(Step::BeginCombat),
+                    ..Default::default()
+                }),
+                update: "Diff".to_string(),
+                ..Default::default()
+            }),
+        ];
+
+        let logs = builder().build(&events);
+        let new_turns: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::NewTurn { .. }))
+            .collect();
+        assert_eq!(new_turns.len(), 1);
+
+        let phases: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::PhaseChange { .. }))
+            .collect();
+        assert_eq!(phases.len(), 2);
+    }
+
+    #[test]
+    fn intermission_splits_games() {
+        let events = vec![
+            wrap_gsm(GameStateMessage {
+                game_state_id: 1,
+                players: vec![make_player(1, 20), make_player(2, 20)],
+                turn_info: Some(TurnInfo {
+                    turn_number: Some(1),
+                    active_player: Some(1),
+                    phase: Some(Phase::PrecombatMain),
+                    ..Default::default()
+                }),
+                update: "Full".to_string(),
+                ..Default::default()
+            }),
+            wrap_gsm(GameStateMessage {
+                game_state_id: 2,
+                players: vec![make_player(1, 0), make_player(2, 20)],
+                update: "Diff".to_string(),
+                ..Default::default()
+            }),
+            wrap_intermission(),
+            wrap_gsm(GameStateMessage {
+                game_state_id: 3,
+                players: vec![make_player(1, 20), make_player(2, 20)],
+                turn_info: Some(TurnInfo {
+                    turn_number: Some(1),
+                    active_player: Some(2),
+                    phase: Some(Phase::PrecombatMain),
+                    ..Default::default()
+                }),
+                update: "Full".to_string(),
+                ..Default::default()
+            }),
+        ];
+
+        let logs = builder().build(&events);
+        assert_eq!(logs.len(), 2);
+        assert_eq!(logs[0].game_number, 1);
+        assert_eq!(logs[1].game_number, 2);
+    }
+
+    #[test]
+    fn zone_transfer_annotation_emits_event() {
+        let events = vec![wrap_gsm(GameStateMessage {
+            game_state_id: 1,
+            zones: vec![
+                make_zone(10, ZoneType::Hand, Some(1)),
+                make_zone(20, ZoneType::Graveyard, Some(1)),
+            ],
+            annotations: vec![Annotation {
+                affected_ids: vec![42],
+                affector_id: None,
+                id: 1,
+                type_field: vec![AnnotationType::ZoneTransfer],
+                details: vec![
+                    AnnotationDetail {
+                        key: "zone_src".to_string(),
+                        value_int32: vec![10],
+                        ..Default::default()
+                    },
+                    AnnotationDetail {
+                        key: "zone_dest".to_string(),
+                        value_int32: vec![20],
+                        ..Default::default()
+                    },
+                ],
+            }],
+            update: "Diff".to_string(),
+            ..Default::default()
+        })];
+
+        let logs = builder().build(&events);
+        let transfers: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::ZoneTransfer { .. }))
+            .collect();
+        assert_eq!(transfers.len(), 1);
+        match &transfers[0].action {
+            GameAction::ZoneTransfer { from_zone, to_zone, .. } => {
+                assert_eq!(from_zone, "Hand");
+                assert_eq!(to_zone, "Graveyard");
+            }
+            _ => panic!("expected ZoneTransfer"),
+        }
+    }
+
+    #[test]
+    fn damage_dealt_annotation_emits_event() {
+        let events = vec![wrap_gsm(GameStateMessage {
+            game_state_id: 1,
+            players: vec![make_player(1, 20), make_player(2, 20)],
+            game_objects: vec![crate::events::gre::GameObject {
+                instance_id: 100,
+                grp_id: Some(ArenaId::new(5000)),
+                owner_seat_id: 1,
+                ..Default::default()
+            }],
+            annotations: vec![Annotation {
+                affected_ids: vec![2],
+                affector_id: Some(100),
+                id: 1,
+                type_field: vec![AnnotationType::DamageDealt],
+                details: vec![AnnotationDetail {
+                    key: "damage".to_string(),
+                    value_int32: vec![3],
+                    ..Default::default()
+                }],
+            }],
+            update: "Diff".to_string(),
+            ..Default::default()
+        })];
+
+        let logs = builder().build(&events);
+        let damage: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::DamageDealt { .. }))
+            .collect();
+        assert_eq!(damage.len(), 1);
+        match &damage[0].action {
+            GameAction::DamageDealt { amount, target, .. } => {
+                assert_eq!(*amount, 3);
+                assert!(matches!(target, DamageTarget::Player { player } if player.seat_id == 2));
+            }
+            _ => panic!("expected DamageDealt"),
+        }
+    }
+
+    #[test]
+    fn loss_of_game_annotation_emits_game_over() {
+        let events = vec![wrap_gsm(GameStateMessage {
+            game_state_id: 1,
+            annotations: vec![Annotation {
+                affected_ids: vec![2],
+                affector_id: None,
+                id: 1,
+                type_field: vec![AnnotationType::LossOfGame],
+                details: vec![AnnotationDetail {
+                    key: "reason".to_string(),
+                    value_string: vec!["life total".to_string()],
+                    ..Default::default()
+                }],
+            }],
+            update: "Diff".to_string(),
+            ..Default::default()
+        })];
+
+        let logs = builder().build(&events);
+        let game_overs: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::GameOver { .. }))
+            .collect();
+        assert_eq!(game_overs.len(), 1);
+        match &game_overs[0].action {
+            GameAction::GameOver { losing_player, reason } => {
+                assert_eq!(losing_player.seat_id, 2);
+                assert_eq!(reason.as_deref(), Some("life total"));
+            }
+            _ => panic!("expected GameOver"),
+        }
+    }
+
+    #[test]
+    fn token_created_annotation_emits_event() {
+        let events = vec![wrap_gsm(GameStateMessage {
+            game_state_id: 1,
+            game_objects: vec![crate::events::gre::GameObject {
+                instance_id: 200,
+                grp_id: Some(ArenaId::new(9999)),
+                owner_seat_id: 1,
+                ..Default::default()
+            }],
+            annotations: vec![Annotation {
+                affected_ids: vec![200],
+                affector_id: None,
+                id: 1,
+                type_field: vec![AnnotationType::TokenCreated],
+                details: vec![],
+            }],
+            update: "Diff".to_string(),
+            ..Default::default()
+        })];
+
+        let logs = builder().build(&events);
+        let tokens: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::TokenCreated { .. }))
+            .collect();
+        assert_eq!(tokens.len(), 1);
+    }
+
+    #[test]
+    fn counter_added_annotation_emits_event() {
+        let events = vec![wrap_gsm(GameStateMessage {
+            game_state_id: 1,
+            game_objects: vec![crate::events::gre::GameObject {
+                instance_id: 300,
+                grp_id: Some(ArenaId::new(7777)),
+                owner_seat_id: 1,
+                ..Default::default()
+            }],
+            annotations: vec![Annotation {
+                affected_ids: vec![300],
+                affector_id: None,
+                id: 1,
+                type_field: vec![AnnotationType::CounterAdded],
+                details: vec![AnnotationDetail {
+                    key: "counterType".to_string(),
+                    value_string: vec!["+1/+1".to_string()],
+                    ..Default::default()
+                }],
+            }],
+            update: "Diff".to_string(),
+            ..Default::default()
+        })];
+
+        let logs = builder().build(&events);
+        let counters: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::CounterAdded { .. }))
+            .collect();
+        assert_eq!(counters.len(), 1);
+        match &counters[0].action {
+            GameAction::CounterAdded { counter_type, .. } => {
+                assert_eq!(counter_type.as_deref(), Some("+1/+1"));
+            }
+            _ => panic!("expected CounterAdded"),
+        }
+    }
+
+    #[test]
+    fn empty_events_produces_no_game_logs() {
+        let logs = builder().build(&[]);
+        assert!(logs.is_empty());
+    }
+
+    #[test]
+    fn concede_client_message_emits_event() {
+        let events = vec![Event::Client(
+            crate::events::client::RequestTypeClientToMatchServiceMessage {
+                client_to_match_service_message_type: "ClientMessageType_ConcedeReq".to_string(),
+                request_id: 1,
+                payload: crate::events::client::ClientMessage::ConcedeReq(crate::events::client::ConcedeReqWrapper {
+                    meta: crate::events::client::ClientMeta::default(),
+                    concede_req: crate::events::client::ConcedeReq::default(),
+                }),
+                timestamp: None,
+                transaction_id: None,
+            },
+        )];
+
+        let logs = builder().build(&events);
+        assert_eq!(logs.len(), 1);
+        let concedes: Vec<_> = logs[0]
+            .events
+            .iter()
+            .filter(|e| matches!(&e.action, GameAction::PlayerConceded { .. }))
+            .collect();
+        assert_eq!(concedes.len(), 1);
+        match &concedes[0].action {
+            GameAction::PlayerConceded { player } => {
+                assert_eq!(player.seat_id, 1);
+                assert_eq!(player.name.as_deref(), Some("Player1"));
+            }
+            _ => panic!("expected PlayerConceded"),
+        }
+    }
+}
