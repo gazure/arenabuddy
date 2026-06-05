@@ -48,7 +48,20 @@ pub async fn scrape_single_tournament(
     let decks = parse_tournament_decks(&document, base_url, format);
     info!("  Found {} decks", decks.len());
 
-    for (deck_info, archetype_name) in &decks {
+    import_decks(repo, fetcher, &decks, tournament_db_id, format).await?;
+
+    Ok(())
+}
+
+/// Resolve archetypes and import each deck's cards for a tournament.
+async fn import_decks(
+    repo: &impl MetagameRepository,
+    fetcher: &Fetcher,
+    decks: &[(MetagameDeck, Option<String>)],
+    tournament_db_id: i32,
+    format: &str,
+) -> Result<()> {
+    for (deck_info, archetype_name) in decks {
         let archetype_id = if let Some(name) = archetype_name {
             Some(repo.upsert_metagame_archetype(name, format, None).await?)
         } else {
@@ -116,31 +129,7 @@ pub async fn scrape_tournaments(
             let decks = scrape_tournament_decks(fetcher, base_url, tournament.goldfish_id, format).await?;
             info!("  Found {} decks", decks.len());
 
-            for (deck_info, archetype_name) in &decks {
-                let archetype_id = if let Some(name) = archetype_name {
-                    Some(repo.upsert_metagame_archetype(name, format, None).await?)
-                } else {
-                    None
-                };
-
-                match deck::fetch_deck_cards(fetcher, deck_info.goldfish_id).await {
-                    Ok(cards) => {
-                        let deck_db_id = repo
-                            .upsert_metagame_deck(deck_info, Some(tournament_db_id), archetype_id, &cards)
-                            .await?;
-                        info!(
-                            "    Deck {} ({}): {} cards - db_id={}",
-                            deck_info.goldfish_id,
-                            deck_info.player_name.as_deref().unwrap_or("unknown"),
-                            cards.len(),
-                            deck_db_id,
-                        );
-                    }
-                    Err(e) => {
-                        tracing::warn!("    Failed to fetch deck {}: {e:#}", deck_info.goldfish_id);
-                    }
-                }
-            }
+            import_decks(repo, fetcher, &decks, tournament_db_id, format).await?;
         }
 
         page += 1;

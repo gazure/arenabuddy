@@ -68,9 +68,6 @@ impl MatchReplay {
         })
     }
 
-    /// # Errors
-    ///
-    /// Returns an error if the controller seat ID is not found
     pub fn get_controller_seat_id(&self) -> i32 {
         self.controller_seat_id
     }
@@ -102,9 +99,6 @@ impl MatchReplay {
             .collect()
     }
 
-    /// # Errors
-    ///
-    /// Returns an error if the controller seat id is not found
     fn get_opponent_color_identity(&self, cards_db: &CardsDatabase) -> String {
         let opponent_cards = self.get_opponent_cards();
         let mut color_identity = BTreeSet::new();
@@ -493,7 +487,6 @@ impl MatchReplayBuilder {
     /// # Errors
     ///
     /// Returns an error if the builder is missing key information
-    /// except it doesn't right now, so don't worry about it
     fn build_replay(&self) -> Result<MatchReplay> {
         let match_id = self.match_id.clone().ok_or(MatchReplayBuilderError::MissingMatchId)?;
         let match_start_message = self

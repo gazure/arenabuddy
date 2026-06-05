@@ -142,7 +142,7 @@ where
     pub async fn get_match_details(&self, id: String) -> Result<MatchDetails> {
         info!("looking for match {id}");
 
-        let (mtga_match, result) = self.db.get_match(&id, None).await.unwrap_or_default();
+        let (mtga_match, result) = self.db.get_match(&id, None).await?;
 
         let mut match_details = MatchDetails {
             id: id.clone(),

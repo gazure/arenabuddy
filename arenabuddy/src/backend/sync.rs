@@ -9,14 +9,7 @@ use arenabuddy_core::{
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tracing::{error, info};
 
-use super::auth::{SharedAuthState, needs_refresh, refresh};
-
-fn attach_token<T>(request: &mut tonic::Request<T>, token: &str) {
-    let bearer = format!("Bearer {token}");
-    if let Ok(value) = bearer.parse() {
-        request.metadata_mut().insert("authorization", value);
-    }
-}
+use super::auth::{SharedAuthState, attach_bearer, needs_refresh, refresh};
 
 async fn current_token(auth_state: &SharedAuthState, grpc_url: &str) -> Option<String> {
     let mut guard = auth_state.lock().await;
@@ -62,7 +55,7 @@ pub async fn sync_matches(
 
     // Get server match list
     let mut request = tonic::Request::new(ListMatchesRequest {});
-    attach_token(&mut request, &token);
+    attach_bearer(&mut request, Some(&token));
 
     let server_matches = client.list_matches(request).await?.into_inner().matches;
     info!("Server has {} matches for this user", server_matches.len());
@@ -94,7 +87,7 @@ pub async fn sync_matches(
         let mut request = tonic::Request::new(GetMatchDataRequest {
             match_id: server_match.id.clone(),
         });
-        attach_token(&mut request, &token);
+        attach_bearer(&mut request, Some(&token));
 
         let response = match client.get_match_data(request).await {
             Ok(r) => r.into_inner(),
@@ -179,7 +172,7 @@ pub async fn push_match(
     let mut request = tonic::Request::new(UpsertMatchDataRequest {
         match_data: Some((&match_data).into()),
     });
-    attach_token(&mut request, &token);
+    attach_bearer(&mut request, Some(&token));
 
     let mut client = MatchServiceClient::connect(grpc_url).await?;
     client.upsert_match_data(request).await?;

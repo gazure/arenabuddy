@@ -336,50 +336,39 @@ impl PartialOrd<Self> for Card {
 
 impl Display for Card {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
-        // First write the card name and set
         write!(f, "{} ({})", self.name, self.set)?;
 
-        // Add mana cost if available
         if !self.mana_cost.is_empty() {
             write!(f, " {}", self.mana_cost)?;
         }
 
-        // Add type line if available
         if !self.type_line.is_empty() {
             write!(f, " - {}", self.type_line)?;
         }
-        // Write the ID
         write!(f, "\nID: {}", self.id)?;
 
-        // Write language if present
         if !self.lang.is_empty() {
             write!(f, "\nLanguage: {}", self.lang)?;
         }
 
-        // Write image URI if present
         if !self.image_uri.is_empty() {
             write!(f, "\nImage URI: {}", self.image_uri)?;
         }
 
-        // Write converted mana cost
         write!(f, "\nMana Value: {}", self.cmc)?;
 
-        // Write layout if present
         if !self.layout.is_empty() {
             write!(f, "\nLayout: {}", self.layout)?;
         }
 
-        // Write colors if present
         if !self.colors.is_empty() {
             write!(f, "\nColors: {}", self.colors.join(", "))?;
         }
 
-        // Write color identity if present
         if !self.color_identity.is_empty() {
             write!(f, "\nColor Identity: {}", self.color_identity.join(", "))?;
         }
 
-        // Write card faces if present
         if !self.card_faces.is_empty() {
             write!(f, "\nCard Faces:")?;
             for (i, face) in self.card_faces.iter().enumerate() {

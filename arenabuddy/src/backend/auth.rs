@@ -9,6 +9,17 @@ use sha2::{Digest, Sha256};
 use tokio::sync::Mutex;
 use tracing::{error, info};
 
+/// Attach a `Bearer` authorization header to a gRPC request when a token is present.
+///
+/// A no-op if `token` is `None` or the value can't be parsed into a metadata value.
+pub(crate) fn attach_bearer<T>(request: &mut tonic::Request<T>, token: Option<&str>) {
+    if let Some(token) = token
+        && let Ok(value) = format!("Bearer {token}").parse()
+    {
+        request.metadata_mut().insert("authorization", value);
+    }
+}
+
 /// Stored authentication state for the current session.
 #[derive(Debug, Clone)]
 pub struct AuthState {

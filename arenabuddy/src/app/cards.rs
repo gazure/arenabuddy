@@ -1,5 +1,3 @@
-#![allow(clippy::useless_format)]
-
 use dioxus::prelude::*;
 
 use crate::{

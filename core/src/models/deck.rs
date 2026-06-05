@@ -1,6 +1,5 @@
 use std::{collections::HashMap, fmt::Display};
 
-use itertools::Itertools;
 use serde_json::Value;
 
 use crate::events::gre::DeckMessage;
@@ -15,16 +14,11 @@ pub struct Quantities(HashMap<i32, usize>);
 
 impl Quantities {
     pub fn from_cards(deck: &[i32]) -> Self {
-        let unique: Vec<_> = deck.iter().unique().copied().collect();
-        let deck_quantities = unique
-            .iter()
-            .map(|ent_id| {
-                let quantity = deck.iter().filter(|&id| id == ent_id).count();
-                (*ent_id, quantity)
-            })
-            .collect();
-
-        Quantities(deck_quantities)
+        let mut quantities = HashMap::new();
+        for &id in deck {
+            *quantities.entry(id).or_insert(0) += 1;
+        }
+        Quantities(quantities)
     }
 
     pub fn get(&self, card_id: i32) -> Option<usize> {

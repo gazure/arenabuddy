@@ -17,19 +17,15 @@ pub async fn execute(
     cards_db_path: Option<&PathBuf>,
     follow: bool,
 ) -> Result<()> {
-    // Load cards database
     let default_cards_db = PathBuf::from("data/cards-full.pb");
     let cards_db = CardsDatabase::new(cards_db_path.unwrap_or(&default_cards_db))?;
 
-    // Configure the ingestion service
     let config = IngestionConfig::new(player_log.to_path_buf())
         .with_follow(follow)
         .with_rotation_watch(false); // CLI doesn't need rotation watching
 
-    // Create the service
     let mut service = LogIngestionService::new(config).await?.with_shutdown();
 
-    // Add directory storage if specified
     if let Some(output_dir) = output_dir {
         std::fs::create_dir_all(output_dir)?;
         info!("Writing replays to directory: {:?}", output_dir);
@@ -37,7 +33,6 @@ pub async fn execute(
         service = service.add_writer(Box::new(storage));
     }
 
-    // Add database storage if specified
     if let Some(db_url) = db {
         info!("Writing replays to database: {}", db_url);
         let db = MatchDB::new(Some(db_url), cards_db).await?;
@@ -45,7 +40,6 @@ pub async fn execute(
         service = service.add_writer(Box::new(db));
     }
 
-    // Start processing
     info!("Starting log processing from: {:?}", player_log);
     if follow {
         info!("Following log file for new events (press Ctrl+C to stop)");

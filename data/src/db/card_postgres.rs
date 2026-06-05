@@ -1,6 +1,6 @@
 use arenabuddy_core::models::{Card, CardFace};
 use sqlx::FromRow;
-use tracing::info;
+use tracing::{info, warn};
 
 use super::{card_repository::CardRepository, postgres::PostgresMatchDB};
 use crate::Result;
@@ -23,9 +23,18 @@ struct CardRow {
 
 impl CardRow {
     fn into_card(self) -> Card {
-        let colors: Vec<String> = serde_json::from_str(&self.colors).unwrap_or_default();
-        let color_identity: Vec<String> = serde_json::from_str(&self.color_identity).unwrap_or_default();
-        let card_faces: Vec<CardFaceJson> = serde_json::from_str(&self.card_faces).unwrap_or_default();
+        let colors: Vec<String> = serde_json::from_str(&self.colors).unwrap_or_else(|e| {
+            warn!("Failed to parse colors for card {}: {e}", self.arena_id);
+            Vec::new()
+        });
+        let color_identity: Vec<String> = serde_json::from_str(&self.color_identity).unwrap_or_else(|e| {
+            warn!("Failed to parse color_identity for card {}: {e}", self.arena_id);
+            Vec::new()
+        });
+        let card_faces: Vec<CardFaceJson> = serde_json::from_str(&self.card_faces).unwrap_or_else(|e| {
+            warn!("Failed to parse card_faces for card {}: {e}", self.arena_id);
+            Vec::new()
+        });
 
         Card {
             id: self.arena_id,

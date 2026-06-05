@@ -1,7 +1,6 @@
 #![expect(clippy::cast_possible_truncation)]
 #![expect(clippy::cast_sign_loss)]
 #![expect(clippy::similar_names)]
-#![expect(clippy::field_reassign_with_default)]
 
 use arenabuddy_core::{
     cards::CardsDatabase,
@@ -17,7 +16,7 @@ use arenabuddy_core::{
 use chrono::{DateTime, NaiveDateTime, Utc};
 use postgresql_embedded::PostgreSQL;
 use sqlx::{FromRow, PgPool, Postgres, Transaction, types::Uuid};
-use tracing::{debug, error, info, instrument};
+use tracing::{debug, error, info, instrument, warn};
 
 #[derive(FromRow)]
 struct MatchRow {
@@ -113,15 +112,15 @@ impl PostgresMatchDB {
 
             std::fs::create_dir_all(&db_path)?;
 
-            let mut settings = postgresql_embedded::Settings::default();
-            settings.installation_dir = db_path.join("postgres_install");
-            settings.data_dir = db_path.join("data");
-            settings.password_file = db_path.join("password.txt");
-            settings.temporary = false; // Make database persistent across restarts
-
-            // Use a fixed password for persistent database
-            // This is safe because the embedded DB only listens on localhost
-            settings.password = "arenabuddy_local".to_string();
+            // A fixed password is safe because the embedded DB only listens on localhost.
+            let settings = postgresql_embedded::Settings {
+                installation_dir: db_path.join("postgres_install"),
+                data_dir: db_path.join("data"),
+                password_file: db_path.join("password.txt"),
+                temporary: false, // persist across restarts
+                password: "arenabuddy_local".to_string(),
+                ..Default::default()
+            };
 
             let mut db = PostgreSQL::new(settings);
             db.setup().await?;
@@ -394,7 +393,7 @@ impl PostgresMatchDB {
     pub async fn write_draft(&mut self, draft: &MTGADraft) -> Result<()> {
         info!("Writing draft to database!");
 
-        let mut tx = self.pool.begin().await.map_err(Error::from)?;
+        let mut tx = self.pool.begin().await?;
 
         Self::insert_draft(draft.draft(), &mut tx).await?;
 
@@ -603,7 +602,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
             .format(replay.match_format())
             .build()?;
 
-        let mut tx = self.pool.begin().await.map_err(Error::from)?;
+        let mut tx = self.pool.begin().await?;
 
         Self::insert_match(&match_id, &mtga_match, None, &mut tx).await?;
 
@@ -617,7 +616,6 @@ impl ArenabuddyRepository for PostgresMatchDB {
             Self::insert_mulligan_info(&match_id, mulligan_info, &mut tx).await?;
         }
 
-        // not too keen on this data model
         let match_results = replay.get_match_results()?;
         debug!("{:?}", match_results);
         for (i, result) in match_results.result_list.iter().enumerate() {
@@ -678,8 +676,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
                         .unwrap_or_default(),
                 )
                 .format(row.format)
-                .build()
-                .expect("all fields provided");
+                .build()?;
             Ok((
                 mtga_match,
                 Some(MatchResult::new_match_result(row.id, row.winning_team_id)),
@@ -714,9 +711,8 @@ impl ArenabuddyRepository for PostgresMatchDB {
                     )
                     .format(row.format)
                     .build()
-                    .expect("all fields provided")
             })
-            .collect();
+            .collect::<std::result::Result<_, _>>()?;
 
         info!("found {} matches", matches.len());
         Ok(matches)
@@ -896,7 +892,6 @@ impl ArenabuddyRepository for PostgresMatchDB {
     async fn get_draft(&self, draft_id: &str) -> Result<MTGADraft> {
         let draft_id = Uuid::parse_str(draft_id)?;
 
-        // Get the draft details
         let draft_row = sqlx::query!(
             r#"
             SELECT id, set_code, draft_format, status, created_at
@@ -908,7 +903,6 @@ impl ArenabuddyRepository for PostgresMatchDB {
         .fetch_one(&self.pool)
         .await?;
 
-        // Get all packs for this draft
         let pack_rows = sqlx::query!(
             r#"
             SELECT id, pack_number, pick_number, selection_number, cards, card_id
@@ -921,7 +915,6 @@ impl ArenabuddyRepository for PostgresMatchDB {
         .fetch_all(&self.pool)
         .await?;
 
-        // Construct the Draft model
         let draft = Draft::new(
             draft_row.id,
             draft_row.set_code,
@@ -930,7 +923,6 @@ impl ArenabuddyRepository for PostgresMatchDB {
         )
         .with_created_at(draft_row.created_at.unwrap_or_default().and_utc());
 
-        // Construct the packs
         let mut packs = Vec::new();
         for row in pack_rows {
             let cards: Vec<ArenaId> = serde_json::from_str(&row.cards)?;
@@ -963,7 +955,7 @@ impl ArenabuddyRepository for PostgresMatchDB {
         info!("Upserting match data for match_id: {}", mtga_match.id());
         let match_id = Uuid::parse_str(mtga_match.id())?;
 
-        let mut tx = self.pool.begin().await.map_err(Error::from)?;
+        let mut tx = self.pool.begin().await?;
 
         Self::insert_match(&match_id, mtga_match, user_id, &mut tx).await?;
 
@@ -1002,7 +994,10 @@ impl ArenabuddyRepository for PostgresMatchDB {
         let event_logs = rows
             .into_iter()
             .map(|row| {
-                let events = serde_json::from_str(&row.events_json).unwrap_or_default();
+                let events = serde_json::from_str(&row.events_json).unwrap_or_else(|e| {
+                    warn!("Failed to parse event log for game {}: {e}", row.game_number);
+                    Vec::new()
+                });
                 GameEventLog {
                     game_number: row.game_number,
                     events,
