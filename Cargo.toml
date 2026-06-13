@@ -17,7 +17,7 @@ categories = []
 version = "0.1.0"
 repository = "https://github.com/gazure/arenabuddy"
 edition = "2024"
-rust-version = "1.94"
+rust-version = "1.96"
 keywords = []
 license = "MIT"
 
@@ -39,16 +39,16 @@ jsonwebtoken = { version = "10.4.0", features = ["rust_crypto"] }
 itertools = "0.14.0"
 notify = "8.2.0"
 open = "5.3"
-postgresql_embedded = { version = "0.20.2", features = ["bundled"] }
-prost = "0.14.3"
-prost-build = { version = "0.14.3", features = ["format"] }
-prost-types = "0.14.3"
+postgresql_embedded = { version = "0.20.4", features = ["bundled"] }
+prost = "0.14.4"
+prost-build = { version = "0.14.4", features = ["format"] }
+prost-types = "0.14.4"
 tonic = { version = "0.14.6", features = ["tls-ring", "tls-native-roots"] }
 tonic-build = "0.14.6"
 tonic-prost = "0.14.6"
 tonic-prost-build = "0.14.6"
 rand = "0.10.1"
-regex = "1.12.3"
+regex = "1.12.4"
 rfd = { version = "0.17.2", default-features = false }
 reqwest = { version = "0.13.4", features = [
     "form",
@@ -84,7 +84,7 @@ opentelemetry-otlp = { version = "0.32.0", default-features = false, features = 
     "trace",
 ] }
 urlencoding = "2.1.3"
-uuid = { version = "1.23.2", features = ["v4", "js"] }
+uuid = { version = "1.23.3", features = ["v4", "js"] }
 yup-oauth2 = { version = "12.1.2", features = [
     "hyper-rustls",
     "service-account",
