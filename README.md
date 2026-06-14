@@ -44,12 +44,28 @@ To get started with the ArenaBuddy development environment, follow these steps:
 
    You can get help on any command with `cargo run -p arenabuddy_cli -- --help` or `cargo run -p arenabuddy_cli -- <command> --help`.
 
-4. Project Structure:
+4. MTGA startup daemon:
+
+   `arenabuddy-daemon` is a small process watcher that starts ArenaBuddy when it sees Magic Arena running. It does not parse logs itself; it only launches the desktop app if an ArenaBuddy process is not already running.
+
+   ```bash
+   # Development example: build the app, then run one dry process scan
+   cargo build -p arenabuddy
+   cargo run -p arenabuddy_daemon -- --arenabuddy ./target/debug/arenabuddy --once --dry-run
+
+   # Run continuously and poll every 5 seconds
+   cargo run -p arenabuddy_daemon -- --arenabuddy ./target/debug/arenabuddy
+   ```
+
+   For installed builds, either place `arenabuddy-daemon` next to the ArenaBuddy executable or set `ARENABUDDY_APP_PATH` to the app binary path. The daemon can then be registered with the operating system's per-user startup facility, such as a macOS LaunchAgent, Windows Task Scheduler entry, or Linux user systemd unit.
+
+5. Project Structure:
 
    - `/core` - common modules
    - `/cli` - Consolidated command line tool for log parsing and card scraping
    - `/data` - data layer
    - `/arenabuddy` - Dioxus desktop app
+   - `/daemon` - process watcher that can start the desktop app with MTGA
    - `/server` - gRPC backend service
    - `/web` - Web splash page
    - `/metagame` - Metagame scraping and deck classification
