@@ -62,7 +62,7 @@ jobs:
         run: cargo binstall dioxus-cli --version 0.7.3 --locked
 
       - name: Cache cargo registry
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
