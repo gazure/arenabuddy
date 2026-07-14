@@ -6,7 +6,10 @@ use crate::{
         cards::Cards, debug_logs::DebugLogs, draft_details::DraftDetails, drafts::Drafts, error_logs::ErrorLogs,
         match_details::MatchDetails, matches::Matches, stats::Stats,
     },
-    backend::{BackgroundRuntime, Service, SharedAuthState, auth_controller},
+    backend::{
+        BackgroundRuntime, Service, SharedAuthState, auth_controller,
+        theme::{Theme, save_theme},
+    },
 };
 
 fn open_github() {
@@ -47,9 +50,9 @@ pub enum Route {
 #[component]
 fn Home() -> Element {
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
-            h1 { class: "text-2xl font-bold mb-4 text-gray-100", "Home Page" }
-            p { class: "text-gray-400",
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6",
+            h1 { class: "text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100", "Home Page" }
+            p { class: "text-gray-600 dark:text-gray-400",
                 "Welcome to ArenaBuddy. Track and analyze your Arena matches."
             }
         }
@@ -59,12 +62,12 @@ fn Home() -> Element {
 #[component]
 fn Contact() -> Element {
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
-            h1 { class: "text-2xl font-bold mb-4 text-gray-100", "Contact" }
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6",
+            h1 { class: "text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100", "Contact" }
             a {
                 href: "#",
                 onclick: move |_| open_github(),
-                class: "text-amber-400 hover:text-amber-300 transition-colors duration-200",
+                class: "text-amber-600 hover:text-amber-500 dark:text-amber-400 dark:hover:text-amber-300 transition-colors duration-200",
                 "Github Repo"
             }
         }
@@ -75,8 +78,8 @@ fn Contact() -> Element {
 fn PageNotFound(route: Vec<String>) -> Element {
     rsx! {
         div { class: "text-center mt-8",
-            h1 { class: "text-2xl font-bold text-red-400", "Page Not Found" }
-            p { class: "mt-2 text-gray-400",
+            h1 { class: "text-2xl font-bold text-red-600 dark:text-red-400", "Page Not Found" }
+            p { class: "mt-2 text-gray-600 dark:text-gray-400",
                 "The page you're looking for doesn't exist."
             }
         }
@@ -85,6 +88,7 @@ fn PageNotFound(route: Vec<String>) -> Element {
 
 #[component]
 fn Layout() -> Element {
+    let mut theme = use_context::<Signal<Theme>>();
     let auth_state = use_context::<SharedAuthState>();
     let mut login_status = use_signal(|| None::<String>);
     let mut login_loading = use_signal(|| false);
@@ -136,76 +140,86 @@ fn Layout() -> Element {
     };
 
     rsx! {
-        nav { class: "bg-gray-950 p-4 border-b border-gray-800",
+        nav { class: "bg-white dark:bg-gray-950 p-4 border-b border-gray-200 dark:border-gray-800",
             div { class: "container mx-auto flex justify-between items-center",
-                ul { class: "flex space-x-6 text-white",
+                ul { class: "flex space-x-6 text-gray-900 dark:text-white",
                     li {
                         Link {
                             to: Route::Home {},
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Home"
                         }
                     }
                     li {
                         Link {
                             to: Route::Matches {},
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Matches"
                         }
                     }
                     li {
                         Link {
                             to: Route::Drafts { },
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Drafts"
                         }
                     }
                     li {
                         Link {
                             to: Route::Stats {},
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Stats"
                         }
                     }
                     li {
                         Link {
                             to: Route::Cards {},
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Cards"
                         }
                     }
                     li {
                         Link {
                             to: Route::ErrorLogs {},
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Error Logs"
                         }
                     }
                     li {
                         Link {
                             to: Route::DebugLogs {},
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Debug Logs"
                         }
                     }
                     li {
                         Link {
                             to: Route::Contact {},
-                            class: "hover:text-amber-400 transition-colors duration-200",
+                            class: "hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200",
                             "Contact"
                         }
                     }
                 }
-                div { class: "text-white flex items-center space-x-3",
+                div { class: "text-gray-900 dark:text-white flex items-center space-x-3",
+                    button {
+                        class: "text-sm px-2 py-1 rounded hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors duration-200",
+                        title: if theme().is_dark() { "Switch to light mode" } else { "Switch to dark mode" },
+                        onclick: move |_| {
+                            let next = theme().toggled();
+                            theme.set(next);
+                            save_theme(next);
+                        },
+                        if theme().is_dark() { "☀️" } else { "🌙" }
+                    }
                     if let Some(username) = login_status() {
-                        span { class: "text-emerald-400 text-sm", "Logged in as {username}" }
+                        span { class: "text-emerald-600 dark:text-emerald-400 text-sm", "Logged in as {username}" }
                         button {
                             class: "bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200",
                             onclick: on_logout,
                             "Logout"
                         }
                     } else if login_loading() {
-                        span { class: "text-yellow-400 text-sm", "Logging in..." }
+                        span { class: "text-yellow-600 dark:text-yellow-400 text-sm", "Logging in..." }
                     } else {
                         button {
                             class: "bg-violet-600 hover:bg-violet-700 text-white text-sm px-3 py-1 rounded transition-colors duration-200",

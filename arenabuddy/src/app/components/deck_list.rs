@@ -18,7 +18,7 @@ pub fn DeckList(
     let hovered_card = use_signal(|| None::<(CardDisplayRecord, (f64, f64))>);
 
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden",
             div { class: "bg-gradient-to-r from-violet-800 to-indigo-900 py-4 px-6",
                 h2 { class: "text-xl font-bold text-white", "{title}" }
                 if let Some(ref archetype) = archetype {
@@ -99,7 +99,7 @@ fn NonLandCards(
             if let Some(cards) = main_deck.get(&card_type) {
                 if !cards.is_empty() {
                     div { class: "mb-4",
-                        h4 { class: "text-md font-medium text-gray-300 mb-2",
+                        h4 { class: "text-md font-medium text-gray-700 dark:text-gray-300 mb-2",
                             if show_quantities {
                                 "{card_type} ({deck.total_by_type(card_type)})"
                             } else {
@@ -128,7 +128,7 @@ fn Lands(
     if let Some(lands) = main_deck.get(&CardType::Land).filter(|l| !l.is_empty()) {
         rsx! {
             div {
-                h3 { class: "text-lg font-semibold text-gray-200 border-b border-gray-700 pb-2",
+                h3 { class: "text-lg font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2",
                     if show_quantities {
                         "Lands ({deck.total_by_type(CardType::Land)})"
                     } else {
@@ -159,7 +159,7 @@ fn Sideboard(
     } else {
         rsx! {
             div {
-                h3 { class: "text-lg font-semibold text-gray-200 border-b border-gray-700 pb-2",
+                h3 { class: "text-lg font-semibold text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2",
                     if show_quantities {
                         "Sideboard ({sideboard.len()})"
                     } else {
@@ -184,7 +184,7 @@ fn CardRow(
 ) -> Element {
     rsx! {
         div {
-            class: "flex items-center justify-between py-1 px-2 hover:bg-gray-700/50 rounded text-sm cursor-pointer",
+            class: "flex items-center justify-between py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded text-sm cursor-pointer",
             onmouseenter: move |event| {
                 let coords = event.client_coordinates();
                 hovered_card.set(Some((card.clone(), (coords.x, coords.y))));
@@ -194,7 +194,7 @@ fn CardRow(
             },
             div { class: "flex items-center space-x-2",
                 if show_quantities {
-                    span { class: "font-medium text-gray-400 w-6 text-center",
+                    span { class: "font-medium text-gray-600 dark:text-gray-400 w-6 text-center",
                         "{card.quantity}"
                     }
                 }

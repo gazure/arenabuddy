@@ -1,11 +1,19 @@
 @import "tailwindcss";
 
+/* Dark mode is driven by a `.dark` class on <html> instead of prefers-color-scheme */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Configure content sources */
 @source "./src/**/*.{rs,html,css}";
 @source "./dist/**/*.html";
 @source "./index.html";
 
 body {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-900);
+}
+
+.dark body {
     background-color: var(--color-gray-950);
     color: var(--color-gray-200);
 }

@@ -43,9 +43,9 @@ pub fn ErrorLogs() -> Element {
 
     rsx! {
         div { class: "max-w-6xl mx-auto p-2 sm:p-4",
-            div { class: "bg-gray-800 rounded-lg border border-gray-700 p-4 sm:p-6 mb-8",
-                div { class: "flex justify-between items-center mb-6 border-b border-gray-700 pb-4",
-                    h1 { class: "text-2xl font-bold text-gray-100", "Error Logs" }
+            div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-8",
+                div { class: "flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-700 pb-4",
+                    h1 { class: "text-2xl font-bold text-gray-900 dark:text-gray-100", "Error Logs" }
                     button {
                         onclick: move |_| load_logs(),
                         class: "bg-amber-600 hover:bg-amber-700 text-white font-medium py-2 px-4 rounded-md transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-opacity-50",
@@ -57,28 +57,28 @@ pub fn ErrorLogs() -> Element {
                 div {
                     if is_loading() {
                         div { class: "flex justify-center items-center h-64",
-                            div { class: "animate-pulse text-gray-400", "Loading logs..." }
+                            div { class: "animate-pulse text-gray-600 dark:text-gray-400", "Loading logs..." }
                         }
                     } else if has_error() {
-                        div { class: "bg-red-900/20 border-l-4 border-red-500 p-4 mb-4",
+                        div { class: "bg-red-100 dark:bg-red-900/20 border-l-4 border-red-500 p-4 mb-4",
                             div { class: "flex",
                                 div { class: "ml-3",
-                                    p { class: "text-red-300 font-medium", "Error loading logs" }
-                                    p { class: "text-red-400 mt-1",
+                                    p { class: "text-red-700 dark:text-red-300 font-medium", "Error loading logs" }
+                                    p { class: "text-red-600 dark:text-red-400 mt-1",
                                         "There was a problem fetching the error logs. Please try again."
                                     }
                                 }
                             }
                         }
                     } else if error_logs().is_empty() {
-                        div { class: "bg-gray-900 border border-gray-700 rounded-md p-6 text-center",
-                            p { class: "text-gray-400", "No error logs found." }
+                        div { class: "bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-6 text-center",
+                            p { class: "text-gray-600 dark:text-gray-400", "No error logs found." }
                         }
                     } else {
                         div {
                             textarea {
                                 readonly: true,
-                                class: "border border-gray-600 rounded-md bg-gray-900 font-mono text-sm leading-relaxed text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-full h-96 p-4",
+                                class: "border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-900 font-mono text-sm leading-relaxed text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-full h-96 p-4",
                                 value: "{error_logs().join(\"\\n\")}"
                             }
                         }

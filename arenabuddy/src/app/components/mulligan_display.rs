@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 #[component]
 pub fn MulliganDisplay(mulligans: Vec<Mulligan>) -> Element {
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden",
             div { class: "bg-gradient-to-r from-amber-900 to-amber-800 py-4 px-6",
                 h2 { class: "text-xl font-bold text-white", "Mulligan Decisions" }
             }
@@ -37,17 +37,17 @@ fn MulliganCard(mulligan: Mulligan) -> Element {
     let decision_class = get_decision_class(&mulligan.decision);
 
     rsx! {
-        div { class: "border border-gray-700 rounded-lg overflow-hidden",
+        div { class: "border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden",
             // Header section
-            div { class: "bg-gray-900 px-4 py-3 border-b border-gray-700",
+            div { class: "bg-gray-50 dark:bg-gray-900 px-4 py-3 border-b border-gray-200 dark:border-gray-700",
                 div { class: "flex justify-between items-center",
-                    h3 { class: "font-semibold text-gray-300",
+                    h3 { class: "font-semibold text-gray-700 dark:text-gray-300",
                         "Game {mulligan.game_number} to Keep {mulligan.number_to_keep}"
                     }
 
                     // Badges
                     div { class: "flex items-center space-x-2",
-                        span { class: "px-2 py-1 text-xs rounded-full bg-violet-900/40 text-violet-300",
+                        span { class: "px-2 py-1 text-xs rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300",
                             "{mulligan.play_draw}"
                         }
                         span { class: "px-2 py-1 text-xs rounded-full {decision_class}",
@@ -55,7 +55,7 @@ fn MulliganCard(mulligan: Mulligan) -> Element {
                         }
                     }
                 }
-                div { class: "mt-1 text-sm text-gray-400",
+                div { class: "mt-1 text-sm text-gray-600 dark:text-gray-400",
                     "vs {mulligan.opponent_identity}"
                 }
             }
@@ -85,8 +85,8 @@ fn MulliganCard(mulligan: Mulligan) -> Element {
 
 fn get_decision_class(decision: &str) -> &'static str {
     match decision {
-        "Keep" => "bg-emerald-900/40 text-emerald-300",
-        "Mulligan" => "bg-red-900/40 text-red-300",
-        _ => "bg-gray-700 text-gray-300",
+        "Keep" => "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300",
+        "Mulligan" => "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
+        _ => "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300",
     }
 }
