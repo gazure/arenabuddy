@@ -21,7 +21,7 @@ pub fn EventLogDisplay(event_logs: Vec<GameEventLog>, controller_seat_id: i32) -
     };
 
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden",
             div { class: "bg-gradient-to-r from-emerald-900 to-emerald-800 py-4 px-6",
                 h2 { class: "text-xl font-bold text-white", "Event Log" }
             }
@@ -60,7 +60,7 @@ fn GameSelector(game_numbers: Vec<i32>, selected: i32, on_select: EventHandler<i
                 class: if selected == 0 {
                     "px-3 py-1 rounded-full text-sm font-medium bg-emerald-600 text-white"
                 } else {
-                    "px-3 py-1 rounded-full text-sm font-medium bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors duration-150"
+                    "px-3 py-1 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-150"
                 },
                 onclick: move |_| on_select.call(0),
                 "All Games"
@@ -70,7 +70,7 @@ fn GameSelector(game_numbers: Vec<i32>, selected: i32, on_select: EventHandler<i
                     class: if selected == num {
                         "px-3 py-1 rounded-full text-sm font-medium bg-emerald-600 text-white"
                     } else {
-                        "px-3 py-1 rounded-full text-sm font-medium bg-gray-700 text-gray-300 hover:bg-gray-600 transition-colors duration-150"
+                        "px-3 py-1 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-150"
                     },
                     onclick: move |_| on_select.call(num),
                     "Game {num}"
@@ -133,7 +133,7 @@ fn GameTimeline(event_log: GameEventLog, controller_seat_id: i32) -> Element {
 
     rsx! {
         div { class: "mb-6",
-            h3 { class: "text-lg font-semibold text-gray-300 mb-3 border-b border-gray-700 pb-2",
+            h3 { class: "text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 border-b border-gray-200 dark:border-gray-700 pb-2",
                 "Game {event_log.game_number}"
             }
             div { class: "space-y-2",
@@ -169,9 +169,9 @@ fn TurnGroup(group: TurnEventGroup, controller_seat_id: i32) -> Element {
     };
 
     let header_bg = if is_your_turn {
-        "bg-blue-900/20 hover:bg-blue-900/30"
+        "bg-blue-100 dark:bg-blue-900/20 hover:bg-blue-200 dark:hover:bg-blue-900/30"
     } else {
-        "bg-red-900/20 hover:bg-red-900/30"
+        "bg-red-100 dark:bg-red-900/20 hover:bg-red-200 dark:hover:bg-red-900/30"
     };
 
     let chevron_class = if expanded() {
@@ -181,7 +181,7 @@ fn TurnGroup(group: TurnEventGroup, controller_seat_id: i32) -> Element {
     };
 
     rsx! {
-        div { class: "border border-gray-700 rounded-lg overflow-hidden",
+        div { class: "border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden",
             div {
                 class: "px-4 py-2 cursor-pointer flex justify-between items-center {header_bg} transition-colors duration-150",
                 onclick: move |_| {
@@ -189,9 +189,9 @@ fn TurnGroup(group: TurnEventGroup, controller_seat_id: i32) -> Element {
                     expanded.set(!current);
                 },
                 div { class: "flex items-center gap-2",
-                    span { class: "font-semibold text-gray-300", "{turn_label}" }
+                    span { class: "font-semibold text-gray-700 dark:text-gray-300", "{turn_label}" }
                     span { class: "text-sm text-gray-500", "({player_label})" }
-                    span { class: "px-2 py-0.5 text-xs rounded-full bg-gray-700 text-gray-400",
+                    span { class: "px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400",
                         "{group.events.len()} events"
                     }
                 }
@@ -210,7 +210,7 @@ fn TurnGroup(group: TurnEventGroup, controller_seat_id: i32) -> Element {
                 }
             }
             if expanded() {
-                div { class: "divide-y divide-gray-700",
+                div { class: "divide-y divide-gray-200 dark:divide-gray-700",
                     for event in &group.events {
                         EventRow { event: event.clone(), controller_seat_id }
                     }
@@ -229,12 +229,12 @@ fn style_to_css(style: ActionStyle) -> &'static str {
     match style {
         ActionStyle::Normal => "",
         ActionStyle::Phase => "text-gray-500 text-xs italic",
-        ActionStyle::PlayerAction => "text-blue-300",
-        ActionStyle::OpponentAction => "text-red-300",
-        ActionStyle::Attack | ActionStyle::Negative => "text-red-400",
-        ActionStyle::Defense => "text-blue-400",
-        ActionStyle::Damage => "text-orange-400",
-        ActionStyle::Positive => "text-emerald-400",
+        ActionStyle::PlayerAction => "text-blue-700 dark:text-blue-300",
+        ActionStyle::OpponentAction => "text-red-700 dark:text-red-300",
+        ActionStyle::Attack | ActionStyle::Negative => "text-red-600 dark:text-red-400",
+        ActionStyle::Defense => "text-blue-600 dark:text-blue-400",
+        ActionStyle::Damage => "text-orange-600 dark:text-orange-400",
+        ActionStyle::Positive => "text-emerald-600 dark:text-emerald-400",
         ActionStyle::Emphasized => "font-semibold",
     }
 }
@@ -268,7 +268,7 @@ fn EventRow(event: GameEvent, controller_seat_id: i32) -> Element {
             span { class: "flex-shrink-0 w-6 text-center", "{display.icon}" }
             span { class: "flex-grow", "{display.description}" }
             if let Some(badge) = phase_badge {
-                span { class: "flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-700 text-gray-400",
+                span { class: "flex-shrink-0 px-2 py-0.5 text-xs rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400",
                     "{badge}"
                 }
             }

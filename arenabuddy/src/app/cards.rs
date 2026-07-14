@@ -108,8 +108,8 @@ pub fn Cards() -> Element {
         div { class: "container mx-auto px-4 py-8 max-w-6xl",
             div { class: "flex justify-between items-center mb-6",
                 div {
-                    h1 { class: "text-2xl font-bold text-gray-100", "Card Database" }
-                    p { class: "text-gray-400 mt-1",
+                    h1 { class: "text-2xl font-bold text-gray-900 dark:text-gray-100", "Card Database" }
+                    p { class: "text-gray-600 dark:text-gray-400 mt-1",
                         "Search the embedded Arena card database by name, set, or Arena ID."
                     }
                 }
@@ -122,16 +122,16 @@ pub fn Cards() -> Element {
             }
 
             div { class: "grid grid-cols-1 md:grid-cols-2 gap-6 mb-6",
-                div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
-                    h2 { class: "text-lg font-semibold text-gray-300 mb-4", "Search cards" }
+                div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6",
+                    h2 { class: "text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4", "Search cards" }
                     div { class: "space-y-4",
                         div {
-                            label { class: "block text-sm text-gray-400 mb-2", "Name prefix" }
+                            label { class: "block text-sm text-gray-600 dark:text-gray-400 mb-2", "Name prefix" }
                             input {
                                 r#type: "text",
                                 value: "{search_query}",
                                 placeholder: "Try Lightning, Opt, Forest...",
-                                class: "bg-gray-700 text-gray-200 border border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
+                                class: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
                                 oninput: move |evt| {
                                     search_query.set(evt.value());
                                     current_page.set(0);
@@ -139,9 +139,9 @@ pub fn Cards() -> Element {
                             }
                         }
                         div {
-                            label { class: "block text-sm text-gray-400 mb-2", "Set" }
+                            label { class: "block text-sm text-gray-600 dark:text-gray-400 mb-2", "Set" }
                             select {
-                                class: "bg-gray-700 text-gray-200 border border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
+                                class: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
                                 onchange: move |evt| {
                                     set_filter.set(evt.value());
                                     current_page.set(0);
@@ -168,16 +168,16 @@ pub fn Cards() -> Element {
                     }
                 }
 
-                div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
-                    h2 { class: "text-lg font-semibold text-gray-300 mb-4", "Find by Arena ID" }
+                div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6",
+                    h2 { class: "text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4", "Find by Arena ID" }
                     div { class: "space-y-4",
                         div {
-                            label { class: "block text-sm text-gray-400 mb-2", "Arena ID" }
+                            label { class: "block text-sm text-gray-600 dark:text-gray-400 mb-2", "Arena ID" }
                             input {
                                 r#type: "text",
                                 value: "{lookup_id}",
                                 placeholder: "Example: 91717",
-                                class: "bg-gray-700 text-gray-200 border border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
+                                class: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
                                 oninput: move |evt| lookup_id.set(evt.value())
                             }
                         }
@@ -188,7 +188,7 @@ pub fn Cards() -> Element {
                             if lookup_loading() { "Looking up..." } else { "Find Card" }
                         }
                         if let Some(status) = lookup_status() {
-                            p { class: "text-sm text-gray-400", "{status}" }
+                            p { class: "text-sm text-gray-600 dark:text-gray-400", "{status}" }
                         }
                     }
                 }
@@ -209,7 +209,7 @@ pub fn Cards() -> Element {
                     if let Some(card) = selected_card() {
                         CardDetails { key: "{card.id}", card }
                     } else {
-                        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-12 text-center text-gray-500",
+                        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center text-gray-500",
                             "Select a search result or look up an Arena ID to inspect card details."
                         }
                     }
@@ -222,9 +222,9 @@ pub fn Cards() -> Element {
 #[component]
 fn SummaryPanel(summary: Option<CardDatabaseSummary>) -> Element {
     rsx! {
-            div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
-                div { class: "bg-gray-900 py-3 px-4 border-b border-gray-700",
-                    h2 { class: "font-semibold text-gray-300", "Database info" }
+            div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden",
+                div { class: "bg-gray-50 dark:bg-gray-900 py-3 px-4 border-b border-gray-200 dark:border-gray-700",
+                    h2 { class: "font-semibold text-gray-700 dark:text-gray-300", "Database info" }
                 }
                 match summary {
                     None => rsx! {
@@ -235,23 +235,23 @@ fn SummaryPanel(summary: Option<CardDatabaseSummary>) -> Element {
     Some(summary) => rsx! {
                         div { class: "p-6 space-y-4",
                             div { class: "grid grid-cols-2 gap-4",
-                                div { class: "bg-gray-900 rounded-lg p-4",
+                                div { class: "bg-gray-50 dark:bg-gray-900 rounded-lg p-4",
                                     p { class: "text-sm text-gray-500", "Cards" }
-                                    p { class: "text-2xl font-bold text-gray-100", "{summary.total_cards}" }
+                                    p { class: "text-2xl font-bold text-gray-900 dark:text-gray-100", "{summary.total_cards}" }
                                 }
-                                div { class: "bg-gray-900 rounded-lg p-4",
+                                div { class: "bg-gray-50 dark:bg-gray-900 rounded-lg p-4",
                                     p { class: "text-sm text-gray-500", "Sets" }
-                                    p { class: "text-2xl font-bold text-gray-100", "{summary.total_sets}" }
+                                    p { class: "text-2xl font-bold text-gray-900 dark:text-gray-100", "{summary.total_sets}" }
                                 }
                             }
                             div {
-                                h3 { class: "text-sm font-semibold text-gray-400 mb-2", "Set counts" }
-                                div { class: "max-h-48 overflow-y-auto border border-gray-700 rounded",
+                                h3 { class: "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2", "Set counts" }
+                                div { class: "max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded",
                                     table { class: "min-w-full table-auto",
                                         tbody {
                                             for set in summary.sets.iter() {
-                                                tr { class: "border-b border-gray-700 last:border-0",
-                                                    td { class: "py-2 px-3 text-gray-300 font-mono text-sm", "{set.set}" }
+                                                tr { class: "border-b border-gray-200 dark:border-gray-700 last:border-0",
+                                                    td { class: "py-2 px-3 text-gray-700 dark:text-gray-300 font-mono text-sm", "{set.set}" }
                                                     td { class: "py-2 px-3 text-gray-500 text-sm text-right", "{set.count}" }
                                                 }
                                             }
@@ -274,9 +274,9 @@ fn SearchResults(
     filters_active: bool,
 ) -> Element {
     rsx! {
-            div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
-                div { class: "bg-gray-900 py-3 px-4 border-b border-gray-700",
-                    h2 { class: "font-semibold text-gray-300", "Search results" }
+            div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden",
+                div { class: "bg-gray-50 dark:bg-gray-900 py-3 px-4 border-b border-gray-200 dark:border-gray-700",
+                    h2 { class: "font-semibold text-gray-700 dark:text-gray-300", "Search results" }
                 }
                 match results {
                     None => rsx! {
@@ -310,11 +310,11 @@ fn SearchResults(
                                 div { class: "overflow-x-auto",
                                     table { class: "min-w-full table-auto",
                                         thead {
-                                            tr { class: "bg-gray-900 text-left",
-                                                th { class: "py-3 px-4 font-semibold text-gray-400", "Card" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-400", "Set" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-400", "Type" }
-                                                th { class: "py-3 px-4 font-semibold text-gray-400", "ID" }
+                                            tr { class: "bg-gray-50 dark:bg-gray-900 text-left",
+                                                th { class: "py-3 px-4 font-semibold text-gray-600 dark:text-gray-400", "Card" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-600 dark:text-gray-400", "Set" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-600 dark:text-gray-400", "Type" }
+                                                th { class: "py-3 px-4 font-semibold text-gray-600 dark:text-gray-400", "ID" }
                                             }
                                         }
                                         tbody {
@@ -340,19 +340,19 @@ fn SearchResults(
 fn CardResultRow(card: CardSearchResult, selected_card: Signal<Option<CardSearchResult>>) -> Element {
     rsx! {
         tr {
-            class: "hover:bg-gray-700/50 transition-colors duration-150 cursor-pointer",
+            class: "hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-150 cursor-pointer",
             onclick: move |_| selected_card.set(Some(card.clone())),
-            td { class: "py-3 px-4 border-b border-gray-700",
-                div { class: "font-medium text-gray-100", "{card.name}" }
+            td { class: "py-3 px-4 border-b border-gray-200 dark:border-gray-700",
+                div { class: "font-medium text-gray-900 dark:text-gray-100", "{card.name}" }
                 if !card.mana_cost.is_empty() {
                     div { class: "mt-1",
                         ManaCost { cost: card.cost() }
                     }
                 }
             }
-            td { class: "py-3 px-4 border-b border-gray-700 text-amber-400 font-mono text-sm", "{card.set}" }
-            td { class: "py-3 px-4 border-b border-gray-700 text-gray-400 text-sm", "{card.type_line}" }
-            td { class: "py-3 px-4 border-b border-gray-700 text-gray-500 font-mono text-sm", "{card.id}" }
+            td { class: "py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-amber-600 dark:text-amber-400 font-mono text-sm", "{card.set}" }
+            td { class: "py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 text-sm", "{card.type_line}" }
+            td { class: "py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-gray-500 font-mono text-sm", "{card.id}" }
         }
     }
 }
@@ -386,9 +386,9 @@ fn CardDetails(card: CardSearchResult) -> Element {
     };
 
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 overflow-hidden",
-            div { class: "bg-gray-900 py-3 px-4 border-b border-gray-700",
-                h2 { class: "font-semibold text-gray-300", "Card details" }
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden",
+            div { class: "bg-gray-50 dark:bg-gray-900 py-3 px-4 border-b border-gray-200 dark:border-gray-700",
+                h2 { class: "font-semibold text-gray-700 dark:text-gray-300", "Card details" }
             }
             div { class: "p-6 space-y-4",
                 if !card.image_uri.is_empty() {
@@ -404,15 +404,15 @@ fn CardDetails(card: CardSearchResult) -> Element {
                                 let image_uri = card.image_uri.clone();
                                 move |_| open_url(image_uri.clone())
                             },
-                            class: "mt-2 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-4 rounded text-sm transition-colors duration-150",
+                            class: "mt-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 px-4 rounded text-sm transition-colors duration-150",
                             "Open image"
                         }
                     }
                 }
 
                 div {
-                    h3 { class: "text-2xl font-bold text-gray-100", "{card.name}" }
-                    p { class: "text-gray-400 mt-1", "{card.type_line}" }
+                    h3 { class: "text-2xl font-bold text-gray-900 dark:text-gray-100", "{card.name}" }
+                    p { class: "text-gray-600 dark:text-gray-400 mt-1", "{card.type_line}" }
                 }
 
                 div { class: "grid grid-cols-2 gap-4",
@@ -433,14 +433,14 @@ fn CardDetails(card: CardSearchResult) -> Element {
 
                 if !card.faces.is_empty() {
                     div {
-                        h3 { class: "text-sm font-semibold text-gray-400 mb-2", "Card faces" }
+                        h3 { class: "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2", "Card faces" }
                         div { class: "space-y-2",
                             for face in card.faces.iter() {
-                                div { class: "bg-gray-900 rounded-lg p-4",
-                                    p { class: "font-medium text-gray-200", "{face.name}" }
+                                div { class: "bg-gray-50 dark:bg-gray-900 rounded-lg p-4",
+                                    p { class: "font-medium text-gray-800 dark:text-gray-200", "{face.name}" }
                                     p { class: "text-sm text-gray-500", "{face.type_line}" }
                                     if !face.mana_cost.is_empty() {
-                                        p { class: "text-sm text-gray-400 mt-1", "{face.mana_cost}" }
+                                        p { class: "text-sm text-gray-600 dark:text-gray-400 mt-1", "{face.mana_cost}" }
                                     }
                                 }
                             }
@@ -456,12 +456,12 @@ fn CardDetails(card: CardSearchResult) -> Element {
                         if json_loading() { "Loading JSON..." } else { "Show raw JSON" }
                     }
                     if let Some(status) = json_status() {
-                        p { class: "text-sm text-gray-400 mt-2", "{status}" }
+                        p { class: "text-sm text-gray-600 dark:text-gray-400 mt-2", "{status}" }
                     }
                     if let Some(json) = raw_json() {
                         textarea {
                             readonly: true,
-                            class: "border border-gray-600 rounded-md bg-gray-900 font-mono text-sm leading-relaxed text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-full h-96 p-4 mt-4",
+                            class: "border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-900 font-mono text-sm leading-relaxed text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 w-full h-96 p-4 mt-4",
                             value: "{json}"
                         }
                     }
@@ -474,9 +474,9 @@ fn CardDetails(card: CardSearchResult) -> Element {
 #[component]
 fn DetailItem(label: &'static str, value: String) -> Element {
     rsx! {
-        div { class: "bg-gray-900 rounded-lg p-4",
+        div { class: "bg-gray-50 dark:bg-gray-900 rounded-lg p-4",
             p { class: "text-sm text-gray-500", "{label}" }
-            p { class: "text-gray-200", "{value}" }
+            p { class: "text-gray-800 dark:text-gray-200", "{value}" }
         }
     }
 }

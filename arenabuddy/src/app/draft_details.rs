@@ -30,7 +30,7 @@ pub fn DraftDetails(id: String) -> Element {
             div { class: "mb-6",
                 Link {
                     to: Route::Drafts {  },
-                    class: "inline-flex items-center bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold py-2 px-4 rounded-full transition-all duration-200",
+                    class: "inline-flex items-center bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-semibold py-2 px-4 rounded-full transition-all duration-200",
                     svg {
                         xmlns: "http://www.w3.org/2000/svg",
                         class: "h-5 w-5 mr-2",
@@ -50,12 +50,12 @@ pub fn DraftDetails(id: String) -> Element {
 
             match data.as_ref() {
                 None => rsx! {
-                    div { class: "bg-gray-800 rounded-lg border border-gray-700 p-12 text-center text-gray-500",
+                    div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center text-gray-500",
                         div { class: "animate-pulse", "Loading draft details..." }
                     }
                 },
                 Some(Err(err)) => rsx! {
-                    div { class: "bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded mb-4",
+                    div { class: "bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4",
                         p { "Failed to load draft details: {err}" }
                     }
                 },
@@ -74,32 +74,32 @@ pub fn DraftDetails(id: String) -> Element {
 #[component]
 fn DraftHeader(draft: DraftDetailsDisplay) -> Element {
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6 mb-6",
-            h1 { class: "text-2xl font-bold text-gray-100 mb-4",
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6",
+            h1 { class: "text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4",
                 "{draft.metadata().set_code()} Draft"
             }
 
             div { class: "grid grid-cols-2 md:grid-cols-4 gap-4",
                 div {
-                    p { class: "text-sm text-gray-400", "Format" }
+                    p { class: "text-sm text-gray-600 dark:text-gray-400", "Format" }
                     p { class: "font-semibold", "{draft.metadata().format()}" }
                 }
                 div {
-                    p { class: "text-sm text-gray-400", "Status" }
+                    p { class: "text-sm text-gray-600 dark:text-gray-400", "Status" }
                     p {
                         class: "font-semibold",
-                        class: if draft.metadata().status() == "DraftStatus_Complete" { "text-amber-400" } else { "text-yellow-400" },
+                        class: if draft.metadata().status() == "DraftStatus_Complete" { "text-amber-600 dark:text-amber-400" } else { "text-yellow-600 dark:text-yellow-400" },
                         if draft.metadata().status() == "DraftStatus_Complete" { "COMPLETE" } else { "IN PROGRESS" }
                     }
                 }
                 div {
-                    p { class: "text-sm text-gray-400", "Date" }
+                    p { class: "text-sm text-gray-600 dark:text-gray-400", "Date" }
                     p { class: "font-semibold",
                             "{super::format_local_datetime(*draft.metadata().created_at())}"
                         }
                 }
                 div {
-                    p { class: "text-sm text-gray-400", "Total Picks" }
+                    p { class: "text-sm text-gray-600 dark:text-gray-400", "Total Picks" }
                     p { class: "font-semibold", "{draft.total_picks()}" }
                 }
             }
@@ -110,8 +110,8 @@ fn DraftHeader(draft: DraftDetailsDisplay) -> Element {
 #[component]
 fn DraftPacksSection(draft: DraftDetailsDisplay) -> Element {
     rsx! {
-        div { class: "bg-gray-800 rounded-lg border border-gray-700 p-6",
-            h2 { class: "text-xl font-bold text-gray-100 mb-4", "Draft Picks" }
+        div { class: "bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6",
+            h2 { class: "text-xl font-bold text-gray-900 dark:text-gray-100 mb-4", "Draft Picks" }
 
             if draft.packs().is_empty() {
                 div { class: "text-center text-gray-500 py-8",
@@ -137,9 +137,9 @@ fn DraftPacksSection(draft: DraftDetailsDisplay) -> Element {
 #[component]
 fn PackSection(pack_number: usize, packs: Vec<EnrichedDraftPack>) -> Element {
     rsx! {
-        div { class: "border-b border-gray-700 pb-6 last:border-b-0",
-            h3 { class: "text-lg font-semibold text-gray-200 mb-4 flex items-center",
-                span { class: "bg-amber-900/40 text-amber-300 px-3 py-1 rounded-full text-sm mr-2",
+        div { class: "border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0",
+            h3 { class: "text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4 flex items-center",
+                span { class: "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-3 py-1 rounded-full text-sm mr-2",
                     "Pack {pack_number}"
                 }
                 span { class: "text-sm text-gray-500 font-normal",
@@ -161,14 +161,14 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
     let mut show_available = use_signal(|| false);
 
     rsx! {
-        div { class: "border border-gray-700 rounded-lg p-3 bg-gray-900 hover:bg-gray-800 transition-colors",
+        div { class: "border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors",
             // Pack header with pick info and picked card inline
             div { class: "flex justify-between items-start gap-3",
                 div { class: "flex items-start gap-3 flex-1",
                     // Pick info
                     div { class: "flex-shrink-0",
                         div { class: "flex items-center gap-2 mb-1",
-                            span { class: "text-sm font-medium text-gray-300",
+                            span { class: "text-sm font-medium text-gray-700 dark:text-gray-300",
                                 "Pick {pack.pick_number()}"
                             }
                             span { class: "text-xs text-gray-500",
@@ -176,7 +176,7 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
                             }
                         }
                         if let Some(picked_name) = pack.picked_card_name() {
-                            p { class: "text-xs text-amber-400 font-medium truncate max-w-[150px]",
+                            p { class: "text-xs text-amber-600 dark:text-amber-400 font-medium truncate max-w-[150px]",
                                 "{picked_name}"
                             }
                         }
@@ -189,7 +189,7 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
                 }
 
                 button {
-                    class: "text-xs text-amber-400 hover:text-amber-300 font-medium flex-shrink-0",
+                    class: "text-xs text-amber-600 dark:text-amber-400 hover:text-amber-500 dark:hover:text-amber-300 font-medium flex-shrink-0",
                     onclick: move |_| show_available.set(!show_available()),
                     if show_available() { "Hide" } else { "Show all" }
                 }
@@ -197,7 +197,7 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
 
             // Available cards (collapsible)
             if show_available() {
-                div { class: "mt-4 pt-4 border-t border-gray-700",
+                div { class: "mt-4 pt-4 border-t border-gray-200 dark:border-gray-700",
                     p { class: "text-xs text-gray-500 mb-3", "Available cards:" }
                     div { class: "grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2",
                         for card in pack.available() {
@@ -213,15 +213,15 @@ fn DraftPackRow(pack: EnrichedDraftPack) -> Element {
 #[component]
 fn CardDisplay(card: CardDisplayRecord, is_picked: bool, size: String) -> Element {
     let bg_class = if is_picked {
-        "bg-amber-900/30 border-amber-500"
+        "bg-amber-100 dark:bg-amber-900/30 border-amber-500"
     } else {
-        "bg-gray-800 border-gray-600"
+        "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
     };
 
     let text_class = if is_picked {
-        "text-amber-300 font-semibold"
+        "text-amber-700 dark:text-amber-300 font-semibold"
     } else {
-        "text-gray-300"
+        "text-gray-700 dark:text-gray-300"
     };
 
     let size_class = match size.as_str() {
@@ -253,7 +253,7 @@ fn CardDisplay(card: CardDisplayRecord, is_picked: bool, size: String) -> Elemen
                     }
                 } else {
                     // Fallback when no image
-                    div { class: "p-3 bg-gray-700",
+                    div { class: "p-3 bg-gray-200 dark:bg-gray-700",
                         // Card name
                         p { class: "{text_class} text-sm font-medium",
                             "{card.name}"
@@ -261,11 +261,11 @@ fn CardDisplay(card: CardDisplayRecord, is_picked: bool, size: String) -> Elemen
 
                         // Card details
                         div { class: "flex justify-between items-center mt-1",
-                            span { class: "text-xs text-gray-400",
+                            span { class: "text-xs text-gray-600 dark:text-gray-400",
                                 "{card.type_field}"
                             }
                             if !card.mana.is_empty() {
-                                span { class: "text-xs text-gray-300 font-mono",
+                                span { class: "text-xs text-gray-700 dark:text-gray-300 font-mono",
                                     "{card.mana}"
                                 }
                             }
