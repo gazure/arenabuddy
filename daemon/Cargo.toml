@@ -1,0 +1,26 @@
+[package]
+name = "arenabuddy_daemon"
+authors.workspace = true
+description = "Start ArenaBuddy when Magic Arena is running"
+categories.workspace = true
+version.workspace = true
+repository.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+keywords.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+clap = { workspace = true }
+ctrlc = { workspace = true }
+sysinfo = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["env-filter", "fmt"] }
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "arenabuddy-daemon"
+path = "src/main.rs"
