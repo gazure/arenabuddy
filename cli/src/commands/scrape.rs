@@ -1,215 +1,392 @@
+#![expect(clippy::too_many_lines)]
 use std::{
     collections::{HashMap, HashSet},
-    path::Path,
+    path::{Path, PathBuf},
     time::Duration,
 };
 
 use arenabuddy_core::models::{Card, CardCollection};
-use tracing::{debug, info};
+use reqwest::StatusCode;
+use rusqlite::Connection;
+use tracing::{debug, info, warn};
 
 use super::scryfall::USER_AGENT;
-use crate::{Error, Result, errors::ParseError};
+use crate::{Error, Result};
 
-/// Execute the Scrape command
-pub async fn execute(scryfall_host: &str, seventeen_lands_host: &str, output: &Path) -> Result<()> {
-    info!("Scraping 17Lands data...");
-    let seventeen_lands_data = scrape_seventeen_lands(seventeen_lands_host).await?;
+const SCRYFALL_RATE_LIMIT_MS: u64 = 150;
 
-    info!("Scraping Scryfall per-set data...");
-    let scryfall_sets = scrape_sets(scryfall_host).await?;
+// Canonical Arena IDs for basic lands (used as fallback when not found in Scryfall)
+const BASIC_LAND_FALLBACK_IDS: &[(&str, i64)] = &[
+    ("Plains", 7193),
+    ("Island", 7065),
+    ("Swamp", 7347),
+    ("Mountain", 7153),
+    ("Forest", 6993),
+    ("Snow-Covered Plains", 7193),
+    ("Snow-Covered Island", 7065),
+    ("Snow-Covered Swamp", 7347),
+    ("Snow-Covered Mountain", 7153),
+    ("Snow-Covered Forest", 6993),
+];
 
-    info!("Merging data from both sources...");
-    let collection = merge(&seventeen_lands_data, &scryfall_sets);
+/// Represents a card from MTGA database
+#[derive(Debug)]
+struct MtgaCard {
+    grp_id: i64,
+    expansion_code: String,
+    collector_number: String,
+    name: String,
+}
 
-    info!("Scraping completed successfully with {} cards", collection.cards.len());
+/// Execute the `Scrape` command
+pub async fn execute(mtga_path: Option<&PathBuf>, scryfall_host: &str, output: &Path) -> Result<()> {
+    info!("Starting MTGA database scrape...");
 
-    // Save the card collection to a binary protobuf file
-    save_card_collection_to_file(collection, output).await?;
+    let db_path = find_mtga_database(mtga_path)?;
+    info!("Found MTGA database at: {}", db_path.display());
+
+    let mtga_cards = extract_mtga_cards(&db_path)?;
+    info!("Extracted {} cards from MTGA database", mtga_cards.len());
+
+    let cards = enrich_with_scryfall(mtga_cards, scryfall_host).await?;
+    info!("Successfully enriched {} cards with Scryfall data", cards.len());
+
+    let collection = CardCollection::with_cards(cards);
+    save_card_collection(collection, output).await?;
+    info!("Saved card collection to: {}", output.display());
+
     Ok(())
 }
 
-async fn scrape_sets(base_url: &str) -> Result<HashMap<String, HashMap<String, serde_json::Value>>> {
-    let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
-    let mut ret: HashMap<String, HashMap<String, serde_json::Value>> = HashMap::new();
+/// Find the MTGA database file
+fn find_mtga_database(mtga_path: Option<&PathBuf>) -> Result<PathBuf> {
+    let search_dir = if let Some(path) = mtga_path {
+        path.clone()
+    } else {
+        // Get home directory using std
+        let home_dir =
+            dirs::home_dir().ok_or_else(|| Error::Config("Could not determine home directory".to_string()))?;
 
-    let sets = find_sets(base_url, &client).await?;
-    info!("Found {} sets", sets.len());
+        // Default paths by platform
+        #[cfg(target_os = "macos")]
+        let base = home_dir.join("Library/Application Support/Steam/steamapps/common/MTGA/MTGA_Data/Downloads/Raw");
 
-    for set in &sets {
-        debug!("found set: {set}");
+        #[cfg(target_os = "windows")]
+        let base = {
+            // On Windows, prefer LOCALAPPDATA for the standalone client
+            let local_app_data = std::env::var("LOCALAPPDATA")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| home_dir.join("AppData/Local"));
+            local_app_data.join("Programs/Wizards of the Coast/MTGA/MTGA_Data/Downloads/Raw")
+        };
+
+        #[cfg(target_os = "linux")]
+        let base = home_dir.join(".steam/steam/steamapps/common/MTGA/MTGA_Data/Downloads/Raw");
+
+        #[cfg(not(any(target_os = "macos", target_os = "windows", target_os = "linux")))]
+        let base = {
+            return Err(Error::Config(
+                "Unsupported platform. Please specify --mtga-path manually.".to_string(),
+            ));
+        };
+
+        base
+    };
+
+    if !search_dir.exists() {
+        return Err(Error::MtgaDatabaseNotFound(search_dir.display().to_string()));
     }
 
-    for set in sets {
-        ret.insert(set.to_uppercase(), extract_set(base_url, &client, &set).await?);
+    // Find Raw_CardDatabase_*.mtga file
+    let entries = std::fs::read_dir(&search_dir)?;
+    for entry in entries {
+        let entry = entry?;
+        let path = entry.path();
+        if let Some(name) = path.file_name().and_then(|n| n.to_str())
+            && name.starts_with("Raw_CardDatabase_")
+            && path.extension().is_some_and(|ext| ext.eq_ignore_ascii_case("mtga"))
+        {
+            return Ok(path);
+        }
     }
 
-    for (set_name, set_cards) in &ret {
-        info!("Set '{}' contains {} cards", set_name, set_cards.len());
-    }
-    Ok(ret)
+    Err(Error::MtgaDatabaseNotFound(format!(
+        "No Raw_CardDatabase_*.mtga file found in {}",
+        search_dir.display()
+    )))
 }
 
-async fn find_sets(base_url: &str, client: &reqwest::Client) -> Result<Vec<String>> {
-    let response = client.get(format!("{base_url}/sets")).send().await?;
-    response.error_for_status_ref()?;
+/// Extract cards from MTGA `SQLite` database
+fn extract_mtga_cards(db_path: &Path) -> Result<Vec<MtgaCard>> {
+    let conn = Connection::open(db_path)?;
 
-    let data: serde_json::Value = response.json().await?;
-    let mut sets = vec![];
-    if let Some(data) = data["data"].as_array() {
-        sets = data
-            .iter()
-            .filter_map(|set| {
-                if set["set_type"].as_str().is_some_and(|st| st != "token") {
-                    set["code"].as_str().map(ToOwned::to_owned)
-                } else {
-                    None
-                }
+    let query = r"
+        SELECT
+            c.GrpId,
+            c.ExpansionCode,
+            c.CollectorNumber,
+            l.Loc as name
+        FROM Cards c
+        JOIN Localizations_enUS l ON c.TitleId = l.LocId
+        WHERE c.IsPrimaryCard = 1
+          AND c.IsToken = 0
+          AND l.Formatted = (
+              SELECT MIN(Formatted)
+              FROM Localizations_enUS
+              WHERE LocId = c.TitleId
+          )
+        ORDER BY c.GrpId
+    ";
+
+    let mut stmt = conn.prepare(query)?;
+    let cards = stmt
+        .query_map([], |row| {
+            Ok(MtgaCard {
+                grp_id: row.get(0)?,
+                expansion_code: row.get(1)?,
+                collector_number: row.get(2)?,
+                name: row.get(3)?,
             })
-            .collect();
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(cards)
+}
+
+/// Get the canonical Arena ID for a basic land name, if applicable
+fn get_basic_land_fallback_id(card_name: &str) -> Option<i64> {
+    BASIC_LAND_FALLBACK_IDS
+        .iter()
+        .find(|(name, _)| *name == card_name)
+        .map(|(_, id)| *id)
+}
+
+/// Enrich MTGA cards with Scryfall metadata using batch-by-set approach
+async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) -> Result<Vec<Card>> {
+    let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
+
+    // Group MTGA cards by expansion code
+    let mut cards_by_set: HashMap<String, Vec<MtgaCard>> = HashMap::new();
+    for mtga_card in mtga_cards {
+        cards_by_set
+            .entry(mtga_card.expansion_code.clone())
+            .or_default()
+            .push(mtga_card);
     }
-    Ok(sets)
+
+    let total_sets = cards_by_set.len();
+    info!("Grouped cards into {} unique sets", total_sets);
+
+    let mut cards = Vec::new();
+    let mut cards_by_id = HashSet::new();
+    let mut failed_cards = Vec::new();
+    let mut processed_sets = 0;
+
+    // Cache arena_id lookups to avoid repeated Scryfall fetches
+    let mut arena_id_cache: HashMap<i64, serde_json::Value> = HashMap::new();
+
+    // Process each set
+    for (set_code, mtga_set_cards) in cards_by_set {
+        processed_sets += 1;
+        info!(
+            "Processing set {}/{}: {} ({} cards)",
+            processed_sets,
+            total_sets,
+            set_code,
+            mtga_set_cards.len()
+        );
+
+        // Fetch all cards from this set from Scryfall
+        let Some(scryfall_cards) = fetch_scryfall_set(&client, scryfall_host, &set_code).await? else {
+            warn!(
+                "Set '{}' not found in Scryfall, skipping {} cards",
+                set_code,
+                mtga_set_cards.len()
+            );
+            failed_cards.extend(mtga_set_cards);
+            continue;
+        };
+
+        debug!(
+            "Fetched {} cards from Scryfall for set {}",
+            scryfall_cards.len(),
+            set_code
+        );
+
+        // Match MTGA cards with Scryfall cards by collector number
+        for mtga_card in mtga_set_cards {
+            if cards_by_id.contains(&mtga_card.grp_id) {
+                warn!(
+                    "Duplicate arena_id {} for card '{}', skipping",
+                    mtga_card.grp_id, mtga_card.name
+                );
+                continue;
+            }
+
+            // Look up by collector number in the Scryfall set data
+            if let Some(scryfall_json) = scryfall_cards.get(&mtga_card.collector_number) {
+                let mut card = Card::from_json(scryfall_json);
+                card.id = mtga_card.grp_id; // Override with MTGA's arena ID
+
+                // Verify consistency
+                if let Some(scryfall_arena_id) = scryfall_json["arena_id"].as_i64()
+                    && scryfall_arena_id != mtga_card.grp_id
+                {
+                    warn!(
+                        "Arena ID mismatch for '{}': MTGA={}, Scryfall={}",
+                        mtga_card.name, mtga_card.grp_id, scryfall_arena_id
+                    );
+                }
+
+                cards.push(card);
+                cards_by_id.insert(mtga_card.grp_id);
+            } else {
+                // Collector number miss — try fetching by the card's actual arena ID
+                let card_json =
+                    fetch_or_cache_by_arena_id(&client, scryfall_host, &mut arena_id_cache, mtga_card.grp_id).await?;
+
+                // If that failed and it's a basic land, try the canonical fallback ID
+                let card_json = match (card_json, get_basic_land_fallback_id(&mtga_card.name)) {
+                    (Some(json), _) => Some(json),
+                    (None, Some(fallback_id)) => {
+                        debug!(
+                            "Actual arena ID {} not found for '{}', trying fallback ID {}",
+                            mtga_card.grp_id, mtga_card.name, fallback_id
+                        );
+                        fetch_or_cache_by_arena_id(&client, scryfall_host, &mut arena_id_cache, fallback_id).await?
+                    }
+                    (None, None) => None,
+                };
+
+                if let Some(json) = card_json {
+                    let mut card = Card::from_json(&json);
+                    card.id = mtga_card.grp_id;
+                    card.set.clone_from(&mtga_card.expansion_code);
+                    cards.push(card);
+                    cards_by_id.insert(mtga_card.grp_id);
+                } else if get_basic_land_fallback_id(&mtga_card.name).is_some() {
+                    // Last resort for basic lands: create minimal entry
+                    debug!(
+                        "All fetches failed for basic land '{}', using minimal card",
+                        mtga_card.name
+                    );
+                    let mut card = Card::new(mtga_card.grp_id, &mtga_card.expansion_code, &mtga_card.name);
+                    card.type_line = format!("Basic Land — {}", mtga_card.name.replace("Snow-Covered ", ""));
+                    cards.push(card);
+                    cards_by_id.insert(mtga_card.grp_id);
+                } else {
+                    warn!(
+                        "Card not found in Scryfall set '{}': '{}' (number={})",
+                        set_code, mtga_card.name, mtga_card.collector_number
+                    );
+                    failed_cards.push(mtga_card);
+                }
+            }
+        }
+
+        // Rate limiting between sets
+        tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
+    }
+
+    if !failed_cards.is_empty() {
+        warn!(
+            "Failed to fetch {} cards from Scryfall (likely MTGA-exclusive or very new)",
+            failed_cards.len()
+        );
+        for card in failed_cards.iter().take(10) {
+            debug!("  - {} ({}/{})", card.name, card.expansion_code, card.collector_number);
+        }
+        if failed_cards.len() > 10 {
+            debug!("  ... and {} more", failed_cards.len() - 10);
+        }
+    }
+
+    Ok(cards)
 }
 
-async fn extract_set(
-    base_url: &str,
+/// Fetch a card by arena ID, using a cache to avoid redundant Scryfall requests
+async fn fetch_or_cache_by_arena_id(
     client: &reqwest::Client,
-    set: &str,
-) -> Result<HashMap<String, serde_json::Value>, Error> {
-    debug!("Extracting set: {set}");
-    let ret = super::scryfall::fetch_set(client, base_url, set, Duration::from_millis(150), extract_set_cards)
-        .await?
-        .unwrap_or_default();
-    debug!("Extracted {} cards from {set}", ret.len());
-    Ok(ret)
+    scryfall_host: &str,
+    cache: &mut HashMap<i64, serde_json::Value>,
+    arena_id: i64,
+) -> Result<Option<serde_json::Value>> {
+    if let Some(cached) = cache.get(&arena_id) {
+        debug!("Using cached Scryfall data for arena ID {}", arena_id);
+        return Ok(Some(cached.clone()));
+    }
+
+    tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
+
+    if let Some(json) = fetch_scryfall_card_by_arena_id(client, scryfall_host, arena_id).await? {
+        cache.insert(arena_id, json.clone());
+        Ok(Some(json))
+    } else {
+        Ok(None)
+    }
 }
 
-fn extract_set_cards(set_cards: &mut HashMap<String, serde_json::Value>, data: &serde_json::Value) {
+/// Fetch all cards from a set via Scryfall, indexed by collector number
+async fn fetch_scryfall_set(
+    client: &reqwest::Client,
+    scryfall_host: &str,
+    set: &str,
+) -> Result<Option<HashMap<String, serde_json::Value>>> {
+    debug!("Fetching set from Scryfall: {}", set);
+    let cards = super::scryfall::fetch_set(
+        client,
+        scryfall_host,
+        set,
+        Duration::from_millis(SCRYFALL_RATE_LIMIT_MS),
+        extract_set_cards,
+    )
+    .await?;
+    Ok(cards)
+}
+
+/// Extract cards from Scryfall response and index by collector number
+fn extract_set_cards(cards: &mut HashMap<String, serde_json::Value>, data: &serde_json::Value) {
     if let Some(data) = data["data"].as_array() {
         for card in data {
-            if let Some(name) = card["name"].as_str() {
-                set_cards.insert(name.to_owned(), card.clone());
-            }
-            if let Some(name) = card["printed_name"].as_str() {
-                set_cards.insert(name.to_owned(), card.clone());
-            }
-            if let Some(faces) = card["card_faces"].as_array() {
-                for face in faces {
-                    if let Some(name) = face["name"].as_str() {
-                        set_cards.insert(name.to_owned(), card.clone());
-                    }
-                    if let Some(name) = face["printed_name"].as_str() {
-                        set_cards.insert(name.to_owned(), card.clone());
-                    }
-                }
+            if let Some(collector_number) = card["collector_number"].as_str() {
+                cards.insert(collector_number.to_owned(), card.clone());
             }
         }
     }
 }
 
-/// Scrape card data from 17Lands
-async fn scrape_seventeen_lands(base_url: &str) -> Result<Vec<HashMap<String, String>>> {
-    let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
-    let url = format!("{base_url}/analysis_data/cards/cards.csv");
+/// Fetch a card from Scryfall by its Arena ID
+async fn fetch_scryfall_card_by_arena_id(
+    client: &reqwest::Client,
+    scryfall_host: &str,
+    arena_id: i64,
+) -> Result<Option<serde_json::Value>> {
+    let url = format!("{scryfall_host}/cards/arena/{arena_id}");
+
+    debug!("Fetching from Scryfall by Arena ID: {}", url);
 
     let response = client.get(&url).send().await?;
-    info!("Response {}: {}", url, response.status());
-    response.error_for_status_ref()?;
 
-    csv::Reader::from_reader(response.bytes().await?.as_ref())
-        .deserialize()
-        .map(|result| result.map_err(ParseError::from).map_err(Error::from))
-        .collect()
+    match response.status() {
+        StatusCode::OK => {
+            let json = response.json().await?;
+            Ok(Some(json))
+        }
+        StatusCode::NOT_FOUND => {
+            debug!("Card not found by Arena ID: {}", arena_id);
+            Ok(None)
+        }
+        status => {
+            warn!("Unexpected status {} for Arena ID {}", status, arena_id);
+            response.error_for_status_ref()?;
+            Ok(None)
+        }
+    }
 }
 
-/// Save a collection of cards to a binary protobuf file
-async fn save_card_collection_to_file(cards: CardCollection, output_path: impl AsRef<Path>) -> Result<()> {
-    tokio::fs::write(output_path.as_ref(), cards.encode_to_vec()).await?;
+/// Save card collection to protobuf file
+async fn save_card_collection(collection: CardCollection, output: &Path) -> Result<()> {
+    let bytes = collection.encode_to_vec();
+    tokio::fs::write(output, bytes).await?;
     Ok(())
-}
-
-/// Merge 17Lands data with Scryfall per-set data
-fn merge(
-    seventeen_lands_cards: &Vec<HashMap<String, String>>,
-    scryfall_sets: &HashMap<String, HashMap<String, serde_json::Value>>,
-) -> CardCollection {
-    let card_names_with_2_faces: HashMap<String, String> = seventeen_lands_cards
-        .iter()
-        .filter_map(|card| {
-            let name = card.get("name")?;
-            if name.contains("//") {
-                Some((name.split("//").next()?.trim().to_string(), name.clone()))
-            } else {
-                None
-            }
-        })
-        .collect();
-    let mut cards = vec![];
-    let mut cards_by_id: HashSet<i64> = HashSet::new();
-
-    // First pass: process 17Lands cards and match them with Scryfall data
-    for card in seventeen_lands_cards {
-        debug!("card: {card:?}");
-        if let (Some(card_name), Some(card_id_str), Some(set)) =
-            (card.get("name"), card.get("id"), card.get("expansion"))
-        {
-            let card_name = card_names_with_2_faces
-                .get(card_name.split("//").next().unwrap_or("").trim())
-                .unwrap_or(card_name);
-
-            if let Ok(card_id) = card_id_str.parse::<i64>()
-                && card_id != 0
-                && !cards_by_id.contains(&card_id)
-                && set != "ANA"
-            {
-                if let Some(card_data) = scryfall_sets
-                    .get(set.as_str())
-                    .and_then(|cards| cards.get(card_name.as_str()))
-                {
-                    let mut new_card = Card::from_json(card_data);
-                    new_card.id = card_id;
-                    cards.push(new_card);
-                    cards_by_id.insert(card_id);
-                    debug!(
-                        "Found and added card from 17Lands [card_name='{}' arena_id={} set={}]",
-                        card_name, card_id, set
-                    );
-                } else {
-                    debug!("Card '{}' not found in Scryfall set '{}' data", card_name, set);
-                }
-            }
-        }
-    }
-
-    let cards_from_seventeen_lands = cards.len();
-
-    // Second pass: add any Scryfall cards with Arena IDs that weren't in 17Lands
-    for (set_name, set_cards) in scryfall_sets {
-        if set_name == "ANA" {
-            continue;
-        }
-        for card_data in set_cards.values() {
-            if let Some(arena_id) = card_data["arena_id"].as_i64()
-                && arena_id != 0
-                && !cards_by_id.contains(&arena_id)
-            {
-                let mut new_card = Card::from_json(card_data);
-                new_card.id = arena_id;
-                let card_name = new_card.name.clone();
-                cards.push(new_card);
-                cards_by_id.insert(arena_id);
-                debug!(
-                    "Found and added card from Scryfall only [card_name='{}' arena_id={} set={}]",
-                    card_name, arena_id, set_name
-                );
-            }
-        }
-    }
-
-    debug!(
-        "Merged {} cards total ({} from 17Lands, {} Scryfall-only)",
-        cards.len(),
-        cards_from_seventeen_lands,
-        cards.len() - cards_from_seventeen_lands
-    );
-    CardCollection { cards }
 }

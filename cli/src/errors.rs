@@ -4,9 +4,6 @@ use rustyline::error::ReadlineError;
 pub enum ParseError {
     #[error("JSON parse error: {0}")]
     Json(#[from] serde_json::Error),
-
-    #[error("CSV parse error: {0}")]
-    Csv(#[from] csv::Error),
 }
 
 #[derive(thiserror::Error, Debug)]

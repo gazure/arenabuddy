@@ -11,7 +11,7 @@ use arenabuddy_core::{
         mulligan::Mulligan,
         stats::{MatchStats, TimeWindow},
     },
-    models::{Card, CardFace, Cost, Draft},
+    models::{Card, CardFace, CardType, Cost, Draft},
 };
 use arenabuddy_data::{DirectoryStorage, MetagameRepository};
 use tokio::sync::Mutex;
@@ -26,6 +26,9 @@ pub(crate) struct CardFaceSummary {
     pub mana_cost: String,
     pub image_uri: String,
     pub colors: Vec<String>,
+    pub oracle_text: String,
+    pub stats: Option<(&'static str, String)>,
+    pub flavor_text: String,
 }
 
 impl From<&CardFace> for CardFaceSummary {
@@ -36,15 +39,52 @@ impl From<&CardFace> for CardFaceSummary {
             mana_cost: face.mana_cost.clone(),
             image_uri: face.image_uri.clone().unwrap_or_default(),
             colors: face.colors.clone(),
+            oracle_text: face.oracle_text.clone(),
+            stats: stats_summary(
+                face.power.as_deref(),
+                face.toughness.as_deref(),
+                face.loyalty.as_deref(),
+                face.defense.as_deref(),
+            ),
+            flavor_text: face.flavor_text.clone(),
         }
     }
 }
+
+/// Condense power/toughness, loyalty, or defense into a single labeled stat
+fn stats_summary(
+    power: Option<&str>,
+    toughness: Option<&str>,
+    loyalty: Option<&str>,
+    defense: Option<&str>,
+) -> Option<(&'static str, String)> {
+    if let (Some(power), Some(toughness)) = (power, toughness) {
+        Some(("Power / Toughness", format!("{power}/{toughness}")))
+    } else if let Some(loyalty) = loyalty {
+        Some(("Loyalty", loyalty.to_string()))
+    } else {
+        defense.map(|defense| ("Defense", defense.to_string()))
+    }
+}
+
+/// Formats in the order they should appear in the legality grid
+const LEGALITY_FORMATS: &[&str] = &[
+    "Standard",
+    "Alchemy",
+    "Historic",
+    "Timeless",
+    "Brawl",
+    "Standard Brawl",
+    "Gladiator",
+    "Pioneer",
+];
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct CardSearchResult {
     pub id: i64,
     pub name: String,
     pub set: String,
+    pub set_name: String,
     pub type_line: String,
     pub mana_cost: String,
     pub mana_value: i32,
@@ -53,6 +93,18 @@ pub(crate) struct CardSearchResult {
     pub color_identity: Vec<String>,
     pub layout: String,
     pub faces: Vec<CardFaceSummary>,
+    pub oracle_text: String,
+    pub stats: Option<(&'static str, String)>,
+    pub keywords: Vec<String>,
+    pub rarity: String,
+    pub collector_number: String,
+    pub artist: String,
+    pub flavor_text: String,
+    /// (format label, legality status) pairs in `LEGALITY_FORMATS` order;
+    /// empty when the card predates legality scraping
+    pub legalities: Vec<(&'static str, String)>,
+    pub edhrec_rank: Option<i32>,
+    pub scryfall_uri: String,
 }
 
 impl CardSearchResult {
@@ -63,10 +115,28 @@ impl CardSearchResult {
 
 impl From<&Card> for CardSearchResult {
     fn from(card: &Card) -> Self {
+        let legalities = card.legalities.as_ref().map_or_else(Vec::new, |l| {
+            LEGALITY_FORMATS
+                .iter()
+                .zip([
+                    &l.standard,
+                    &l.alchemy,
+                    &l.historic,
+                    &l.timeless,
+                    &l.brawl,
+                    &l.standard_brawl,
+                    &l.gladiator,
+                    &l.pioneer,
+                ])
+                .map(|(format, status)| (*format, status.clone()))
+                .collect()
+        });
+
         Self {
             id: card.id,
             name: card.name.clone(),
             set: card.set.clone(),
+            set_name: card.set_name.clone(),
             type_line: card.type_line.clone(),
             mana_cost: card.mana_cost.clone(),
             mana_value: card.cmc,
@@ -75,7 +145,47 @@ impl From<&Card> for CardSearchResult {
             color_identity: card.color_identity.clone(),
             layout: card.layout.clone(),
             faces: card.card_faces.iter().map(CardFaceSummary::from).collect(),
+            oracle_text: card.oracle_text.clone(),
+            stats: stats_summary(
+                card.power.as_deref(),
+                card.toughness.as_deref(),
+                card.loyalty.as_deref(),
+                card.defense.as_deref(),
+            ),
+            keywords: card.keywords.clone(),
+            rarity: card.rarity.clone(),
+            collector_number: card.collector_number.clone(),
+            artist: card.artist.clone(),
+            flavor_text: card.flavor_text.clone(),
+            legalities,
+            edhrec_rank: card.edhrec_rank,
+            scryfall_uri: card.scryfall_uri.clone(),
         }
+    }
+}
+
+/// Filters for the card database search; empty fields are ignored
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub(crate) struct CardSearchFilters {
+    /// Case-insensitive name prefix
+    pub name: String,
+    /// Case-insensitive substring matched against oracle text (any face)
+    pub text: String,
+    /// Exact set code
+    pub set: String,
+    /// Exact rarity (e.g. "common", "mythic")
+    pub rarity: String,
+    /// Dominant card type (e.g. "Creature"), matched via `CardType`
+    pub card_type: String,
+}
+
+impl CardSearchFilters {
+    pub fn is_active(&self) -> bool {
+        !self.name.trim().is_empty()
+            || !self.text.trim().is_empty()
+            || !self.set.trim().is_empty()
+            || !self.rarity.trim().is_empty()
+            || !self.card_type.trim().is_empty()
     }
 }
 
@@ -239,8 +349,8 @@ where
         card_database_summary(&self.cards)
     }
 
-    pub fn search_cards(&self, query: &str, set_filter: Option<&str>) -> Vec<CardSearchResult> {
-        search_cards(&self.cards, query, set_filter)
+    pub fn search_cards(&self, filters: &CardSearchFilters) -> Vec<CardSearchResult> {
+        search_cards(&self.cards, filters)
     }
 
     pub fn get_card_by_arena_id(&self, arena_id: i64) -> Option<CardSearchResult> {
@@ -295,22 +405,42 @@ fn card_database_summary(cards: &CardsDatabase) -> CardDatabaseSummary {
     }
 }
 
-fn search_cards(cards: &CardsDatabase, query: &str, set_filter: Option<&str>) -> Vec<CardSearchResult> {
-    let normalized_query = query.trim().to_lowercase();
-    let normalized_set = set_filter
-        .map(str::trim)
-        .filter(|set| !set.is_empty())
-        .map(str::to_lowercase);
+fn normalize_filter(filter: &str) -> Option<String> {
+    let trimmed = filter.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_lowercase())
+    }
+}
+
+fn matches_oracle_text(card: &Card, text: &str) -> bool {
+    card.oracle_text.to_lowercase().contains(text)
+        || card
+            .card_faces
+            .iter()
+            .any(|face| face.oracle_text.to_lowercase().contains(text))
+}
+
+fn search_cards(cards: &CardsDatabase, filters: &CardSearchFilters) -> Vec<CardSearchResult> {
+    let name_query = filters.name.trim().to_lowercase();
+    let text_query = normalize_filter(&filters.text);
+    let set_query = normalize_filter(&filters.set);
+    let rarity_query = normalize_filter(&filters.rarity);
+    let type_query = filters.card_type.trim().parse::<CardType>().ok();
 
     let mut matches: Vec<_> = cards
         .values()
         .filter(|card| {
-            let matches_query = normalized_query.is_empty() || card.name.to_lowercase().starts_with(&normalized_query);
-            let matches_set = normalized_set
+            let matches_name = name_query.is_empty() || card.name.to_lowercase().starts_with(&name_query);
+            let matches_text = text_query.as_deref().is_none_or(|text| matches_oracle_text(card, text));
+            let matches_set = set_query.as_deref().is_none_or(|set| card.set.to_lowercase() == set);
+            let matches_rarity = rarity_query
                 .as_deref()
-                .is_none_or(|set| card.set.to_lowercase() == set);
+                .is_none_or(|rarity| card.rarity.to_lowercase() == rarity);
+            let matches_type = type_query.is_none_or(|card_type| card.dominant_type() == card_type);
 
-            matches_query && matches_set
+            matches_name && matches_text && matches_set && matches_rarity && matches_type
         })
         .map(CardSearchResult::from)
         .collect();
@@ -360,6 +490,13 @@ mod tests {
         assert_eq!(summary.sets[1].count, 1);
     }
 
+    fn name_filter(name: &str) -> CardSearchFilters {
+        CardSearchFilters {
+            name: name.to_string(),
+            ..CardSearchFilters::default()
+        }
+    }
+
     #[test]
     fn searches_name_prefix_case_insensitively() {
         let cards = test_database(vec![
@@ -368,7 +505,7 @@ mod tests {
             test_card(3, "TDM", "Lightning Strike"),
         ]);
 
-        let matches = search_cards(&cards, "om", None);
+        let matches = search_cards(&cards, &name_filter("om"));
 
         assert_eq!(matches.len(), 1);
         assert_eq!(matches[0].name, "Omenpath Journey");
@@ -382,9 +519,100 @@ mod tests {
             test_card(3, "TDM", "Lightning Strike"),
         ]);
 
-        let matches = search_cards(&cards, "", Some("tdm"));
+        let filters = CardSearchFilters {
+            set: "tdm".to_string(),
+            ..CardSearchFilters::default()
+        };
+        let matches = search_cards(&cards, &filters);
 
         assert_eq!(matches.len(), 2);
         assert!(matches.iter().all(|card| card.set == "TDM"));
+    }
+
+    #[test]
+    fn filters_by_oracle_text_substring() {
+        let mut bolt = test_card(1, "BRO", "Lightning Strike");
+        bolt.oracle_text = "Lightning Strike deals 3 damage to any target.".to_string();
+        let mut counter = test_card(2, "BRO", "Cancel");
+        counter.oracle_text = "Counter target spell.".to_string();
+        let mut mdfc = test_card(3, "BRO", "Rise // Fall");
+        mdfc.card_faces = vec![
+            arenabuddy_core::models::CardFace {
+                name: "Rise".to_string(),
+                oracle_text: "Draw a card, then deal 3 damage to any target.".to_string(),
+                ..Default::default()
+            },
+            arenabuddy_core::models::CardFace {
+                name: "Fall".to_string(),
+                oracle_text: "Destroy target land.".to_string(),
+                ..Default::default()
+            },
+        ];
+        let cards = test_database(vec![bolt, counter, mdfc]);
+
+        let filters = CardSearchFilters {
+            text: "3 DAMAGE".to_string(),
+            ..CardSearchFilters::default()
+        };
+        let matches = search_cards(&cards, &filters);
+
+        assert_eq!(matches.len(), 2);
+        assert!(matches.iter().any(|card| card.name == "Lightning Strike"));
+        assert!(matches.iter().any(|card| card.name == "Rise // Fall"));
+    }
+
+    #[test]
+    fn filters_by_rarity_and_type() {
+        let mut creature = test_card(1, "BRO", "Grizzly Bears");
+        creature.type_line = "Creature — Bear".to_string();
+        creature.rarity = "common".to_string();
+        let mut mythic_creature = test_card(2, "BRO", "Sheoldred");
+        mythic_creature.type_line = "Legendary Creature — Phyrexian Praetor".to_string();
+        mythic_creature.rarity = "mythic".to_string();
+        let mut instant = test_card(3, "BRO", "Opt");
+        instant.rarity = "common".to_string();
+        let cards = test_database(vec![creature, mythic_creature, instant]);
+
+        let filters = CardSearchFilters {
+            card_type: "Creature".to_string(),
+            ..CardSearchFilters::default()
+        };
+        let matches = search_cards(&cards, &filters);
+        assert_eq!(matches.len(), 2);
+
+        let filters = CardSearchFilters {
+            card_type: "Creature".to_string(),
+            rarity: "mythic".to_string(),
+            ..CardSearchFilters::default()
+        };
+        let matches = search_cards(&cards, &filters);
+        assert_eq!(matches.len(), 1);
+        assert_eq!(matches[0].name, "Sheoldred");
+    }
+
+    #[test]
+    fn search_result_carries_enriched_fields() {
+        let mut card = test_card(1, "BRO", "Grizzly Bears");
+        card.oracle_text = "A bear.".to_string();
+        card.power = Some("2".to_string());
+        card.toughness = Some("2".to_string());
+        card.rarity = "common".to_string();
+        card.keywords = vec!["Trample".to_string()];
+        card.legalities = Some(arenabuddy_core::models::Legalities {
+            standard: "legal".to_string(),
+            ..Default::default()
+        });
+        let cards = test_database(vec![card]);
+
+        let matches = search_cards(&cards, &name_filter("grizzly"));
+
+        assert_eq!(matches.len(), 1);
+        let result = &matches[0];
+        assert_eq!(result.oracle_text, "A bear.");
+        assert_eq!(result.stats, Some(("Power / Toughness", "2/2".to_string())));
+        assert_eq!(result.rarity, "common");
+        assert_eq!(result.keywords, ["Trample"]);
+        assert_eq!(result.legalities[0], ("Standard", "legal".to_string()));
+        assert_eq!(result.legalities.len(), 8);
     }
 }

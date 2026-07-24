@@ -122,17 +122,7 @@ fn find_card(cards_db: &CardsDatabase, arena_id: i64) {
     match cards_db.get(&arena_id.to_string()) {
         Some(card) => {
             println!("Card found:");
-            println!("  ID: {}", card.id);
-            println!("  Name: {}", card.name);
-            println!("  Set: {}", card.set);
-            println!("  Type: {}", card.type_line);
-            if let Some(uri) = card.primary_image_uri() {
-                println!("  Image: {uri}");
-            }
-            if !card.mana_cost.is_empty() {
-                println!("  Mana Cost: {}", card.mana_cost);
-            }
-            println!("  CMC: {}", card.cmc);
+            println!("{card}");
         }
         None => {
             println!("No card found with Arena ID: {arena_id}");
@@ -225,7 +215,14 @@ fn search_cards_by_name(cards_db: &CardsDatabase, name_prefix: &str) {
     println!("Found {} card(s) matching '{name_prefix}':", matches.len());
     for card in matches {
         println!("  {} (ID: {})", card.name, card.id);
-        println!("    Set: {}, Type: {}", card.set, card.type_line);
+        if card.rarity.is_empty() {
+            println!("    Set: {}, Type: {}", card.set, card.type_line);
+        } else {
+            println!("    Set: {} ({}), Type: {}", card.set, card.rarity, card.type_line);
+        }
+        if !card.keywords.is_empty() {
+            println!("    Keywords: {}", card.keywords.join(", "));
+        }
         if !card.card_faces.is_empty() {
             println!("    Card Faces:");
             for face in &card.card_faces {
@@ -241,4 +238,5 @@ fn search_cards_by_name(cards_db: &CardsDatabase, name_prefix: &str) {
         }
         println!();
     }
+    println!("Use 'find <arena_id>' for full card details.");
 }

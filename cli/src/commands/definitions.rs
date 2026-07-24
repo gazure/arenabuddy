@@ -4,7 +4,6 @@ use clap::Subcommand;
 
 // Constants used in command definitions
 pub const SCRYFALL_HOST_DEFAULT: &str = "https://api.scryfall.com";
-pub const SEVENTEEN_LANDS_HOST_DEFAULT: &str = "https://17lands-public.s3.amazonaws.com";
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
@@ -29,20 +28,8 @@ pub enum Commands {
         follow: bool,
     },
 
-    /// Scrape card data from online sources
+    /// Scrape card data from the local MTGA database and enrich with Scryfall
     Scrape {
-        #[arg(long, help = "Scryfall API base URL", default_value = SCRYFALL_HOST_DEFAULT)]
-        scryfall_host: String,
-
-        #[arg(long, help = "17Lands data base URL", default_value = SEVENTEEN_LANDS_HOST_DEFAULT)]
-        seventeen_lands_host: String,
-
-        #[arg(long, help = "Output directory for scraped data", default_value = "./cards.pb")]
-        output: PathBuf,
-    },
-
-    /// Scrape card data from MTGA database and enrich with Scryfall
-    ScrapeMtga {
         #[arg(long, help = "Path to MTGA installation directory")]
         mtga_path: Option<PathBuf>,
 

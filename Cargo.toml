@@ -29,7 +29,6 @@ base64 = "0.22"
 chrono = { version = "0.4.45", features = ["serde", "wasmbind"] }
 clap = { version = "4.6.1", features = ["derive"] }
 console-subscriber = "0.5.0"
-csv = { version = "1.4.0" }
 ctrlc = "3.5.2"
 derive_builder = "0.20.2"
 dirs = "6.0.0"

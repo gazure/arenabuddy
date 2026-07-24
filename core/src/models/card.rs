@@ -13,7 +13,7 @@ use crate::models::Cost;
 /// In Rust with prost, proto types can have methods and traits implemented directly on them,
 /// so there's no need for separate wrapper types. This is different from Go where you typically
 /// need wrappers to add methods to proto-generated structs.
-pub use crate::proto::{Card, CardCollection, CardFace};
+pub use crate::proto::{Card, CardCollection, CardFace, Legalities};
 
 /// Represents the primary type of a Magic: The Gathering card
 ///
@@ -91,6 +91,62 @@ impl Display for CardType {
 // Domain logic implementations on proto types
 // This is idiomatic Rust - we can add methods directly to proto-generated types
 
+/// Extracts a JSON array of strings, returning an empty Vec for anything else
+fn str_array(value: &serde_json::Value) -> Vec<String> {
+    value
+        .as_array()
+        .map(|a| a.iter().filter_map(|v| v.as_str().map(ToString::to_string)).collect())
+        .unwrap_or_default()
+}
+
+impl CardFace {
+    /// Parses a single face from a Scryfall `card_faces` entry, returning None for non-objects
+    fn from_json(face: &serde_json::Value) -> Option<Self> {
+        if !face.is_object() {
+            return None;
+        }
+
+        Some(Self {
+            name: face["name"].as_str().unwrap_or_default().to_string(),
+            type_line: face["type_line"].as_str().unwrap_or_default().to_string(),
+            mana_cost: face["mana_cost"].as_str().unwrap_or_default().to_string(),
+            image_uri: face["image_uris"]["normal"].as_str().map(ToString::to_string),
+            colors: str_array(&face["colors"]),
+            oracle_text: face["oracle_text"].as_str().unwrap_or_default().to_string(),
+            power: face["power"].as_str().map(ToString::to_string),
+            toughness: face["toughness"].as_str().map(ToString::to_string),
+            loyalty: face["loyalty"].as_str().map(ToString::to_string),
+            defense: face["defense"].as_str().map(ToString::to_string),
+            flavor_text: face["flavor_text"].as_str().unwrap_or_default().to_string(),
+            artist: face["artist"].as_str().unwrap_or_default().to_string(),
+        })
+    }
+}
+
+impl Legalities {
+    /// Parses a Scryfall `legalities` object, returning None for non-objects
+    fn from_json(value: &serde_json::Value) -> Option<Self> {
+        let legalities = value.as_object()?;
+        let legality = |format: &str| {
+            legalities
+                .get(format)
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string()
+        };
+        Some(Self {
+            standard: legality("standard"),
+            alchemy: legality("alchemy"),
+            historic: legality("historic"),
+            timeless: legality("timeless"),
+            brawl: legality("brawl"),
+            standard_brawl: legality("standardbrawl"),
+            gladiator: legality("gladiator"),
+            pioneer: legality("pioneer"),
+        })
+    }
+}
+
 impl Card {
     /// Creates a new card with required fields, initializing optional fields to empty values
     ///
@@ -108,15 +164,7 @@ impl Card {
             id,
             set: set.into(),
             name: name.into(),
-            lang: String::new(),
-            image_uri: String::new(),
-            mana_cost: String::new(),
-            cmc: 0,
-            type_line: String::new(),
-            layout: String::new(),
-            colors: Vec::new(),
-            color_identity: Vec::new(),
-            card_faces: Vec::new(),
+            ..Self::default()
         }
     }
 
@@ -154,52 +202,60 @@ impl Card {
         }
 
         // Parse array fields
-        if let Some(colors) = card_json["colors"].as_array() {
-            card.colors = colors
-                .iter()
-                .filter_map(|c| c.as_str().map(ToString::to_string))
-                .collect();
+        card.colors = str_array(&card_json["colors"]);
+        card.color_identity = str_array(&card_json["color_identity"]);
+        card.keywords = str_array(&card_json["keywords"]);
+        card.produced_mana = str_array(&card_json["produced_mana"]);
+
+        if let Some(oracle_text) = card_json["oracle_text"].as_str() {
+            card.oracle_text = oracle_text.to_string();
         }
 
-        if let Some(color_identity) = card_json["color_identity"].as_array() {
-            card.color_identity = color_identity
-                .iter()
-                .filter_map(|c| c.as_str().map(ToString::to_string))
-                .collect();
+        card.power = card_json["power"].as_str().map(ToString::to_string);
+        card.toughness = card_json["toughness"].as_str().map(ToString::to_string);
+        card.loyalty = card_json["loyalty"].as_str().map(ToString::to_string);
+        card.defense = card_json["defense"].as_str().map(ToString::to_string);
+
+        if let Some(rarity) = card_json["rarity"].as_str() {
+            card.rarity = rarity.to_string();
+        }
+
+        if let Some(collector_number) = card_json["collector_number"].as_str() {
+            card.collector_number = collector_number.to_string();
+        }
+
+        if let Some(set_name) = card_json["set_name"].as_str() {
+            card.set_name = set_name.to_string();
+        }
+
+        if let Some(artist) = card_json["artist"].as_str() {
+            card.artist = artist.to_string();
+        }
+
+        if let Some(flavor_text) = card_json["flavor_text"].as_str() {
+            card.flavor_text = flavor_text.to_string();
+        }
+
+        card.legalities = Legalities::from_json(&card_json["legalities"]);
+
+        card.edhrec_rank = card_json["edhrec_rank"].as_i64().map(|r| r as i32);
+        card.penny_rank = card_json["penny_rank"].as_i64().map(|r| r as i32);
+
+        if let Some(oracle_id) = card_json["oracle_id"].as_str() {
+            card.oracle_id = oracle_id.to_string();
+        }
+
+        if let Some(scryfall_id) = card_json["id"].as_str() {
+            card.scryfall_id = scryfall_id.to_string();
+        }
+
+        if let Some(scryfall_uri) = card_json["scryfall_uri"].as_str() {
+            card.scryfall_uri = scryfall_uri.to_string();
         }
 
         // Parse card faces if present
         if let Some(faces) = card_json["card_faces"].as_array() {
-            card.card_faces = faces
-                .iter()
-                .filter_map(|face| {
-                    if !face.is_object() {
-                        return None;
-                    }
-
-                    let mut card_face = CardFace {
-                        name: face["name"].as_str().unwrap_or_default().to_string(),
-                        type_line: face["type_line"].as_str().unwrap_or_default().to_string(),
-                        mana_cost: face["mana_cost"].as_str().unwrap_or_default().to_string(),
-                        image_uri: None,
-                        colors: Vec::new(),
-                    };
-
-                    // Optional fields
-                    if let Some(image) = face["image_uris"]["normal"].as_str() {
-                        card_face.image_uri = Some(image.to_string());
-                    }
-
-                    if let Some(face_colors) = face["colors"].as_array() {
-                        card_face.colors = face_colors
-                            .iter()
-                            .filter_map(|c| c.as_str().map(ToString::to_string))
-                            .collect();
-                    }
-
-                    Some(card_face)
-                })
-                .collect();
+            card.card_faces = faces.iter().filter_map(CardFace::from_json).collect();
         }
         card
     }
@@ -252,6 +308,76 @@ impl Card {
     /// Returns the card's faces, if it has multiple faces
     pub fn faces(&self) -> &[CardFace] {
         &self.card_faces
+    }
+
+    /// Returns the card's oracle rules text
+    pub fn oracle_text(&self) -> &str {
+        &self.oracle_text
+    }
+
+    // Note: accessors for `power`, `toughness`, `loyalty`, and `defense` are
+    // generated by prost (optional proto3 fields), returning "" when unset.
+
+    /// Returns the card's keyword abilities
+    pub fn keywords(&self) -> &[String] {
+        &self.keywords
+    }
+
+    /// Returns the mana colors this card can produce
+    pub fn produced_mana(&self) -> &[String] {
+        &self.produced_mana
+    }
+
+    /// Returns the card's rarity
+    pub fn rarity(&self) -> &str {
+        &self.rarity
+    }
+
+    /// Returns the card's collector number
+    pub fn collector_number(&self) -> &str {
+        &self.collector_number
+    }
+
+    /// Returns the full name of the card's set
+    pub fn set_name(&self) -> &str {
+        &self.set_name
+    }
+
+    /// Returns the card's artist
+    pub fn artist(&self) -> &str {
+        &self.artist
+    }
+
+    /// Returns the card's flavor text
+    pub fn flavor_text(&self) -> &str {
+        &self.flavor_text
+    }
+
+    /// Returns the card's format legalities, if known
+    pub fn legalities(&self) -> Option<&Legalities> {
+        self.legalities.as_ref()
+    }
+
+    /// Checks whether the card is legal in the given Arena-relevant format
+    ///
+    /// Format names match Scryfall's keys: "standard", "alchemy", "historic",
+    /// "timeless", "brawl", "standardbrawl", "gladiator", "pioneer"
+    pub fn is_legal_in(&self, format: &str) -> bool {
+        let Some(legalities) = &self.legalities else {
+            return false;
+        };
+        let status = match format {
+            "standard" => &legalities.standard,
+            "alchemy" => &legalities.alchemy,
+            "historic" => &legalities.historic,
+            "timeless" => &legalities.timeless,
+            "brawl" => &legalities.brawl,
+            "standardbrawl" => &legalities.standard_brawl,
+            "gladiator" => &legalities.gladiator,
+            "pioneer" => &legalities.pioneer,
+            _ => return false,
+        };
+        status == "legal" || status == "restricted"
     }
 
     /// Returns the card's mana value (formerly known as converted mana cost)
@@ -356,6 +482,22 @@ impl Display for Card {
         }
 
         write!(f, "\nMana Value: {}", self.cmc)?;
+
+        if !self.rarity.is_empty() {
+            write!(f, "\nRarity: {}", self.rarity)?;
+        }
+
+        if let (Some(power), Some(toughness)) = (&self.power, &self.toughness) {
+            write!(f, "\nPower/Toughness: {power}/{toughness}")?;
+        }
+
+        if !self.oracle_text.is_empty() {
+            write!(f, "\nOracle Text: {}", self.oracle_text)?;
+        }
+
+        if !self.keywords.is_empty() {
+            write!(f, "\nKeywords: {}", self.keywords.join(", "))?;
+        }
 
         if !self.layout.is_empty() {
             write!(f, "\nLayout: {}", self.layout)?;
@@ -539,5 +681,129 @@ impl CardCollection {
         let mut buf = Vec::new();
         self.encode(&mut buf).unwrap_or_default();
         buf
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_from_json_hydrates_scryfall_fields() {
+        let json = serde_json::json!({
+            "arena_id": 12345,
+            "id": "88b13bc0-da54-4c3b-917c-7c8345a329f5",
+            "oracle_id": "f34b9bc4-7bfe-47fd-ba23-4eeeb46026eb",
+            "name": "Grizzly Bears",
+            "set": "lea",
+            "set_name": "Limited Edition Alpha",
+            "lang": "en",
+            "collector_number": "142",
+            "rarity": "common",
+            "mana_cost": "{1}{G}",
+            "cmc": 2.0,
+            "type_line": "Creature — Bear",
+            "layout": "normal",
+            "oracle_text": "A bear.",
+            "flavor_text": "Don't try to outrun one.",
+            "artist": "Jeff A. Menges",
+            "power": "2",
+            "toughness": "2",
+            "keywords": ["Trample"],
+            "produced_mana": ["G"],
+            "colors": ["G"],
+            "color_identity": ["G"],
+            "edhrec_rank": 2430,
+            "penny_rank": 1392,
+            "scryfall_uri": "https://scryfall.com/card/lea/142/grizzly-bears",
+            "legalities": {
+                "standard": "not_legal",
+                "alchemy": "not_legal",
+                "historic": "legal",
+                "timeless": "legal",
+                "brawl": "legal",
+                "standardbrawl": "not_legal",
+                "gladiator": "legal",
+                "pioneer": "banned"
+            }
+        });
+
+        let card = Card::from_json(&json);
+
+        assert_eq!(card.id(), 12345);
+        assert_eq!(card.oracle_text(), "A bear.");
+        assert_eq!(card.power(), "2");
+        assert_eq!(card.toughness(), "2");
+        assert_eq!(card.loyalty, None);
+        assert_eq!(card.keywords(), ["Trample"]);
+        assert_eq!(card.produced_mana(), ["G"]);
+        assert_eq!(card.rarity(), "common");
+        assert_eq!(card.collector_number(), "142");
+        assert_eq!(card.set_name(), "Limited Edition Alpha");
+        assert_eq!(card.artist(), "Jeff A. Menges");
+        assert_eq!(card.flavor_text(), "Don't try to outrun one.");
+        assert_eq!(card.oracle_id, "f34b9bc4-7bfe-47fd-ba23-4eeeb46026eb");
+        assert_eq!(card.scryfall_id, "88b13bc0-da54-4c3b-917c-7c8345a329f5");
+        assert_eq!(card.scryfall_uri, "https://scryfall.com/card/lea/142/grizzly-bears");
+        assert_eq!(card.edhrec_rank, Some(2430));
+        assert_eq!(card.penny_rank, Some(1392));
+
+        let legalities = card.legalities().expect("legalities should be parsed");
+        assert_eq!(legalities.historic, "legal");
+        assert_eq!(legalities.standard, "not_legal");
+        assert!(card.is_legal_in("timeless"));
+        assert!(!card.is_legal_in("standard"));
+        assert!(!card.is_legal_in("pioneer"));
+        assert!(!card.is_legal_in("modern"));
+    }
+
+    #[test]
+    fn test_from_json_hydrates_card_faces() {
+        let json = serde_json::json!({
+            "arena_id": 555,
+            "name": "Aberrant // Aberrant",
+            "set": "dsk",
+            "layout": "transform",
+            "card_faces": [
+                {
+                    "name": "Front",
+                    "type_line": "Creature — Horror",
+                    "mana_cost": "{2}{B}",
+                    "oracle_text": "Menace",
+                    "power": "3",
+                    "toughness": "1",
+                    "flavor_text": "It hungers.",
+                    "artist": "Someone",
+                    "colors": ["B"],
+                    "image_uris": {"normal": "https://example.com/front.jpg"}
+                },
+                {
+                    "name": "Back",
+                    "type_line": "Creature — Elder Horror",
+                    "mana_cost": "",
+                    "oracle_text": "Menace, deathtouch",
+                    "power": "6",
+                    "toughness": "5",
+                    "colors": ["B"]
+                }
+            ]
+        });
+
+        let card = Card::from_json(&json);
+
+        assert_eq!(card.faces().len(), 2);
+        let front = &card.faces()[0];
+        assert_eq!(front.oracle_text, "Menace");
+        assert_eq!(front.power(), "3");
+        assert_eq!(front.toughness(), "1");
+        assert_eq!(front.flavor_text, "It hungers.");
+        assert_eq!(front.artist, "Someone");
+        assert_eq!(front.image_uri.as_deref(), Some("https://example.com/front.jpg"));
+
+        let back = &card.faces()[1];
+        assert_eq!(back.oracle_text, "Menace, deathtouch");
+        assert_eq!(back.power(), "6");
+        assert!(back.image_uri.is_none());
+        assert!(back.flavor_text.is_empty());
     }
 }
