@@ -28,6 +28,55 @@ message Card {
   repeated string color_identity = 11;
   // Card faces for multi-faced cards
   repeated CardFace card_faces = 12;
+  // Oracle rules text
+  string oracle_text = 13;
+  // Power, as printed (may be non-numeric, e.g. "*")
+  optional string power = 14;
+  // Toughness, as printed (may be non-numeric, e.g. "1+*")
+  optional string toughness = 15;
+  // Starting loyalty for planeswalkers
+  optional string loyalty = 16;
+  // Defense for battles
+  optional string defense = 17;
+  // Keyword abilities on the card (e.g. ["Flying", "Haste"])
+  repeated string keywords = 18;
+  // Mana colors this card can produce (e.g. ["G", "C"])
+  repeated string produced_mana = 19;
+  // Rarity (e.g. "common", "mythic")
+  string rarity = 20;
+  // Collector number within the set
+  string collector_number = 21;
+  // Full set name (e.g. "The Lost Caverns of Ixalan")
+  string set_name = 22;
+  // Artist name
+  string artist = 23;
+  // Flavor text
+  string flavor_text = 24;
+  // Format legality, restricted to Arena-relevant formats
+  Legalities legalities = 25;
+  // Popularity rank on EDHREC (absent if unranked)
+  optional int32 edhrec_rank = 26;
+  // Popularity rank in Penny Dreadful (absent if unranked)
+  optional int32 penny_rank = 27;
+  // Scryfall oracle ID, stable across printings
+  string oracle_id = 28;
+  // Scryfall ID for this specific printing
+  string scryfall_id = 29;
+  // URL to the card's page on Scryfall
+  string scryfall_uri = 30;
+}
+
+// Legalities holds a card's legality status per format.
+// Values are Scryfall's: "legal", "not_legal", "restricted", "banned"
+message Legalities {
+  string standard = 1;
+  string alchemy = 2;
+  string historic = 3;
+  string timeless = 4;
+  string brawl = 5;
+  string standard_brawl = 6;
+  string gladiator = 7;
+  string pioneer = 8;
 }
 
 // CardFace represents one face of a split card or other multi-face cards
@@ -42,6 +91,20 @@ message CardFace {
   optional string image_uri = 4;
   // Face colors
   repeated string colors = 5;
+  // Face oracle rules text
+  string oracle_text = 6;
+  // Face power, as printed
+  optional string power = 7;
+  // Face toughness, as printed
+  optional string toughness = 8;
+  // Face loyalty
+  optional string loyalty = 9;
+  // Face defense
+  optional string defense = 10;
+  // Face flavor text
+  string flavor_text = 11;
+  // Face artist
+  string artist = 12;
 }
 
 // CardCollection represents a collection of MTG cards

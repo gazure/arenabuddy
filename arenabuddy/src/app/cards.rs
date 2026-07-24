@@ -2,10 +2,40 @@ use dioxus::prelude::*;
 
 use crate::{
     app::components::{ManaCost, Pagination},
-    backend::{CardDatabaseSummary, CardSearchResult, Service},
+    backend::{CardDatabaseSummary, CardSearchFilters, CardSearchResult, Service},
 };
 
 const PAGE_SIZE: usize = 25;
+
+const RARITY_OPTIONS: &[&str] = &["common", "uncommon", "rare", "mythic"];
+const TYPE_OPTIONS: &[&str] = &[
+    "Creature",
+    "Planeswalker",
+    "Artifact",
+    "Enchantment",
+    "Instant",
+    "Sorcery",
+    "Battle",
+    "Land",
+];
+
+/// Badge styling for a Scryfall legality status
+fn legality_classes(status: &str) -> &'static str {
+    match status {
+        "legal" => "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
+        "restricted" => "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+        "banned" => "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
+        _ => "bg-gray-100 text-gray-400 dark:bg-gray-900 dark:text-gray-500",
+    }
+}
+
+fn capitalize(value: &str) -> String {
+    let mut chars = value.chars();
+    chars
+        .next()
+        .map(|first| first.to_uppercase().collect::<String>() + chars.as_str())
+        .unwrap_or_default()
+}
 
 fn format_colors(colors: &[String], empty_label: &str) -> String {
     if colors.is_empty() {
@@ -25,7 +55,10 @@ fn open_url(url: String) {
 pub fn Cards() -> Element {
     let service = use_context::<Service>();
     let mut search_query = use_signal(String::new);
+    let mut text_query = use_signal(String::new);
     let mut set_filter = use_signal(String::new);
+    let mut rarity_filter = use_signal(String::new);
+    let mut type_filter = use_signal(String::new);
     let mut current_page = use_signal(|| 0usize);
     let mut lookup_id = use_signal(String::new);
     let mut lookup_status = use_signal(|| None::<String>);
@@ -44,16 +77,14 @@ pub fn Cards() -> Element {
         let service = service.clone();
         move || {
             let service = service.clone();
-            let query = search_query();
-            let set = set_filter();
-            async move {
-                let set_filter = if set.trim().is_empty() {
-                    None
-                } else {
-                    Some(set.as_str())
-                };
-                service.search_cards(&query, set_filter)
-            }
+            let filters = CardSearchFilters {
+                name: search_query(),
+                text: text_query(),
+                set: set_filter(),
+                rarity: rarity_filter(),
+                card_type: type_filter(),
+            };
+            async move { service.search_cards(&filters) }
         }
     });
 
@@ -100,7 +131,14 @@ pub fn Cards() -> Element {
     let summary_data = summary_value.read();
     let search_value = search_resource.value();
     let search_data = search_value.read();
-    let filters_active = !search_query().trim().is_empty() || !set_filter().trim().is_empty();
+    let filters_active = CardSearchFilters {
+        name: search_query(),
+        text: text_query(),
+        set: set_filter(),
+        rarity: rarity_filter(),
+        card_type: type_filter(),
+    }
+    .is_active();
     let summary_panel = summary_data.as_ref().cloned();
     let search_results = search_data.as_ref().cloned();
 
@@ -110,7 +148,7 @@ pub fn Cards() -> Element {
                 div {
                     h1 { class: "text-2xl font-bold text-gray-900 dark:text-gray-100", "Card Database" }
                     p { class: "text-gray-600 dark:text-gray-400 mt-1",
-                        "Search the embedded Arena card database by name, set, or Arena ID."
+                        "Search the embedded Arena card database by name, rules text, set, rarity, type, or Arena ID."
                     }
                 }
                 button {
@@ -139,6 +177,19 @@ pub fn Cards() -> Element {
                             }
                         }
                         div {
+                            label { class: "block text-sm text-gray-600 dark:text-gray-400 mb-2", "Rules text contains" }
+                            input {
+                                r#type: "text",
+                                value: "{text_query}",
+                                placeholder: "Try deals 3 damage, draw a card...",
+                                class: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
+                                oninput: move |evt| {
+                                    text_query.set(evt.value());
+                                    current_page.set(0);
+                                }
+                            }
+                        }
+                        div {
                             label { class: "block text-sm text-gray-600 dark:text-gray-400 mb-2", "Set" }
                             select {
                                 class: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
@@ -162,8 +213,54 @@ pub fn Cards() -> Element {
                                 }
                             }
                         }
+                        div { class: "grid grid-cols-2 gap-4",
+                            div {
+                                label { class: "block text-sm text-gray-600 dark:text-gray-400 mb-2", "Rarity" }
+                                select {
+                                    class: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
+                                    onchange: move |evt| {
+                                        rarity_filter.set(evt.value());
+                                        current_page.set(0);
+                                    },
+                                    option {
+                                        value: "",
+                                        selected: rarity_filter().is_empty(),
+                                        "All rarities"
+                                    }
+                                    for rarity in RARITY_OPTIONS {
+                                        option {
+                                            value: "{rarity}",
+                                            selected: rarity_filter() == *rarity,
+                                            "{capitalize(rarity)}"
+                                        }
+                                    }
+                                }
+                            }
+                            div {
+                                label { class: "block text-sm text-gray-600 dark:text-gray-400 mb-2", "Type" }
+                                select {
+                                    class: "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded py-2 px-3 text-sm focus:outline-none focus:border-amber-500 w-full",
+                                    onchange: move |evt| {
+                                        type_filter.set(evt.value());
+                                        current_page.set(0);
+                                    },
+                                    option {
+                                        value: "",
+                                        selected: type_filter().is_empty(),
+                                        "All types"
+                                    }
+                                    for card_type in TYPE_OPTIONS {
+                                        option {
+                                            value: "{card_type}",
+                                            selected: type_filter() == *card_type,
+                                            "{card_type}"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         p { class: "text-sm text-gray-500",
-                            "Name search matches the same prefix behavior as the CLI REPL. Leave the name empty and pick a set to browse that set."
+                            "Name matches by prefix; rules text matches anywhere in the card's oracle text. Combine filters to narrow the results."
                         }
                     }
                 }
@@ -415,13 +512,54 @@ fn CardDetails(card: CardSearchResult) -> Element {
                     p { class: "text-gray-600 dark:text-gray-400 mt-1", "{card.type_line}" }
                 }
 
+                if !card.oracle_text.is_empty() {
+                    div { class: "bg-gray-50 dark:bg-gray-900 rounded-lg p-4",
+                        p { class: "text-sm text-gray-500 mb-1", "Oracle text" }
+                        p { class: "text-gray-800 dark:text-gray-200 whitespace-pre-line", "{card.oracle_text}" }
+                    }
+                }
+
+                if !card.keywords.is_empty() {
+                    div { class: "flex flex-wrap gap-2",
+                        for keyword in card.keywords.iter() {
+                            span { class: "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300 rounded-full px-3 py-1 text-xs font-medium",
+                                "{keyword}"
+                            }
+                        }
+                    }
+                }
+
                 div { class: "grid grid-cols-2 gap-4",
                     DetailItem { label: "Arena ID", value: card.id.to_string() }
-                    DetailItem { label: "Set", value: card.set.clone() }
+                    DetailItem {
+                        label: "Set",
+                        value: if card.set_name.is_empty() { card.set.clone() } else { format!("{} ({})", card.set_name, card.set) },
+                    }
                     DetailItem { label: "Mana value", value: card.mana_value.to_string() }
                     DetailItem { label: "Layout", value: if card.layout.is_empty() { "Unknown".to_string() } else { card.layout.clone() } }
                     DetailItem { label: "Colors", value: colors }
                     DetailItem { label: "Color identity", value: color_identity }
+                    if let Some((label, value)) = card.stats.clone() {
+                        DetailItem { label, value }
+                    }
+                    if !card.rarity.is_empty() {
+                        DetailItem { label: "Rarity", value: capitalize(&card.rarity) }
+                    }
+                    if !card.collector_number.is_empty() {
+                        DetailItem { label: "Collector number", value: card.collector_number.clone() }
+                    }
+                    if !card.artist.is_empty() {
+                        DetailItem { label: "Artist", value: card.artist.clone() }
+                    }
+                    if let Some(rank) = card.edhrec_rank {
+                        DetailItem { label: "EDHREC rank", value: format!("#{rank}") }
+                    }
+                }
+
+                if !card.flavor_text.is_empty() {
+                    p { class: "text-sm text-gray-500 italic whitespace-pre-line border-l-2 border-gray-300 dark:border-gray-600 pl-3",
+                        "{card.flavor_text}"
+                    }
                 }
 
                 if !card.mana_cost.is_empty() {
@@ -431,16 +569,43 @@ fn CardDetails(card: CardSearchResult) -> Element {
                     }
                 }
 
+                if !card.legalities.is_empty() {
+                    div {
+                        h3 { class: "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2", "Format legality" }
+                        div { class: "grid grid-cols-2 sm:grid-cols-4 gap-2",
+                            for (format, status) in card.legalities.iter() {
+                                div { class: "bg-gray-50 dark:bg-gray-900 rounded-lg p-2 text-center",
+                                    p { class: "text-xs text-gray-500 mb-1", "{format}" }
+                                    span { class: "inline-block rounded-full px-2 py-0.5 text-xs font-medium {legality_classes(status)}",
+                                        "{capitalize(&status.replace('_', \" \"))}"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 if !card.faces.is_empty() {
                     div {
                         h3 { class: "text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2", "Card faces" }
                         div { class: "space-y-2",
                             for face in card.faces.iter() {
                                 div { class: "bg-gray-50 dark:bg-gray-900 rounded-lg p-4",
-                                    p { class: "font-medium text-gray-800 dark:text-gray-200", "{face.name}" }
+                                    div { class: "flex items-baseline justify-between",
+                                        p { class: "font-medium text-gray-800 dark:text-gray-200", "{face.name}" }
+                                        if let Some((_, value)) = face.stats.clone() {
+                                            span { class: "text-sm text-gray-600 dark:text-gray-400 font-mono", "{value}" }
+                                        }
+                                    }
                                     p { class: "text-sm text-gray-500", "{face.type_line}" }
                                     if !face.mana_cost.is_empty() {
                                         p { class: "text-sm text-gray-600 dark:text-gray-400 mt-1", "{face.mana_cost}" }
+                                    }
+                                    if !face.oracle_text.is_empty() {
+                                        p { class: "text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line mt-2", "{face.oracle_text}" }
+                                    }
+                                    if !face.flavor_text.is_empty() {
+                                        p { class: "text-xs text-gray-500 italic whitespace-pre-line mt-2", "{face.flavor_text}" }
                                     }
                                 }
                             }
@@ -449,11 +614,23 @@ fn CardDetails(card: CardSearchResult) -> Element {
                 }
 
                 div {
-                    button {
-                        onclick: load_json,
-                        disabled: json_loading(),
-                        class: "bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 text-white py-2 px-4 rounded transition-colors duration-150",
-                        if json_loading() { "Loading JSON..." } else { "Show raw JSON" }
+                    div { class: "flex gap-2",
+                        button {
+                            onclick: load_json,
+                            disabled: json_loading(),
+                            class: "bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 text-white py-2 px-4 rounded transition-colors duration-150",
+                            if json_loading() { "Loading JSON..." } else { "Show raw JSON" }
+                        }
+                        if !card.scryfall_uri.is_empty() {
+                            button {
+                                onclick: {
+                                    let scryfall_uri = card.scryfall_uri.clone();
+                                    move |_| open_url(scryfall_uri.clone())
+                                },
+                                class: "bg-violet-600 hover:bg-violet-700 text-white py-2 px-4 rounded transition-colors duration-150",
+                                "View on Scryfall"
+                            }
+                        }
                     }
                     if let Some(status) = json_status() {
                         p { class: "text-sm text-gray-600 dark:text-gray-400 mt-2", "{status}" }

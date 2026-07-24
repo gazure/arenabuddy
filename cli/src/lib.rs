@@ -44,19 +44,11 @@ pub async fn run() -> Result<()> {
             .await?;
         }
         Commands::Scrape {
-            scryfall_host,
-            seventeen_lands_host,
-            output,
-        } => {
-            commands::scrape::execute(scryfall_host, seventeen_lands_host, output).await?;
-        }
-
-        Commands::ScrapeMtga {
             mtga_path,
             scryfall_host,
             output,
         } => {
-            commands::scrape_mtga::execute(mtga_path.as_ref(), scryfall_host, output).await?;
+            commands::scrape::execute(mtga_path.as_ref(), scryfall_host, output).await?;
         }
 
         Commands::Repl { cards_db } => {

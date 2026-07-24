@@ -24,13 +24,10 @@ To get started with the ArenaBuddy development environment, follow these steps:
    ```bash
    # Scrape card data from local MTGA database + Scryfall enrichment
    # (auto-detects MTGA install path on macOS/Windows/Linux)
-   cargo run -p arenabuddy_cli -- scrape-mtga --output ./cards.pb
+   cargo run -p arenabuddy_cli -- scrape --output ./cards.pb
 
    # Optionally specify a custom MTGA install path
-   cargo run -p arenabuddy_cli -- scrape-mtga --mtga-path /path/to/MTGA/.../Raw --output ./cards.pb
-
-   # Scrape card data from online sources (17Lands + Scryfall)
-   cargo run -p arenabuddy_cli -- scrape --output ./cards.pb
+   cargo run -p arenabuddy_cli -- scrape --mtga-path /path/to/MTGA/.../Raw --output ./cards.pb
 
    # Parse MTGA log files
    cargo run -p arenabuddy_cli -- parse --player-log /path/to/Player.log

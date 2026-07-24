@@ -15,7 +15,7 @@ mod match_result;
 mod mtga_match;
 mod mulligan;
 
-pub use card::{Card, CardCollection, CardFace, CardType};
+pub use card::{Card, CardCollection, CardFace, CardType, Legalities};
 pub use deck::{Deck, Quantities};
 pub use draft::{Draft, DraftPack, Format, MTGADraft};
 pub use id::ArenaId;

@@ -16,7 +16,6 @@ arenabuddy_data = { path = "../data" }
 arenabuddy_metagame = { path = "../metagame" }
 chrono = { workspace = true }
 clap = { workspace = true }
-csv = { workspace = true }
 dirs = { workspace = true }
 ctrlc = { workspace = true }
 reqwest = { workspace = true, features = ["json", "stream", "default-tls"] }
