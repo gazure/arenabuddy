@@ -14,3 +14,7 @@ api.arenabuddy.io {
 grafana.arenabuddy.io {
 	reverse_proxy grafana:3000
 }
+
+christmas.grantazure.com {
+    reverse_proxy christmas:8080
+}
