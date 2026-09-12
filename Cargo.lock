@@ -163,6 +163,7 @@ dependencies = [
  "clap",
  "ctrlc",
  "dirs",
+ "prost",
  "reqwest 0.13.4",
  "rusqlite",
  "rustyline",
