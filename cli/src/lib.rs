@@ -47,8 +47,9 @@ pub async fn run() -> Result<()> {
             mtga_path,
             scryfall_host,
             output,
+            resume,
         } => {
-            commands::scrape::execute(mtga_path.as_ref(), scryfall_host, output).await?;
+            commands::scrape::execute(mtga_path.as_ref(), scryfall_host, output, *resume).await?;
         }
 
         Commands::Repl { cards_db } => {

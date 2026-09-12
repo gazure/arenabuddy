@@ -38,6 +38,13 @@ pub enum Commands {
 
         #[arg(long, help = "Output file for card database", default_value = "./cards.pb")]
         output: PathBuf,
+
+        #[arg(
+            long,
+            action = clap::ArgAction::SetTrue,
+            help = "Keep cards already in the output file and only fetch the missing ones"
+        )]
+        resume: bool,
     },
 
     /// Start an interactive REPL for card searches, analytics, and file info

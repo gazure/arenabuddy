@@ -1,16 +1,17 @@
 #![expect(clippy::too_many_lines)]
 use std::{
-    collections::{HashMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     path::{Path, PathBuf},
     time::Duration,
 };
 
 use arenabuddy_core::models::{Card, CardCollection};
+use prost::Message;
 use reqwest::StatusCode;
 use rusqlite::Connection;
-use tracing::{debug, info, warn};
+use tracing::{debug, error, info, warn};
 
-use super::scryfall::USER_AGENT;
+use super::scryfall::{USER_AGENT, send_with_retry};
 use crate::{Error, Result};
 
 const SCRYFALL_RATE_LIMIT_MS: u64 = 150;
@@ -39,7 +40,11 @@ struct MtgaCard {
 }
 
 /// Execute the `Scrape` command
-pub async fn execute(mtga_path: Option<&PathBuf>, scryfall_host: &str, output: &Path) -> Result<()> {
+///
+/// The output file is checkpointed after every set so that progress survives
+/// an abort. With `resume`, cards already present in `output` are kept and
+/// only the missing ones are fetched.
+pub async fn execute(mtga_path: Option<&PathBuf>, scryfall_host: &str, output: &Path, resume: bool) -> Result<()> {
     info!("Starting MTGA database scrape...");
 
     let db_path = find_mtga_database(mtga_path)?;
@@ -48,12 +53,14 @@ pub async fn execute(mtga_path: Option<&PathBuf>, scryfall_host: &str, output: &
     let mtga_cards = extract_mtga_cards(&db_path)?;
     info!("Extracted {} cards from MTGA database", mtga_cards.len());
 
-    let cards = enrich_with_scryfall(mtga_cards, scryfall_host).await?;
-    info!("Successfully enriched {} cards with Scryfall data", cards.len());
+    let existing = if resume {
+        load_card_collection(output).await?
+    } else {
+        Vec::new()
+    };
 
-    let collection = CardCollection::with_cards(cards);
-    save_card_collection(collection, output).await?;
-    info!("Saved card collection to: {}", output.display());
+    let cards = enrich_with_scryfall(mtga_cards, scryfall_host, output, existing).await?;
+    info!("Saved {} cards to: {}", cards.len(), output.display());
 
     Ok(())
 }
@@ -162,11 +169,21 @@ fn get_basic_land_fallback_id(card_name: &str) -> Option<i64> {
 }
 
 /// Enrich MTGA cards with Scryfall metadata using batch-by-set approach
-async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) -> Result<Vec<Card>> {
+///
+/// `existing` seeds the result; any MTGA card whose arena ID is already
+/// present is not fetched again. The collection is written to `output` after
+/// each set. A set that keeps failing after retries is skipped and reported
+/// at the end so one bad set does not lose the rest of the scrape.
+async fn enrich_with_scryfall(
+    mtga_cards: Vec<MtgaCard>,
+    scryfall_host: &str,
+    output: &Path,
+    existing: Vec<Card>,
+) -> Result<Vec<Card>> {
     let client = reqwest::Client::builder().user_agent(USER_AGENT).build()?;
 
     // Group MTGA cards by expansion code
-    let mut cards_by_set: HashMap<String, Vec<MtgaCard>> = HashMap::new();
+    let mut cards_by_set: BTreeMap<String, Vec<MtgaCard>> = BTreeMap::new();
     for mtga_card in mtga_cards {
         cards_by_set
             .entry(mtga_card.expansion_code.clone())
@@ -177,9 +194,10 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
     let total_sets = cards_by_set.len();
     info!("Grouped cards into {} unique sets", total_sets);
 
-    let mut cards = Vec::new();
-    let mut cards_by_id = HashSet::new();
+    let mut cards_by_id: HashSet<i64> = existing.iter().map(|card| card.id).collect();
+    let mut cards = existing;
     let mut failed_cards = Vec::new();
+    let mut failed_sets = Vec::new();
     let mut processed_sets = 0;
 
     // Cache arena_id lookups to avoid repeated Scryfall fetches
@@ -188,6 +206,20 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
     // Process each set
     for (set_code, mtga_set_cards) in cards_by_set {
         processed_sets += 1;
+
+        // Skip anything already in the collection (from a resumed run)
+        let mtga_set_cards: Vec<MtgaCard> = mtga_set_cards
+            .into_iter()
+            .filter(|card| !cards_by_id.contains(&card.grp_id))
+            .collect();
+        if mtga_set_cards.is_empty() {
+            debug!(
+                "Set {}/{}: {} already complete, skipping",
+                processed_sets, total_sets, set_code
+            );
+            continue;
+        }
+
         info!(
             "Processing set {}/{}: {} ({} cards)",
             processed_sets,
@@ -197,14 +229,22 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
         );
 
         // Fetch all cards from this set from Scryfall
-        let Some(scryfall_cards) = fetch_scryfall_set(&client, scryfall_host, &set_code).await? else {
-            warn!(
-                "Set '{}' not found in Scryfall, skipping {} cards",
-                set_code,
-                mtga_set_cards.len()
-            );
-            failed_cards.extend(mtga_set_cards);
-            continue;
+        let scryfall_cards = match fetch_scryfall_set(&client, scryfall_host, &set_code).await {
+            Ok(Some(scryfall_cards)) => scryfall_cards,
+            Ok(None) => {
+                warn!(
+                    "Set '{}' not found in Scryfall, skipping {} cards",
+                    set_code,
+                    mtga_set_cards.len()
+                );
+                failed_cards.extend(mtga_set_cards);
+                continue;
+            }
+            Err(err) => {
+                error!("Set '{}' failed, will need a --resume run: {}", set_code, err);
+                failed_sets.push(set_code);
+                continue;
+            }
         };
 
         debug!(
@@ -242,20 +282,23 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
                 cards_by_id.insert(mtga_card.grp_id);
             } else {
                 // Collector number miss — try fetching by the card's actual arena ID
-                let card_json =
-                    fetch_or_cache_by_arena_id(&client, scryfall_host, &mut arena_id_cache, mtga_card.grp_id).await?;
-
-                // If that failed and it's a basic land, try the canonical fallback ID
-                let card_json = match (card_json, get_basic_land_fallback_id(&mtga_card.name)) {
-                    (Some(json), _) => Some(json),
-                    (None, Some(fallback_id)) => {
-                        debug!(
-                            "Actual arena ID {} not found for '{}', trying fallback ID {}",
-                            mtga_card.grp_id, mtga_card.name, fallback_id
+                let card_json = match fetch_by_arena_id_with_fallback(
+                    &client,
+                    scryfall_host,
+                    &mut arena_id_cache,
+                    &mtga_card,
+                )
+                .await
+                {
+                    Ok(json) => json,
+                    Err(err) => {
+                        error!(
+                            "Card '{}' ({}/{}) failed, will need a --resume run: {}",
+                            mtga_card.name, set_code, mtga_card.collector_number, err
                         );
-                        fetch_or_cache_by_arena_id(&client, scryfall_host, &mut arena_id_cache, fallback_id).await?
+                        failed_cards.push(mtga_card);
+                        continue;
                     }
-                    (None, None) => None,
                 };
 
                 if let Some(json) = card_json {
@@ -284,9 +327,14 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
             }
         }
 
+        // Checkpoint progress so an abort doesn't lose completed sets
+        save_card_collection(&cards, output).await?;
+
         // Rate limiting between sets
         tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
     }
+
+    save_card_collection(&cards, output).await?;
 
     if !failed_cards.is_empty() {
         warn!(
@@ -301,7 +349,36 @@ async fn enrich_with_scryfall(mtga_cards: Vec<MtgaCard>, scryfall_host: &str) ->
         }
     }
 
+    if !failed_sets.is_empty() {
+        return Err(Error::Invalid(format!(
+            "{} set(s) could not be fetched from Scryfall: {}. Re-run with --resume to fill them in.",
+            failed_sets.len(),
+            failed_sets.join(", ")
+        )));
+    }
+
     Ok(cards)
+}
+
+/// Fetch a card by its arena ID, falling back to the canonical basic land ID
+/// when the card is a basic land not found under its own ID
+async fn fetch_by_arena_id_with_fallback(
+    client: &reqwest::Client,
+    scryfall_host: &str,
+    cache: &mut HashMap<i64, serde_json::Value>,
+    mtga_card: &MtgaCard,
+) -> Result<Option<serde_json::Value>> {
+    if let Some(json) = fetch_or_cache_by_arena_id(client, scryfall_host, cache, mtga_card.grp_id).await? {
+        return Ok(Some(json));
+    }
+    let Some(fallback_id) = get_basic_land_fallback_id(&mtga_card.name) else {
+        return Ok(None);
+    };
+    debug!(
+        "Actual arena ID {} not found for '{}', trying fallback ID {}",
+        mtga_card.grp_id, mtga_card.name, fallback_id
+    );
+    fetch_or_cache_by_arena_id(client, scryfall_host, cache, fallback_id).await
 }
 
 /// Fetch a card by arena ID, using a cache to avoid redundant Scryfall requests
@@ -365,7 +442,7 @@ async fn fetch_scryfall_card_by_arena_id(
 
     debug!("Fetching from Scryfall by Arena ID: {}", url);
 
-    let response = client.get(&url).send().await?;
+    let response = send_with_retry(client.get(&url)).await?;
 
     match response.status() {
         StatusCode::OK => {
@@ -384,9 +461,34 @@ async fn fetch_scryfall_card_by_arena_id(
     }
 }
 
-/// Save card collection to protobuf file
-async fn save_card_collection(collection: CardCollection, output: &Path) -> Result<()> {
-    let bytes = collection.encode_to_vec();
-    tokio::fs::write(output, bytes).await?;
+/// Load the cards from an existing protobuf output file, if it exists
+async fn load_card_collection(output: &Path) -> Result<Vec<Card>> {
+    let bytes = match tokio::fs::read(output).await {
+        Ok(bytes) => bytes,
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+            info!("No existing output at {}, starting fresh", output.display());
+            return Ok(Vec::new());
+        }
+        Err(err) => return Err(err.into()),
+    };
+    let collection = CardCollection::decode(bytes.as_slice())
+        .map_err(|err| Error::Invalid(format!("Could not decode {}: {err}", output.display())))?;
+    info!(
+        "Resuming with {} cards already in {}",
+        collection.len(),
+        output.display()
+    );
+    Ok(collection.cards)
+}
+
+/// Save cards to the protobuf output file
+///
+/// Writes to a temporary sibling file and renames it into place so a crash
+/// mid-write never leaves a truncated output behind.
+async fn save_card_collection(cards: &[Card], output: &Path) -> Result<()> {
+    let bytes = CardCollection::with_cards(cards.to_vec()).encode_to_vec();
+    let tmp = output.with_extension("pb.tmp");
+    tokio::fs::write(&tmp, bytes).await?;
+    tokio::fs::rename(&tmp, output).await?;
     Ok(())
 }
