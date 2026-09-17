@@ -18,3 +18,7 @@ grafana.arenabuddy.io {
 christmas.grantazure.com {
     reverse_proxy christmas:8080
 }
+
+slate.grantazure.com {
+    reverse_proxy slate:8477
+}
