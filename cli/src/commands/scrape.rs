@@ -208,7 +208,7 @@ async fn enrich_with_scryfall(
         processed_sets += 1;
 
         // Skip anything already in the collection (from a resumed run)
-        let mtga_set_cards: Vec<MtgaCard> = mtga_set_cards
+        let mut mtga_set_cards: Vec<MtgaCard> = mtga_set_cards
             .into_iter()
             .filter(|card| !cards_by_id.contains(&card.grp_id))
             .collect();
@@ -233,12 +233,19 @@ async fn enrich_with_scryfall(
             Ok(Some(scryfall_cards)) => scryfall_cards,
             Ok(None) => {
                 warn!(
-                    "Set '{}' not found in Scryfall, skipping {} cards",
+                    "Set '{}' not found in Scryfall ({} cards); trying fallbacks for missing collector numbers",
                     set_code,
                     mtga_set_cards.len()
                 );
-                failed_cards.extend(mtga_set_cards);
-                continue;
+                let (without_number, other_cards) = mtga_set_cards
+                    .into_iter()
+                    .partition(|card| card.collector_number == "0");
+                failed_cards.extend(other_cards);
+                mtga_set_cards = without_number;
+                if mtga_set_cards.is_empty() {
+                    continue;
+                }
+                HashMap::new()
             }
             Err(err) => {
                 error!("Set '{}' failed, will need a --resume run: {}", set_code, err);
@@ -261,6 +268,47 @@ async fn enrich_with_scryfall(
                     mtga_card.grp_id, mtga_card.name
                 );
                 continue;
+            }
+
+            // Zero is a placeholder, so it must never select a printing by number.
+            if mtga_card.collector_number == "0" {
+                match resolve_without_collector_number(
+                    &client,
+                    scryfall_host,
+                    &mut arena_id_cache,
+                    &scryfall_cards,
+                    &mtga_card,
+                )
+                .await
+                {
+                    Ok(Some(json)) => {
+                        let mut card = Card::from_json(&json);
+                        card.id = mtga_card.grp_id;
+                        cards.push(card);
+                        cards_by_id.insert(mtga_card.grp_id);
+                        continue;
+                    }
+                    Ok(None) if get_basic_land_fallback_id(&mtga_card.name).is_some() => {
+                        let mut card = Card::new(mtga_card.grp_id, &mtga_card.expansion_code, &mtga_card.name);
+                        card.type_line = format!("Basic Land — {}", mtga_card.name.replace("Snow-Covered ", ""));
+                        cards.push(card);
+                        cards_by_id.insert(mtga_card.grp_id);
+                        continue;
+                    }
+                    Ok(None) => {
+                        warn!("Card not found: '{}' (arena_id={})", mtga_card.name, mtga_card.grp_id);
+                        failed_cards.push(mtga_card);
+                        continue;
+                    }
+                    Err(err) => {
+                        error!(
+                            "Card '{}' (arena_id={}) failed: {}",
+                            mtga_card.name, mtga_card.grp_id, err
+                        );
+                        failed_cards.push(mtga_card);
+                        continue;
+                    }
+                }
             }
 
             // Look up by collector number in the Scryfall set data
@@ -358,6 +406,65 @@ async fn enrich_with_scryfall(
     }
 
     Ok(cards)
+}
+
+// Exact face names also identify the primary face of a multifaced card.
+fn matches_card_name(json: &serde_json::Value, name: &str) -> bool {
+    json["name"].as_str() == Some(name)
+        || json["card_faces"]
+            .as_array()
+            .and_then(|faces| faces.first())
+            .and_then(|face| face["name"].as_str())
+            == Some(name)
+}
+
+async fn resolve_without_collector_number(
+    client: &reqwest::Client,
+    scryfall_host: &str,
+    cache: &mut HashMap<i64, serde_json::Value>,
+    set_cards: &HashMap<String, serde_json::Value>,
+    mtga_card: &MtgaCard,
+) -> Result<Option<serde_json::Value>> {
+    if let Some(json) = fetch_or_cache_by_arena_id(client, scryfall_host, cache, mtga_card.grp_id).await?
+        && matches_card_name(&json, &mtga_card.name)
+    {
+        return Ok(Some(json));
+    }
+
+    // Sort matching printings so HashMap iteration cannot change the selected artwork.
+    let set_match = set_cards
+        .iter()
+        .filter(|(_, json)| matches_card_name(json, &mtga_card.name))
+        .min_by(|(number_a, _), (number_b, _)| number_a.cmp(number_b))
+        .map(|(_, json)| json.clone());
+    let json = if let Some(json) = set_match {
+        Some(json)
+    } else {
+        tokio::time::sleep(Duration::from_millis(SCRYFALL_RATE_LIMIT_MS)).await;
+        let response = send_with_retry(
+            client
+                .get(format!("{scryfall_host}/cards/named"))
+                .query(&[("exact", mtga_card.name.as_str())]),
+        )
+        .await?;
+        if response.status() == StatusCode::NOT_FOUND {
+            None
+        } else {
+            response.error_for_status_ref()?;
+            let json: serde_json::Value = response.json().await?;
+            // Reject normalization to a different card, including a rebalanced version.
+            matches_card_name(&json, &mtga_card.name).then_some(json)
+        }
+    };
+
+    if let Some(json) = &json {
+        // Keep the source printing's set, number, and artwork together. Only the Arena ID changes.
+        info!(
+            "Using name fallback for '{}' (arena_id={}, MTGA set={}): Scryfall {}/{}",
+            mtga_card.name, mtga_card.grp_id, mtga_card.expansion_code, json["set"], json["collector_number"]
+        );
+    }
+    Ok(json)
 }
 
 /// Fetch a card by its arena ID, falling back to the canonical basic land ID
@@ -491,4 +598,207 @@ async fn save_card_collection(cards: &[Card], output: &Path) -> Result<()> {
     tokio::fs::write(&tmp, bytes).await?;
     tokio::fs::rename(&tmp, output).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::{Value, json};
+    use tokio::{
+        io::{AsyncReadExt, AsyncWriteExt},
+        net::TcpListener,
+    };
+
+    use super::*;
+
+    async fn mock_scryfall(responses: Vec<(&str, u16, Value)>) -> (String, tokio::task::JoinHandle<()>) {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let host = format!("http://{}", listener.local_addr().unwrap());
+        let responses: Vec<_> = responses
+            .into_iter()
+            .map(|(path, status, body)| (path.to_owned(), status, body))
+            .collect();
+        let task = tokio::spawn(async move {
+            for (path, status, body) in responses {
+                let (mut socket, _) = listener.accept().await.unwrap();
+                let mut request = Vec::new();
+                loop {
+                    let mut buf = [0; 1024];
+                    let read = socket.read(&mut buf).await.unwrap();
+                    assert!(read > 0);
+                    request.extend_from_slice(&buf[..read]);
+                    if request.windows(4).any(|window| window == b"\r\n\r\n") {
+                        break;
+                    }
+                }
+                let request = String::from_utf8(request).unwrap();
+                assert!(request.starts_with(&format!("GET {path} ")), "{request}");
+                let body = body.to_string();
+                let response = format!(
+                    "HTTP/1.1 {status} Test\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                );
+                socket.write_all(response.as_bytes()).await.unwrap();
+            }
+        });
+        (host, task)
+    }
+
+    fn mtga(id: i64, set: &str, name: &str) -> MtgaCard {
+        MtgaCard {
+            grp_id: id,
+            expansion_code: set.into(),
+            collector_number: "0".into(),
+            name: name.into(),
+        }
+    }
+
+    fn printing(name: &str, set: &str, number: &str) -> Value {
+        json!({"name": name, "set": set, "collector_number": number, "lang": "en"})
+    }
+
+    #[tokio::test]
+    async fn recovers_reported_cards_and_checkpoints_source_printings() {
+        let bauble = printing("Urza's Bauble", "ana", "36");
+        let twist = printing("Mind Twist", "spg", "166");
+        let ravager = printing("Arcbound Ravager", "pza", "14");
+        let library = printing("Sylvan Library", "spg", "155");
+        let (host, server) = mock_scryfall(vec![
+            (
+                "/cards/search?include_variations=true&order=set&q=e%3AANA&unique=cards",
+                200,
+                json!({"data": [bauble, printing("Wrong card", "ana", "0")]}),
+            ),
+            ("/cards/arena/101029", 404, json!({})),
+            ("/cards/named?exact=Mind+Twist", 200, twist),
+            ("/cards/arena/101030", 404, json!({})),
+            (
+                "/cards/search?include_variations=true&order=set&q=e%3APZA&unique=cards",
+                200,
+                json!({"data": [ravager]}),
+            ),
+            ("/cards/arena/100676", 404, json!({})),
+            (
+                "/cards/search?include_variations=true&order=set&q=e%3ASPG&unique=cards",
+                200,
+                json!({"data": [library]}),
+            ),
+            ("/cards/arena/102832", 404, json!({})),
+        ])
+        .await;
+        let output = std::env::temp_dir().join(format!("arenabuddy-scrape-{}.pb", std::process::id()));
+        let cards = enrich_with_scryfall(
+            vec![
+                mtga(101_029, "ANA", "Mind Twist"),
+                mtga(101_030, "ANA", "Urza's Bauble"),
+                mtga(100_676, "PZA", "Arcbound Ravager"),
+                mtga(102_832, "SPG", "Sylvan Library"),
+            ],
+            &host,
+            &output,
+            Vec::new(),
+        )
+        .await
+        .unwrap();
+        server.await.unwrap();
+        let actual: Vec<_> = cards
+            .iter()
+            .map(|c| (c.id, c.name.as_str(), c.set.as_str(), c.collector_number.as_str()))
+            .collect();
+        assert_eq!(
+            actual,
+            vec![
+                (101_029, "Mind Twist", "spg", "166"),
+                (101_030, "Urza's Bauble", "ana", "36"),
+                (100_676, "Arcbound Ravager", "pza", "14"),
+                (102_832, "Sylvan Library", "spg", "155"),
+            ]
+        );
+        assert_eq!(load_card_collection(&output).await.unwrap(), cards);
+        // A resumed scrape must keep recovered IDs without requesting metadata again.
+        let resumed = enrich_with_scryfall(vec![mtga(101_029, "ANA", "Mind Twist")], &host, &output, cards.clone())
+            .await
+            .unwrap();
+        assert_eq!(resumed, cards);
+        tokio::fs::remove_file(output).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn prefers_arena_id_and_rejects_inexact_name_fallback() {
+        let card = mtga(101_030, "ANA", "Urza's Bauble");
+        let exact = printing("Urza's Bauble", "ana", "99");
+        let (host, server) = mock_scryfall(vec![("/cards/arena/101030", 200, exact.clone())]).await;
+        let client = reqwest::Client::new();
+        let set = HashMap::from([("36".into(), printing("Urza's Bauble", "ana", "36"))]);
+        let resolved = resolve_without_collector_number(&client, &host, &mut HashMap::new(), &set, &card)
+            .await
+            .unwrap();
+        assert_eq!(resolved, Some(exact));
+        server.await.unwrap();
+
+        let (host, server) = mock_scryfall(vec![
+            ("/cards/arena/101030", 404, json!({})),
+            (
+                "/cards/named?exact=Urza%27s+Bauble",
+                200,
+                printing("A-Urza's Bauble", "ana", "36"),
+            ),
+        ])
+        .await;
+        assert!(
+            resolve_without_collector_number(&client, &host, &mut HashMap::new(), &HashMap::new(), &card)
+                .await
+                .unwrap()
+                .is_none()
+        );
+        server.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn unknown_set_still_uses_name_fallback_and_missing_names_stay_missing() {
+        let (host, server) = mock_scryfall(vec![
+            (
+                "/cards/search?include_variations=true&order=set&q=e%3AUNKNOWN&unique=cards",
+                404,
+                json!({}),
+            ),
+            ("/cards/arena/1", 404, json!({})),
+            (
+                "/cards/named?exact=Mind+Twist",
+                200,
+                printing("Mind Twist", "spg", "166"),
+            ),
+            ("/cards/arena/2", 404, json!({})),
+            ("/cards/named?exact=Unknown+Card", 404, json!({})),
+        ])
+        .await;
+        let output = std::env::temp_dir().join(format!("arenabuddy-scrape-unknown-{}.pb", std::process::id()));
+        let mut numbered = mtga(3, "UNKNOWN", "Numbered Card");
+        numbered.collector_number = "1".into();
+        let cards = enrich_with_scryfall(
+            vec![
+                mtga(1, "UNKNOWN", "Mind Twist"),
+                mtga(2, "UNKNOWN", "Unknown Card"),
+                numbered,
+            ],
+            &host,
+            &output,
+            Vec::new(),
+        )
+        .await
+        .unwrap();
+        server.await.unwrap();
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].id, 1);
+        assert_eq!(cards[0].set, "spg");
+        tokio::fs::remove_file(output).await.unwrap();
+    }
+
+    #[test]
+    fn matches_only_full_name_or_primary_face() {
+        let card = json!({"name": "Front // Back", "card_faces": [{"name": "Front"}, {"name": "Back"}]});
+        assert!(matches_card_name(&card, "Front"));
+        assert!(matches_card_name(&card, "Front // Back"));
+        assert!(!matches_card_name(&card, "Back"));
+        assert!(!matches_card_name(&card, "A-Front"));
+    }
 }
