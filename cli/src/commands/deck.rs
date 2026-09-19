@@ -13,7 +13,7 @@ use std::{
 };
 
 use arenabuddy_core::{cards::CardsDatabase, display::deck::DeckDisplayRecord, models::Deck};
-use arenabuddy_data::{ArenabuddyRepository, MatchDB, MetagameRepository};
+use arenabuddy_data::{ArenabuddyRepository, Database, MetagameRepository};
 use serde_json::{Map, Value};
 
 use crate::{Error, Result};
@@ -207,8 +207,9 @@ async fn print_match_decks_from_db(
     match_id: &str,
     filter_game_number: Option<i32>,
 ) -> Result<()> {
-    let db = MatchDB::new(Some(db_url), catalog.clone()).await?;
-    db.init().await?;
+    let database = Database::connect(db_url).await?;
+    database.migrate().await?;
+    let db = database.repository(catalog.clone());
 
     let mut decks = db.list_decklists(match_id).await?;
     if decks.is_empty() {

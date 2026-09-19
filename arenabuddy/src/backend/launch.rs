@@ -1,7 +1,7 @@
 use std::{path::Path, sync::Arc};
 
 use arenabuddy_core::cards::CardsDatabase;
-use arenabuddy_data::{ArenabuddyRepository, DirectoryStorage, MatchDB};
+use arenabuddy_data::{Database, DirectoryStorage};
 use dioxus::{
     LaunchBuilder,
     desktop::{Config, WindowBuilder},
@@ -28,7 +28,7 @@ pub type BackgroundRuntime = Arc<tokio::runtime::Runtime>;
 #[tracing::instrument(name = "app")]
 pub fn launch(app: &str) -> Result<()> {
     let background: BackgroundRuntime = Arc::new(tokio::runtime::Runtime::new()?);
-    let service = background.block_on(create_app_service())?;
+    let (service, database) = background.block_on(create_app_service())?;
 
     let data_dir = get_app_data_dir()?;
     let home = dirs::home_dir().ok_or(Error::NoHomeDir)?;
@@ -38,6 +38,7 @@ pub fn launch(app: &str) -> Result<()> {
         _ => Err(Error::UnsupportedOS),
     }?;
     info!("Processing logs from : {}", player_log_path.to_string_lossy());
+    let mut workers = tokio::task::JoinSet::new();
     let auth_state = new_shared_auth_state();
     if let Some(saved) = crate::backend::auth::load_auth() {
         info!("Restored auth session for {}", saved.user.username);
@@ -46,36 +47,68 @@ pub fn launch(app: &str) -> Result<()> {
         // Sync matches from server in background
         let sync_db = service.db.clone();
         let sync_auth = auth_state.clone();
-        background.spawn(async move {
-            match crate::backend::sync::sync_matches(&sync_db, &sync_auth).await {
-                Ok(n) => info!("Initial sync complete: {n} new matches"),
-                Err(e) => error!("Initial sync failed: {e}"),
-            }
-        });
+        workers.spawn_on(
+            async move {
+                match crate::backend::sync::sync_matches(&sync_db, &sync_auth).await {
+                    Ok(n) => info!("Initial sync complete: {n} new matches"),
+                    Err(e) => error!("Initial sync failed: {e}"),
+                }
+            },
+            background.handle(),
+        );
     }
-    background.spawn(crate::backend::upload::run(service.db.clone(), auth_state.clone()));
+    workers.spawn_on(
+        crate::backend::upload::run(service.db.clone(), auth_state.clone()),
+        background.handle(),
+    );
     let service2 = service.clone();
     let auth_state2 = auth_state.clone();
-    background.spawn(async move {
-        crate::backend::ingest::start(
-            service2.db.clone(),
-            service2.debug_storage.clone(),
-            service2.log_collector.clone(),
-            player_log_path,
-            auth_state2,
-        )
-        .await;
-    });
+    workers.spawn_on(
+        async move {
+            crate::backend::ingest::start(
+                service2.db.clone(),
+                service2.debug_storage.clone(),
+                service2.log_collector.clone(),
+                player_log_path,
+                auth_state2,
+            )
+            .await;
+        },
+        background.handle(),
+    );
 
+    let shutdown_runtime = background.clone();
+    let mut shutdown = Some((workers, database));
     LaunchBuilder::desktop()
         .with_cfg(
             Config::new()
                 .with_data_directory(data_dir.clone())
-                .with_window(WindowBuilder::new().with_title("Arenabuddy").with_resizable(true)),
+                .with_window(WindowBuilder::new().with_title("Arenabuddy").with_resizable(true))
+                .with_custom_event_handler(move |event, _| {
+                    if matches!(event, dioxus::desktop::tao::event::Event::LoopDestroyed)
+                        && let Some((mut workers, database)) = shutdown.take()
+                    {
+                        let runtime = shutdown_runtime.clone();
+                        // The desktop event loop exits the process instead of
+                        // returning. Finish shutdown here, outside its runtime.
+                        let result = std::thread::spawn(move || {
+                            runtime.block_on(async {
+                                workers.shutdown().await;
+                                database.close().await
+                            })
+                        })
+                        .join();
+                        match result {
+                            Ok(Ok(())) => {}
+                            Ok(Err(error)) => error!("Database shutdown failed: {error}"),
+                            Err(_) => error!("Database shutdown thread panicked"),
+                        }
+                    }
+                }),
         )
         .with_context(service)
         .with_context(auth_state)
-        .with_context(background)
+        .with_context(background.clone())
         .launch(App);
     Ok(())
 }
@@ -134,16 +167,19 @@ fn setup_logging(app_data_dir: &Path) -> Result<()> {
     Ok(())
 }
 
-async fn create_app_service() -> Result<Service> {
+async fn create_app_service() -> Result<(Service, Database)> {
     let data_dir = get_app_data_dir()?;
     setup_logging(&data_dir)?;
 
     let cards_db = CardsDatabase::default();
     let url = std::env::var("ARENABUDDY_DATABASE_URL").ok();
-    info!("using matches db: {:?}", url);
-    let db = MatchDB::new(url.as_deref(), cards_db.clone()).await?;
-    db.init().await?;
+    let database = match url.as_deref() {
+        Some(url) => Database::connect(url).await?,
+        None => Database::start_embedded().await?,
+    };
+    database.migrate().await?;
+    let db = database.repository(cards_db.clone());
     let log_collector = Arc::new(tokio::sync::Mutex::new(Vec::<String>::new()));
     let debug_backend = Arc::new(tokio::sync::Mutex::new(None::<DirectoryStorage>));
-    Ok(AppService::new(db, cards_db, log_collector, debug_backend))
+    Ok((AppService::new(db, cards_db, log_collector, debug_backend), database))
 }

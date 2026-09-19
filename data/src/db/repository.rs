@@ -12,7 +12,6 @@ use crate::Result;
 
 #[async_trait::async_trait]
 pub trait ArenabuddyRepository: Send + Sync + 'static {
-    async fn init(&self) -> Result<()>;
     async fn write_replay(&self, replay: &MatchReplay) -> Result<()>;
     async fn list_matches(&self, user_id: Option<Uuid>) -> Result<Vec<MTGAMatch>>;
     async fn list_match_summaries(&self, user_id: Option<Uuid>) -> Result<Vec<MatchSummary>>;
