@@ -1,36 +1,13 @@
 use std::collections::HashSet;
 
 use arenabuddy_core::{
-    models::{ArenaId, MatchData, OpponentDeck},
-    services::match_service::{
-        GetMatchDataRequest, ListMatchesRequest, UpsertMatchDataRequest, match_service_client::MatchServiceClient,
-    },
+    models::MatchData,
+    services::match_service::{GetMatchDataRequest, ListMatchesRequest, match_service_client::MatchServiceClient},
 };
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tracing::{error, info};
 
-use super::auth::{SharedAuthState, attach_bearer, needs_refresh, refresh};
-
-async fn current_token(auth_state: &SharedAuthState, grpc_url: &str) -> Option<String> {
-    let mut guard = auth_state.lock().await;
-    let state = guard.as_ref()?;
-
-    if needs_refresh(state) {
-        info!("Access token expiring soon, refreshing for sync");
-        match refresh(grpc_url, state).await {
-            Ok(new_state) => {
-                let token = new_state.token.clone();
-                *guard = Some(new_state);
-                return Some(token);
-            }
-            Err(e) => {
-                error!("Failed to refresh token for sync: {e}");
-            }
-        }
-    }
-
-    Some(state.token.clone())
-}
+use super::auth::{SharedAuthState, attach_bearer, current_session};
 
 /// Sync matches from the server into the local database.
 ///
@@ -49,7 +26,7 @@ pub async fn sync_matches(
 ) -> Result<usize, Box<dyn std::error::Error + Send + Sync>> {
     let grpc_url = super::paths::grpc_url();
 
-    let token = current_token(auth_state, &grpc_url).await.ok_or("not authenticated")?;
+    let token = current_session(auth_state, &grpc_url, false).await?.token;
 
     let mut client = MatchServiceClient::connect(grpc_url).await?;
 
@@ -133,49 +110,18 @@ pub async fn sync_matches(
     Ok(synced)
 }
 
-/// Push a specific local match to the server via gRPC upsert.
-///
-/// Returns `Ok(true)` when the local match exists and was uploaded.
-/// Returns `Ok(false)` when the local match is missing.
+/// Queues a local match for durable upload by the signed-in account.
+/// Returns `false` if the local match is missing and an error if queueing fails.
 pub async fn push_match(
     db: &MatchDB,
     auth_state: &SharedAuthState,
     match_id: &str,
 ) -> Result<bool, Box<dyn std::error::Error + Send + Sync>> {
-    let grpc_url = super::paths::grpc_url();
-    let token = current_token(auth_state, &grpc_url).await.ok_or("not authenticated")?;
-
-    let Ok((mtga_match, _result)) = db.get_match(match_id, None).await else {
-        return Ok(false);
-    };
-    let decks = db.list_decklists(match_id).await?;
-    let mulligans = db.list_mulligans(match_id).await?;
-    let results = db.list_match_results(match_id).await?;
-    let event_logs = db.list_event_logs(match_id).await?;
-    let opponent_deck = db
-        .get_opponent_deck(match_id)
+    let account = auth_state
+        .lock()
         .await
-        .ok()
-        .map_or_else(OpponentDeck::empty, |d| {
-            OpponentDeck::new(d.mainboard().iter().map(|&id| ArenaId::from(id)).collect())
-        });
-
-    let match_data = MatchData {
-        mtga_match,
-        decks,
-        mulligans,
-        results,
-        opponent_deck,
-        event_logs,
-    };
-
-    let mut request = tonic::Request::new(UpsertMatchDataRequest {
-        match_data: Some((&match_data).into()),
-    });
-    attach_bearer(&mut request, Some(&token));
-
-    let mut client = MatchServiceClient::connect(grpc_url).await?;
-    client.upsert_match_data(request).await?;
-    info!("Pushed local match {match_id} to server");
-    Ok(true)
+        .as_ref()
+        .map(|state| state.user.id.clone())
+        .ok_or("sign in before queueing a match")?;
+    Ok(db.queue_match_upload(match_id, &account).await?)
 }

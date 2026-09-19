@@ -51,7 +51,11 @@ pub async fn login(
     .map_err(|e| AuthControllerError::LoginFailed(to_error_string(&*e)))?;
 
     let username = state.user.username.clone();
-    *auth_state.lock().await = Some(state);
+    {
+        let mut guard = auth_state.lock().await;
+        crate::backend::auth::save_auth(&state);
+        *guard = Some(state);
+    }
 
     // Keep sync in background so UI can update immediately after login.
     let sync_db = service.db.clone();
@@ -76,10 +80,12 @@ pub async fn logout(auth_state: SharedAuthState, background: BackgroundRuntime) 
         })
         .await?
         .map_err(|e| AuthControllerError::LogoutFailed(to_error_string(&*e)))?;
-    } else {
-        crate::backend::auth::delete_saved_auth();
     }
 
-    *auth_state.lock().await = None;
+    {
+        let mut guard = auth_state.lock().await;
+        *guard = None;
+        crate::backend::auth::delete_saved_auth();
+    }
     Ok(())
 }

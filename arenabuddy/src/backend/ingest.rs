@@ -1,7 +1,6 @@
 use std::{path::PathBuf, sync::Arc, time::Duration};
 
 use arenabuddy_core::{
-    cards::CardsDatabase,
     player_log::{
         ingest::{IngestionConfig, IngestionEvent, LogIngestionService},
         replay::MatchReplay,
@@ -9,11 +8,11 @@ use arenabuddy_core::{
     services::debug_service::{ParseErrorReport, ReportParseErrorsRequest, debug_service_client::DebugServiceClient},
 };
 use arenabuddy_data::{DirectoryStorage, MatchDB};
-use tokio::sync::Mutex;
-use tonic::transport::Channel;
+use tokio::sync::{Mutex, mpsc};
+use tonic::transport::Endpoint;
 use tracing::{error, info};
 
-use super::{auth::SharedAuthState, grpc_writer::GrpcReplayWriter};
+use super::auth::SharedAuthState;
 
 /// Adapter that wraps shared debug storage for the `ReplayWriter` trait.
 ///
@@ -44,57 +43,49 @@ impl arenabuddy_core::player_log::ingest::ReplayWriter for DirectoryStorageAdapt
     }
 }
 
-/// Type alias for cleaner async callback syntax
-type PinnedFuture = std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>;
-
-/// Helper function to handle ingestion events
-fn handle_ingestion_event(
-    event: IngestionEvent,
-    log_collector: Arc<Mutex<Vec<String>>>,
-    debug_client: Option<Arc<Mutex<DebugReporter>>>,
-) -> PinnedFuture {
-    Box::pin(async move {
-        tracing::debug!("{event}");
-        if let IngestionEvent::ParseError(raw_json) = event {
-            {
-                let mut collector = log_collector.lock().await;
-                collector.push(raw_json.clone());
-            }
-            if let Some(reporter) = debug_client {
-                let mut reporter = reporter.lock().await;
-                reporter.report_parse_error(&raw_json).await;
-            }
-        }
-    })
+struct QueuedReplayWriter {
+    db: MatchDB,
+    auth: SharedAuthState,
 }
 
-struct DebugReporter {
-    client: DebugServiceClient<Channel>,
-    auth_state: SharedAuthState,
+#[async_trait::async_trait]
+impl arenabuddy_core::player_log::ingest::ReplayWriter for QueuedReplayWriter {
+    async fn write(&mut self, replay: &MatchReplay) -> arenabuddy_core::Result<()> {
+        let account = self.auth.lock().await.as_ref().map(|state| state.user.id.clone());
+        self.db
+            .write_replay_for_upload(replay, account.as_deref())
+            .await
+            .map_err(|e| arenabuddy_core::Error::StorageError(e.to_string()))
+    }
 }
 
-impl DebugReporter {
-    async fn report_parse_error(&mut self, raw_json: &str) {
-        let timestamp = chrono::Utc::now().timestamp();
-        let mut request = tonic::Request::new(ReportParseErrorsRequest {
-            errors: vec![ParseErrorReport {
-                raw_json: raw_json.to_string(),
-                timestamp,
-            }],
-        });
-
-        let token = self.auth_state.lock().await.as_ref().map(|s| s.token.clone());
-        super::auth::attach_bearer(&mut request, token.as_deref());
-
-        if let Err(e) = self.client.report_parse_errors(request).await {
-            error!("Failed to report parse error to server: {e}");
+// Diagnostics are best effort and bounded; network failures never delay parsing.
+async fn report_errors(mut errors: mpsc::Receiver<(String, String)>) {
+    while let Some((raw_json, token)) = errors.recv().await {
+        let report = async {
+            let endpoint = Endpoint::new(super::paths::grpc_url())?.connect_timeout(Duration::from_secs(5));
+            let mut client = DebugServiceClient::new(endpoint.connect().await?);
+            let mut request = tonic::Request::new(ReportParseErrorsRequest {
+                errors: vec![ParseErrorReport {
+                    raw_json,
+                    timestamp: chrono::Utc::now().timestamp(),
+                }],
+            });
+            super::auth::attach_bearer(&mut request, Some(&token));
+            request.set_timeout(Duration::from_secs(10));
+            client.report_parse_errors(request).await?;
+            Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
+        };
+        match tokio::time::timeout(Duration::from_secs(15), report).await {
+            Ok(Ok(())) => {}
+            Ok(Err(e)) => error!("Parse error reporting failed: {e}"),
+            Err(e) => error!("Parse error reporting timed out: {e}"),
         }
     }
 }
 
 pub async fn start(
     db: MatchDB,
-    cards: CardsDatabase,
     debug_dir: Arc<Mutex<Option<DirectoryStorage>>>,
     log_collector: Arc<Mutex<Vec<String>>>,
     player_log_path: PathBuf,
@@ -117,42 +108,35 @@ pub async fn start(
         }
     };
 
-    // Add database writer
-    let grpc_local_db = db.clone();
-    let service = service.add_writer(Box::new(db.clone())).add_draft_writer(Box::new(db));
+    let service = service
+        .add_writer(Box::new(QueuedReplayWriter {
+            db: db.clone(),
+            auth: auth_state.clone(),
+        }))
+        .add_draft_writer(Box::new(db))
+        .add_writer(Box::new(DirectoryStorageAdapter::new(debug_dir)));
 
-    // Add directory storage writer (handles None internally via the adapter)
-    let dir_adapter = DirectoryStorageAdapter::new(debug_dir);
-    let service = service.add_writer(Box::new(dir_adapter));
-
-    // Add gRPC writer and debug reporter
-    let mut debug_reporter: Option<Arc<Mutex<DebugReporter>>> = None;
-    let grpc_url = super::paths::grpc_url();
-    let service = {
-        match GrpcReplayWriter::connect(&grpc_url, cards, auth_state.clone(), grpc_local_db).await {
-            Ok(writer) => {
-                info!("Connected to gRPC backend at {grpc_url}");
-
-                // Create a separate debug client
-                if let Ok(client) = DebugServiceClient::connect(grpc_url).await {
-                    debug_reporter = Some(Arc::new(Mutex::new(DebugReporter {
-                        client,
-                        auth_state: auth_state.clone(),
-                    })));
+    let (error_tx, error_rx) = mpsc::channel(64);
+    let reporter = tokio::spawn(report_errors(error_rx));
+    let event_callback: arenabuddy_core::player_log::ingest::EventCallback = Arc::new(move |event| {
+        let logs = log_collector.clone();
+        let sender = error_tx.clone();
+        let auth = auth_state.clone();
+        Box::pin(async move {
+            if let IngestionEvent::ParseError(raw_json) = event {
+                {
+                    let mut logs = logs.lock().await;
+                    if logs.len() >= 1000 {
+                        logs.remove(0);
+                    }
+                    logs.push(raw_json.clone());
                 }
-
-                service.add_writer(Box::new(writer))
+                let token = auth.lock().await.as_ref().map(|state| state.token.clone());
+                if let Some(token) = token {
+                    let _ = sender.try_send((raw_json, token));
+                }
             }
-            Err(e) => {
-                error!("Failed to connect to gRPC backend at {grpc_url}: {e}");
-                service
-            }
-        }
-    };
-
-    // Set up event callback to handle ingestion events
-    let event_callback = Arc::new(move |event: IngestionEvent| {
-        handle_ingestion_event(event, log_collector.clone(), debug_reporter.clone())
+        })
     });
 
     let service = service.with_event_callback(event_callback);
@@ -161,4 +145,5 @@ pub async fn start(
     if let Err(e) = service.start().await {
         error!("Log processing failed: {}", e);
     }
+    reporter.abort();
 }
