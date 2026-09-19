@@ -18,6 +18,10 @@ use postgresql_embedded::PostgreSQL;
 use sqlx::{FromRow, PgPool, Postgres, Transaction, types::Uuid};
 use tracing::{debug, error, info, instrument, warn};
 
+#[cfg(test)]
+#[path = "postgres_ownership_tests.rs"]
+mod ownership_tests;
+
 #[derive(FromRow)]
 struct MatchRow {
     id: Uuid,
@@ -198,10 +202,14 @@ impl PostgresMatchDB {
         user_id: Option<Uuid>,
         tx: &mut Transaction<'_, Postgres>,
     ) -> Result<()> {
-        sqlx::query(
+        // The conflict update locks the existing row. Check ownership here so
+        // concurrent uploads cannot bypass the check before writing child rows.
+        let result = sqlx::query(
             r"INSERT INTO match
             (id, controller_seat_id, controller_player_name, opponent_player_name, created_at, user_id, format)
-            VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT(id) DO UPDATE SET format = COALESCE(excluded.format, match.format)",
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            ON CONFLICT(id) DO UPDATE SET format = COALESCE(excluded.format, match.format)
+            WHERE match.user_id IS NOT DISTINCT FROM excluded.user_id",
         )
         .bind(match_id)
         .bind(mtga_match.controller_seat_id())
@@ -212,6 +220,9 @@ impl PostgresMatchDB {
         .bind(mtga_match.format())
         .execute(&mut **tx)
         .await?;
+        if result.rows_affected() == 0 {
+            return Err(Error::MatchOwnershipConflict);
+        }
         Ok(())
     }
 

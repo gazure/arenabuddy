@@ -25,6 +25,20 @@ jobs:
   check:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: arenabuddy_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v7
 
@@ -79,3 +93,9 @@ jobs:
         env:
           SQLX_OFFLINE: true
         run: cargo clippy --profile ci --all --all-targets --all-features --examples --tests
+
+      - name: Test match ownership
+        env:
+          SQLX_OFFLINE: true
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/arenabuddy_test
+        run: cargo test --profile ci -p arenabuddy_data -p arenabuddy_server
