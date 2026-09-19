@@ -1,15 +1,10 @@
-use std::{
-    fmt::Display,
-    path::{Path, PathBuf},
-    sync::Arc,
-    time::Duration,
-};
+use std::{fmt::Display, path::PathBuf, sync::Arc, time::Duration};
 
 use tokio::{
     sync::mpsc::{self},
     time::interval,
 };
-use tracing::{debug, error, info};
+use tracing::{debug, error, info, warn};
 
 use crate::{
     Error, Result,
@@ -18,8 +13,9 @@ use crate::{
     models::MTGADraft,
     player_log::{
         draft::DraftBuilder,
-        processor::{ParseOutput, PlayerLogProcessor},
+        processor::{LogItem, ParseOutput, PlayerLogProcessor},
         replay::{MatchReplay, MatchReplayBuilder},
+        watcher::LogWatcher,
     },
 };
 
@@ -44,7 +40,8 @@ pub struct IngestionConfig {
     pub follow: bool,
     /// Interval between processing attempts
     pub poll_interval: Duration,
-    /// Whether to watch for log file rotation
+    /// Whether to use filesystem notifications. Following always checks for
+    /// replacement and truncation by polling, even if notifications are disabled.
     pub watch_rotation: bool,
 }
 
@@ -88,7 +85,7 @@ pub enum IngestionEvent {
     MatchCompleted(Box<MatchReplay>),
     /// An error occurred while parsing
     ParseError(String),
-    /// The log file was rotated
+    /// The log file was replaced or truncated; unfinished event state was reset.
     LogRotated,
 }
 
@@ -116,15 +113,20 @@ pub struct LogIngestionService {
     draft_builder: DraftBuilder,
     event_callback: Option<EventCallback>,
     shutdown_rx: Option<mpsc::UnboundedReceiver<()>>,
+    shutdown_on_ctrl_c: bool,
 }
 
 impl LogIngestionService {
     /// Create a new log ingestion service
     ///
     /// # Errors
-    /// Errors if Player log cannot be found
+    /// Returns an error for an unreadable log or a zero polling interval. In
+    /// follow mode, a missing log is retried until the file appears.
     pub async fn new(config: IngestionConfig) -> Result<Self> {
-        let processor = PlayerLogProcessor::try_new(&config.player_log_path).await?;
+        if config.poll_interval.is_zero() {
+            return Err(Error::Io("poll interval must be greater than zero".into()));
+        }
+        let processor = PlayerLogProcessor::with_follow(&config.player_log_path, config.follow).await?;
 
         Ok(Self {
             config,
@@ -133,6 +135,7 @@ impl LogIngestionService {
             draft_builder: DraftBuilder::new(),
             event_callback: None,
             shutdown_rx: None,
+            shutdown_on_ctrl_c: false,
         })
     }
 
@@ -157,10 +160,17 @@ impl LogIngestionService {
         self
     }
 
-    /// Set a shutdown receiver for graceful termination
+    /// Stops ingestion on Ctrl+C without installing a handler per service.
     #[must_use]
     pub fn with_shutdown(mut self) -> Self {
-        self.shutdown_rx = Some(create_shutdown_channel());
+        self.shutdown_on_ctrl_c = true;
+        self
+    }
+
+    /// Stops ingestion when the sender signals or drops the supplied receiver.
+    #[must_use]
+    pub fn with_shutdown_receiver(mut self, receiver: mpsc::UnboundedReceiver<()>) -> Self {
+        self.shutdown_rx = Some(receiver);
         self
     }
 
@@ -204,138 +214,96 @@ impl LogIngestionService {
         Ok(())
     }
 
-    /// Process all available events from the log
-    async fn process_available_events(&mut self) -> Result<bool> {
-        let mut has_events = false;
-
-        loop {
-            match self.processor.get_next_event().await {
-                Ok(output) => {
-                    has_events = true;
-                    self.process_parse_output(output).await?;
-                }
-                Err(e) => match e {
-                    Error::Parse(ParseError::NoEvent) => break,
-                    Error::Parse(ParseError::Error(s)) => {
-                        debug!("Parse error: {}", s);
-                        self.emit_event(IngestionEvent::ParseError(s)).await;
-                    }
-                    _ => return Err(e),
-                },
-            }
-        }
-
-        Ok(has_events)
+    fn reset_builders(&mut self) {
+        self.match_replay_builder.reset();
+        self.draft_builder.reset();
     }
 
-    /// Handle log file rotation
-    async fn handle_rotation(&mut self) -> Result<()> {
-        info!("Log file rotated, reinitializing processor");
-        self.processor = PlayerLogProcessor::try_new(&self.config.player_log_path).await?;
-        self.emit_event(IngestionEvent::LogRotated).await;
-        Ok(())
-    }
-
-    /// Start the ingestion service
+    /// Follows appended bytes and resets state only at confirmed file boundaries.
     ///
     /// # Errors
-    /// Errors if rotation watching is enabled and cannot be configured
+    ///
+    /// Returns an error if log reads, signal handling, or draft processing fail.
+    /// Notification setup failures fall back to polling.
     pub async fn start(mut self) -> Result<()> {
         let mut poll_interval = interval(self.config.poll_interval);
         poll_interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
-
-        // Set up file watcher if needed
-        let mut rotation_rx = if self.config.watch_rotation {
-            Some(Self::create_rotation_watcher(&self.config.player_log_path)?)
+        let mut watcher = if self.config.follow && self.config.watch_rotation {
+            match LogWatcher::new(&self.config.player_log_path) {
+                Ok(watcher) => Some(watcher),
+                Err(error) => {
+                    warn!("Log notifications unavailable; following by polling: {error}");
+                    None
+                }
+            }
         } else {
             None
         };
 
+        let mut shutdown_rx = self.shutdown_rx.take();
+        let on_ctrl_c = self.shutdown_on_ctrl_c;
+        let shutdown = async move {
+            tokio::select! {
+                result = async {
+                    if on_ctrl_c { tokio::signal::ctrl_c().await }
+                    else { std::future::pending::<std::io::Result<()>>().await }
+                } => result,
+                () = async {
+                    if let Some(rx) = &mut shutdown_rx { rx.recv().await; }
+                    else { std::future::pending::<()>().await; }
+                } => Ok(()),
+            }
+        };
+        tokio::pin!(shutdown);
+        let mut at_eof = false;
         info!("Starting log ingestion from: {:?}", self.config.player_log_path);
 
         loop {
-            tokio::select! {
-                // Handle shutdown signal
-                () = async {
-                    if let Some(rx) = &mut self.shutdown_rx {
-                        rx.recv().await;
-                    } else {
-                        std::future::pending::<()>().await;
+            if at_eof {
+                tokio::select! {
+                    biased;
+                    result = &mut shutdown => { result?; break; }
+                    _ = poll_interval.tick() => {}
+                    notification = async {
+                        if let Some(watcher) = &mut watcher { watcher.wakeups.recv().await }
+                        else { std::future::pending::<Option<()>>().await }
+                    } => {
+                        if notification.is_none() { watcher = None; }
                     }
-                } => {
-                    info!("Received shutdown signal");
+                }
+            }
+            let next = tokio::select! {
+                biased;
+                result = &mut shutdown => { result?; break; }
+                next = self.processor.next_item() => next,
+            };
+            at_eof = false;
+            match next {
+                Ok(LogItem::Event(output)) => self.process_parse_output(output).await?,
+                Ok(LogItem::Boundary) => {
+                    self.reset_builders();
+                    self.emit_event(IngestionEvent::LogRotated).await;
+                }
+                Ok(LogItem::Progress) => {}
+                Ok(LogItem::Eof) if self.config.follow => at_eof = true,
+                Ok(LogItem::Eof) => {
+                    if let Err(Error::Parse(ParseError::Error(reason))) = self.processor.finish() {
+                        self.emit_event(IngestionEvent::ParseError(reason)).await;
+                    }
                     break;
                 }
-
-                // Handle log rotation
-                _ = async {
-                    if let Some(rx) = &mut rotation_rx {
-                        rx.recv().await
-                    } else {
-                        std::future::pending::<Option<()>>().await
-                    }
-                } => {
-                    self.handle_rotation().await?;
+                Err(Error::Parse(ParseError::Error(reason))) => {
+                    debug!("Parse error: {reason}");
+                    self.emit_event(IngestionEvent::ParseError(reason)).await;
                 }
-
-                // Process events on interval
-                _ = poll_interval.tick() => {
-                    let has_events = self.process_available_events().await?;
-
-                    // If not following and no events, we're done
-                    if !self.config.follow && !has_events {
-                        info!("Finished processing log (follow=false)");
-                        break;
-                    }
-                }
+                Err(error) => return Err(error),
             }
+            tokio::task::yield_now().await;
         }
-
         Ok(())
     }
-
-    /// Create a file watcher for log rotation detection
-    ///
-    /// # Errors
-    /// Errors if FS notifier cannot be created
-    fn create_rotation_watcher(path: &Path) -> Result<mpsc::UnboundedReceiver<()>> {
-        use notify::{Event, EventKind, RecursiveMode, Watcher};
-
-        let (tx, rx) = mpsc::unbounded_channel();
-        let _watched_path = path.to_path_buf();
-
-        let mut watcher = notify::recommended_watcher(move |res: notify::Result<Event>| {
-            if let Ok(event) = res {
-                // Check if this is a modification or create event that indicates rotation
-                if matches!(
-                    event.kind,
-                    EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_)
-                ) {
-                    let _ = tx.send(());
-                }
-            }
-        })
-        .map_err(|e| crate::Error::Io(e.to_string()))?;
-
-        watcher
-            .watch(path.parent().unwrap_or(Path::new(".")), RecursiveMode::NonRecursive)
-            .map_err(|e| crate::Error::Io(e.to_string()))?;
-
-        // Keep the watcher alive by leaking it (it will be cleaned up on process exit)
-        Box::leak(Box::new(watcher));
-
-        Ok(rx)
-    }
 }
 
-/// Create a shutdown channel for graceful termination
-fn create_shutdown_channel() -> mpsc::UnboundedReceiver<()> {
-    let (tx, rx) = mpsc::unbounded_channel();
-
-    ctrlc::set_handler(move || {
-        let _ = tx.send(());
-    })
-    .expect("Could not set up SIGINT handler with system");
-
-    rx
-}
+#[cfg(test)]
+#[path = "ingest_tests.rs"]
+mod tests;

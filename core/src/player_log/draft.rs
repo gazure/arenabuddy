@@ -113,7 +113,7 @@ impl DraftBuilder {
         Err(Error::Io("can't locate draft_id or event_id".to_string()))
     }
 
-    fn reset(&mut self) {
+    pub(super) fn reset(&mut self) {
         self.packs.clear();
         self.draft_id = None;
         self.event_id = None;

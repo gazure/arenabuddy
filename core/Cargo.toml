@@ -21,7 +21,6 @@ tonic-prost = { workspace = true }
 [dependencies]
 async-trait = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
-ctrlc = { workspace = true }
 derive_builder = { workspace = true }
 itertools = { workspace = true }
 notify = { workspace = true }
@@ -32,10 +31,14 @@ tonic-prost = { workspace = true }
 regex = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+same-file = "1.0"
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
 uuid = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
 
 
 [features]

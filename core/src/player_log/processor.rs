@@ -1,11 +1,9 @@
 use std::{collections::VecDeque, path::Path};
 
-use tokio::{
-    fs::File,
-    io::{AsyncBufReadExt, BufReader},
+use super::{
+    follower::{LogFollower, ReadResult},
+    framing::{Frame, JsonFramer},
 };
-use tracing::{debug, error};
-
 use crate::{
     Result,
     errors::ParseError,
@@ -15,92 +13,107 @@ use crate::{
     },
 };
 
+// Keep events inline: each item is consumed immediately, never stored in a collection.
+#[expect(clippy::large_enum_variant)]
+pub(super) enum LogItem {
+    Event(ParseOutput),
+    Boundary,
+    Progress,
+    Eof,
+}
+
+/// Reads framed events from a player log without changing JSON string contents.
 #[derive(Debug)]
 pub struct PlayerLogProcessor {
-    player_log_reader: BufReader<File>,
-    json_events: VecDeque<String>,
-    current_json_str: Option<String>,
-    bracket_depth: usize,
+    follower: LogFollower,
+    framer: JsonFramer,
+    frames: VecDeque<Frame>,
+    boundary_pending: bool,
 }
 
 impl PlayerLogProcessor {
+    /// Opens a snapshot of the file for one-shot processing.
+    ///
     /// # Errors
     ///
-    /// Will return an error if the player log file cannot be opened
-    pub async fn try_new(player_log_path: &Path) -> Result<Self> {
+    /// Returns an error if the path cannot be opened as a regular file.
+    pub async fn try_new(path: &Path) -> Result<Self> {
+        Self::with_follow(path, false).await
+    }
+
+    pub(super) async fn with_follow(path: &Path, follow: bool) -> Result<Self> {
         Ok(Self {
-            player_log_reader: BufReader::new(File::open(player_log_path).await?),
-            json_events: VecDeque::new(),
-            current_json_str: None,
-            bracket_depth: 0,
+            follower: LogFollower::new(path, follow).await?,
+            framer: JsonFramer::default(),
+            frames: VecDeque::new(),
+            boundary_pending: false,
         })
     }
 
-    // try to find the json strings in the logs. ignoring all other info
-    // purges whitespace from the internal json strings, but I don't think that will cause
-    // any issues given the log entries seen
-    pub fn process_line(&mut self, log_line: &str) -> Vec<String> {
-        let mut completed_json_strings = Vec::new();
-        log_line.chars().for_each(|char| match char {
-            '{' => {
-                if self.current_json_str.is_none() {
-                    self.current_json_str = Some(String::new());
-                }
-                if let Some(json_str) = &mut self.current_json_str {
-                    json_str.push('{');
-                }
-                self.bracket_depth += 1;
+    fn decode(frame: Frame) -> Result<LogItem> {
+        match frame {
+            Frame::Rejected(reason) => Err(ParseError::Error(reason).into()),
+            Frame::Object(bytes) => {
+                let text =
+                    String::from_utf8(bytes).map_err(|_| ParseError::Error("Invalid UTF-8 in JSON object".into()))?;
+                parse(&text)
+                    .map(LogItem::Event)
+                    .map_err(|_| ParseError::Error(text).into())
             }
-            '}' => {
-                if let Some(json_str) = &mut self.current_json_str {
-                    json_str.push('}');
-                    self.bracket_depth -= 1;
-                    if self.bracket_depth == 0 {
-                        completed_json_strings.push(json_str.clone());
-                        self.current_json_str = None;
-                    }
-                }
-            }
-            ' ' | '\n' | '\r' => {}
-            _ => {
-                if let Some(json_str) = &mut self.current_json_str {
-                    json_str.push(char);
-                }
-            }
-        });
-        completed_json_strings
-    }
-
-    async fn process_lines(&mut self) {
-        let mut lines = Vec::new();
-        loop {
-            let mut line = String::new();
-            match self.player_log_reader.read_line(&mut line).await {
-                Ok(0) => break,
-                Ok(_) => lines.push(line),
-                Err(e) => {
-                    error!("Error reading line: {:?}", e);
-                    break;
-                }
-            }
-        }
-        for line in lines {
-            let json_strings = self.process_line(&line);
-            self.json_events.extend(json_strings);
         }
     }
 
+    // One bounded read or queued frame per call lets the service check shutdown
+    // even while scanning a large file or a continuously growing stream.
+    pub(super) async fn next_item(&mut self) -> Result<LogItem> {
+        if let Some(frame) = self.frames.pop_front() {
+            return Self::decode(frame);
+        }
+        if self.boundary_pending {
+            self.boundary_pending = false;
+            return Ok(LogItem::Boundary);
+        }
+        match self.follower.read().await? {
+            ReadResult::Bytes(bytes) => {
+                self.frames.extend(self.framer.push(&bytes));
+                self.frames.pop_front().map_or(Ok(LogItem::Progress), Self::decode)
+            }
+            ReadResult::Boundary => {
+                if let Some(incomplete) = self.framer.finish() {
+                    self.boundary_pending = true;
+                    Self::decode(incomplete)
+                } else {
+                    Ok(LogItem::Boundary)
+                }
+            }
+            ReadResult::Eof => Ok(LogItem::Eof),
+        }
+    }
+
+    pub(super) fn finish(&mut self) -> Result<()> {
+        match self.framer.finish() {
+            Some(frame) => Self::decode(frame).map(|_| ()),
+            None => Ok(()),
+        }
+    }
+
+    /// Returns the next parsed object in the file snapshot.
+    ///
     /// # Errors
     ///
-    /// Errors when json events that look parseable do not parse, or when no events are found
+    /// Returns a parse error for malformed events or an incomplete final object,
+    /// `NoEvent` at EOF, or an I/O error if the file cannot be read.
     pub async fn get_next_event(&mut self) -> Result<ParseOutput> {
-        self.process_lines().await;
-        let event = self.json_events.pop_front().ok_or(ParseError::NoEvent)?;
-        parse(&event).map_err(|e| {
-            error!("Error parsing event: {}", e);
-            debug!("Event: {}", event);
-            ParseError::Error(event).into()
-        })
+        loop {
+            match self.next_item().await? {
+                LogItem::Event(event) => return Ok(event),
+                LogItem::Eof => {
+                    self.finish()?;
+                    return Err(ParseError::NoEvent.into());
+                }
+                LogItem::Progress | LogItem::Boundary => tokio::task::yield_now().await,
+            }
+        }
     }
 }
 
@@ -114,128 +127,29 @@ pub enum ParseOutput {
     NoEvent,
 }
 
+/// Decodes an event based on its top-level envelope fields.
+///
 /// # Errors
 ///
-/// Errors if event appears to be a relevant json string, but does not decode properly
+/// Returns an error for malformed JSON or a malformed recognized event.
+/// Unknown valid JSON objects return `NoEvent`.
 pub fn parse(event: &str) -> Result<ParseOutput> {
-    if event.contains("clientToMatchServiceMessage") {
-        let client_to_match_service_message: RequestTypeClientToMatchServiceMessage = serde_json::from_str(event)?;
-        Ok(ParseOutput::ClientMessage(client_to_match_service_message))
-    } else if event.contains("matchGameRoomStateChangedEvent") {
-        let mgrsc_event: RequestTypeMGRSCEvent = serde_json::from_str(event)?;
-        Ok(ParseOutput::MGRSCMessage(mgrsc_event))
-    } else if event.contains("greToClientEvent") {
-        let request_gre_to_client_event: RequestTypeGREToClientEvent = serde_json::from_str(event)?;
-        Ok(ParseOutput::GREMessage(request_gre_to_client_event))
-    } else if let Ok(business_event) = serde_json::from_str::<RequestTypeBusinessEvent>(event) {
-        Ok(ParseOutput::BusinessMessage(business_event))
-    } else if let Ok(draft_event) = serde_json::from_str::<RequestTypeDraftNotify>(event) {
-        Ok(ParseOutput::DraftNotify(draft_event))
+    let value: serde_json::Value = serde_json::from_str(event)?;
+    if value.get("clientToMatchServiceMessage").is_some() {
+        Ok(ParseOutput::ClientMessage(serde_json::from_value(value)?))
+    } else if value.get("matchGameRoomStateChangedEvent").is_some() {
+        Ok(ParseOutput::MGRSCMessage(serde_json::from_value(value)?))
+    } else if value.get("greToClientEvent").is_some() {
+        Ok(ParseOutput::GREMessage(serde_json::from_value(value)?))
+    } else if let Ok(business) = serde_json::from_value::<RequestTypeBusinessEvent>(value.clone()) {
+        Ok(ParseOutput::BusinessMessage(business))
+    } else if let Ok(draft) = serde_json::from_value::<RequestTypeDraftNotify>(value) {
+        Ok(ParseOutput::DraftNotify(draft))
     } else {
         Ok(ParseOutput::NoEvent)
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use std::collections::VecDeque;
-
-    use tokio::{fs::File, io::BufReader};
-
-    use super::*;
-
-    async fn make_processor() -> PlayerLogProcessor {
-        let tmp = std::env::temp_dir().join("arenabuddy_test_empty.log");
-        tokio::fs::write(&tmp, b"").await.expect("write temp file");
-        PlayerLogProcessor {
-            player_log_reader: BufReader::new(File::open(&tmp).await.expect("open temp file")),
-            json_events: VecDeque::new(),
-            current_json_str: None,
-            bracket_depth: 0,
-        }
-    }
-
-    // -- process_line tests ---------------------------------------------------
-
-    #[tokio::test]
-    async fn process_line_extracts_single_json_object() {
-        let mut proc = make_processor().await;
-        let result = proc.process_line(r#"some log prefix {"key":"value"} trailing"#);
-        assert_eq!(result.len(), 1);
-        assert_eq!(result[0], r#"{"key":"value"}"#);
-    }
-
-    #[tokio::test]
-    async fn process_line_extracts_multiple_json_objects() {
-        let mut proc = make_processor().await;
-        let result = proc.process_line(r#"{"a":1} noise {"b":2}"#);
-        assert_eq!(result.len(), 2);
-        assert_eq!(result[0], r#"{"a":1}"#);
-        assert_eq!(result[1], r#"{"b":2}"#);
-    }
-
-    #[tokio::test]
-    async fn process_line_handles_nested_braces() {
-        let mut proc = make_processor().await;
-        let result = proc.process_line(r#"{"outer":{"inner":1}}"#);
-        assert_eq!(result.len(), 1);
-        assert_eq!(result[0], r#"{"outer":{"inner":1}}"#);
-    }
-
-    #[tokio::test]
-    async fn process_line_strips_whitespace() {
-        let mut proc = make_processor().await;
-        let result = proc.process_line(r#"{ "key" : "value" }"#);
-        assert_eq!(result.len(), 1);
-        assert_eq!(result[0], r#"{"key":"value"}"#);
-    }
-
-    #[tokio::test]
-    async fn process_line_spans_multiple_calls() {
-        let mut proc = make_processor().await;
-        let r1 = proc.process_line(r#"prefix {"key":"#);
-        assert!(r1.is_empty(), "incomplete JSON should not produce output");
-
-        let r2 = proc.process_line(r#""value"}"#);
-        assert_eq!(r2.len(), 1);
-        assert_eq!(r2[0], r#"{"key":"value"}"#);
-    }
-
-    #[tokio::test]
-    async fn process_line_no_json() {
-        let mut proc = make_processor().await;
-        let result = proc.process_line("just some plain log text with no braces");
-        assert!(result.is_empty());
-    }
-
-    #[tokio::test]
-    async fn process_line_deeply_nested() {
-        let mut proc = make_processor().await;
-        let input = r#"{"a":{"b":{"c":{"d":1}}}}"#;
-        let result = proc.process_line(input);
-        assert_eq!(result.len(), 1);
-        assert_eq!(result[0], input);
-    }
-
-    #[tokio::test]
-    async fn process_line_empty_object() {
-        let mut proc = make_processor().await;
-        let result = proc.process_line("{}");
-        assert_eq!(result.len(), 1);
-        assert_eq!(result[0], "{}");
-    }
-
-    // -- parse() dispatch tests -----------------------------------------------
-
-    #[test]
-    fn parse_unrecognized_json_returns_no_event() {
-        let result = parse(r#"{"someRandomField": 42}"#).expect("should not error");
-        assert!(matches!(result, ParseOutput::NoEvent));
-    }
-
-    #[test]
-    fn parse_non_json_returns_no_event() {
-        let result = parse("not json at all");
-        assert!(matches!(result, Ok(ParseOutput::NoEvent)));
-    }
-}
+#[path = "processor_tests.rs"]
+mod tests;
