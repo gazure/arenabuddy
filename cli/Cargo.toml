@@ -18,11 +18,13 @@ arenabuddy_metagame = { path = "../metagame" }
 chrono = { workspace = true }
 clap = { workspace = true }
 dirs = { workspace = true }
+dotenvy = "0.15.7"
 ctrlc = { workspace = true }
 reqwest = { workspace = true, features = ["json", "stream", "default-tls"] }
 rusqlite = { workspace = true }
 rustyline = { workspace = true }
 serde_json = { workspace = true }
+serde = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 thiserror = { workspace = true }
 tracing = { workspace = true }

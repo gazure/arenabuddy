@@ -27,6 +27,7 @@ pub async fn run() -> Result<()> {
         .init();
 
     match &cli.command {
+        Commands::SemanticSearch(args) => commands::semantic_search::execute(args).await?,
         Commands::Parse {
             player_log,
             output_dir,
@@ -53,7 +54,7 @@ pub async fn run() -> Result<()> {
         }
 
         Commands::Repl { cards_db } => {
-            commands::repl::execute(cards_db)?;
+            commands::repl::execute(cards_db).await?;
         }
 
         Commands::Metagame { command } => {

@@ -7,6 +7,9 @@ pub const SCRYFALL_HOST_DEFAULT: &str = "https://api.scryfall.com";
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    /// Search card rules by meaning using `TypeSafe` Jev
+    SemanticSearch(super::semantic_search::SearchArgs),
+
     /// Parse Arena log files to extract match data
     Parse {
         #[arg(short, long, help = "Location of Player.log file")]

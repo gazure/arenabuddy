@@ -7,5 +7,6 @@ pub mod parse;
 pub mod repl;
 pub mod scrape;
 pub mod scryfall;
+pub mod semantic_search;
 
 pub use definitions::{Commands, DeckCommands};

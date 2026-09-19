@@ -10,22 +10,14 @@ use crate::Result;
 /// # Errors
 ///
 /// Will return an error if the cards database cannot be loaded or if there's an I/O error
-pub fn execute(cards_db_path: &Path) -> Result<()> {
+pub async fn execute(cards_db_path: &Path) -> Result<()> {
     // Load the cards database
     let cards_db = CardsDatabase::new(cards_db_path)?;
     println!("Loaded {} cards", cards_db.len());
 
     let mut rl = DefaultEditor::new()?;
     println!("Arenabuddy REPL");
-    println!("Available commands:");
-    println!("  find <arena_id> - Find a card by Arena ID");
-    println!("  dump <arena_id> - Dump full card proto as JSON");
-    println!("  search <name_prefix> - Search cards by name prefix");
-    println!("  count [set_code] - Count cards, optionally filtered by set code");
-    println!("  sets - List all set codes");
-    println!("  info - Display information about the loaded db file");
-    println!("  help - Show this help message");
-    println!("  exit - Exit the REPL");
+    print_help();
 
     loop {
         let readline = rl.readline(">> ");
@@ -66,6 +58,17 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                         let query = parts[1..].join(" ");
                         search_cards_by_name(&cards_db, &query);
                     }
+                    "semantic" => {
+                        let query = parts[1..].join(" ");
+                        if let Err(error) = super::semantic_search::search_and_print(
+                            &cards_db,
+                            &super::semantic_search::SearchArgs::for_query(query),
+                        )
+                        .await
+                        {
+                            println!("Semantic search failed: {error}");
+                        }
+                    }
                     "count" => {
                         if parts.len() > 1 {
                             count_cards_by_set(&cards_db, Some(parts[1]));
@@ -77,17 +80,7 @@ pub fn execute(cards_db_path: &Path) -> Result<()> {
                         list_sets(&cards_db);
                     }
                     "info" => display_file_info(&cards_db),
-                    "help" => {
-                        println!("Available commands:");
-                        println!("  find <arena_id> - Find a card by Arena ID");
-                        println!("  dump <arena_id> - Dump full card proto as JSON");
-                        println!("  search <name_prefix> - Search cards by name prefix");
-                        println!("  count [set_code] - Count cards, optionally filtered by set code");
-                        println!("  sets - List all set codes");
-                        println!("  info <file> - Display information about a card data file");
-                        println!("  help - Show this help message");
-                        println!("  exit - Exit the REPL");
-                    }
+                    "help" => print_help(),
                     "exit" | "quit" => {
                         println!("Goodbye!");
                         break;
@@ -239,4 +232,17 @@ fn search_cards_by_name(cards_db: &CardsDatabase, name_prefix: &str) {
         println!();
     }
     println!("Use 'find <arena_id>' for full card details.");
+}
+
+fn print_help() {
+    println!("Available commands:");
+    println!("  find <arena_id> - Find a card by Arena ID");
+    println!("  dump <arena_id> - Dump full card proto as JSON");
+    println!("  search <name_prefix> - Search cards by name prefix");
+    println!("  semantic <query> - Search card rules by meaning using Jev");
+    println!("  count [set_code] - Count cards, optionally filtered by set code");
+    println!("  sets - List all set codes");
+    println!("  info - Display information about the loaded db file");
+    println!("  help - Show this help message");
+    println!("  exit - Exit the REPL");
 }
