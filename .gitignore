@@ -8,3 +8,7 @@ keys/
 /.idea
 /.ropeproject
 /scrape_data/
+.env
+.agents
+skills-lock.json
+
