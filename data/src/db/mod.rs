@@ -14,5 +14,5 @@ pub use card_repository::CardRepository;
 pub use debug_repository::DebugRepository;
 pub use metagame_repository::MetagameRepository;
 pub use models::{AppUser, RefreshToken};
-pub use postgres::PostgresMatchDB as MatchDB;
+pub use postgres::{MatchUploadJob, MatchUploadStatus, PostgresMatchDB as MatchDB};
 pub use repository::ArenabuddyRepository;

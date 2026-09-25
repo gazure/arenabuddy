@@ -5,8 +5,8 @@
 use arenabuddy_core::{
     cards::CardsDatabase,
     models::{
-        ArenaId, Deck, Draft, DraftPack, Format, GameEventLog, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchResult,
-        MatchResultBuilder, Mulligan,
+        ArenaId, Deck, Draft, DraftPack, Format, GameEventLog, MTGADraft, MTGAMatch, MTGAMatchBuilder, MatchData,
+        MatchResult, Mulligan,
     },
     player_log::{
         ingest::{DraftWriter, ReplayWriter},
@@ -21,6 +21,10 @@ use tracing::{debug, error, info, instrument, warn};
 #[cfg(test)]
 #[path = "postgres_ownership_tests.rs"]
 mod ownership_tests;
+
+#[path = "upload_persistence.rs"]
+mod upload_persistence;
+pub use upload_persistence::{MatchUploadJob, MatchUploadStatus};
 
 #[derive(FromRow)]
 struct MatchRow {
@@ -598,63 +602,17 @@ impl ArenabuddyRepository for PostgresMatchDB {
 
     #[instrument(skip(self, replay), fields(match_id = %replay.match_id))]
     async fn write_replay(&self, replay: &MatchReplay) -> Result<()> {
-        info!("Writing match replay to database");
-        let controller_seat_id = replay.get_controller_seat_id();
-        let match_id = Uuid::parse_str(&replay.match_id)?;
-        let (controller_name, opponent_name) = replay.get_player_names(controller_seat_id)?;
-        let event_start = replay.match_start_time().unwrap_or(Utc::now());
-
-        let mtga_match = MTGAMatchBuilder::default()
-            .id(match_id.to_string())
-            .controller_seat_id(controller_seat_id)
-            .controller_player_name(controller_name)
-            .opponent_player_name(opponent_name)
-            .created_at(event_start)
-            .format(replay.match_format())
-            .build()?;
-
-        let mut tx = self.pool.begin().await?;
-
-        Self::insert_match(&match_id, &mtga_match, None, &mut tx).await?;
-
-        let decklists = replay.get_decklists()?;
-        for deck in &decklists {
-            Self::insert_deck(&match_id, deck, &mut tx).await?;
-        }
-
-        let mulligan_infos = replay.get_mulligan_infos(&self.cards)?;
-        for mulligan_info in &mulligan_infos {
-            Self::insert_mulligan_info(&match_id, mulligan_info, &mut tx).await?;
-        }
-
-        let match_results = replay.get_match_results()?;
-        debug!("{:?}", match_results);
-        for (i, result) in match_results.result_list.iter().enumerate() {
-            let game_number = if result.scope == "MatchScope_Game" {
-                i32::try_from(i + 1).unwrap_or(0)
-            } else {
-                0
-            };
-
-            let match_result = MatchResultBuilder::default()
-                .match_id(match_id.to_string())
-                .game_number(game_number)
-                .winning_team_id(result.winning_team_id)
-                .result_scope(result.scope.clone())
-                .build()?;
-
-            Self::insert_match_result(&match_id, &match_result, &mut tx).await?;
-        }
-
-        Self::insert_opponent_deck(&match_id, &replay.get_opponent_cards(), &mut tx).await?;
-
-        let event_logs = replay.get_event_logs(&self.cards);
-        for event_log in &event_logs {
-            Self::insert_event_log(&match_id, event_log, &mut tx).await?;
-        }
-
-        tx.commit().await?;
-        Ok(())
+        let data = MatchData::from_replay(replay, &self.cards)?;
+        self.upsert_match_data(
+            &data.mtga_match,
+            &data.decks,
+            &data.mulligans,
+            &data.results,
+            &data.opponent_deck.cards,
+            &data.event_logs,
+            None,
+        )
+        .await
     }
 
     #[instrument(skip(self))]

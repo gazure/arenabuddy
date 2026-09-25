@@ -43,6 +43,34 @@ pub fn needs_refresh(state: &AuthState) -> bool {
     state.token_expires_at - now < 60
 }
 
+static REFRESH_LOCK: Mutex<()> = Mutex::const_new(());
+
+/// Returns a fresh session without holding shared UI state across network I/O.
+/// Concurrent refreshes are serialized. A changed account or logged-out session
+/// is never replaced by an in-flight refresh response. Errors propagate.
+pub async fn current_session(
+    auth: &SharedAuthState,
+    url: &str,
+    force_refresh: bool,
+) -> Result<AuthState, Box<dyn std::error::Error + Send + Sync>> {
+    let _refresh = REFRESH_LOCK.lock().await;
+    let state = auth.lock().await.clone().ok_or("not signed in")?;
+    if !force_refresh && !needs_refresh(&state) {
+        return Ok(state);
+    }
+    let refreshed = tokio::time::timeout(std::time::Duration::from_secs(20), refresh(url, &state)).await??;
+    let mut guard = auth.lock().await;
+    if !guard
+        .as_ref()
+        .is_some_and(|current| current.user.id == state.user.id && current.refresh_token == state.refresh_token)
+    {
+        return Err("session changed during token refresh".into());
+    }
+    save_auth(&refreshed);
+    *guard = Some(refreshed.clone());
+    Ok(refreshed)
+}
+
 /// Serializable form of auth state for file persistence.
 #[derive(Serialize, Deserialize)]
 struct SavedAuth {
@@ -153,13 +181,12 @@ pub async fn refresh(
         user: current_state.user.clone(),
     };
 
-    save_auth(&state);
     info!("Access token refreshed successfully");
 
     Ok(state)
 }
 
-/// Log out: revoke the refresh token on the server and delete local auth state.
+/// Revokes the refresh token on the server.
 pub async fn logout(grpc_url: &str, refresh_token: &str) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     info!("Logging out");
     let mut client = AuthServiceClient::connect(grpc_url.to_string()).await?;
@@ -170,7 +197,6 @@ pub async fn logout(grpc_url: &str, refresh_token: &str) -> Result<(), Box<dyn s
         })
         .await?;
 
-    delete_saved_auth();
     info!("Logged out successfully");
 
     Ok(())
@@ -182,7 +208,8 @@ pub async fn logout(grpc_url: &str, refresh_token: &str) -> Result<(), Box<dyn s
 /// 3. Open browser to Discord authorize URL
 /// 4. Receive auth code via callback
 /// 5. Exchange code for JWT via gRPC `AuthService`
-/// 6. Save token to disk
+///
+/// The caller installs and persists the returned session.
 pub async fn login(
     grpc_url: &str,
     discord_client_id: &str,
@@ -283,8 +310,6 @@ pub async fn login(
         refresh_expires_at: response.refresh_expires_at,
         user,
     };
-
-    save_auth(&state);
 
     Ok(state)
 }

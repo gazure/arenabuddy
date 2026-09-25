@@ -94,8 +94,8 @@ jobs:
           SQLX_OFFLINE: true
         run: cargo clippy --profile ci --all --all-targets --all-features --examples --tests
 
-      - name: Test match ownership
+      - name: Test match ownership and durable uploads
         env:
           SQLX_OFFLINE: true
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/arenabuddy_test
-        run: cargo test --profile ci -p arenabuddy_data -p arenabuddy_server
+        run: cargo test --profile ci -p arenabuddy_data -p arenabuddy_server -p arenabuddy_core -p arenabuddy --lib

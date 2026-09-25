@@ -5,16 +5,65 @@ use crate::{
         Route,
         components::{DeckList, EventLogDisplay, MatchInfo, MulliganDisplay},
     },
-    backend::{Service, SharedAuthState, sync},
+    backend::{BackgroundRuntime, Service, SharedAuthState, sync},
 };
 
 #[component]
 pub(crate) fn MatchDetails(id: String) -> Element {
     let service = use_context::<Service>();
     let auth_state = use_context::<SharedAuthState>();
+    let background = use_context::<BackgroundRuntime>();
     let mut sync_loading = use_signal(|| false);
     let mut sync_status = use_signal(|| None::<String>);
     let mut active_tab = use_signal(|| 0u8);
+    let mut upload_status = use_signal(|| "Checking upload status…".to_string());
+    use_future({
+        let db = service.db.clone();
+        let id = id.clone();
+        let auth = auth_state.clone();
+        let background = background.clone();
+        move || {
+            let db = db.clone();
+            let id = id.clone();
+            let auth = auth.clone();
+            let background = background.clone();
+            async move {
+                loop {
+                    let (tx, rx) = tokio::sync::oneshot::channel();
+                    let db = db.clone();
+                    let id = id.clone();
+                    let auth = auth.clone();
+                    background.spawn(async move {
+                        let status = db.match_upload_status(&id).await;
+                        let account = auth.lock().await.as_ref().map(|state| state.user.id.clone());
+                        let text = match status {
+                            Ok(Some(status)) if status.state == "sent" => "Uploaded".to_string(),
+                            Ok(Some(status)) if status.user_id.is_none() => {
+                                "Saved locally · sign in and choose Sync to upload".to_string()
+                            }
+                            Ok(Some(status)) if status.user_id != account => {
+                                "Upload waiting for its original account".to_string()
+                            }
+                            Ok(Some(status)) if status.state == "blocked" => format!(
+                                "Upload needs attention: {}. Choose Sync to retry.",
+                                status.last_error.unwrap_or_default()
+                            ),
+                            Ok(Some(status)) => status.last_error.map_or_else(
+                                || "Upload queued".to_string(),
+                                |error| format!("Upload will retry: {error}"),
+                            ),
+                            Ok(None) => "Saved locally · choose Sync to upload".to_string(),
+                            Err(e) => format!("Could not read upload status: {e}"),
+                        };
+                        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+                        let _ = tx.send(text);
+                    });
+                    let Ok(text) = rx.await else { break };
+                    upload_status.set(text);
+                }
+            }
+        }
+    });
 
     let mut match_details = use_resource({
         let service = service.clone();
@@ -34,25 +83,35 @@ pub(crate) fn MatchDetails(id: String) -> Element {
         let auth_state = auth_state.clone();
         let service = service.clone();
         let id = id.clone();
+        let background = background.clone();
         move |_| {
             let auth_state = auth_state.clone();
             let service = service.clone();
             let id = id.clone();
+            let background = background.clone();
             spawn(async move {
                 sync_loading.set(true);
                 sync_status.set(None);
 
-                match sync::push_match(&service.db, &auth_state, &id).await {
-                    Ok(true) => {
-                        sync_status.set(Some("Pushed local match to server".to_string()));
+                let (tx, rx) = tokio::sync::oneshot::channel();
+                background.spawn(async move {
+                    let result = sync::push_match(&service.db, &auth_state, &id)
+                        .await
+                        .map_err(|e| e.to_string());
+                    let _ = tx.send(result);
+                });
+                match rx.await {
+                    Ok(Ok(true)) => {
+                        sync_status.set(Some("Queued for upload; delivery retries automatically".to_string()));
                         match_details.restart();
                     }
-                    Ok(false) => {
+                    Ok(Ok(false)) => {
                         sync_status.set(Some("Local match not found".to_string()));
                     }
-                    Err(e) => {
-                        sync_status.set(Some(format!("Push failed: {e}")));
+                    Ok(Err(e)) => {
+                        sync_status.set(Some(format!("Could not queue upload: {e}")));
                     }
+                    Err(_) => sync_status.set(Some("Upload task stopped before queueing".to_string())),
                 }
 
                 sync_loading.set(false);
@@ -141,6 +200,7 @@ pub(crate) fn MatchDetails(id: String) -> Element {
                 if let Some(message) = sync_status() {
                     p { class: "text-sm opacity-90 mt-2", "{message}" }
                 }
+                p { class: "text-sm opacity-90 mt-2", "{upload_status}" }
             }
 
             match data.as_ref() {

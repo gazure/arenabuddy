@@ -53,12 +53,12 @@ pub fn launch(app: &str) -> Result<()> {
             }
         });
     }
+    background.spawn(crate::backend::upload::run(service.db.clone(), auth_state.clone()));
     let service2 = service.clone();
     let auth_state2 = auth_state.clone();
     background.spawn(async move {
         crate::backend::ingest::start(
             service2.db.clone(),
-            service2.cards.clone(),
             service2.debug_storage.clone(),
             service2.log_collector.clone(),
             player_log_path,
