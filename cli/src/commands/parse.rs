@@ -22,7 +22,7 @@ pub async fn execute(
 
     let config = IngestionConfig::new(player_log.to_path_buf())
         .with_follow(follow)
-        .with_rotation_watch(false); // CLI doesn't need rotation watching
+        .with_rotation_watch(false); // Follow rotations by polling in the CLI
 
     let mut service = LogIngestionService::new(config).await?.with_shutdown();
 

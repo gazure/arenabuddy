@@ -476,7 +476,7 @@ impl MatchReplayBuilder {
         Ok(replay)
     }
 
-    fn reset(&mut self) {
+    pub(super) fn reset(&mut self) {
         self.match_id = None;
         self.match_start_message = None;
         self.match_end_message = None;
