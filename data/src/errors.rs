@@ -5,6 +5,8 @@ pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("match belongs to a different owner or has no assigned owner")]
+    MatchOwnershipConflict,
     #[error("Io error: {0}")]
     IoError(#[from] std::io::Error),
     #[error("Db error: {0}")]

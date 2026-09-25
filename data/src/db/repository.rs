@@ -25,6 +25,12 @@ pub trait ArenabuddyRepository: Send + Sync + 'static {
     async fn list_drafts(&self) -> Result<Vec<Draft>>;
 
     #[expect(clippy::too_many_arguments)]
+    /// Inserts or updates a match and its child records atomically.
+    ///
+    /// For an existing match, `user_id` must equal its stored owner. `None`
+    /// permits updates only to unowned local matches; it does not bypass
+    /// ownership checks. Returns an ownership conflict before changing any
+    /// records if the owners differ.
     async fn upsert_match_data(
         &self,
         mtga_match: &MTGAMatch,

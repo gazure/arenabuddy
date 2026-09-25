@@ -10,8 +10,26 @@ use arenabuddy_core::{
 use arenabuddy_data::{ArenabuddyRepository, MatchDB};
 use tonic::{Request, Response, Status};
 use tracing::{debug, error, info, instrument};
+use uuid::Uuid;
 
 use crate::auth::UserId;
+
+fn required_user_id<T>(request: &Request<T>) -> Result<Uuid, Status> {
+    request
+        .extensions()
+        .get::<UserId>()
+        .map(|user| user.0)
+        .ok_or_else(|| Status::unauthenticated("authenticated user is required"))
+}
+
+fn upsert_error(error: &arenabuddy_data::Error) -> Status {
+    match error {
+        arenabuddy_data::Error::MatchOwnershipConflict => {
+            Status::permission_denied("match cannot be written by this user")
+        }
+        _ => Status::internal("failed to upsert match data"),
+    }
+}
 
 pub(crate) struct MatchServiceImpl {
     pub(crate) db: MatchDB,
@@ -26,7 +44,7 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<UpsertMatchDataRequest>,
     ) -> Result<Response<UpsertMatchDataResponse>, Status> {
-        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
+        let user_id = required_user_id(&request)?;
         let match_data_proto = request
             .into_inner()
             .match_data
@@ -47,12 +65,12 @@ impl MatchService for MatchServiceImpl {
                 &match_data.results,
                 &opponent_cards,
                 &match_data.event_logs,
-                user_id,
+                Some(user_id),
             )
             .await
             .map_err(|e| {
                 error!("Failed to upsert match data: {e}");
-                Status::internal("failed to upsert match data")
+                upsert_error(&e)
             })?;
 
         info!("Upserted match data for match_id: {match_id}");
@@ -75,13 +93,13 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<GetMatchDataRequest>,
     ) -> Result<Response<GetMatchDataResponse>, Status> {
-        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
+        let user_id = required_user_id(&request)?;
         let match_id = request.into_inner().match_id;
         if match_id.is_empty() {
             return Err(Status::invalid_argument("match_id is required"));
         }
 
-        let (mtga_match, _match_result) = self.db.get_match(&match_id, user_id).await.map_err(|e| {
+        let (mtga_match, _match_result) = self.db.get_match(&match_id, Some(user_id)).await.map_err(|e| {
             error!("Failed to get match: {e}");
             Status::internal("failed to get match")
         })?;
@@ -139,8 +157,8 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<ListMatchesRequest>,
     ) -> Result<Response<ListMatchesResponse>, Status> {
-        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
-        let matches = self.db.list_matches(user_id).await.map_err(|e| {
+        let user_id = required_user_id(&request)?;
+        let matches = self.db.list_matches(Some(user_id)).await.map_err(|e| {
             error!("Failed to list matches: {e}");
             Status::internal("failed to list matches")
         })?;
@@ -155,13 +173,13 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<DeleteMatchRequest>,
     ) -> Result<Response<DeleteMatchResponse>, Status> {
-        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
+        let user_id = required_user_id(&request)?;
         let match_id = request.into_inner().match_id;
         if match_id.is_empty() {
             return Err(Status::invalid_argument("match_id is required"));
         }
 
-        self.db.delete_match(&match_id, user_id).await.map_err(|e| {
+        self.db.delete_match(&match_id, Some(user_id)).await.map_err(|e| {
             error!("Failed to delete match: {e}");
             Status::internal("failed to delete match")
         })?;
@@ -175,14 +193,14 @@ impl MatchService for MatchServiceImpl {
         &self,
         request: Request<ClassifyMatchRequest>,
     ) -> Result<Response<ClassifyMatchResponse>, Status> {
-        let user_id = request.extensions().get::<UserId>().map(|u| u.0);
+        let user_id = required_user_id(&request)?;
         let match_id = request.into_inner().match_id;
         if match_id.is_empty() {
             return Err(Status::invalid_argument("match_id is required"));
         }
 
         // Get the match to determine its format
-        let (mtga_match, _) = self.db.get_match(&match_id, user_id).await.map_err(|e| {
+        let (mtga_match, _) = self.db.get_match(&match_id, Some(user_id)).await.map_err(|e| {
             error!("Failed to get match for classification: {e}");
             Status::internal("failed to get match")
         })?;
@@ -214,5 +232,34 @@ impl MatchService for MatchServiceImpl {
             .collect();
 
         Ok(Response::new(ClassifyMatchResponse { classifications }))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn missing_identity_fails_closed() {
+        assert_eq!(
+            required_user_id(&Request::new(())).expect_err("missing user").code(),
+            tonic::Code::Unauthenticated
+        );
+    }
+
+    #[test]
+    fn identity_comes_from_authenticated_extension() {
+        let id = Uuid::new_v4();
+        let mut request = Request::new(());
+        request.extensions_mut().insert(UserId(id));
+        assert_eq!(required_user_id(&request).expect("user"), id);
+    }
+
+    #[test]
+    fn ownership_conflict_is_not_retryable_or_internal() {
+        assert_eq!(
+            upsert_error(&arenabuddy_data::Error::MatchOwnershipConflict).code(),
+            tonic::Code::PermissionDenied
+        );
     }
 }

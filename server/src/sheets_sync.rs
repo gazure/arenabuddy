@@ -203,9 +203,12 @@ async fn build_match_details(
     db: &MatchDB,
     cards: &CardsDatabase,
     match_id: &str,
-    user_id: Option<Uuid>,
+    user_id: Uuid,
 ) -> Result<MatchDetails, Box<dyn std::error::Error + Send + Sync>> {
-    let (mtga_match, result) = db.get_match(match_id, user_id).await?;
+    let (mtga_match, result) = db.get_match(match_id, Some(user_id)).await?;
+    if mtga_match.id().is_empty() {
+        return Err("match not found for this user".into());
+    }
 
     let mut details = MatchDetails {
         id: match_id.to_string(),
@@ -265,7 +268,7 @@ pub(crate) fn spawn_sheets_sync(
     db: MatchDB,
     cards: CardsDatabase,
     match_id: String,
-    user_id: Option<Uuid>,
+    user_id: Uuid,
     spreadsheet_id: String,
 ) {
     tokio::spawn(async move {
@@ -279,7 +282,7 @@ async fn sync_match(
     db: MatchDB,
     cards: &CardsDatabase,
     match_id: &str,
-    user_id: Option<Uuid>,
+    user_id: Uuid,
     spreadsheet_id: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let details = build_match_details(&db, cards, match_id, user_id).await?;
