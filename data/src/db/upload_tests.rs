@@ -8,11 +8,7 @@ use super::*;
 use crate::ArenabuddyRepository;
 
 fn database(pool: PgPool) -> PostgresMatchDB {
-    PostgresMatchDB {
-        pool,
-        _db: None,
-        cards: CardsDatabase::default(),
-    }
+    PostgresMatchDB::from_pool(pool, CardsDatabase::default())
 }
 
 fn data() -> MatchData {

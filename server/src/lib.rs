@@ -7,7 +7,7 @@ use arenabuddy_core::{
         match_service::match_service_server::MatchServiceServer,
     },
 };
-use arenabuddy_data::{ArenabuddyRepository, CardRepository, MatchDB};
+use arenabuddy_data::{CardRepository, Database, MatchDB};
 use tonic::transport::Server;
 use tracing::info;
 
@@ -75,8 +75,9 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     info!("Connecting to database...");
     let cards = CardsDatabase::default();
-    let db = MatchDB::new(Some(&database_url), cards.clone()).await?;
-    db.init().await?;
+    let database = Database::connect(&database_url).await?;
+    database.migrate().await?;
+    let db = database.repository(cards.clone());
     info!("Database initialized");
 
     load_cards_on_startup(&db, &cards).await?;

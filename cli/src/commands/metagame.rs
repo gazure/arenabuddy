@@ -2,15 +2,16 @@ use std::path::Path;
 
 use anyhow::Context;
 use arenabuddy_core::cards::CardsDatabase;
-use arenabuddy_data::{ArenabuddyRepository, MatchDB, MetagameRepository};
+use arenabuddy_data::{Database, MatchDB, MetagameRepository};
 use tracing::{info, warn};
 
 use super::definitions::MetagameCommands;
 use crate::Result;
 
 async fn connect(db_url: &str, cards: CardsDatabase) -> Result<MatchDB> {
-    let db = MatchDB::new(Some(db_url), cards).await?;
-    db.init().await?;
+    let database = Database::connect(db_url).await?;
+    database.migrate().await?;
+    let db = database.repository(cards);
     Ok(db)
 }
 

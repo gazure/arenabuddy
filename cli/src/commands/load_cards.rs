@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use arenabuddy_core::cards::CardsDatabase;
-use arenabuddy_data::{ArenabuddyRepository, CardRepository, MatchDB};
+use arenabuddy_data::{CardRepository, Database};
 use tracing::info;
 
 use crate::Result;
@@ -18,8 +18,9 @@ pub async fn execute(cards_db_path: Option<&PathBuf>, db_url: &str) -> Result<()
     let card_count = cards_db.len();
     info!("Found {} cards to load", card_count);
 
-    let db = MatchDB::new(Some(db_url), CardsDatabase::default()).await?;
-    db.init().await?;
+    let database = Database::connect(db_url).await?;
+    database.migrate().await?;
+    let db = database.repository(CardsDatabase::default());
 
     let cards: Vec<_> = cards_db.values().cloned().collect();
     db.load_cards(&cards).await?;

@@ -3,7 +3,7 @@ pub mod scraper;
 
 use std::path::PathBuf;
 
-use arenabuddy_data::{ArenabuddyRepository, MatchDB, MetagameRepository, metagame_repository::MetagameStatsResult};
+use arenabuddy_data::{Database, MatchDB, MetagameRepository, metagame_repository::MetagameStatsResult};
 use clap::{Parser, Subcommand};
 use tracing::info;
 
@@ -107,8 +107,9 @@ pub fn run() {
 
 async fn connect_and_init(db_url: &str) -> anyhow::Result<MatchDB> {
     let cards = arenabuddy_core::cards::CardsDatabase::default();
-    let db = MatchDB::new(Some(db_url), cards).await?;
-    db.init().await?;
+    let database = Database::connect(db_url).await?;
+    database.migrate().await?;
+    let db = database.repository(cards);
     Ok(db)
 }
 

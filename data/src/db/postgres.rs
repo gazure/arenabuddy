@@ -14,7 +14,6 @@ use arenabuddy_core::{
     },
 };
 use chrono::{DateTime, NaiveDateTime, Utc};
-use postgresql_embedded::PostgreSQL;
 use sqlx::{FromRow, PgPool, Postgres, Transaction, types::Uuid};
 use tracing::{debug, error, info, instrument, warn};
 
@@ -68,8 +67,6 @@ struct EventLogRow {
     events_json: String,
 }
 
-use std::sync::Arc;
-
 use arenabuddy_core::display::{
     match_summary::MatchSummary,
     stats::{MatchStats, MulliganBucket, OpponentRecord, TimeWindow},
@@ -85,7 +82,6 @@ use crate::{Error, Result, db::repository::ArenabuddyRepository};
 #[derive(Debug, Clone)]
 pub struct PostgresMatchDB {
     pool: PgPool,
-    _db: Option<Arc<PostgreSQL>>,
     cards: CardsDatabase,
 }
 
@@ -109,92 +105,12 @@ impl PostgresMatchDB {
         names
     }
 
-    pub async fn new(url: Option<&str>, cards: CardsDatabase) -> Result<Self> {
-        if let Some(url) = url {
-            let pool = PgPool::connect(url).await?;
-            Ok(Self { pool, _db: None, cards })
-        } else {
-            // Configure persistent embedded PostgreSQL
-            let db_path = Self::get_embedded_db_path()?;
-            info!("Using embedded PostgreSQL at: {}", db_path.display());
-
-            std::fs::create_dir_all(&db_path)?;
-
-            // A fixed password is safe because the embedded DB only listens on localhost.
-            let settings = postgresql_embedded::Settings {
-                installation_dir: db_path.join("postgres_install"),
-                data_dir: db_path.join("data"),
-                password_file: db_path.join("password.txt"),
-                temporary: false, // persist across restarts
-                password: "arenabuddy_local".to_string(),
-                ..Default::default()
-            };
-
-            let mut db = PostgreSQL::new(settings);
-            db.setup().await?;
-
-            // Try to start the database, handling the case where it might already be running
-            // or there's a stale PID file from an unclean shutdown
-            match db.start().await {
-                Ok(()) => {
-                    info!("PostgreSQL started successfully");
-                }
-                Err(e) => {
-                    info!(
-                        "First start attempt failed ({}), trying to stop any existing instance...",
-                        e
-                    );
-                    // Try to stop any running instance first
-                    let _ = db.stop().await;
-
-                    // Clean up stale PID file if it exists
-                    let pid_file = db.settings().data_dir.join("postmaster.pid");
-                    if pid_file.exists() {
-                        info!("Removing stale PID file: {}", pid_file.display());
-                        let _ = std::fs::remove_file(&pid_file);
-                    }
-
-                    // Try starting again
-                    db.start().await?;
-                    info!("PostgreSQL started successfully after cleanup");
-                }
-            }
-
-            // Create database only if it doesn't exist yet
-            // The database will persist between app restarts
-            let _ = db.create_database("arenabuddy").await;
-
-            let pool = PgPool::connect(&db.settings().url("arenabuddy")).await?;
-            Ok(Self {
-                pool,
-                _db: Some(Arc::new(db)),
-                cards,
-            })
-        }
-    }
-
-    fn get_embedded_db_path() -> Result<std::path::PathBuf> {
-        // Use platform-appropriate application data directory
-        let home = dirs::home_dir().ok_or_else(|| {
-            Error::IoError(std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                "Could not determine home directory",
-            ))
-        })?;
-
-        let db_path = match std::env::consts::OS {
-            "macos" => home.join("Library/Application Support/com.gazure.dev.arenabuddy.app/postgres"),
-            "windows" => home.join("AppData/Roaming/com.gazure.dev.arenabuddy.app/postgres"),
-            "linux" => home.join(".local/share/com.gazure.dev.arenabuddy.app/postgres"),
-            os => {
-                return Err(Error::IoError(std::io::Error::new(
-                    std::io::ErrorKind::Unsupported,
-                    format!("Unsupported OS: {os}"),
-                )));
-            }
-        };
-
-        Ok(db_path)
+    /// Creates a repository from an existing pool and card lookup database.
+    ///
+    /// This does not connect, start PostgreSQL, or apply migrations. The caller
+    /// must prepare the schema before using repository methods.
+    pub fn from_pool(pool: PgPool, cards: CardsDatabase) -> Self {
+        Self { pool, cards }
     }
 
     /// # Errors
@@ -594,12 +510,6 @@ impl PostgresMatchDB {
 
 #[async_trait::async_trait]
 impl ArenabuddyRepository for PostgresMatchDB {
-    #[instrument(skip(self))]
-    async fn init(&self) -> Result<()> {
-        sqlx::migrate!("./migrations/postgres").run(&self.pool).await?;
-        Ok(())
-    }
-
     #[instrument(skip(self, replay), fields(match_id = %replay.match_id))]
     async fn write_replay(&self, replay: &MatchReplay) -> Result<()> {
         let data = MatchData::from_replay(replay, &self.cards)?;

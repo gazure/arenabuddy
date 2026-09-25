@@ -1,11 +1,7 @@
 use super::*;
 
 fn database(pool: PgPool) -> PostgresMatchDB {
-    PostgresMatchDB {
-        pool,
-        _db: None,
-        cards: CardsDatabase::default(),
-    }
+    PostgresMatchDB::from_pool(pool, CardsDatabase::default())
 }
 
 async fn user(db: &PostgresMatchDB, name: &str) -> Uuid {
