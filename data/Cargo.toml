@@ -11,7 +11,7 @@ keywords.workspace = true
 license.workspace = true
 
 [dependencies]
-arenabuddy_core = { path = "../core/" }
+arenabuddy_core = { workspace = true }
 async-trait = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 dirs = { workspace = true }
@@ -29,7 +29,7 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 
 [dev-dependencies]
-tempfile = "3"
+tempfile = { workspace = true }
 
 [lints]
 workspace = true

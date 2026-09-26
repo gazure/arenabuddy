@@ -11,8 +11,8 @@ keywords.workspace = true
 license.workspace = true
 
 [dependencies]
-arenabuddy_core = { path = "../core" }
-arenabuddy_data = { path = "../data" }
+arenabuddy_core = { workspace = true }
+arenabuddy_data = { workspace = true }
 anyhow.workspace = true
 chrono.workspace = true
 clap = { workspace = true, features = ["env"] }

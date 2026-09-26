@@ -34,7 +34,7 @@ tonic-prost = { workspace = true }
 regex = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-same-file = "1.0"
+same-file = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tracing = { workspace = true }
@@ -42,7 +42,7 @@ uuid = { workspace = true }
 
 [dev-dependencies]
 axum = { workspace = true }
-tempfile = "3"
+tempfile = { workspace = true }
 
 
 [features]
