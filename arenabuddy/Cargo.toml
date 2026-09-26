@@ -12,8 +12,8 @@ license.workspace = true
 
 
 [dependencies]
-arenabuddy_core = { path = "../core/", features = ["semantic-search"] }
-arenabuddy_data = { path = "../data" }
+arenabuddy_core = { workspace = true, features = ["semantic-search"] }
+arenabuddy_data = { workspace = true }
 async-trait = { workspace = true }
 axum = { workspace = true }
 base64 = { workspace = true }
@@ -21,8 +21,8 @@ chrono = { workspace = true }
 console-subscriber = { workspace = true, optional = true }
 dirs = { workspace = true }
 dioxus = { workspace = true, features = ["desktop", "router"] }
-keyring = { version = "4.2", default-features = false, features = ["v1"] }
-zeroize = "1"
+keyring = { workspace = true }
+zeroize = { workspace = true }
 open = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -41,7 +41,7 @@ tracing-subscriber = { workspace = true, features = [
 urlencoding = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-rfd = { workspace = true, default_features = false, features = ["xdg-portal"] }
+rfd = { workspace = true, default-features = false, features = ["xdg-portal"] }
 
 [target.'cfg(not(target_os = "linux"))'.dependencies]
 rfd = { workspace = true }
@@ -50,7 +50,7 @@ rfd = { workspace = true }
 workspace = true
 
 [dev-dependencies]
-tokio-stream = { version = "0.1", features = ["net"] }
+tokio-stream = { workspace = true, features = ["net"] }
 
 [features]
 default = ["desktop"]

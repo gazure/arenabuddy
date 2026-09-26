@@ -12,13 +12,13 @@ version.workspace = true
 [dependencies]
 anyhow = { workspace = true }
 prost = { workspace = true }
-arenabuddy_core = { path = "../core", features = ["semantic-search"] }
-arenabuddy_data = { path = "../data" }
-arenabuddy_metagame = { path = "../metagame" }
+arenabuddy_core = { workspace = true, features = ["semantic-search"] }
+arenabuddy_data = { workspace = true }
+arenabuddy_metagame = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 dirs = { workspace = true }
-dotenvy = "0.15.7"
+dotenvy = { workspace = true }
 ctrlc = { workspace = true }
 reqwest = { workspace = true, features = ["json", "stream", "default-tls"] }
 rusqlite = { workspace = true }
