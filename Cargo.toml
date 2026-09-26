@@ -35,7 +35,7 @@ console-subscriber = "0.5.0"
 ctrlc = "3.5.2"
 derive_builder = "0.20.2"
 dirs = "7.0.0"
-dioxus = { version = "0.8.0-alpha.0" }
+dioxus = { version = "0.8.0-alpha.1" }
 dotenvy = "0.15.7"
 google-sheets4 = { version = "7.0.0" }
 jsonwebtoken = { version = "11.1.0", features = ["rust_crypto"] }
