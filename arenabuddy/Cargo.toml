@@ -21,6 +21,8 @@ chrono = { workspace = true }
 console-subscriber = { workspace = true, optional = true }
 dirs = { workspace = true }
 dioxus = { workspace = true, features = ["desktop", "router"] }
+keyring = { version = "4.2", default-features = false, features = ["v1"] }
+zeroize = "1"
 open = { workspace = true }
 rand = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -31,7 +33,11 @@ tokio = { workspace = true, features = ["full", "tracing"] }
 tonic = { workspace = true }
 tracing = { workspace = true }
 tracing-appender = { workspace = true }
-tracing-subscriber = { workspace = true, features = ["env-filter", "fmt", "registry"] }
+tracing-subscriber = { workspace = true, features = [
+    "env-filter",
+    "fmt",
+    "registry",
+] }
 urlencoding = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
