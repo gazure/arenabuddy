@@ -1,5 +1,6 @@
 pub(crate) mod auth;
 pub(crate) mod auth_controller;
+pub(crate) mod credentials;
 pub(crate) mod ingest;
 mod launch;
 pub(crate) mod paths;
