@@ -19,6 +19,9 @@ tonic = { workspace = true }
 tonic-prost = { workspace = true }
 
 [dependencies]
+anyhow = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+rusqlite = { workspace = true, optional = true }
 async-trait = { workspace = true }
 chrono = { workspace = true, features = ["serde"] }
 derive_builder = { workspace = true }
@@ -38,11 +41,13 @@ tracing = { workspace = true }
 uuid = { workspace = true }
 
 [dev-dependencies]
+axum = { workspace = true }
 tempfile = "3"
 
 
 [features]
 default = []
+semantic-search = ["dep:anyhow", "dep:reqwest", "dep:rusqlite"]
 
 [lints]
 workspace = true

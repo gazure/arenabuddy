@@ -15,3 +15,6 @@ pub(crate) mod proto;
 pub mod services;
 
 pub use errors::{Error, Result};
+
+#[cfg(feature = "semantic-search")]
+pub mod semantic_search;

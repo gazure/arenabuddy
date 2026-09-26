@@ -205,7 +205,9 @@ dependencies = [
 name = "arenabuddy_core"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-trait",
+ "axum",
  "chrono",
  "derive_builder",
  "itertools 0.15.0",
@@ -213,6 +215,8 @@ dependencies = [
  "prost",
  "prost-types",
  "regex",
+ "reqwest 0.13.4",
+ "rusqlite",
  "same-file",
  "serde",
  "serde_json",

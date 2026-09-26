@@ -12,7 +12,7 @@ license.workspace = true
 
 
 [dependencies]
-arenabuddy_core = { path = "../core/" }
+arenabuddy_core = { path = "../core/", features = ["semantic-search"] }
 arenabuddy_data = { path = "../data" }
 async-trait = { workspace = true }
 axum = { workspace = true }

@@ -8,6 +8,9 @@ pub enum ParseError {
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("{0}")]
+    SemanticSearch(#[from] arenabuddy_core::semantic_search::Error),
+
     #[error("IO error: {0}")]
     Io(#[from] std::io::Error),
 

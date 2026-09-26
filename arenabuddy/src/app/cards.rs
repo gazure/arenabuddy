@@ -53,6 +53,31 @@ fn open_url(url: String) {
 
 #[component]
 pub fn Cards() -> Element {
+    let mut semantic_mode = use_signal(|| false);
+    rsx! {
+        div { class: "container mx-auto px-4 py-8 max-w-6xl",
+            div { class: "flex space-x-3 mb-6",
+                button {
+                    class: if semantic_mode() { "text-amber-600 dark:text-amber-400 px-3 py-1 rounded" } else { "bg-amber-600 text-white px-3 py-1 rounded" },
+                    aria_pressed: !semantic_mode(),
+                    onclick: move |_| semantic_mode.set(false),
+                    "Browse cards"
+                }
+                button {
+                    class: if semantic_mode() { "bg-amber-600 text-white px-3 py-1 rounded" } else { "text-amber-600 dark:text-amber-400 px-3 py-1 rounded" },
+                    aria_pressed: semantic_mode(),
+                    onclick: move |_| semantic_mode.set(true),
+                    "Search by meaning"
+                }
+            }
+            if semantic_mode() { super::semantic_search::SemanticSearch {} }
+            else { BrowseCards {} }
+        }
+    }
+}
+
+#[component]
+fn BrowseCards() -> Element {
     let service = use_context::<Service>();
     let mut search_query = use_signal(String::new);
     let mut text_query = use_signal(String::new);
@@ -143,7 +168,7 @@ pub fn Cards() -> Element {
     let search_results = search_data.as_ref().cloned();
 
     rsx! {
-        div { class: "container mx-auto px-4 py-8 max-w-6xl",
+        div {
             div { class: "flex justify-between items-center mb-6",
                 div {
                     h1 { class: "text-2xl font-bold text-gray-900 dark:text-gray-100", "Card Database" }
@@ -455,7 +480,7 @@ fn CardResultRow(card: CardSearchResult, selected_card: Signal<Option<CardSearch
 }
 
 #[component]
-fn CardDetails(card: CardSearchResult) -> Element {
+pub(super) fn CardDetails(card: CardSearchResult) -> Element {
     let service = use_context::<Service>();
     let mut raw_json = use_signal(|| None::<String>);
     let mut json_status = use_signal(|| None::<String>);
