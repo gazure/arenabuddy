@@ -4,6 +4,7 @@ pub(crate) mod credentials;
 pub(crate) mod ingest;
 mod launch;
 pub(crate) mod paths;
+pub(crate) mod semantic_search;
 mod service;
 pub(crate) mod sync;
 pub(crate) mod theme;

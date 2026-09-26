@@ -57,6 +57,19 @@ To get started with the ArenaBuddy development environment, follow these steps:
 
 ## Semantic card search
 
+In the desktop app, save your TypeSafe API key in **Settings**, then open
+**Cards > Search by meaning**. Enter a description and select **Search with Jev**.
+The app reads the key from your OS credential store for each search. The desktop
+app and CLI share the same filter interpretation and ranking logic.
+
+The desktop search displays up to 25 results, interpreted filters, relevance
+scores, and token usage. Select a result to inspect its card details. The format
+override takes precedence over the query; increasing **Maximum cards to rank**
+can improve coverage at the cost of more API usage. **Cancel** stops further work,
+but requests already sent can still consume tokens.
+
+For the CLI, configure credentials as follows.
+
 Set `TYPESAFE_API_KEY` in your environment or a Git-ignored `.env` file in the
 project root. The environment variable takes precedence over the file. Run:
 
@@ -113,15 +126,19 @@ cost of more API usage. Jev cannot rank cards omitted from the shortlist.
 Explicit `--format standard` and `--max-mana-value 3` flags override the respective
 interpreted constraints. The printed filters include these overrides.
 
-Uncertain interpretations and unsupported requests produce an error asking you
-to rephrase. Nested conditions, multiple types or keywords in one required or
-excluded field, mana-value ranges, color identity, prices, and collection
-ownership are not supported. Interpretation uses an initial confidence threshold
-of 0.70 for selected constraints. Unsupported-feature probabilities above 0.35
-stop execution for clarification; probabilities of at least 0.65 report an
-unsupported request. Uncertainty only about whether to rank falls back to ranking.
-These are initial heuristics to evaluate on real queries, not guarantees of
-correctness.
+Mana filters support single comparisons, inclusive ranges ("between 2 and 4"),
+and two exact alternatives ("costs 2 or 4"). Subjective descriptions such as
+"tiny little guys" use semantic ranking based on names, creature types, stats,
+and flavor text. Search cannot inspect artwork; describe card text or stats
+instead of visual details.
+
+Uncertain interpretations and compound conditions fall back to ranking. Related
+strict filters are removed so they cannot prematurely exclude valid matches.
+This includes multiple types or keywords and grouped alternatives. Results show
+a notice when this happens; ranking still considers only the candidate shortlist.
+Clear requests for unavailable data, such as prices, collection ownership, or
+artwork, produce a readable explanation. Malformed API answers remain errors.
+The confidence thresholds are heuristics to evaluate on real queries.
 
 Ranked results include rules text and a relevance score from 0 to 3. Scores of
 at least 2 are displayed: 2 indicates a match with setup or restrictions, and 3

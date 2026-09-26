@@ -7,6 +7,7 @@ mod error_logs;
 mod match_details;
 mod matches;
 mod pages;
+mod semantic_search;
 mod settings;
 mod stats;
 use chrono::{DateTime, Local, Utc};

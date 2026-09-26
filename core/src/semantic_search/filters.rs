@@ -1,10 +1,10 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use arenabuddy_core::models::Card;
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
-use crate::{Error, Result};
+use super::{Error, Result};
+use crate::models::Card;
 
 const KEYWORDS: &[&str] = &[
     "Flying",
@@ -47,7 +47,7 @@ const TYPES: &[&str] = &[
 const COLORS: &[&str] = &["W", "U", "B", "R", "G"];
 // Initial interpretation threshold; evaluate on real search queries before tuning.
 const MIN_CONFIDENCE: f64 = 0.70;
-const UNSUPPORTED_PROBABILITY: f64 = 0.65;
+const UNSUPPORTED_PROBABILITY: f64 = 0.90;
 const UNCERTAIN_PROBABILITY: f64 = 0.35;
 
 #[derive(Debug, Default, Serialize)]
@@ -81,21 +81,78 @@ pub(super) enum Comparison {
     Eq,
     Gte,
     Gt,
+    Between,
+    Either,
 }
 
 #[derive(Debug, Serialize)]
 pub(super) struct ManaFilter {
     pub operator: Comparison,
     pub value: i32,
+    pub second_value: Option<i32>,
 }
 
 #[derive(Debug)]
 pub(super) struct Plan {
     pub filters: Filters,
     pub needs_ranking: bool,
+    pub notices: Vec<String>,
 }
 
 impl Filters {
+    pub fn summary(&self) -> Vec<String> {
+        let mut summary = Vec::new();
+        for (label, value) in [
+            ("Format", &self.format),
+            ("Type", &self.card_type),
+            ("Exclude type", &self.excluded_type),
+            ("Keyword", &self.keyword),
+            ("Exclude keyword", &self.excluded_keyword),
+        ] {
+            if let Some(value) = value {
+                summary.push(format!("{label}: {value}"));
+            }
+        }
+        if let Some(mana) = &self.mana_value {
+            let operator = match mana.operator {
+                Comparison::Lt => "<",
+                Comparison::Lte => "≤",
+                Comparison::Eq => "=",
+                Comparison::Gte => "≥",
+                Comparison::Gt => ">",
+                Comparison::Between => "between",
+                Comparison::Either => "either",
+            };
+            let second = mana.second_value.map_or_else(String::new, |value| {
+                let join = if matches!(mana.operator, Comparison::Either) {
+                    "or"
+                } else {
+                    "and"
+                };
+                format!(" {join} {value}")
+            });
+            summary.push(format!("Mana value {operator} {}{second}", mana.value));
+        }
+        if !matches!(self.color_mode, ColorMode::Unspecified) {
+            let mode = match self.color_mode {
+                ColorMode::Any => "any of",
+                ColorMode::All => "all of",
+                ColorMode::Exact => "exactly",
+                ColorMode::Unspecified => "",
+            };
+            let colors = if self.colors.is_empty() {
+                "colorless".to_string()
+            } else {
+                self.colors.join(", ")
+            };
+            summary.push(format!("Colors: {mode} {colors}"));
+        }
+        if !self.excluded_colors.is_empty() {
+            summary.push(format!("Exclude colors: {}", self.excluded_colors.join(", ")));
+        }
+        summary
+    }
+
     pub fn matches(&self, card: &Card) -> bool {
         let colors = if card.colors.is_empty() && !card.card_faces.is_empty() {
             card.card_faces
@@ -138,6 +195,10 @@ impl ManaFilter {
             Comparison::Eq => value == self.value,
             Comparison::Gte => value >= self.value,
             Comparison::Gt => value > self.value,
+            Comparison::Between => self
+                .second_value
+                .is_some_and(|upper| (self.value..=upper).contains(&value)),
+            Comparison::Either => value == self.value || self.second_value == Some(value),
         }
     }
 }
@@ -259,7 +320,7 @@ pub(super) fn request(query: &str) -> Result<Value> {
             "instructions": "Does `query` require OR between different combinations of fields, or an if/then conditional?",
             "criteria": {
                 "true": "Grouped logic such as (red creatures) OR (blue artifacts), or artifacts only IF they cost two mana.",
-                "false": "Independent conditions joined with AND, including exclusions. A color alternative alone (red OR blue creatures) is also supported and is false."
+                "false": "Independent conditions joined with AND, including exclusions. Alternatives within one field, such as red OR blue, instants OR sorceries, or cost 2 OR 3, are false. Casual descriptions such as tiny little guys are not grouped logic."
             }
         },
         "unsupported_data": {
@@ -271,7 +332,7 @@ pub(super) fn request(query: &str) -> Result<Value> {
             }
         },
         "unsupported_types": {
-            "type": "noul", "instructions": "Does `query` require more than one card type on the searched card, OR exclude more than one card type? Card types are Creature, Instant, Sorcery, Artifact, Enchantment, Planeswalker, Land, Battle. Ignore types mentioned only in rules-text descriptions of targets, tokens, or spells being cast.",
+            "type": "noul", "instructions": "Does `query` require more than one card type on the searched card, OR exclude more than one card type? Card types are Creature, Instant, Sorcery, Artifact, Enchantment, Planeswalker, Land, Battle. Count only explicitly named card types on the searched card. Numbers in mana costs and casual descriptions like 'tiny little guys' are not card types. 'creatures cost 2 or 3 and are also tiny little guys' names only Creature, so answer false. Ignore types mentioned only in rules-text descriptions of targets, tokens, or spells being cast.",
             "criteria": {"true": "Multiple required types (artifact creatures, instants or sorceries), or multiple excluded types.", "false": "At most one required and at most one excluded type. Red creatures has only one type; Flying is a keyword, not a type."}
         },
         "unsupported_keywords": {
@@ -283,8 +344,12 @@ pub(super) fn request(query: &str) -> Result<Value> {
             "criteria": {"true": "Multiple formats or an unlisted format is required.", "false": "No format is requested, or exactly one listed format is requested."}
         },
         "unsupported_mana": {
-            "type": "noul", "instructions": "Does `query` require a mana-value range with two bounds, multiple mana-value comparisons, or a bound that cannot be selected from `mana_candidates`? Cheap means at most 3 unless overridden by an explicit mana number.",
-            "criteria": {"true": "A range such as between 2 and 4, multiple mana constraints, or an unavailable mana number.", "false": "No mana-value condition, or a single comparison with one available bound. Under 4, at most three, and cheap (<=3) are each single comparisons."}
+            "type": "noul", "instructions": "Does the mana-value condition need more than a single comparison, an inclusive range with two bounds, or an OR of exactly two values? Ignore power/toughness and subjective descriptions.",
+            "criteria": {"true": "Three or more discrete allowed values, mixed strict bounds, or another complex mana condition.", "false": "No mana constraint, a single comparison, between 2 and 4 inclusive, or costs 2 or 3. Cheap means at most 3 unless overridden by an explicit mana number."}
+        },
+        "artwork": {
+            "type": "noul", "instructions": "Does the query explicitly require inspecting card artwork or an image?",
+            "criteria": {"true": "Explicit visual criteria such as artwork showing a hat, illustration colors, or what a character looks like in the picture.", "false": "Card text, creature subtypes, stats, strategy, flavor, or casual descriptions like tiny little guys, cute creatures, or big monsters without explicit reference to artwork."}
         },
         "unsupported_colors": {
             "type": "noul", "instructions": "Does `query` require a color COUNT without specifying which colors (such as multicolor cards or any monocolor cards)?",
@@ -296,10 +361,10 @@ pub(super) fn request(query: &str) -> Result<Value> {
         },
         "mode": choice("Assuming this query is supported, is it fully expressible as supported_filters, or is per-card interpretation still needed? Explicit keyword membership is a structured filter, even when the keyword is an ability. Different supported filter fields can all be combined without ranking.", json!({
             "filters": "Every condition is representable by supported_filters, with no residual preference or rules-text meaning. Examples: Standard red creatures costing under 4 without Defender; blue flying creatures; all cards.",
-            "semantic": "There is a strategic preference or rules-text requirement beyond the structured fields, such as rewards casting spells, removal, mana ramp, or works well with sacrifice. Do not replace such descriptions with a particular keyword."
+            "semantic": "There is a strategic preference or rules-text requirement beyond the structured fields, such as rewards casting spells, removal, mana ramp, or works well with sacrifice. Subjective descriptions such as tiny little guys, cute creatures, or big monsters also require semantic ranking using text and stats. Compound constraints not fully represented by supported_filters need ranking. Do not replace such descriptions with a particular keyword."
         })),
         "format": choice("Which one format must the card be legal in? Use none if no format is requested. Never infer one from a strategy.", optional_options(FORMATS, "The card must be legal in this format", "No format legality requirement is stated.")),
-        "card_type": choice("Which single card type must the card have? Ignore types of targets or tokens it creates. Use none if not requested; do not turn a strategy into a type restriction.", optional_options(TYPES, "The searched card must have this type", "No required card type is stated. Ignore types mentioned only as targets or exclusions.")),
+        "card_type": choice("Which single card type must EVERY matching card have? For alternatives such as instants OR sorceries select none; for artifact creatures either shared required type is valid. Casual descriptions and mana numbers are not card types. Ignore types of targets or tokens it creates. Use none if not requested; do not turn a strategy into a type restriction.", optional_options(TYPES, "The searched card must have this type", "No required card type is stated. Ignore types mentioned only as targets or exclusions.")),
         "excluded_type": choice("Which single card type is explicitly forbidden on the card itself? Ignore targets and tokens. Use none if not requested.", optional_options(TYPES, "The searched card must NOT have this type", "No card type is forbidden. A positive request such as creatures is NOT an exclusion.")),
         "colors": choice("Which named card colors are requested for inclusion? W=white U=blue B=black R=red G=green. Do not include colors mentioned only as exclusions, targets, or produced mana. Use none for colorless or no color requirement.", color_options()),
         "color_mode": choice("How should requested card colors be matched? This refers to card colors, not commander color identity. By application convention, an unqualified single color means all (includes that color), NEVER exact. Use any ONLY for an explicit OR between at least two colors. Exact requires explicit mono/only/exactly/colorless wording.", json!({
@@ -309,11 +374,13 @@ pub(super) fn request(query: &str) -> Result<Value> {
             "exact": "Exactly the requested colors, with no extra colors: mono-red, only red and blue, or colorless (empty color set)."
         })),
         "excluded_colors": choice("Which card colors are explicitly excluded? Use none if there are no explicit color exclusions. Do not infer exclusions from 'mono' or 'only'; color_mode handles those.", color_options()),
-        "mana_operator": choice("Which comparison applies to the card's mana value (total mana cost)? Cheap means lte 3 unless a number is specified. Ignore power, toughness, damage, quantities, and activated ability costs.", json!({
+        "mana_operator": choice("Which comparison applies to the card's mana value (total mana cost)? Use between for inclusive ranges and either for exactly two allowed values, such as costs 2 or 3. Cheap means lte 3 unless a number is specified. Ignore power, toughness, damage, quantities, and activated ability costs.", json!({
             "none": "No mana-value constraint.", "lt": "Strictly less than; under; below.", "lte": "At most; no more than; or less; cheap.",
-            "eq": "Exactly this mana value; costs this much.", "gte": "At least; or more.", "gt": "Strictly greater than; over; above."
+            "eq": "Exactly this mana value; costs this much.", "gte": "At least; or more.", "gt": "Strictly greater than; over; above.",
+            "between": "An inclusive range from the first bound to the second.", "either": "Exactly either of two allowed mana values, such as 2 or 4; values between them are not included."
         })),
-        "mana_value": choice("Which value in mana_candidates is the mana-value comparison bound? Select none if mana value is not constrained. Ignore other numbers in the query.", numbers),
+        "mana_value": choice("Which value in mana_candidates is the mana-value comparison bound? For between or either, select the smaller of the two bounds/values. Select none if mana value is not constrained. Ignore other numbers in the query.", numbers.clone()),
+        "mana_second_value": choice("For between or either, select the larger bound or second allowed mana value from mana_candidates. For a single comparison or no mana constraint, select none.", numbers),
         "keyword": choice("Which single keyword ability is explicitly required on the card? Do not infer Prowess from 'rewards casting spells' or Flying from 'evasive'. Use none for such semantic descriptions or if not requested.", optional_options(KEYWORDS, "The searched card must have this keyword ability", "No keyword is explicitly required; strategic descriptions such as rewards spells do not require a specific keyword.")),
         "excluded_keyword": choice("Which single keyword ability is explicitly forbidden on the card itself? For example 'excluding defenders' means Defender. Do not confuse an ability's targets with the card's abilities.", optional_options(KEYWORDS, "The searched card must NOT have this keyword ability", "No keyword ability is forbidden. A positive request such as flying creatures is NOT an exclusion."))
     });
@@ -322,7 +389,7 @@ pub(super) fn request(query: &str) -> Result<Value> {
         "supported_filters": {
             "format": FORMATS, "required_card_type": TYPES, "excluded_card_type": TYPES,
             "colors": "One selected set of W U B R G using any/all/exact, plus an excluded set. Card colors are the union of face colors when top-level colors are absent.",
-            "mana_value": "One comparison (lt/lte/eq/gte/gt) against one candidate integer. Cheap defaults to <=3. Other numerical requirements need semantic ranking or are unsupported.",
+            "mana_value": "One comparison (lt/lte/eq/gte/gt), an inclusive range (between), or exactly two alternatives (either). Bounds are selected from mana_candidates. Cheap defaults to <=3. More complex numerical requirements use semantic ranking.",
             "required_keyword": KEYWORDS, "excluded_keyword": KEYWORDS,
             "composition": "All fields are combined with AND. One required and one excluded type/keyword. Type can occur on either face. Keyword membership uses the database keywords array. Format uses local legality data. Unspecified fields impose no restriction."
         }, "mana_candidates": number_options(query)
@@ -337,73 +404,64 @@ pub(super) fn parse(request: &Value, response: &Value) -> Result<Plan> {
         .as_object()
         .ok_or_else(|| invalid("Missing filter answers"))?;
     let mut selected = BTreeMap::new();
-    for (id, question) in questions
-        .iter()
-        .filter(|(_, q)| q["type"] == "noul")
-        .chain(questions.iter().filter(|(_, q)| q["type"] != "noul"))
-    {
+    let mut deferred = BTreeSet::new();
+    let mut notices = Vec::new();
+    for (id, question) in questions {
         let answer = answers.get(id).ok_or_else(|| invalid("Incomplete filter response"))?;
         if question["type"] == "noul" {
             let probability = answer["noul"]
                 .as_f64()
-                .ok_or_else(|| invalid("Missing unsupported-feature probability"))?;
+                .ok_or_else(|| invalid("Missing query-feature probability"))?;
             if answer["type"] != "noul" || !(0.0..=1.0).contains(&probability) {
-                return Err(invalid("Invalid unsupported-feature answer"));
+                return Err(invalid("Invalid query-feature answer"));
             }
-            if probability >= UNSUPPORTED_PROBABILITY {
-                return Err(invalid(&format!(
-                    "Unsupported query feature: {id}. Simplify this condition or split the query"
-                )));
+            if let Some(message) = unavailable_message(id) {
+                if probability >= UNSUPPORTED_PROBABILITY {
+                    return Err(invalid(message));
+                }
+                if probability > UNCERTAIN_PROBABILITY {
+                    notices.push(message.to_string());
+                }
             }
             if probability > UNCERTAIN_PROBABILITY {
-                return Err(invalid(&format!(
-                    "Uncertain query feature: {id} (probability {probability:.2}). Rephrase this condition"
-                )));
+                deferred.insert(id.as_str());
             }
-            continue;
+        } else {
+            let value = answer["choice"]
+                .as_str()
+                .ok_or_else(|| invalid("Invalid filter choice"))?;
+            let confidence = answer["confidence"]
+                .as_f64()
+                .ok_or_else(|| invalid("Missing filter confidence"))?;
+            if answer["type"] != "choice"
+                || question["criteria"].get(value).is_none()
+                || !(0.0..=1.0).contains(&confidence)
+            {
+                return Err(invalid("Invalid filter response"));
+            }
+            if confidence < MIN_CONFIDENCE {
+                deferred.insert(id.as_str());
+            }
+            selected.insert(id.as_str(), value);
         }
-        let value = answer["choice"]
-            .as_str()
-            .ok_or_else(|| invalid("Invalid filter choice"))?;
-        let confidence = answer["confidence"]
-            .as_f64()
-            .ok_or_else(|| invalid("Missing filter confidence"))?;
-        if answer["type"] != "choice" || question["criteria"].get(value).is_none() || !(0.0..=1.0).contains(&confidence)
-        {
-            return Err(invalid("Invalid filter response"));
-        }
-        // Unspecified fields impose no constraint; uncertain routing falls back to ranking.
-        if id != "mode" && value != "none" && confidence < MIN_CONFIDENCE {
-            return Err(invalid(&format!(
-                "Uncertain interpretation of {id} ({value}, confidence {confidence:.2}); rephrase the query or make that constraint explicit"
-            )));
-        }
-        selected.insert(id.as_str(), value);
+    }
+    for id in &deferred {
+        clear_related_filters(&mut selected, id);
     }
     let optional = |id| (selected[id] != "none").then(|| selected[id].to_owned());
-    let operator = optional("mana_operator");
-    let value = optional("mana_value");
-    let mana_value = match (operator, value) {
-        (None, None) => None,
-        (Some(operator), Some(value)) => Some(ManaFilter {
-            operator: serde_json::from_value(json!(operator)).map_err(|_| invalid("Invalid mana operator"))?,
-            value: value.parse().map_err(|_| invalid("Invalid mana value"))?,
-        }),
-        _ => {
-            return Err(invalid(
-                "Inconsistent mana-value interpretation; make the comparison explicit",
-            ));
-        }
-    };
-    let colors = parse_colors(selected["colors"]);
-    let color_mode: ColorMode =
+    let (mana_value, uncertain_mana) = parse_mana(&selected);
+    let mut colors = parse_colors(selected["colors"]);
+    let mut color_mode: ColorMode =
         serde_json::from_value(json!(selected["color_mode"])).map_err(|_| invalid("Invalid color mode"))?;
-    if (matches!(color_mode, ColorMode::Any | ColorMode::All) && colors.is_empty())
-        || (matches!(color_mode, ColorMode::Unspecified) && !colors.is_empty())
-    {
-        return Err(invalid(
-            "Inconsistent color interpretation; specify which colors to include",
-        ));
+    let uncertain_colors = (matches!(color_mode, ColorMode::Any | ColorMode::All) && colors.is_empty())
+        || (matches!(color_mode, ColorMode::Unspecified) && !colors.is_empty());
+    if uncertain_colors {
+        colors.clear();
+        color_mode = ColorMode::Unspecified;
+    }
+    let fallback = !deferred.is_empty() || uncertain_mana || uncertain_colors;
+    if fallback {
+        notices.push("Some conditions will be checked while ranking instead of used as strict filters. Results are limited to the candidate shortlist.".into());
     }
     Ok(Plan {
         filters: Filters {
@@ -417,9 +475,90 @@ pub(super) fn parse(request: &Value, response: &Value) -> Result<Plan> {
             keyword: optional("keyword"),
             excluded_keyword: optional("excluded_keyword"),
         },
-        needs_ranking: selected["mode"] == "semantic"
-            || answers["mode"]["confidence"].as_f64().unwrap_or(0.0) < MIN_CONFIDENCE,
+        needs_ranking: selected["mode"] == "semantic" || fallback,
+        notices,
     })
+}
+
+fn unavailable_message(id: &str) -> Option<&'static str> {
+    match id {
+        "artwork" => Some(
+            "Search uses card text and stats, not artwork. Describe a creature type, ability, or power/toughness instead.",
+        ),
+        "unsupported_data" => Some(
+            "Search cannot filter by price, your collection, set, commander color identity, or a requested sort order. Describe card types, abilities, stats, or strategy instead.",
+        ),
+        "not_card_search" => {
+            Some("Describe the Magic cards you want to find, including abilities, stats, or strategy.")
+        }
+        _ => None,
+    }
+}
+
+fn clear_related_filters(selected: &mut BTreeMap<&str, &str>, id: &str) {
+    let fields: &[&str] = match id {
+        "unsupported_types" | "card_type" | "excluded_type" => &["card_type", "excluded_type"],
+        "unsupported_keywords" | "keyword" | "excluded_keyword" => &["keyword", "excluded_keyword"],
+        "unsupported_mana" | "mana_operator" | "mana_value" | "mana_second_value" => {
+            &["mana_operator", "mana_value", "mana_second_value"]
+        }
+        "unsupported_colors" | "colors" | "color_mode" | "excluded_colors" => {
+            &["colors", "color_mode", "excluded_colors"]
+        }
+        "unsupported_formats" | "format" => &["format"],
+        // A grouped OR can make any individual restriction unsafe to apply early.
+        "unsupported_logic" => &[
+            "format",
+            "card_type",
+            "excluded_type",
+            "colors",
+            "color_mode",
+            "excluded_colors",
+            "mana_operator",
+            "mana_value",
+            "mana_second_value",
+            "keyword",
+            "excluded_keyword",
+        ],
+        _ => &[],
+    };
+    for field in fields {
+        if let Some(value) = selected.get_mut(field) {
+            *value = if *field == "color_mode" { "unspecified" } else { "none" };
+        }
+    }
+}
+
+fn parse_mana(selected: &BTreeMap<&str, &str>) -> (Option<ManaFilter>, bool) {
+    let operator = selected["mana_operator"];
+    let first = selected["mana_value"];
+    let second = selected["mana_second_value"];
+    if operator == "none" && first == "none" && second == "none" {
+        return (None, false);
+    }
+    let Ok(operator) = serde_json::from_value::<Comparison>(json!(operator)) else {
+        return (None, true);
+    };
+    let Ok(value) = first.parse::<i32>() else {
+        return (None, true);
+    };
+    let second_value = if second == "none" {
+        None
+    } else {
+        second.parse::<i32>().ok()
+    };
+    let compound = matches!(operator, Comparison::Between | Comparison::Either);
+    if compound != second_value.is_some() || (compound && second_value.is_some_and(|upper| upper < value)) {
+        return (None, true);
+    }
+    (
+        Some(ManaFilter {
+            operator,
+            value,
+            second_value,
+        }),
+        false,
+    )
 }
 
 fn parse_colors(value: &str) -> Vec<String> {
@@ -435,10 +574,10 @@ fn invalid(message: &str) -> Error {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
-    use arenabuddy_core::models::{CardFace, Legalities};
-
     use super::*;
+    use crate::models::{CardFace, Legalities};
 
     fn response(request: &Value, overrides: &[(&str, &str)]) -> Value {
         let answers: BTreeMap<_, _> = request["questions"]
@@ -549,7 +688,15 @@ mod tests {
             (Comparison::Gte, true),
             (Comparison::Gt, false),
         ] {
-            assert_eq!(ManaFilter { operator, value: 3 }.matches(3), expected);
+            assert_eq!(
+                ManaFilter {
+                    operator,
+                    value: 3,
+                    second_value: None
+                }
+                .matches(3),
+                expected
+            );
         }
         let card = Card {
             type_line: "Enchantment — Creature".into(),
@@ -578,32 +725,146 @@ mod tests {
     }
 
     #[test]
-    fn rejects_unsupported_uncertain_missing_and_inconsistent_answers() {
+    fn defers_uncertain_and_inconsistent_filters_but_rejects_malformed_answers() {
         let request = request("red creatures under 3 mana").unwrap();
-        let mut reply = response(&request, &[("unsupported_logic", "true")]);
-        assert!(parse(&request, &reply).is_err());
+        let mut reply = response(
+            &request,
+            &[
+                ("unsupported_logic", "true"),
+                ("card_type", "Creature"),
+                ("colors", "R"),
+                ("color_mode", "all"),
+            ],
+        );
+        let plan = parse(&request, &reply).unwrap();
+        assert!(plan.needs_ranking);
+        assert!(plan.filters.card_type.is_none());
+        assert!(plan.filters.colors.is_empty());
         reply = response(&request, &[("card_type", "Creature")]);
         reply["answers"]["card_type"]["confidence"] = json!(0.4);
-        assert!(parse(&request, &reply).is_err());
+        let plan = parse(&request, &reply).unwrap();
+        assert!(plan.needs_ranking);
+        assert!(plan.filters.card_type.is_none());
         reply = response(&request, &[("mana_operator", "lt")]);
-        assert!(parse(&request, &reply).is_err());
+        let plan = parse(&request, &reply).unwrap();
+        assert!(plan.needs_ranking);
+        assert!(plan.filters.mana_value.is_none());
         reply = response(&request, &[("colors", "R")]);
-        assert!(parse(&request, &reply).is_err());
+        let plan = parse(&request, &reply).unwrap();
+        assert!(plan.needs_ranking);
+        assert!(plan.filters.colors.is_empty());
         reply = response(&request, &[("format", "invented")]);
         assert!(parse(&request, &reply).is_err());
         reply = response(&request, &[]);
         reply["answers"].as_object_mut().unwrap().remove("mode");
         assert!(parse(&request, &reply).is_err());
+        reply = response(&request, &[]);
+        reply["answers"]["unsupported_types"]["noul"] = json!(1.5);
+        assert!(parse(&request, &reply).is_err());
     }
 
     #[test]
-    fn uncertain_routing_uses_ranking_but_uncertain_support_stops() {
-        let request = request("red creatures").unwrap();
-        let mut reply = response(&request, &[]);
-        reply["answers"]["mode"]["confidence"] = json!(0.4);
+    fn tiny_guys_query_keeps_mana_alternatives_despite_uncertain_type_check() {
+        let request = request("creatures cost 2 or 3 and are also tiny little guys").unwrap();
+        let mut reply = response(
+            &request,
+            &[
+                ("mode", "semantic"),
+                ("card_type", "Creature"),
+                ("mana_operator", "either"),
+                ("mana_value", "2"),
+                ("mana_second_value", "3"),
+            ],
+        );
+        reply["answers"]["unsupported_types"]["noul"] = json!(0.58);
+        let plan = parse(&request, &reply).unwrap();
+        assert!(plan.needs_ranking);
+        assert!(plan.filters.card_type.is_none());
+        assert!(!plan.notices.is_empty());
+        for value in 0..=5 {
+            assert_eq!(
+                plan.filters.matches(&Card {
+                    cmc: value,
+                    ..Default::default()
+                }),
+                [2, 3].contains(&value)
+            );
+        }
+    }
+
+    #[test]
+    fn distinguishes_inclusive_ranges_from_discrete_alternatives() {
+        let request = request("creatures costing 2 or 4").unwrap();
+        for (operator, middle_matches) in [("between", true), ("either", false)] {
+            let reply = response(
+                &request,
+                &[
+                    ("mana_operator", operator),
+                    ("mana_value", "2"),
+                    ("mana_second_value", "4"),
+                ],
+            );
+            let plan = parse(&request, &reply).unwrap();
+            assert!(!plan.needs_ranking);
+            for (value, expected) in [(1, false), (2, true), (3, middle_matches), (4, true), (5, false)] {
+                assert_eq!(
+                    plan.filters.matches(&Card {
+                        cmc: value,
+                        ..Default::default()
+                    }),
+                    expected
+                );
+            }
+        }
+        for overrides in [
+            vec![
+                ("mana_operator", "between"),
+                ("mana_value", "4"),
+                ("mana_second_value", "2"),
+            ],
+            vec![("mana_operator", "either"), ("mana_value", "2")],
+        ] {
+            let plan = parse(&request, &response(&request, &overrides)).unwrap();
+            assert!(plan.needs_ranking);
+            assert!(plan.filters.mana_value.is_none());
+        }
+    }
+
+    #[test]
+    fn compound_constraints_use_ranking_without_narrowing_to_one_alternative() {
+        let request = request("instants or sorceries with flying and lifelink").unwrap();
+        for feature in [
+            "unsupported_types",
+            "unsupported_keywords",
+            "unsupported_formats",
+            "unsupported_colors",
+            "unsupported_mana",
+        ] {
+            let mut reply = response(&request, &[("card_type", "Instant"), ("keyword", "Flying")]);
+            reply["answers"][feature]["noul"] = json!(0.99);
+            let plan = parse(&request, &reply).unwrap();
+            assert!(plan.needs_ranking);
+            if feature == "unsupported_types" {
+                assert!(plan.filters.card_type.is_none());
+            }
+            if feature == "unsupported_keywords" {
+                assert!(plan.filters.keyword.is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn explicit_unavailable_data_errors_are_readable_and_uncertainty_is_permitted() {
+        let request = request("creatures with hats in their artwork").unwrap();
+        let mut reply = response(&request, &[("artwork", "true")]);
+        let error = parse(&request, &reply).unwrap_err().to_string();
+        assert!(error.contains("artwork"));
+        assert!(!error.contains("probability"));
+        reply["answers"]["artwork"]["noul"] = json!(0.58);
         assert!(parse(&request, &reply).unwrap().needs_ranking);
-        reply["answers"]["unsupported_logic"]["noul"] = json!(0.4);
-        assert!(parse(&request, &reply).is_err());
+        for feature in ["unsupported_data", "not_card_search"] {
+            assert!(parse(&request, &response(&request, &[(feature, "true")])).is_err());
+        }
     }
 
     #[test]

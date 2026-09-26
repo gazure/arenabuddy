@@ -12,7 +12,7 @@ version.workspace = true
 [dependencies]
 anyhow = { workspace = true }
 prost = { workspace = true }
-arenabuddy_core = { path = "../core" }
+arenabuddy_core = { path = "../core", features = ["semantic-search"] }
 arenabuddy_data = { path = "../data" }
 arenabuddy_metagame = { path = "../metagame" }
 chrono = { workspace = true }
