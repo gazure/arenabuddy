@@ -222,7 +222,7 @@ mod tests {
     #[test]
     fn hand_cards_invalid_returns_empty() {
         let m = make_mulligan("Keep", "Play", "invalid");
-        assert!(m.hand_cards().is_empty());
+        assert_eq!(m.hand_cards(), [] as [i32; 0]);
     }
 
     #[test]

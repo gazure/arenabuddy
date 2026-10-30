@@ -310,7 +310,7 @@ mod tests {
     fn parse_plain_array_is_main_only() {
         let (main, side) = parse_deck_arrays_json("[1,2,2]").expect("parse");
         assert_eq!(main, vec![1, 2, 2]);
-        assert!(side.is_empty());
+        assert_eq!(side, [] as [i32; 0]);
     }
 
     #[test]

@@ -48,8 +48,14 @@ async fn queue_failure_rolls_back_the_entire_match(pool: PgPool) {
             .await
             .is_err()
     );
-    assert!(db.list_matches(None).await.expect("matches").is_empty());
-    assert!(db.list_decklists(data.mtga_match.id()).await.expect("decks").is_empty());
+    assert_eq!(
+        db.list_matches(None).await.expect("matches"),
+        [] as [arenabuddy_core::models::MTGAMatch; 0]
+    );
+    assert_eq!(
+        db.list_decklists(data.mtga_match.id()).await.expect("decks"),
+        [] as [arenabuddy_core::models::Deck; 0]
+    );
     assert!(
         db.match_upload_status(data.mtga_match.id())
             .await

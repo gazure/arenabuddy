@@ -13,12 +13,9 @@ async fn constructing_and_using_a_repository_does_not_initialize_schema(pool: Pg
         .expect("schema lookup");
     assert_eq!(history, None);
     database.migrate().await.expect("explicit migration");
-    assert!(
-        repository
-            .list_drafts()
-            .await
-            .expect("query after migration")
-            .is_empty()
+    assert_eq!(
+        repository.list_drafts().await.expect("query after migration"),
+        [] as [arenabuddy_core::models::Draft; 0]
     );
 }
 
@@ -43,12 +40,9 @@ async fn migrations_preserve_existing_data_and_repository_clones_share_the_pool(
     let clone = repo.clone();
     drop(repo);
     drop(database);
-    assert!(
-        clone
-            .list_drafts()
-            .await
-            .expect("external pool survives owner drop")
-            .is_empty()
+    assert_eq!(
+        clone.list_drafts().await.expect("external pool survives owner drop"),
+        [] as [arenabuddy_core::models::Draft; 0]
     );
     assert!(!pool.is_closed());
 }
@@ -122,7 +116,10 @@ async fn embedded_restart_preserves_data_and_repository_drops_do_not_stop_postgr
     let repo = database.repository(CardsDatabase::default());
     let clone = repo.clone();
     drop(repo);
-    assert!(clone.list_drafts().await.expect("repository clone").is_empty());
+    assert_eq!(
+        clone.list_drafts().await.expect("repository clone"),
+        [] as [arenabuddy_core::models::Draft; 0]
+    );
     drop(clone);
     assert!(Database::start_embedded_at(dir.path().into()).await.is_err());
     assert_eq!(

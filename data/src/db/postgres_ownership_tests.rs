@@ -96,14 +96,13 @@ async fn other_owner_and_unscoped_writer_cannot_modify_any_records(pool: PgPool)
         ));
         assert_eq!(snapshot(&db, id).await, original);
     }
-    assert!(db.list_matches(Some(other)).await.expect("list").is_empty());
-    assert!(
-        db.get_match(&id.to_string(), Some(other))
-            .await
-            .expect("get")
-            .0
-            .id()
-            .is_empty()
+    assert_eq!(
+        db.list_matches(Some(other)).await.expect("list"),
+        [] as [arenabuddy_core::models::MTGAMatch; 0]
+    );
+    assert_eq!(
+        db.get_match(&id.to_string(), Some(other)).await.expect("get").0.id(),
+        ""
     );
     db.delete_match(&id.to_string(), Some(other)).await.expect("delete");
     assert_eq!(snapshot(&db, id).await, original);
