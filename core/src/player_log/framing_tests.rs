@@ -41,14 +41,20 @@ fn frames_multiple_objects_and_multiline_data_without_modification() {
 #[test]
 fn ignores_plain_text_and_stray_closing_braces() {
     let mut decoder = JsonFramer::default();
-    assert!(decoder.push(b"plain log line } ]\n").is_empty());
+    assert_eq!(
+        decoder.push(b"plain log line } ]\n"),
+        [] as [crate::player_log::framing::Frame; 0]
+    );
     assert_eq!(objects(decoder.push(b"{}")), ["{}"]);
 }
 
 #[test]
 fn an_incomplete_object_is_reported_once_and_does_not_join_the_next_file() {
     let mut decoder = JsonFramer::default();
-    assert!(decoder.push(b"{\"player\":\"unfinished\\").is_empty());
+    assert_eq!(
+        decoder.push(b"{\"player\":\"unfinished\\"),
+        [] as [crate::player_log::framing::Frame; 0]
+    );
     assert!(matches!(decoder.finish(), Some(Frame::Rejected(_))));
     assert!(decoder.finish().is_none());
     assert_eq!(objects(decoder.push(b"{\"new\":true}")), ["{\"new\":true}"]);
@@ -60,7 +66,7 @@ fn oversized_frames_are_bounded_and_skipped_without_emitting_nested_objects() {
     decoder.push(b"{\"large\":\"");
     let frames = decoder.push(&vec![b'a'; MAX_FRAME_BYTES]);
     assert!(matches!(frames.as_slice(), [Frame::Rejected(_)]));
-    assert!(decoder.bytes.is_empty());
+    assert_eq!(decoder.bytes, [] as [u8; 0]);
     let frames = decoder.push(b"\",\"nested\":{\"not_an_event\":true}} {\"next\":true}");
     assert_eq!(objects(frames), ["{\"next\":true}"]);
 }

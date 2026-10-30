@@ -739,7 +739,7 @@ mod tests {
         let plan = parse(&request, &reply).unwrap();
         assert!(plan.needs_ranking);
         assert!(plan.filters.card_type.is_none());
-        assert!(plan.filters.colors.is_empty());
+        assert_eq!(plan.filters.colors, [] as [std::string::String; 0]);
         reply = response(&request, &[("card_type", "Creature")]);
         reply["answers"]["card_type"]["confidence"] = json!(0.4);
         let plan = parse(&request, &reply).unwrap();
@@ -752,7 +752,7 @@ mod tests {
         reply = response(&request, &[("colors", "R")]);
         let plan = parse(&request, &reply).unwrap();
         assert!(plan.needs_ranking);
-        assert!(plan.filters.colors.is_empty());
+        assert_eq!(plan.filters.colors, [] as [std::string::String; 0]);
         reply = response(&request, &[("format", "invented")]);
         assert!(parse(&request, &reply).is_err());
         reply = response(&request, &[]);
@@ -780,7 +780,7 @@ mod tests {
         let plan = parse(&request, &reply).unwrap();
         assert!(plan.needs_ranking);
         assert!(plan.filters.card_type.is_none());
-        assert!(!plan.notices.is_empty());
+        assert_ne!(plan.notices, [] as [std::string::String; 0]);
         for value in 0..=5 {
             assert_eq!(
                 plan.filters.matches(&Card {

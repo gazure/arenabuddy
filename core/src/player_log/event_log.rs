@@ -805,13 +805,13 @@ mod tests {
         ];
 
         let logs = builder().build(&events);
-        assert!(!logs.is_empty());
+        assert_ne!(logs, [] as [crate::player_log::event_log::GameEventLog; 0]);
         let life_events: Vec<_> = logs[0]
             .events
             .iter()
             .filter(|e| matches!(&e.action, GameAction::LifeChanged { .. }))
             .collect();
-        assert!(life_events.is_empty());
+        assert_eq!(life_events, [] as [&crate::player_log::event_log::GameEvent; 0]);
     }
 
     #[test]
@@ -1128,7 +1128,7 @@ mod tests {
     #[test]
     fn empty_events_produces_no_game_logs() {
         let logs = builder().build(&[]);
-        assert!(logs.is_empty());
+        assert_eq!(logs, [] as [crate::player_log::event_log::GameEventLog; 0]);
     }
 
     #[test]

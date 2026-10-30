@@ -804,6 +804,6 @@ mod tests {
         assert_eq!(back.oracle_text, "Menace, deathtouch");
         assert_eq!(back.power(), "6");
         assert!(back.image_uri.is_none());
-        assert!(back.flavor_text.is_empty());
+        assert_eq!(back.flavor_text, "");
     }
 }

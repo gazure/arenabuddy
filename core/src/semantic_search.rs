@@ -469,7 +469,10 @@ mod tests {
         assert_eq!(cards.len(), 2);
         assert_eq!(cards.iter().filter(|c| c.name == "Spell Student").count(), 1);
         args.query = "!!!".into();
-        assert!(shortlist(&matching, &args).unwrap().is_empty());
+        assert_eq!(
+            shortlist(&matching, &args).unwrap(),
+            [] as [&crate::proto::arenabuddy::models::v1::Card; 0]
+        );
     }
 
     #[test]
