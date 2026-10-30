@@ -43,7 +43,7 @@ itertools = "0.15.0"
 keyring = { version = "4.2", default-features = false, features = ["v1"] }
 notify = "8.2.0"
 open = "5.4.4"
-postgresql_embedded = { version = "0.21.0", features = ["bundled"] }
+postgresql_embedded = { version = "0.22.0", features = ["bundled"] }
 prost = "0.14.4"
 prost-build = { version = "0.14.4", features = ["format"] }
 prost-types = "0.14.4"
